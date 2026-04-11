@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listMembers, setMembers } from '@/lib/db';
 
+// Next.js route cacheを無効化（Supabase直更新を即反映させるため）
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   return NextResponse.json({ members: await listMembers() });
 }
