@@ -1,0 +1,432 @@
+{
+  "events": [
+    {
+      "title": "現場：シンコー阿倍野",
+      "date": "2026-04-11",
+      "startTime": "08:00",
+      "memberId": "kentaro",
+      "note": "EV改修工事",
+      "images": [],
+      "id": "mnt79ldmgwd754",
+      "createdAt": "2026-04-10T17:48:47.866Z",
+      "updatedAt": "2026-04-11T00:11:26.781Z",
+      "pinned": false
+    },
+    {
+      "title": "事務処理 売上更新",
+      "date": "2026-04-11",
+      "startTime": "14:00",
+      "memberId": "kentaro",
+      "images": [],
+      "id": "mnt79ldzwrkj3s",
+      "createdAt": "2026-04-10T17:48:47.879Z",
+      "updatedAt": "2026-04-11T00:11:42.470Z",
+      "pinned": false
+    },
+    {
+      "title": "美砂ちゃん 買い物",
+      "date": "2026-04-11",
+      "startTime": "15:30",
+      "memberId": "misa",
+      "images": [],
+      "id": "mnt79lea7v23a8",
+      "createdAt": "2026-04-10T17:48:47.890Z",
+      "updatedAt": "2026-04-10T17:48:47.890Z"
+    },
+    {
+      "title": "美容院",
+      "date": "2026-04-12",
+      "startTime": "10:00",
+      "memberId": "misa",
+      "note": "カット＋カラー",
+      "images": [],
+      "id": "mnt79len2mzy0r",
+      "createdAt": "2026-04-10T17:48:47.903Z",
+      "updatedAt": "2026-04-10T17:48:47.903Z"
+    },
+    {
+      "title": "子供 サッカー教室",
+      "date": "2026-04-12",
+      "startTime": "13:00",
+      "memberId": "child1",
+      "images": [],
+      "id": "mnt79lez773yys",
+      "createdAt": "2026-04-10T17:48:47.915Z",
+      "updatedAt": "2026-04-10T17:48:47.915Z"
+    },
+    {
+      "title": "見積書送付 北野様",
+      "date": "2026-04-12",
+      "startTime": "17:00",
+      "memberId": "kentaro",
+      "images": [],
+      "id": "mnt79lfch9v92n",
+      "createdAt": "2026-04-10T17:48:47.928Z",
+      "updatedAt": "2026-04-10T17:48:47.928Z"
+    },
+    {
+      "title": "夕食 焼肉 みんなで",
+      "date": "2026-04-12",
+      "startTime": "18:30",
+      "memberId": "all",
+      "images": [],
+      "id": "mnt79lfooiv5ou",
+      "createdAt": "2026-04-10T17:48:47.940Z",
+      "updatedAt": "2026-04-10T17:48:47.940Z"
+    },
+    {
+      "title": "銀行手続き",
+      "date": "2026-04-12",
+      "startTime": "11:00",
+      "memberId": "kentaro",
+      "images": [],
+      "id": "mnt79lfzghtwqu",
+      "createdAt": "2026-04-10T17:48:47.951Z",
+      "updatedAt": "2026-04-10T17:48:47.951Z"
+    },
+    {
+      "title": "現場：ホシザキ阪神本社",
+      "date": "2026-04-13",
+      "startTime": "08:30",
+      "memberId": "kentaro",
+      "note": "トイレブースダイノック",
+      "images": [],
+      "id": "mnt79lg9dikz74",
+      "createdAt": "2026-04-10T17:48:47.961Z",
+      "updatedAt": "2026-04-10T17:48:47.961Z"
+    },
+    {
+      "title": "美砂ちゃん 健康診断",
+      "date": "2026-04-15",
+      "startTime": "09:00",
+      "memberId": "misa",
+      "images": [
+        "/api/uploads/mntkvhbtjmr8cy.jpg"
+      ],
+      "id": "mnt79lghkxh1vi",
+      "createdAt": "2026-04-10T17:48:47.969Z",
+      "updatedAt": "2026-04-11T00:09:48.433Z",
+      "endTime": "",
+      "note": "ああああ\nあああ\nああ",
+      "pinned": false
+    },
+    {
+      "title": "家族でお花見🌸",
+      "date": "2026-04-18",
+      "memberId": "all",
+      "note": "万博公園",
+      "images": [],
+      "id": "mnt79lgrs10ucw",
+      "createdAt": "2026-04-10T17:48:47.979Z",
+      "updatedAt": "2026-04-10T17:48:47.979Z"
+    },
+    {
+      "title": "現場：オズ建築 ラーメン店",
+      "date": "2026-04-20",
+      "startTime": "07:00",
+      "memberId": "kentaro",
+      "images": [],
+      "id": "mnt79lh26z6hmt",
+      "createdAt": "2026-04-10T17:48:47.990Z",
+      "updatedAt": "2026-04-10T17:48:47.990Z"
+    },
+    {
+      "title": "子供 学校参観",
+      "date": "2026-04-20",
+      "startTime": "13:30",
+      "memberId": "child2",
+      "images": [],
+      "id": "mnt79lhdo9kx7i",
+      "createdAt": "2026-04-10T17:48:48.001Z",
+      "updatedAt": "2026-04-10T17:48:48.001Z"
+    },
+    {
+      "title": "🎂 美砂ちゃん 誕生日",
+      "date": "2026-04-25",
+      "memberId": "misa",
+      "note": "プレゼント準備済み",
+      "images": [],
+      "id": "mnt79lhml46tlk",
+      "createdAt": "2026-04-10T17:48:48.010Z",
+      "updatedAt": "2026-04-10T17:48:48.010Z"
+    },
+    {
+      "title": "お祝いディナー予約",
+      "date": "2026-04-25",
+      "startTime": "18:00",
+      "memberId": "all",
+      "images": [],
+      "id": "mnt79lhuibpdgc",
+      "createdAt": "2026-04-10T17:48:48.018Z",
+      "updatedAt": "2026-04-10T17:48:48.018Z"
+    },
+    {
+      "title": "昭和の日 おやすみ",
+      "date": "2026-04-29",
+      "memberId": "all",
+      "images": [],
+      "id": "mnt79li24vlpiy",
+      "createdAt": "2026-04-10T17:48:48.026Z",
+      "updatedAt": "2026-04-10T17:48:48.026Z"
+    },
+    {
+      "title": "請求書発行 月末",
+      "date": "2026-04-30",
+      "memberId": "kentaro",
+      "note": "全取引先",
+      "images": [],
+      "id": "mnt79libbjka8a",
+      "createdAt": "2026-04-10T17:48:48.035Z",
+      "updatedAt": "2026-04-10T17:48:48.035Z"
+    },
+    {
+      "title": "AI追加テスト",
+      "date": "2026-04-11",
+      "startTime": "23:30",
+      "memberId": "kentaro",
+      "note": "くろさん①が深夜に動作確認",
+      "images": [],
+      "id": "mnthxh4pfqayra",
+      "createdAt": "2026-04-10T22:47:18.265Z",
+      "updatedAt": "2026-04-10T22:47:18.265Z"
+    },
+    {
+      "title": "テスト",
+      "date": "2026-04-12",
+      "memberId": "all",
+      "images": [],
+      "id": "mntj0xoboiwtbu",
+      "createdAt": "2026-04-10T23:17:59.291Z",
+      "updatedAt": "2026-04-10T23:17:59.291Z"
+    },
+    {
+      "title": "テスト2",
+      "date": "2026-04-12",
+      "memberId": "all",
+      "images": [],
+      "id": "mntj128ruur1cr",
+      "createdAt": "2026-04-10T23:18:05.211Z",
+      "updatedAt": "2026-04-11T00:28:18.361Z",
+      "pinned": true
+    },
+    {
+      "title": "テスト3",
+      "date": "2026-04-12",
+      "memberId": "all",
+      "images": [],
+      "id": "mntj184m5weh5a",
+      "createdAt": "2026-04-10T23:18:12.838Z",
+      "updatedAt": "2026-04-10T23:18:12.838Z"
+    },
+    {
+      "title": "テスト4",
+      "date": "2026-04-12",
+      "memberId": "all",
+      "images": [],
+      "id": "mntj1fdwaml8sc",
+      "createdAt": "2026-04-10T23:18:22.244Z",
+      "updatedAt": "2026-04-10T23:18:22.244Z"
+    },
+    {
+      "title": "あああ",
+      "date": "2026-04-08",
+      "memberId": "all",
+      "calendarId": "work",
+      "note": "あああ",
+      "images": [],
+      "pinned": false,
+      "comments": [
+        {
+          "id": "mntoqnmwmm20ji",
+          "text": "あああ",
+          "author": "kentaro",
+          "createdAt": "2026-04-11T01:57:57.416Z"
+        },
+        {
+          "id": "mntoqpszmu3gdo",
+          "text": "あああ",
+          "author": "kentaro",
+          "createdAt": "2026-04-11T01:58:00.227Z"
+        }
+      ],
+      "id": "mntm983xil5lo3",
+      "createdAt": "2026-04-11T00:48:24.909Z",
+      "updatedAt": "2026-04-11T01:58:00.227Z"
+    },
+    {
+      "title": "あああ",
+      "date": "2026-04-02",
+      "memberId": "all",
+      "calendarId": "work",
+      "images": [],
+      "pinned": false,
+      "comments": [],
+      "id": "mntorx7wprwogl",
+      "createdAt": "2026-04-11T01:58:56.492Z",
+      "updatedAt": "2026-04-11T01:58:56.492Z"
+    },
+    {
+      "title": "とびげんば",
+      "date": "2026-04-14",
+      "endDate": "2026-04-16",
+      "dateRanges": [
+        {
+          "start": "2026-04-14",
+          "end": "2026-04-16"
+        },
+        {
+          "start": "2026-04-18",
+          "end": "2026-04-21"
+        }
+      ],
+      "memberId": "all",
+      "calendarId": "family",
+      "images": [],
+      "pinned": false,
+      "comments": [
+        {
+          "id": "mntp8bxam720bx",
+          "text": "あああ",
+          "author": "kentaro",
+          "createdAt": "2026-04-11T02:11:42.046Z"
+        },
+        {
+          "id": "mntp8kcoqghj5m",
+          "text": "おいい",
+          "author": "kentaro",
+          "createdAt": "2026-04-11T02:11:52.968Z"
+        }
+      ],
+      "id": "mntosw3caqwufh",
+      "createdAt": "2026-04-11T01:59:41.688Z",
+      "updatedAt": "2026-04-11T02:11:52.968Z"
+    }
+  ],
+  "schemaVersion": 3,
+  "dailyData": {
+    "2026-04-11": {
+      "date": "2026-04-11",
+      "salesEntries": [
+        {
+          "id": "a1",
+          "type": "normal",
+          "amount": 12000,
+          "label": "A様 ダイノック"
+        },
+        {
+          "id": "a2",
+          "type": "normal",
+          "amount": 8500,
+          "label": "B建材"
+        },
+        {
+          "id": "a3",
+          "type": "normal",
+          "amount": 35000,
+          "label": "C現場 工事"
+        },
+        {
+          "id": "fsp1hur",
+          "type": "normal",
+          "amount": 22000,
+          "label": "D様 LINE注文"
+        },
+        {
+          "id": "hwcerob",
+          "type": "material",
+          "amount": 0,
+          "label": "ウェイアウト 森河様",
+          "note": "品番：PS-001AR\n数量：10m\n使用現場名：キノエネ工務店\n備考：急ぎ"
+        }
+      ],
+      "memo": "マルチエントリーテスト"
+    },
+    "2026-04-08": {
+      "date": "2026-04-08",
+      "salesEntries": [
+        {
+          "id": "iouvha6",
+          "type": "material",
+          "amount": 500,
+          "label": "ああああ",
+          "note": "あああ"
+        },
+        {
+          "id": "w7vpfu4",
+          "type": "site",
+          "amount": 500,
+          "label": "あああ",
+          "note": "あああ"
+        }
+      ]
+    }
+  },
+  "members": [
+    {
+      "id": "kentaro",
+      "name": "健太郎",
+      "color": "#7e22ce",
+      "bgColor": "#7e22ce33",
+      "textColor": "#320e52"
+    },
+    {
+      "id": "misa",
+      "name": "美砂ちゃん",
+      "color": "#db2777",
+      "bgColor": "#fbcfe8",
+      "textColor": "#831843"
+    },
+    {
+      "id": "child1",
+      "name": "お子さん1",
+      "color": "#059669",
+      "bgColor": "#a7f3d0",
+      "textColor": "#064e3b"
+    },
+    {
+      "id": "child2",
+      "name": "お子さん2",
+      "color": "#d97706",
+      "bgColor": "#fde68a",
+      "textColor": "#78350f"
+    },
+    {
+      "id": "all",
+      "name": "家族みんな",
+      "color": "#9333ea",
+      "bgColor": "#e9d5ff",
+      "textColor": "#581c87"
+    }
+  ],
+  "subCalendars": [
+    {
+      "id": "family",
+      "name": "家族",
+      "color": "#db2777",
+      "icon": "🏠",
+      "visible": true
+    },
+    {
+      "id": "work",
+      "name": "仕事",
+      "color": "#10b981",
+      "icon": "💼",
+      "visible": true
+    },
+    {
+      "id": "private",
+      "name": "プライベート",
+      "color": "#f59e0b",
+      "icon": "🌟",
+      "visible": false
+    },
+    {
+      "id": "c_av1c3",
+      "name": "新カレンダー",
+      "color": "#d97706",
+      "icon": "📅",
+      "visible": false
+    }
+  ],
+  "keepItems": []
+}

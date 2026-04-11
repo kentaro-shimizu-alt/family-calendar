@@ -1,0 +1,376 @@
+'use client';
+
+import { CalendarEvent, DailyData, Member, getMember, totalSales, salesCount } from '@/lib/types';
+import {
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  format,
+  isSameMonth,
+  isToday,
+} from 'date-fns';
+
+interface Props {
+  currentMonth: Date;
+  events: CalendarEvent[];
+  dailyData: Record<string, DailyData>;
+  members: Member[];
+  onDayClick: (date: Date) => void;
+  onEventClick: (event: CalendarEvent) => void;
+  onSalesClick: (date: Date) => void;
+}
+
+function formatYen(n?: number): string {
+  if (n == null || isNaN(n)) return '';
+  if (n >= 10000) {
+    const man = n / 10000;
+    return man % 1 === 0 ? `${man}万` : `${man.toFixed(1)}万`;
+  }
+  return `${n.toLocaleString()}`;
+}
+
+interface Range { start: string; end: string; }
+
+function getRanges(ev: CalendarEvent): Range[] {
+  if (ev.dateRanges && ev.dateRanges.length > 0) {
+    return ev.dateRanges.map((r) => ({ start: r.start, end: r.end || r.start }));
+  }
+  if (ev.endDate && ev.endDate > ev.date) {
+    return [{ start: ev.date, end: ev.endDate }];
+  }
+  return [{ start: ev.date, end: ev.date }];
+}
+
+function isMultiDayRange(r: Range): boolean {
+  return r.end > r.start;
+}
+
+function isMultiDay(ev: CalendarEvent): boolean {
+  return getRanges(ev).some(isMultiDayRange);
+}
+
+interface BarSeg {
+  event: CalendarEvent;
+  weekIdx: number;
+  startCol: number; // 0..6
+  span: number;
+  continuesLeft: boolean;
+  continuesRight: boolean;
+  isOriginStart: boolean;
+  slot: number;
+}
+
+// Constants for layout
+const DATE_HEADER_H = 26; // px, top date row
+const BAR_H = 20;         // px, each bar slot height
+const BAR_GAP = 2;        // px between bars
+const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
+
+export default function MonthView({ currentMonth, events, dailyData, members, onDayClick, onEventClick, onSalesClick }: Props) {
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const calStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+  const calEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+  const days = eachDayOfInterval({ start: calStart, end: calEnd });
+  const weeks: Date[][] = [];
+  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
+
+  // Helper to find week index + column for a date string
+  const dateIndex = new Map<string, { weekIdx: number; col: number }>();
+  weeks.forEach((wk, wi) => {
+    wk.forEach((d, ci) => {
+      dateIndex.set(format(d, 'yyyy-MM-dd'), { weekIdx: wi, col: ci });
+    });
+  });
+
+  // Separate events into single-day (go into cell) and multi-day (go into bar layer)
+  const singleByDate = new Map<string, CalendarEvent[]>();
+  const barSegs: BarSeg[] = [];
+  const siteAmountByDate = new Map<string, number>();
+
+  for (const ev of events) {
+    const ranges = getRanges(ev);
+    const multi = ranges.some(isMultiDayRange);
+    // First range's start = origin start (for title display priority)
+    const originStart = ranges[0]?.start;
+
+    // Site amount always credited to first range start
+    if (ev.site && ev.site.amount && originStart) {
+      siteAmountByDate.set(originStart, (siteAmountByDate.get(originStart) || 0) + ev.site.amount);
+    }
+
+    for (const r of ranges) {
+      const rangeMulti = isMultiDayRange(r);
+      if (!multi) {
+        // truly single day across all ranges
+        const arr = singleByDate.get(r.start) || [];
+        arr.push(ev);
+        singleByDate.set(r.start, arr);
+        continue;
+      }
+      // Multi-day (or event has mixed ranges): render this range as bar segments
+      // Iterate through weeks and create a bar seg per week-slice
+      const rStart = r.start;
+      const rEnd = r.end;
+      // Also, if this particular range is single-day but event is multi, still use bar (consistency)
+      for (let wi = 0; wi < weeks.length; wi++) {
+        const wk = weeks[wi];
+        const wkStart = format(wk[0], 'yyyy-MM-dd');
+        const wkEnd = format(wk[6], 'yyyy-MM-dd');
+        if (rEnd < wkStart || rStart > wkEnd) continue;
+        const segStartStr = rStart > wkStart ? rStart : wkStart;
+        const segEndStr = rEnd < wkEnd ? rEnd : wkEnd;
+        const startCol = dateIndex.get(segStartStr)?.col ?? 0;
+        const endCol = dateIndex.get(segEndStr)?.col ?? 6;
+        barSegs.push({
+          event: ev,
+          weekIdx: wi,
+          startCol,
+          span: endCol - startCol + 1,
+          continuesLeft: rStart < wkStart,
+          continuesRight: rEnd > wkEnd,
+          isOriginStart: segStartStr === originStart,
+          slot: 0,
+        });
+      }
+    }
+  }
+
+  // Slot assignment per week (greedy)
+  const barsByWeek: BarSeg[][] = weeks.map(() => []);
+  for (const b of barSegs) barsByWeek[b.weekIdx].push(b);
+  const maxSlotByWeek: number[] = weeks.map(() => -1);
+  for (let wi = 0; wi < barsByWeek.length; wi++) {
+    const wbars = barsByWeek[wi];
+    // Sort by start column, then prefer longer spans first (stable layout)
+    wbars.sort((a, b) => a.startCol - b.startCol || b.span - a.span);
+    const slotCols: boolean[][] = [];
+    for (const b of wbars) {
+      let s = 0;
+      // find first free slot
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        if (!slotCols[s]) slotCols[s] = new Array(7).fill(false);
+        let fits = true;
+        for (let c = b.startCol; c < b.startCol + b.span; c++) {
+          if (slotCols[s][c]) { fits = false; break; }
+        }
+        if (fits) {
+          for (let c = b.startCol; c < b.startCol + b.span; c++) slotCols[s][c] = true;
+          b.slot = s;
+          if (s > maxSlotByWeek[wi]) maxSlotByWeek[wi] = s;
+          break;
+        }
+        s++;
+        if (s > 20) { b.slot = 0; break; } // safety
+      }
+    }
+  }
+
+  // Sort single-day events per day: pinned first, then by time
+  for (const [, arr] of singleByDate) {
+    arr.sort((a, b) => {
+      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      const ta = a.startTime || '99:99';
+      const tb = b.startTime || '99:99';
+      return ta.localeCompare(tb);
+    });
+  }
+
+  const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
+
+  return (
+    <div className="w-full px-2 sm:px-3">
+      {/* Day-of-week header */}
+      <div className="grid grid-cols-7 border-b border-slate-200 bg-white sticky top-0 z-10">
+        {dayLabels.map((label, i) => (
+          <div
+            key={label}
+            className={`text-center text-xs font-semibold py-2 ${
+              i === 0 ? 'text-rose-600' : i === 6 ? 'text-sky-600' : 'text-slate-700'
+            }`}
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+
+      {/* Weeks */}
+      <div className="bg-slate-100 rounded-md overflow-hidden">
+        {weeks.map((week, wi) => {
+          const barCount = maxSlotByWeek[wi] + 1;
+          const barAreaH = barCount > 0 ? barCount * (BAR_H + BAR_GAP) : 0;
+          const cellPadTop = CELL_PAD_TOP_BASE + barAreaH;
+          return (
+            <div key={wi} className="relative mb-px">
+              <div className="grid grid-cols-7 gap-px bg-slate-200">
+                {week.map((day, di) => {
+                  const dateKey = format(day, 'yyyy-MM-dd');
+                  const dayEvents = singleByDate.get(dateKey) || [];
+                  const inMonth = isSameMonth(day, currentMonth);
+                  const today = isToday(day);
+                  const dailyEntry = dailyData[dateKey];
+                  const salesSum = totalSales(dailyEntry);
+                  const siteSum = siteAmountByDate.get(dateKey) || 0;
+                  const combinedSum = salesSum + siteSum;
+                  const salesCnt = salesCount(dailyEntry);
+                  const hasSales = combinedSum > 0;
+                  return (
+                    <div
+                      key={dateKey}
+                      className={`bg-white min-h-[140px] sm:min-h-[160px] flex flex-col cursor-pointer transition-colors hover:bg-slate-50 ${
+                        inMonth ? '' : 'opacity-40'
+                      }`}
+                      style={{ paddingTop: cellPadTop }}
+                      onClick={() => onDayClick(day)}
+                    >
+                      {/* Date header row - absolute positioned so bars can overlay */}
+                      <div className="absolute top-0 left-0 right-0 pointer-events-none" style={{ height: DATE_HEADER_H }}>
+                        {/* placeholder, actual date number is below absolutely */}
+                      </div>
+
+                      {/* Event blocks for single-day events */}
+                      <div className="event-scroll flex-1 px-1 pb-1 overflow-y-auto">
+                        <div className="flex flex-col gap-[2px]">
+                          {dayEvents.map((ev) => {
+                            const member = getMember(ev.memberId, members);
+                            return (
+                              <button
+                                key={ev.id}
+                                onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
+                                className="text-left text-[10px] sm:text-[11px] leading-tight rounded px-1 py-[2px] truncate hover:brightness-95 transition flex items-center gap-0.5"
+                                style={{
+                                  backgroundColor: member.bgColor,
+                                  color: member.textColor,
+                                  borderLeft: `3px solid ${member.color}`,
+                                }}
+                                title={ev.title}
+                              >
+                                {ev.pinned && <span className="text-[8px]">📌</span>}
+                                {ev.site && <span className="text-[8px]">💼</span>}
+                                {ev.startTime && (
+                                  <span className="font-semibold">{ev.startTime}</span>
+                                )}
+                                <span className="truncate">{ev.title}</span>
+                                {ev.images && ev.images.length > 0 && (
+                                  <span className="text-[8px]">📷</span>
+                                )}
+                                {ev.pdfs && ev.pdfs.length > 0 && (
+                                  <span className="text-[8px]">📄</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Overlay: date numbers + sales buttons on top of each cell */}
+              <div className="absolute top-0 left-0 right-0 grid grid-cols-7 gap-px pointer-events-none">
+                {week.map((day, di) => {
+                  const dateKey = format(day, 'yyyy-MM-dd');
+                  const inMonth = isSameMonth(day, currentMonth);
+                  const today = isToday(day);
+                  const dailyEntry = dailyData[dateKey];
+                  const salesSum = totalSales(dailyEntry);
+                  const siteSum = siteAmountByDate.get(dateKey) || 0;
+                  const combinedSum = salesSum + siteSum;
+                  const salesCnt = salesCount(dailyEntry);
+                  const hasSales = combinedSum > 0;
+                  return (
+                    <div
+                      key={dateKey}
+                      className={`flex items-center justify-between px-2 pt-1 gap-1 ${inMonth ? '' : 'opacity-40'}`}
+                      style={{ height: DATE_HEADER_H }}
+                    >
+                      <span
+                        className={`text-xs font-semibold ${
+                          today
+                            ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
+                            : di === 0
+                            ? 'text-rose-600'
+                            : di === 6
+                            ? 'text-sky-600'
+                            : 'text-slate-700'
+                        }`}
+                      >
+                        {format(day, 'd')}
+                      </span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onSalesClick(day); }}
+                        className={`pointer-events-auto text-[10px] leading-none px-1.5 py-1 rounded min-w-[24px] min-h-[22px] flex items-center justify-center gap-0.5 transition ${
+                          hasSales
+                            ? 'bg-emerald-100 text-emerald-700 font-semibold hover:bg-emerald-200'
+                            : 'text-slate-300 hover:text-emerald-500 hover:bg-emerald-50'
+                        }`}
+                        title={hasSales
+                          ? `売上: ¥${combinedSum.toLocaleString()}${siteSum > 0 ? ` (うち現場 ¥${siteSum.toLocaleString()})` : ''}`
+                          : '売上を入力'}
+                      >
+                        {hasSales ? `¥${formatYen(combinedSum)}` : '¥'}
+                        {salesCnt > 1 && (
+                          <span className="text-[8px] font-normal opacity-75">×{salesCnt}</span>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Overlay: multi-day bars */}
+              <div
+                className="absolute left-0 right-0 pointer-events-none"
+                style={{ top: DATE_HEADER_H, height: barAreaH }}
+              >
+                {barsByWeek[wi].map((b) => {
+                  const member = getMember(b.event.memberId, members);
+                  const leftPct = (b.startCol / 7) * 100;
+                  const widthPct = (b.span / 7) * 100;
+                  const top = b.slot * (BAR_H + BAR_GAP);
+                  const showTitle = !b.continuesLeft;
+                  return (
+                    <button
+                      key={`${b.event.id}__${b.weekIdx}__${b.startCol}`}
+                      onClick={(e) => { e.stopPropagation(); onEventClick(b.event); }}
+                      className="pointer-events-auto absolute text-left text-[10px] sm:text-[11px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-medium shadow-sm"
+                      style={{
+                        left: `calc(${leftPct}% + 3px)`,
+                        width: `calc(${widthPct}% - 6px)`,
+                        top,
+                        height: BAR_H,
+                        backgroundColor: member.bgColor,
+                        color: member.textColor,
+                        borderLeft: b.continuesLeft ? 'none' : `4px solid ${member.color}`,
+                        borderTopLeftRadius: b.continuesLeft ? 0 : 6,
+                        borderBottomLeftRadius: b.continuesLeft ? 0 : 6,
+                        borderTopRightRadius: b.continuesRight ? 0 : 6,
+                        borderBottomRightRadius: b.continuesRight ? 0 : 6,
+                        paddingLeft: b.continuesLeft ? 4 : 6,
+                        paddingRight: b.continuesRight ? 4 : 6,
+                      }}
+                      title={b.event.title}
+                    >
+                      {b.continuesLeft && <span className="text-[9px] opacity-60">◂</span>}
+                      {showTitle && b.event.pinned && <span className="text-[9px]">📌</span>}
+                      {showTitle && b.event.site && <span className="text-[9px]">💼</span>}
+                      {showTitle && b.event.startTime && (
+                        <span className="font-semibold">{b.event.startTime}</span>
+                      )}
+                      <span className="truncate">{showTitle ? b.event.title : ''}</span>
+                      {b.continuesRight && <span className="text-[9px] opacity-60 ml-auto">▸</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

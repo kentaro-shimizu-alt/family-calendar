@@ -1,0 +1,144 @@
+# 家族カレンダーWebアプリ ビルド進捗
+
+**最終更新**: 2026-04-11 深夜（くろさん①が健太郎さん就寝中に完成）
+**プロジェクト**: TimeTree代替の自作家族カレンダー
+**場所**: `C:/Users/film_/Documents/family_calendar/`
+**ステータス**: ✅ **MVP(a) 完成・動作確認済み**
+
+---
+
+## 🎯 MVP(a) 完了チェック
+
+- [x] プロジェクト初期化（Next.js 14 + TS + Tailwind）
+- [x] ~~SQLite DB~~ → JSONファイルDB（Pythonビルド失敗のため切替）
+- [x] 型定義 + メンバー定義（`src/lib/types.ts`）
+- [x] 月表示UI（**全件見える小ブロック・スクロール対応**）
+- [x] 予定追加・編集・削除（モーダル）
+- [x] 画像添付（複数枚OK・サーバー保存）
+- [x] 家族色分け（健太郎=青 / 美砂ちゃん=ピンク / 子供=緑/オレンジ / みんな=紫）
+- [x] AI追加API（`POST /api/events` 動作確認済み 201）
+- [x] ローカル起動確認（`http://localhost:3030`）
+- [x] スクリーンショット撮影（デスクトップ・モバイル）
+
+---
+
+## ✅ 動作確認結果
+
+| 項目 | 結果 |
+|------|------|
+| 月ナビゲーション（前月/今月/翌月） | ✅ |
+| 17件のサンプルデータ表示 | ✅ |
+| 4/12 5件全部見える（TimeTree弱点解決） | ✅ |
+| 4/11 今日の青丸ハイライト | ✅ |
+| メンバー色分け（5色） | ✅ |
+| モーダル：日付クリック→新規追加 | ✅ |
+| モーダル：イベントクリック→編集 | ✅ |
+| AI POST `/api/events` で予定追加 | ✅（201応答） |
+| モバイルビュー（375x812） | ✅ |
+| 4/29 4/30 末週まで全件表示 | ✅ |
+
+---
+
+## 📂 完成したファイル
+
+```
+family_calendar/
+├── BUILD_STATUS.md          ← このファイル
+├── README.md                ← 起動方法・API仕様
+├── _seed.mjs                ← サンプルデータ投入スクリプト
+├── package.json
+├── tsconfig.json
+├── tailwind.config.ts
+├── postcss.config.mjs
+├── next.config.mjs
+├── .gitignore
+├── data/
+│   ├── calendar.json        ← 全予定データ
+│   └── uploads/             ← 画像保存先
+└── src/
+    ├── app/
+    │   ├── layout.tsx
+    │   ├── page.tsx         ← 月表示ホーム
+    │   ├── globals.css
+    │   └── api/
+    │       ├── events/route.ts            ← GET / POST
+    │       ├── events/[id]/route.ts       ← GET / PUT / DELETE
+    │       ├── upload/route.ts            ← multipart upload
+    │       └── uploads/[filename]/route.ts ← 画像配信
+    ├── components/
+    │   ├── MonthView.tsx    ← 月グリッド・全件可視
+    │   └── EventModal.tsx   ← 追加/編集/削除/画像
+    └── lib/
+        ├── db.ts            ← JSONファイルDB
+        └── types.ts         ← CalendarEvent / MEMBERS
+```
+
+---
+
+## 🌅 朝イチ報告（健太郎さんが起きたら）
+
+1. **動くもの完成**：`http://localhost:3030` で確認できます
+2. **起動コマンド**：`preview_start name=family_calendar` または `npm run dev`（family_calendarディレクトリで）
+3. **見てほしいポイント**：
+   - 4/12 に5件入れて、TimeTreeで隠れる問題が解決されてる
+   - メンバー色分けで一目で誰の予定か分かる
+   - ＋ボタンから予定追加、既存をタップで編集
+4. **触ってもらいたいこと**：
+   - 美砂ちゃんの名前・お子さんの名前を教えてもらう（`src/lib/types.ts`）
+   - 子供の色を見て調整するか
+   - 応援メッセージのトーン具体例
+5. **Geek用**：AIから`POST /api/events`で予定追加できる動作確認済み
+
+---
+
+## 🚀 次のフェーズ（健太郎さんOK出たら順次）
+
+優先度高：
+1. お子さんの名前・色設定
+2. くろさん応援メッセージ（ハイブリッドトーン・予定詳細に表示）
+3. PWA Push通知設定
+4. 美砂ちゃんサプライズ公開（Vercelデプロイ）
+
+優先度中：
+5. 検索 / 繰り返し予定 / コメント
+6. Gマップ + ヤフーカーナビリンク
+7. 写真OCR
+
+優先度低：
+8. オフラインキャッシュ / Realtime同期 / ダークモード / 自動バックアップ
+
+---
+
+## 📝 技術メモ・トラブルシュート
+
+### Pythonビルドエラー（解決済み）
+- `better-sqlite3` がネイティブビルドにPython 3.9+必要、システムは3.8-32だった
+- → JSONファイルDBに切替。Supabase移行時にDB層を書き換える前提なのでMVPには十分
+
+### curl文字化け（解決済み）
+- Windows console encoding で日本語投入が文字化けした
+- → `_seed.mjs` でNode.jsからfetch直接実行に切替
+
+### npm prefix
+- preview_start で別ディレクトリのnpmを動かすため `--prefix` 使用
+- `.claude/launch.json` の `family_calendar` 設定参照
+
+---
+
+## 🔁 再開ルール
+
+| 健太郎さんの発言 | くろさんの動作 |
+|------|------|
+| 「家族カレンダー続き」「あのカレンダー」 | このファイルを読んで現状確認→次の作業 |
+| 「進捗どう？」 | このファイルから「✅ MVP完成」を報告 |
+| 「中止」 | 現状を報告して停止 |
+
+---
+
+## ⚠️ 制約・決定事項
+
+- **美砂ちゃんへの公開**: 内緒（サプライズ） → MVP確認OK後に公開
+- **トーン**: 応援メッセージはハイブリッド（普段フランク・大事な日は丁寧）
+- **DB**: ローカルJSON → 後でSupabase移行
+- **デプロイ**: ローカル動作確認後にVercel
+- **健太郎さんを「くろさん」と呼ばない**（くろさん=Claude、健太郎=ユーザー）

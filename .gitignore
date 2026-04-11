@@ -1,0 +1,9 @@
+node_modules/
+.next/
+out/
+build/
+*.log
+.env*
+data/calendar.db
+data/uploads/*
+!data/uploads/.gitkeep
