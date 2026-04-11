@@ -118,10 +118,25 @@ function keepToRow(k: KeepItem): any {
 export const supabaseStore: Store = {
   // ===== Events =====
   async getAllEventsRaw(): Promise<CalendarEvent[]> {
+    // NOTE: Supabase PostgREST の db-max-rows はデフォルト 1000 なので
+    // 大きい range を投げても 1000 件で打ち切られる。必ずページ分割で取る。
     const sb = getSupabase();
-    const { data, error } = await sb.from('events').select('*').range(0, 99999);
-    if (error) throw new Error(`supabase events select: ${error.message}`);
-    return (data || []).map(rowToEvent);
+    const pageSize = 1000;
+    const all: any[] = [];
+    for (let page = 0; page < 50; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      const { data, error } = await sb
+        .from('events')
+        .select('*')
+        .order('id', { ascending: true })
+        .range(from, to);
+      if (error) throw new Error(`supabase events select: ${error.message}`);
+      if (!data || data.length === 0) break;
+      all.push(...data);
+      if (data.length < pageSize) break;
+    }
+    return all.map(rowToEvent);
   },
   async getEventById(id: string): Promise<CalendarEvent | null> {
     const sb = getSupabase();
@@ -150,13 +165,25 @@ export const supabaseStore: Store = {
 
   // ===== Daily =====
   async getAllDailyData(): Promise<Record<string, DailyData>> {
+    // 同じく 1000 件上限対策でページ分割
     const sb = getSupabase();
-    const { data, error } = await sb.from('daily_data').select('*');
-    if (error) throw new Error(`supabase daily_data select: ${error.message}`);
+    const pageSize = 1000;
     const out: Record<string, DailyData> = {};
-    for (const r of data || []) {
-      const d = rowToDaily(r);
-      out[d.date] = d;
+    for (let page = 0; page < 50; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      const { data, error } = await sb
+        .from('daily_data')
+        .select('*')
+        .order('date', { ascending: true })
+        .range(from, to);
+      if (error) throw new Error(`supabase daily_data select: ${error.message}`);
+      if (!data || data.length === 0) break;
+      for (const r of data) {
+        const d = rowToDaily(r);
+        out[d.date] = d;
+      }
+      if (data.length < pageSize) break;
     }
     return out;
   },
