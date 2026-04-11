@@ -13,6 +13,9 @@ interface Props {
 
 const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽', '🎸', '🏥', '🛒', '✈️', '🍽️', '🐶', '📅', '🎉', '💪'];
 
+// 💣 削除（カレンダー・メンバー）操作用のPIN。将来変更する時はここだけ書き換える。
+const DELETE_PIN = '0713';
+
 export default function SettingsModal({ open, members, subCalendars, onClose, onSaved }: Props) {
   const [tab, setTab] = useState<'members' | 'calendars' | 'export'>('members');
   const [localMembers, setLocalMembers] = useState<Member[]>(members);
@@ -54,7 +57,17 @@ export default function SettingsModal({ open, members, subCalendars, onClose, on
   }
 
   function removeMember(id: string) {
-    if (!confirm('このメンバーを削除しますか？')) return;
+    const target = localMembers.find((m) => m.id === id);
+    if (!target) return;
+    const ok1 = confirm(
+      `⚠️ メンバー「${target.name}」を削除しようとしています。\n本当に削除してよろしいですか？`
+    );
+    if (!ok1) return;
+    const pin = prompt('🔒 削除の最終確認：PINを入力してください（4桁）');
+    if (pin !== DELETE_PIN) {
+      alert('❌ PINが違います。削除を中止しました。');
+      return;
+    }
     setLocalMembers((prev) => prev.filter((m) => m.id !== id));
   }
 
@@ -72,7 +85,24 @@ export default function SettingsModal({ open, members, subCalendars, onClose, on
   }
 
   function removeCal(id: string) {
-    if (!confirm('このカレンダーを削除しますか？')) return;
+    const target = localCals.find((c) => c.id === id);
+    if (!target) return;
+    // 💣 核ボタンガード：3段階確認
+    const ok1 = confirm(
+      `⚠️ カレンダー「${target.name}」を削除しようとしています。\n\n` +
+        `このカレンダーに紐づく予定は表示されなくなります（DB自体は残る）。\n` +
+        `本当に削除してよろしいですか？`
+    );
+    if (!ok1) return;
+    const pin = prompt('🔒 削除の最終確認：PINを入力してください（4桁）');
+    if (pin !== DELETE_PIN) {
+      alert('❌ PINが違います。削除を中止しました。');
+      return;
+    }
+    const ok2 = confirm(
+      `最後の確認です。\n\n「${target.name}」を本当に削除しますか？\nこの操作は元に戻せません。`
+    );
+    if (!ok2) return;
     setLocalCals((prev) => prev.filter((c) => c.id !== id));
   }
 
