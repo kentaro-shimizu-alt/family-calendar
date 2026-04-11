@@ -1,6 +1,6 @@
 'use client';
 
-import { CalendarEvent, DailyData, Member, getMember, totalSales, salesCount } from '@/lib/types';
+import { CalendarEvent, DailyData, Member, SubCalendar, totalSales, salesCount } from '@/lib/types';
 import {
   startOfMonth,
   endOfMonth,
@@ -16,10 +16,40 @@ interface Props {
   currentMonth: Date;
   events: CalendarEvent[];
   dailyData: Record<string, DailyData>;
-  members: Member[];
+  members: Member[]; // 後方互換（未使用）
+  subCalendars: SubCalendar[];
   onDayClick: (date: Date) => void;
   onEventClick: (event: CalendarEvent) => void;
   onSalesClick: (date: Date) => void;
+}
+
+// 色を薄くした背景色（hex + alpha）と濃くした文字色を返す
+function eventColors(hex: string): { bg: string; fg: string; accent: string } {
+  const h = hex.replace('#', '');
+  if (h.length !== 6) return { bg: '#e2e8f0', fg: '#334155', accent: '#64748b' };
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const darken = (n: number) => Math.round(n * 0.4).toString(16).padStart(2, '0');
+  return {
+    bg: hex + '33', // 20% alpha
+    fg: `#${darken(r)}${darken(g)}${darken(b)}`,
+    accent: hex,
+  };
+}
+
+function resolveEventColor(
+  ev: CalendarEvent,
+  subCalendars: SubCalendar[]
+): { bg: string; fg: string; accent: string; subAccent?: string } {
+  const subCal = ev.calendarId ? subCalendars.find((c) => c.id === ev.calendarId) : undefined;
+  const mainHex = ev.color || subCal?.color || '#64748b';
+  const colors = eventColors(mainHex);
+  // 予定に独自色が指定されていて、かつサブカレンダー色と違えば
+  // サブカレンダー色を右端のアクセントとして表示
+  const subAccent =
+    ev.color && subCal && subCal.color && subCal.color !== ev.color ? subCal.color : undefined;
+  return { ...colors, subAccent };
 }
 
 function formatYen(n?: number): string {
@@ -68,7 +98,7 @@ const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
 
-export default function MonthView({ currentMonth, events, dailyData, members, onDayClick, onEventClick, onSalesClick }: Props) {
+export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick }: Props) {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const calStart = startOfWeek(monthStart, { weekStartsOn: 0 });
@@ -235,16 +265,17 @@ export default function MonthView({ currentMonth, events, dailyData, members, on
                       <div className="event-scroll flex-1 px-1 pb-1 overflow-y-auto">
                         <div className="flex flex-col gap-[2px]">
                           {dayEvents.map((ev) => {
-                            const member = getMember(ev.memberId, members);
+                            const c = resolveEventColor(ev, subCalendars);
                             return (
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
                                 className="text-left text-[10px] sm:text-[11px] leading-tight rounded px-1 py-[2px] truncate hover:brightness-95 transition flex items-center gap-0.5"
                                 style={{
-                                  backgroundColor: member.bgColor,
-                                  color: member.textColor,
-                                  borderLeft: `3px solid ${member.color}`,
+                                  backgroundColor: c.bg,
+                                  color: c.fg,
+                                  borderLeft: `3px solid ${c.accent}`,
+                                  borderRight: c.subAccent ? `3px solid ${c.subAccent}` : undefined,
                                 }}
                                 title={ev.title}
                               >
@@ -328,7 +359,7 @@ export default function MonthView({ currentMonth, events, dailyData, members, on
                 style={{ top: DATE_HEADER_H, height: barAreaH }}
               >
                 {barsByWeek[wi].map((b) => {
-                  const member = getMember(b.event.memberId, members);
+                  const c = resolveEventColor(b.event, subCalendars);
                   const leftPct = (b.startCol / 7) * 100;
                   const widthPct = (b.span / 7) * 100;
                   const top = b.slot * (BAR_H + BAR_GAP);
@@ -343,9 +374,10 @@ export default function MonthView({ currentMonth, events, dailyData, members, on
                         width: `calc(${widthPct}% - 6px)`,
                         top,
                         height: BAR_H,
-                        backgroundColor: member.bgColor,
-                        color: member.textColor,
-                        borderLeft: b.continuesLeft ? 'none' : `4px solid ${member.color}`,
+                        backgroundColor: c.bg,
+                        color: c.fg,
+                        borderLeft: b.continuesLeft ? 'none' : `4px solid ${c.accent}`,
+                        borderRight: !b.continuesRight && c.subAccent ? `3px solid ${c.subAccent}` : undefined,
                         borderTopLeftRadius: b.continuesLeft ? 0 : 6,
                         borderBottomLeftRadius: b.continuesLeft ? 0 : 6,
                         borderTopRightRadius: b.continuesRight ? 0 : 6,

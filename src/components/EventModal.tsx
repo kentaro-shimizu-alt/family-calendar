@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, SiteInfo, getMember } from '@/lib/types';
+import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, SiteInfo, COLOR_PALETTE } from '@/lib/types';
 import { format } from 'date-fns';
 
 interface Props {
@@ -25,6 +25,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   const [endTime, setEndTime] = useState('');
   const [memberId, setMemberId] = useState<MemberId>('all');
   const [calendarId, setCalendarId] = useState<string>('');
+  const [color, setColor] = useState<string>(''); // 予定ごとの色（空=サブカレンダー色を使用）
   const [note, setNote] = useState('');
   const [url, setUrl] = useState('');
   const [location, setLocation] = useState('');
@@ -68,6 +69,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setEndTime(editing.endTime || '');
       setMemberId(editing.memberId);
       setCalendarId(editing.calendarId || '');
+      setColor(editing.color || '');
       setNote(editing.note || '');
       setUrl(editing.url || '');
       setLocation(editing.location || '');
@@ -104,6 +106,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setEndTime('');
       setMemberId('all');
       setCalendarId(subCalendars[0]?.id || '');
+      setColor('');
       setNote('');
       setUrl('');
       setLocation('');
@@ -228,6 +231,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
         dateRanges,
         startTime, endTime,
         memberId, calendarId: calendarId || undefined,
+        color: color || undefined,
         note, url: url || undefined, location: location || undefined,
         images, pdfs: pdfs.length > 0 ? pdfs : undefined,
         pinned, recurrence,
@@ -270,7 +274,9 @@ export default function EventModal({ open, initialDate, editing, members, subCal
     }
   }
 
-  const member = getMember(memberId, members);
+  // 予定の表示色: 明示指定 > サブカレンダー色 > デフォルト
+  const subCalColor = subCalendars.find((c) => c.id === calendarId)?.color;
+  const eventColor = color || subCalColor || '#64748b';
   const siteAmountNum = Number(siteAmount.replace(/,/g, '')) || 0;
   const siteCostNum = Number(siteCost.replace(/,/g, '')) || 0;
   const siteProfit = siteAmountNum - siteCostNum;
@@ -290,7 +296,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       >
         <div
           className="px-5 py-3 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10"
-          style={{ borderTop: `4px solid ${member.color}` }}
+          style={{ borderTop: `4px solid ${eventColor}` }}
         >
           <h2 className="font-bold text-base">{editing ? '予定を編集' : '予定を追加'}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl leading-none">×</button>
@@ -421,25 +427,36 @@ export default function EventModal({ open, initialDate, editing, members, subCal
             </div>
           </div>
 
-          {/* Member */}
+          {/* 予定の色（TimeTree風：同じカレンダー内でも予定ごとに色を変えられる） */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1">誰の予定？</label>
-            <div className="flex flex-wrap gap-2">
-              {members.map((m) => (
+            <label className="block text-xs font-semibold text-slate-500 mb-1">
+              🎨 色 <span className="font-normal text-slate-400">（未選択ならカレンダー色）</span>
+            </label>
+            <div className="flex flex-wrap gap-1.5 items-center">
+              <button
+                type="button"
+                onClick={() => setColor('')}
+                className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs ${
+                  color === '' ? 'border-slate-700 scale-110' : 'border-slate-200'
+                }`}
+                style={{
+                  backgroundColor: subCalColor ? subCalColor + '33' : '#f1f5f9',
+                }}
+                title="カレンダー色を使う"
+              >
+                {color === '' ? '✓' : ''}
+              </button>
+              {COLOR_PALETTE.map((c) => (
                 <button
-                  key={m.id}
-                  onClick={() => setMemberId(m.id)}
-                  className={`px-4 py-2 text-sm rounded-full border-2 transition ${
-                    memberId === m.id ? 'font-bold scale-105' : 'border-transparent opacity-60 hover:opacity-100'
+                  key={c}
+                  type="button"
+                  onClick={() => setColor(c)}
+                  className={`w-8 h-8 rounded-full border-2 transition ${
+                    color === c ? 'border-slate-700 scale-110' : 'border-white'
                   }`}
-                  style={{
-                    backgroundColor: m.bgColor,
-                    color: m.textColor,
-                    borderColor: memberId === m.id ? m.color : 'transparent',
-                  }}
-                >
-                  {m.name}
-                </button>
+                  style={{ backgroundColor: c }}
+                  title={c}
+                />
               ))}
             </div>
           </div>

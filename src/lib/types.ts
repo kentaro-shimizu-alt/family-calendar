@@ -47,6 +47,7 @@ export interface CalendarEvent {
   startTime?: string; // HH:mm or null for all-day
   endTime?: string;
   memberId: MemberId;
+  color?: string; // 予定ごとの色（未指定時はサブカレンダー色、TimeTree風）
   note?: string;
   url?: string;
   location?: string;
@@ -72,25 +73,70 @@ export interface KeepItem {
   updatedAt: string;
 }
 
-// 現場は CalendarEvent.site へ移行したので、売上エントリは 通常 / 材料販売 のみ
-export type SalesEntryType = 'normal' | 'material';
+// 売上エントリは 現場売上 / 材料販売 の2種類
+export type SalesEntryType = 'site' | 'material';
 
 export interface SalesEntry {
   id: string;
-  type?: SalesEntryType; // 通常 / 材料販売 （未指定は normal）
-  amount: number; // 円（材料販売は後から埋めるので初期0もあり）
-  cost?: number; // 原価（材料販売の粗利計算用、くろさんが補完）
-  label?: string; // 顧客名・商品名など
-  note?: string; // 材料販売のテンプレ本文（複数行）
+  type?: SalesEntryType; // site=現場売上 / material=材料販売 （未指定は site）
+  deliveryNote?: boolean; // 納品書の要否（true=要、false=不要、undef=未指定）
+  customer?: string; // 取引先
+  amount?: number; // 売値合計（円） — 空欄OK。後からくろさんが計算して清書
+  cost?: number; // 原価合計（円） — 空欄OK。後からくろさんが計算して清書
+  label?: string; // 後方互換：顧客名・商品名など
+  note?: string; // テンプレ含むフリー記述（現場名・材料・品番など全部ここ）
   images?: string[]; // 添付画像URL（/api/uploads/xxx）LINEスクショ等
   pdfs?: Array<{ url: string; name?: string }>; // 添付PDF
   time?: string; // HH:mm（任意）
 }
 
 export const SALES_TYPE_LABEL: Record<SalesEntryType, string> = {
-  normal: '通常',
+  site: '現場売上',
   material: '材料販売',
 };
+
+// 現場売上テンプレート（EventModal の初期値として使う）
+export const SITE_TEMPLATE = `■現場　納品書の要否：
+取引先：
+担当：
+現場名：
+現場住所：
+売値（税別）：
+材料①：
+材料②：
+材料③：
+人件費：
+交通費：
+駐車場：
+副資材：
+諸経費：
+外注費①：
+外注諸経費①：
+外注費②：
+外注諸経費②：
+外注費③：
+外注諸経費③：
+外注費④：
+外注諸経費④：
+外注費⑤：
+外注諸経費⑤：
+売値合計：
+原価合計：
+備考：`;
+
+// 材料販売テンプレート
+export const MATERIAL_TEMPLATE = `■材料販売　納品書の要否：
+取引先：
+担当：
+使用現場名：
+品番：
+数量：m
+売値単価：円/m
+売値掛け率：
+仕入先：
+仕入れ掛け率：
+仕入れ単価：円/m
+備考：`;
 
 export interface DailyData {
   date: string; // YYYY-MM-DD
@@ -99,7 +145,7 @@ export interface DailyData {
   memo?: string; // その日のメモ・日記
 }
 
-// Helper: total sales of a day
+// Helper: total sales of a day（amount未入力の売上はカウント0）
 export function totalSales(d?: DailyData | null): number {
   if (!d) return 0;
   if (d.salesEntries && d.salesEntries.length > 0) {

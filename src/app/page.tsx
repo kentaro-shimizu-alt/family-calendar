@@ -290,16 +290,6 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* Member legend */}
-        <div className="flex items-center justify-center gap-2 pt-1.5 flex-wrap">
-          {members.map((m) => (
-            <div key={m.id} className="flex items-center gap-1 text-[10px] text-slate-500">
-              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.color }} />
-              {m.name}
-            </div>
-          ))}
-        </div>
-
         {/* Search panel */}
         {searchOpen && (
           <div className="pt-3 max-w-xl mx-auto">
@@ -352,6 +342,7 @@ export default function HomePage() {
           events={visibleEvents}
           dailyData={dailyData}
           members={members}
+          subCalendars={subCalendars}
           onDayClick={handleDayClick}
           onEventClick={handleEventClick}
           onSalesClick={handleSalesClick}

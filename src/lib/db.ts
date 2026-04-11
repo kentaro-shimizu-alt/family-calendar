@@ -180,7 +180,14 @@ export async function deleteComment(eventId: string, commentId: string): Promise
 
 function migrateDaily(d: DailyData): DailyData {
   if (typeof d.sales === 'number' && (!d.salesEntries || d.salesEntries.length === 0)) {
-    d.salesEntries = [{ id: 'legacy', amount: d.sales }];
+    d.salesEntries = [{ id: 'legacy', type: 'site', amount: d.sales }];
+  }
+  // 旧 'normal' タイプは 'site' に読み替え（現場売上）
+  if (d.salesEntries) {
+    d.salesEntries = d.salesEntries.map((e) => ({
+      ...e,
+      type: (e.type as any) === 'normal' ? 'site' : e.type,
+    }));
   }
   delete d.sales;
   return d;
@@ -209,12 +216,24 @@ export async function upsertDailyData(
 
   if (merged.salesEntries) {
     merged.salesEntries = merged.salesEntries
-      .filter((e) => e && (e.amount || e.label || e.note || (Array.isArray(e.images) && e.images.length > 0) || (Array.isArray(e.pdfs) && e.pdfs.length > 0)))
+      .filter((e) =>
+        e &&
+        (e.amount ||
+          e.cost ||
+          e.customer ||
+          e.label ||
+          e.note ||
+          typeof e.deliveryNote === 'boolean' ||
+          (Array.isArray(e.images) && e.images.length > 0) ||
+          (Array.isArray(e.pdfs) && e.pdfs.length > 0))
+      )
       .map((e) => ({
         ...e,
-        type: e.type === 'material' ? 'material' : 'normal',
-        amount: typeof e.amount === 'number' && !isNaN(e.amount) ? e.amount : 0,
+        type: e.type === 'material' ? 'material' : 'site',
+        amount: typeof e.amount === 'number' && !isNaN(e.amount) ? e.amount : undefined,
         cost: typeof e.cost === 'number' && !isNaN(e.cost) ? e.cost : undefined,
+        customer: e.customer || undefined,
+        deliveryNote: typeof e.deliveryNote === 'boolean' ? e.deliveryNote : undefined,
         images: Array.isArray(e.images) && e.images.length > 0 ? e.images : undefined,
         pdfs: Array.isArray(e.pdfs) && e.pdfs.length > 0 ? e.pdfs : undefined,
       }));

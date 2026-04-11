@@ -25,6 +25,7 @@ create table if not exists public.events (
   start_time text,              -- 'HH:mm'
   end_time text,
   member_id text not null default 'all',
+  color text,                   -- 予定ごとの色（TimeTree風、未指定時はサブカレンダー色）
   note text,
   url text,
   location text,

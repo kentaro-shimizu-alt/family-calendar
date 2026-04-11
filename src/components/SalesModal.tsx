@@ -8,6 +8,8 @@ import {
   SalesEntry,
   SalesEntryType,
   SALES_TYPE_LABEL,
+  SITE_TEMPLATE,
+  MATERIAL_TEMPLATE,
   totalSales,
 } from '@/lib/types';
 
@@ -23,73 +25,73 @@ function newId(): string {
   return Math.random().toString(36).slice(2, 9);
 }
 
-const TABS: SalesEntryType[] = ['normal', 'material'];
+const TABS: SalesEntryType[] = ['site', 'material'];
 
-const LABEL_PLACEHOLDER: Record<SalesEntryType, string> = {
-  normal: '顧客名・商品名（任意）',
-  material: '取引先 / 担当（例: ウェイアウト 森河様）',
+const TEMPLATE: Record<SalesEntryType, string> = {
+  site: SITE_TEMPLATE,
+  material: MATERIAL_TEMPLATE,
 };
 
-const NOTE_PLACEHOLDER: Record<SalesEntryType, string> = {
-  normal: '',
-  material:
-    '品番：\n数量：\n使用現場名：\n備考：\n\n（客/担当/品番/m数 だけ書けばOK。掛率・単価・原価はくろさんが補完します）',
-};
-
-const TAB_COLOR: Record<SalesEntryType, { bg: string; text: string; border: string; chip: string }> = {
-  normal: {
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
-    chip: 'bg-emerald-100 text-emerald-700',
+const TAB_COLOR: Record<
+  SalesEntryType,
+  { bg: string; text: string; border: string; chip: string; btn: string }
+> = {
+  site: {
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    border: 'border-amber-200',
+    chip: 'bg-amber-100 text-amber-700',
+    btn: 'bg-amber-500 hover:bg-amber-600',
   },
   material: {
     bg: 'bg-sky-50',
     text: 'text-sky-700',
     border: 'border-sky-200',
     chip: 'bg-sky-100 text-sky-700',
+    btn: 'bg-sky-500 hover:bg-sky-600',
   },
 };
+
+// 旧データ（type='normal'）は 'site' として扱う
+function normalizeType(t: any): SalesEntryType {
+  if (t === 'material') return 'material';
+  return 'site';
+}
 
 export default function SalesModal({ open, date, initial, onClose, onSaved }: Props) {
   const [entries, setEntries] = useState<SalesEntry[]>([]);
   const [memo, setMemo] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<SalesEntryType>('normal');
+  const [activeTab, setActiveTab] = useState<SalesEntryType>('site');
+
+  // Draft for adding new entry
+  const [draftCustomer, setDraftCustomer] = useState<string>('');
+  const [draftDeliveryNote, setDraftDeliveryNote] = useState<boolean>(false);
   const [draftAmount, setDraftAmount] = useState<string>('');
-  const [draftLabel, setDraftLabel] = useState<string>('');
+  const [draftCost, setDraftCost] = useState<string>('');
   const [draftNote, setDraftNote] = useState<string>('');
   const [draftImages, setDraftImages] = useState<string[]>([]);
   const [draftPdfs, setDraftPdfs] = useState<Array<{ url: string; name?: string }>>([]);
+
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
-  const amountRef = useRef<HTMLInputElement>(null);
-  const labelRef = useRef<HTMLInputElement>(null);
+  const customerRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    // Migrate from legacy single sales if needed
     let initialEntries: SalesEntry[] = [];
     if (initial?.salesEntries && initial.salesEntries.length > 0) {
-      initialEntries = initial.salesEntries.map((e) => ({ ...e, type: e.type || 'normal' }));
+      initialEntries = initial.salesEntries.map((e) => ({ ...e, type: normalizeType(e.type) }));
     } else if (typeof initial?.sales === 'number') {
-      initialEntries = [{ id: newId(), type: 'normal', amount: initial.sales }];
+      initialEntries = [{ id: newId(), type: 'site', amount: initial.sales }];
     }
-    // legacy 'site' entries migrated at db layer to 'normal'; treat unknown as normal
-    setEntries(initialEntries.map((e) => ({
-      ...e,
-      type: e.type === 'material' ? 'material' : 'normal',
-    })));
+    setEntries(initialEntries);
     setMemo(initial?.memo || '');
-    setActiveTab('normal');
-    setDraftAmount('');
-    setDraftLabel('');
-    setDraftNote('');
-    setDraftImages([]);
-    setDraftPdfs([]);
-    // Focus the amount input
-    setTimeout(() => amountRef.current?.focus(), 50);
+    setActiveTab('site');
+    resetDraft('site');
+    setTimeout(() => customerRef.current?.focus(), 50);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initial]);
 
   if (!open || !date) return null;
@@ -98,8 +100,29 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
   const dateLabel = format(date, 'M月d日(E)', { locale: ja });
   const total = totalSales({ date: dateKey, salesEntries: entries });
 
+  function resetDraft(type: SalesEntryType) {
+    setDraftCustomer('');
+    setDraftDeliveryNote(false);
+    setDraftAmount('');
+    setDraftCost('');
+    setDraftNote(TEMPLATE[type]);
+    setDraftImages([]);
+    setDraftPdfs([]);
+  }
+
+  function switchTab(t: SalesEntryType) {
+    setActiveTab(t);
+    resetDraft(t);
+    setTimeout(() => customerRef.current?.focus(), 50);
+  }
+
   async function uploadFiles(files: File[], targetEntryId?: string) {
-    const accepted = files.filter((f) => f.type.startsWith('image/') || f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+    const accepted = files.filter(
+      (f) =>
+        f.type.startsWith('image/') ||
+        f.type === 'application/pdf' ||
+        f.name.toLowerCase().endsWith('.pdf')
+    );
     if (accepted.length === 0) return;
     setUploading(true);
     try {
@@ -167,12 +190,51 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     await uploadFiles(files);
   }
 
-  function removeDraftImage(url: string) {
-    setDraftImages((prev) => prev.filter((u) => u !== url));
+  function draftHasContent(): boolean {
+    return !!(
+      draftCustomer.trim() ||
+      draftAmount ||
+      draftCost ||
+      (draftNote.trim() && draftNote.trim() !== TEMPLATE[activeTab].trim()) ||
+      draftImages.length > 0 ||
+      draftPdfs.length > 0
+    );
   }
 
-  function removeDraftPdf(url: string) {
-    setDraftPdfs((prev) => prev.filter((p) => p.url !== url));
+  function buildDraftEntry(): SalesEntry | null {
+    if (!draftHasContent()) return null;
+    const amountN = Number(draftAmount.replace(/,/g, '')) || undefined;
+    const costN = Number(draftCost.replace(/,/g, '')) || undefined;
+    return {
+      id: newId(),
+      type: activeTab,
+      deliveryNote: draftDeliveryNote || undefined,
+      customer: draftCustomer.trim() || undefined,
+      amount: amountN,
+      cost: costN,
+      note: draftNote.trim() || undefined,
+      images: draftImages.length > 0 ? [...draftImages] : undefined,
+      pdfs: draftPdfs.length > 0 ? [...draftPdfs] : undefined,
+    };
+  }
+
+  function addDraft() {
+    const entry = buildDraftEntry();
+    if (!entry) {
+      customerRef.current?.focus();
+      return;
+    }
+    setEntries((prev) => [...prev, entry]);
+    resetDraft(activeTab);
+    customerRef.current?.focus();
+  }
+
+  function removeEntry(id: string) {
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  function updateEntry(id: string, patch: Partial<SalesEntry>) {
+    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
   }
 
   function removeEntryImage(entryId: string, url: string) {
@@ -191,75 +253,13 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     );
   }
 
-  function addDraft() {
-    const n = Number(draftAmount.replace(/,/g, '')) || 0;
-    const hasImages = draftImages.length > 0;
-    const hasPdfs = draftPdfs.length > 0;
-    const hasAttach = hasImages || hasPdfs;
-    if (activeTab === 'normal') {
-      if ((!draftAmount || isNaN(n) || n <= 0) && !hasAttach) {
-        amountRef.current?.focus();
-        return;
-      }
-    } else {
-      if (!draftLabel.trim() && !draftNote.trim() && n <= 0 && !hasAttach) {
-        labelRef.current?.focus();
-        return;
-      }
-    }
-    setEntries((prev) => [
-      ...prev,
-      {
-        id: newId(),
-        type: activeTab,
-        amount: n,
-        label: draftLabel.trim() || undefined,
-        note: draftNote.trim() || undefined,
-        images: hasImages ? [...draftImages] : undefined,
-        pdfs: hasPdfs ? [...draftPdfs] : undefined,
-      },
-    ]);
-    setDraftAmount('');
-    setDraftLabel('');
-    setDraftNote('');
-    setDraftImages([]);
-    setDraftPdfs([]);
-    (activeTab === 'normal' ? amountRef : labelRef).current?.focus();
-  }
-
-  function removeEntry(id: string) {
-    setEntries((prev) => prev.filter((e) => e.id !== id));
-  }
-
-  function updateEntry(id: string, patch: Partial<SalesEntry>) {
-    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
-  }
-
   async function handleSave() {
     setSaving(true);
     try {
-      // Auto-flush draft if user typed something but didn't hit ＋
       let finalEntries = entries;
-      const n = Number(draftAmount.replace(/,/g, '')) || 0;
-      const hasImages = draftImages.length > 0;
-      const hasPdfs = draftPdfs.length > 0;
-      const hasAttach = hasImages || hasPdfs;
-      const hasDraft =
-        (activeTab === 'normal' && (n > 0 || hasAttach)) ||
-        (activeTab !== 'normal' && (draftLabel.trim() || draftNote.trim() || n > 0 || hasAttach));
-      if (hasDraft) {
-        finalEntries = [
-          ...entries,
-          {
-            id: newId(),
-            type: activeTab,
-            amount: n,
-            label: draftLabel.trim() || undefined,
-            note: draftNote.trim() || undefined,
-            images: hasImages ? [...draftImages] : undefined,
-            pdfs: hasPdfs ? [...draftPdfs] : undefined,
-          },
-        ];
+      const draftEntry = buildDraftEntry();
+      if (draftEntry) {
+        finalEntries = [...entries, draftEntry];
       }
       const body = {
         date: dateKey,
@@ -298,7 +298,6 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
   }
 
   const tabColors = TAB_COLOR[activeTab];
-  const showNote = activeTab !== 'normal';
 
   return (
     <div
@@ -346,7 +345,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
               return (
                 <button
                   key={t}
-                  onClick={() => setActiveTab(t)}
+                  onClick={() => switchTab(t)}
                   className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition border-b-2 ${
                     active
                       ? `${c.bg} ${c.text} border-current`
@@ -361,77 +360,93 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
 
           {/* Add area */}
           <div className={`rounded-xl border ${tabColors.border} ${tabColors.bg} p-3 space-y-2`}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
               <span className={`text-xs font-bold ${tabColors.text}`}>
                 ＋ {SALES_TYPE_LABEL[activeTab]}を追加
               </span>
+              {/* 納品書の要否 toggle */}
+              <label className="flex items-center gap-2 cursor-pointer text-xs">
+                <span className={tabColors.text}>納品書</span>
+                <button
+                  type="button"
+                  onClick={() => setDraftDeliveryNote((v) => !v)}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${
+                    draftDeliveryNote ? 'bg-amber-500' : 'bg-slate-300'
+                  }`}
+                  aria-label="納品書の要否"
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                      draftDeliveryNote ? 'translate-x-4' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+                <span className={`font-semibold ${draftDeliveryNote ? tabColors.text : 'text-slate-400'}`}>
+                  {draftDeliveryNote ? '要' : '不要'}
+                </span>
+              </label>
             </div>
+
+            {/* 取引先 */}
+            <input
+              ref={customerRef}
+              type="text"
+              value={draftCustomer}
+              onChange={(e) => setDraftCustomer(e.target.value)}
+              placeholder="取引先（例: 株式会社ウェイアウト 森河様）"
+              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2`}
+            />
+
+            {/* 売値・原価 (両方空でOK) */}
             <div className="flex gap-2">
-              <input
-                ref={amountRef}
-                type="text"
-                inputMode="numeric"
-                value={draftAmount}
-                onChange={(e) => setDraftAmount(e.target.value.replace(/[^\d,]/g, ''))}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && !showNote) {
-                    e.preventDefault();
-                    addDraft();
-                  }
-                }}
-                placeholder={activeTab === 'normal' ? '金額' : '金額（後で可）'}
-                className={`w-28 border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-base font-semibold ${tabColors.text} focus:outline-none focus:ring-2 focus:ring-offset-1`}
-              />
-              <input
-                ref={labelRef}
-                type="text"
-                value={draftLabel}
-                onChange={(e) => setDraftLabel(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey && !showNote) {
-                    e.preventDefault();
-                    addDraft();
-                  }
-                }}
-                placeholder={LABEL_PLACEHOLDER[activeTab]}
-                className={`flex-1 border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2`}
-              />
-              <button
-                onClick={addDraft}
-                className={`text-white text-sm font-bold px-3 py-2 rounded-lg ${
-                  activeTab === 'normal'
-                    ? 'bg-emerald-500 hover:bg-emerald-600'
-                    : activeTab === 'material'
-                    ? 'bg-sky-500 hover:bg-sky-600'
-                    : 'bg-amber-500 hover:bg-amber-600'
-                }`}
-              >
-                ＋
-              </button>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={draftAmount}
+                  onChange={(e) => setDraftAmount(e.target.value.replace(/[^\d,]/g, ''))}
+                  placeholder="売値（空欄OK）"
+                  className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm ${tabColors.text} focus:outline-none focus:ring-2`}
+                />
+              </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={draftCost}
+                  onChange={(e) => setDraftCost(e.target.value.replace(/[^\d,]/g, ''))}
+                  placeholder="原価（空欄OK）"
+                  className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm ${tabColors.text} focus:outline-none focus:ring-2`}
+                />
+              </div>
             </div>
-            {showNote && (
-              <textarea
-                value={draftNote}
-                onChange={(e) => setDraftNote(e.target.value)}
-                rows={8}
-                placeholder={NOTE_PLACEHOLDER[activeTab]}
-                className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 resize-y min-h-[160px]`}
-              />
-            )}
+
+            {/* Note template textarea */}
+            <textarea
+              value={draftNote}
+              onChange={(e) => setDraftNote(e.target.value)}
+              rows={12}
+              placeholder="テンプレに沿って記入"
+              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 resize-y min-h-[240px]`}
+            />
+
             {/* Image/PDF strip + upload */}
             <div className="flex flex-wrap items-center gap-2">
               {draftImages.map((url) => (
                 <div key={url} className="relative group">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={url}
                     alt=""
                     className={`w-16 h-16 object-cover rounded-lg border ${tabColors.border}`}
                   />
                   <button
-                    onClick={() => removeDraftImage(url)}
+                    onClick={() => setDraftImages((p) => p.filter((u) => u !== url))}
                     className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white rounded-full text-xs leading-none opacity-80 hover:opacity-100"
                     title="削除"
-                  >×</button>
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
               {draftPdfs.map((p) => (
@@ -449,10 +464,12 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                     </span>
                   </a>
                   <button
-                    onClick={() => removeDraftPdf(p.url)}
+                    onClick={() => setDraftPdfs((prev) => prev.filter((x) => x.url !== p.url))}
                     className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white rounded-full text-xs leading-none opacity-80 hover:opacity-100"
                     title="削除"
-                  >×</button>
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
               <button
@@ -474,10 +491,16 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                 onChange={handleFilePick}
               />
             </div>
-            <div className="text-[10px] text-slate-400">
-              {showNote
-                ? 'ざっくり書けばOK。Shift+Enterで改行、＋で追加。画像・PDFはCtrl+V / ドラッグ / 📎ボタン'
-                : 'Enterでも追加できます。画像・PDFはCtrl+V / ドラッグ / 📎ボタン'}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={addDraft}
+                className={`${tabColors.btn} text-white text-sm font-bold px-4 py-2 rounded-lg`}
+              >
+                ＋ この{SALES_TYPE_LABEL[activeTab]}を追加
+              </button>
+              <div className="text-[10px] text-slate-400 flex-1">
+                売値・原価は空欄OK。あとからくろさんが計算して清書します。
+              </div>
             </div>
           </div>
 
@@ -485,9 +508,8 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
           {entries.length > 0 && (
             <div className="space-y-2">
               {entries.map((e, i) => {
-                const t = (e.type || 'normal') as SalesEntryType;
+                const t = normalizeType(e.type);
                 const c = TAB_COLOR[t];
-                const isNormal = t === 'normal';
                 return (
                   <div
                     key={e.id}
@@ -500,23 +522,30 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                       <span className={`text-[10px] ${c.text} opacity-70 w-5`}>#{i + 1}</span>
                       <input
                         type="text"
-                        inputMode="numeric"
-                        value={e.amount === 0 ? '' : String(e.amount)}
-                        onChange={(ev) => {
-                          const v = ev.target.value.replace(/[^\d]/g, '');
-                          updateEntry(e.id, { amount: v === '' ? 0 : Number(v) });
-                        }}
-                        placeholder="0"
-                        className={`w-24 bg-white border ${c.border} rounded px-2 py-1 text-sm font-semibold ${c.text} focus:outline-none focus:ring-1`}
-                      />
-                      <span className={`text-xs ${c.text}`}>円</span>
-                      <input
-                        type="text"
-                        value={e.label || ''}
-                        onChange={(ev) => updateEntry(e.id, { label: ev.target.value })}
-                        placeholder={isNormal ? 'ラベル' : '取引先・担当など'}
+                        value={e.customer || ''}
+                        onChange={(ev) => updateEntry(e.id, { customer: ev.target.value })}
+                        placeholder="取引先"
                         className={`flex-1 bg-transparent border-b border-dashed ${c.border} text-sm focus:outline-none px-1`}
                       />
+                      <label className="flex items-center gap-1 text-[10px]">
+                        <button
+                          type="button"
+                          onClick={() => updateEntry(e.id, { deliveryNote: !e.deliveryNote })}
+                          className={`relative inline-flex h-4 w-7 items-center rounded-full transition ${
+                            e.deliveryNote ? 'bg-amber-500' : 'bg-slate-300'
+                          }`}
+                          aria-label="納品書の要否"
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition ${
+                              e.deliveryNote ? 'translate-x-3.5' : 'translate-x-0.5'
+                            }`}
+                          />
+                        </button>
+                        <span className={e.deliveryNote ? c.text : 'text-slate-400'}>
+                          納品書{e.deliveryNote ? '要' : '不要'}
+                        </span>
+                      </label>
                       <button
                         onClick={() => removeEntry(e.id)}
                         className="opacity-50 group-hover:opacity-100 text-rose-400 hover:text-rose-600 text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-rose-50"
@@ -525,43 +554,55 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                         ×
                       </button>
                     </div>
-                    {!isNormal && (
-                      <>
-                        {/* 材料販売の原価入力（くろさんが後から補完） */}
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className={`text-[10px] ${c.text} opacity-70 w-12`}>原価</span>
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            value={e.cost == null || e.cost === 0 ? '' : String(e.cost)}
-                            onChange={(ev) => {
-                              const v = ev.target.value.replace(/[^\d]/g, '');
-                              updateEntry(e.id, { cost: v === '' ? undefined : Number(v) });
-                            }}
-                            placeholder="後で補完可"
-                            className={`w-24 bg-white border ${c.border} rounded px-2 py-1 text-xs ${c.text} focus:outline-none focus:ring-1`}
-                          />
-                          <span className={`text-[10px] ${c.text}`}>円</span>
-                          {e.amount > 0 && e.cost != null && e.cost > 0 && (
-                            <span className="text-[10px] text-slate-500">
-                              粗利 ¥{(e.amount - e.cost).toLocaleString()} ({(((e.amount - e.cost) / e.amount) * 100).toFixed(1)}%)
-                            </span>
-                          )}
-                        </div>
-                        <textarea
-                          value={e.note || ''}
-                          onChange={(ev) => updateEntry(e.id, { note: ev.target.value })}
-                          rows={6}
-                          placeholder={NOTE_PLACEHOLDER[t]}
-                          className={`mt-2 w-full bg-white border ${c.border} rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 resize-y min-h-[120px]`}
-                        />
-                      </>
-                    )}
+                    {/* 売値・原価 */}
+                    <div className="mt-2 flex items-center gap-2 text-xs">
+                      <span className={`${c.text} opacity-70 w-10`}>売値</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={e.amount == null ? '' : String(e.amount)}
+                        onChange={(ev) => {
+                          const v = ev.target.value.replace(/[^\d]/g, '');
+                          updateEntry(e.id, { amount: v === '' ? undefined : Number(v) });
+                        }}
+                        placeholder="後で可"
+                        className={`w-24 bg-white border ${c.border} rounded px-2 py-1 ${c.text} focus:outline-none focus:ring-1`}
+                      />
+                      <span className={`${c.text} opacity-70 w-10 ml-2`}>原価</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={e.cost == null ? '' : String(e.cost)}
+                        onChange={(ev) => {
+                          const v = ev.target.value.replace(/[^\d]/g, '');
+                          updateEntry(e.id, { cost: v === '' ? undefined : Number(v) });
+                        }}
+                        placeholder="後で可"
+                        className={`w-24 bg-white border ${c.border} rounded px-2 py-1 ${c.text} focus:outline-none focus:ring-1`}
+                      />
+                      {typeof e.amount === 'number' &&
+                        typeof e.cost === 'number' &&
+                        e.amount > 0 &&
+                        e.cost > 0 && (
+                          <span className="text-[10px] text-slate-500 ml-2">
+                            粗利 ¥{(e.amount - e.cost).toLocaleString()} (
+                            {(((e.amount - e.cost) / e.amount) * 100).toFixed(1)}%)
+                          </span>
+                        )}
+                    </div>
+                    <textarea
+                      value={e.note || ''}
+                      onChange={(ev) => updateEntry(e.id, { note: ev.target.value })}
+                      rows={8}
+                      placeholder={TEMPLATE[t]}
+                      className={`mt-2 w-full bg-white border ${c.border} rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 resize-y min-h-[160px]`}
+                    />
                     {((e.images && e.images.length > 0) || (e.pdfs && e.pdfs.length > 0)) && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {(e.images || []).map((url) => (
                           <div key={url} className="relative group/img">
                             <a href={url} target="_blank" rel="noopener noreferrer">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={url}
                                 alt=""
@@ -572,7 +613,9 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                               onClick={() => removeEntryImage(e.id, url)}
                               className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white rounded-full text-xs leading-none opacity-0 group-hover/img:opacity-100 transition"
                               title="削除"
-                            >×</button>
+                            >
+                              ×
+                            </button>
                           </div>
                         ))}
                         {(e.pdfs || []).map((p) => (
@@ -593,7 +636,9 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                               onClick={() => removeEntryPdf(e.id, p.url)}
                               className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white rounded-full text-xs leading-none opacity-0 group-hover/img:opacity-100 transition"
                               title="削除"
-                            >×</button>
+                            >
+                              ×
+                            </button>
                           </div>
                         ))}
                       </div>
