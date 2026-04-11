@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import {
@@ -77,6 +77,23 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
   const [saving, setSaving] = useState(false);
   const customerRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const draftNoteRef = useRef<HTMLTextAreaElement>(null);
+  const memoRef = useRef<HTMLTextAreaElement>(null);
+  const entryNoteRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
+
+  // テキストエリアの高さを内容に合わせて自動調整
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }, []);
+
+  // ドラフトnote・memoが変わったときに高さ再計算
+  useEffect(() => { autoResize(draftNoteRef.current); }, [draftNote, autoResize]);
+  useEffect(() => { autoResize(memoRef.current); }, [memo, autoResize]);
+  useEffect(() => {
+    entryNoteRefs.current.forEach((el) => autoResize(el));
+  }, [entries, autoResize]);
 
   useEffect(() => {
     if (!open) return;
@@ -425,9 +442,9 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
             <textarea
               value={draftNote}
               onChange={(e) => setDraftNote(e.target.value)}
-              rows={12}
+              ref={draftNoteRef}
               placeholder="テンプレに沿って記入"
-              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 resize-y min-h-[240px]`}
+              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 resize-none overflow-hidden`}
             />
 
             {/* Image/PDF strip + upload */}
@@ -593,9 +610,12 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                     <textarea
                       value={e.note || ''}
                       onChange={(ev) => updateEntry(e.id, { note: ev.target.value })}
-                      rows={8}
+                      ref={(el) => {
+                        if (el) entryNoteRefs.current.set(e.id, el);
+                        else entryNoteRefs.current.delete(e.id);
+                      }}
                       placeholder={TEMPLATE[t]}
-                      className={`mt-2 w-full bg-white border ${c.border} rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 resize-y min-h-[160px]`}
+                      className={`mt-2 w-full bg-white border ${c.border} rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 resize-none overflow-hidden`}
                     />
                     {((e.images && e.images.length > 0) || (e.pdfs && e.pdfs.length > 0)) && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -664,9 +684,9 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
             <textarea
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              rows={3}
+              ref={memoRef}
               placeholder="今日あったこと、思ったこと、何でもどうぞ"
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 resize-y min-h-[60px]"
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 resize-none overflow-hidden min-h-[80px]"
             />
           </div>
         </div>

@@ -13,7 +13,8 @@ export interface SubCalendar {
   name: string;
   color: string; // hex
   icon?: string; // emoji
-  visible: boolean; // 表示ON/OFF
+  visible: boolean; // 表示ON/OFF（イベントを月次グリッドに表示するか）
+  hiddenFromBar?: boolean; // フィルターバーのチップを非表示にするか
 }
 
 export interface EventComment {
@@ -188,6 +189,7 @@ export const COLOR_PALETTE = [
   '#2563eb', '#db2777', '#059669', '#d97706', '#9333ea',
   '#dc2626', '#0891b2', '#ca8a04', '#7c3aed', '#0d9488',
   '#e11d48', '#65a30d', '#9f1239', '#1e40af', '#7e22ce',
+  '#6b7280', '#374151', '#111827', // グレー・ダークグレー・ほぼ黒（夜勤用）
 ];
 
 // Helper: derive bg/text colors from main color

@@ -268,6 +268,51 @@ family_calendar/
 
 ---
 
+---
+
+## 🛠️ 2026-04-12 くろさん①作業ログ（第2回）
+
+### ③ TimeTree→Supabase 全カレンダー補完
+
+**変更前**: tt_work(古①), tt_misa(古②), tt_private(古③) の3カレンダー名が崩れていた
+**変更後**: 正しい名前に修正 + 新カレンダー4件追加
+
+| 種別 | カレンダー | 件数 |
+|---|---|---|
+| 名前修正 | TT:テクネスト予定表, TT:みさシフト, TT:プライベート, TT:家族, TT:その他 | - |
+| 新規追加 | 🎌 祝日・休日 | 73件（2024-2027） |
+| 新規追加 | 📋 税務スケジュール | 80件（2024-2027） |
+| 新規追加 | 🎉 世間の行事 | 100件（2024-2027） |
+| 新規追加 | 🚨 過去の災害 | 13件（1923-2024） |
+
+- 実行スクリプト: `scripts/setup_subcalendars.mjs` / `scripts/import_utility_calendars.mjs`
+- 設定：TT:家族・TT:その他 は `hiddenFromBar: true`（フィルターバー非表示）
+- 災害カレンダーはデフォルト表示OFF（見たい時だけON）
+
+### ④ UI改善
+
+**1. types.ts**
+- `SubCalendar.hiddenFromBar?: boolean` 追加
+- `COLOR_PALETTE` にグレー3色追加（`#6b7280`, `#374151`, `#111827`）
+
+**2. SettingsModal.tsx**
+- `totalEventCount?: number` prop追加→カレンダータブに総件数表示
+- 「バー非表示」チェックボックス追加（`hiddenFromBar`を制御）
+- `hiddenFromBar: true` のカレンダーはdimmed表示
+
+**3. page.tsx**
+- フィルターバーで `hiddenFromBar: true` を非表示
+- `totalEventCount={events.length}` をSettingsModalに渡す
+
+**4. MonthView.tsx**
+- イベントテキスト `text-[10px] sm:text-[11px]` → `text-[11px] sm:text-[12px]`（スマホ可読性向上）
+
+**5. SalesModal.tsx**
+- note/memoの全textareaを自動高さ調整に変更（内側スクロールなし・内容分だけ伸びる）
+- `overflow-hidden resize-none` + `useEffect` で高さ管理
+
+---
+
 ## ⚠️ 制約・決定事項
 
 - **美砂ちゃんへの公開**: 内緒（サプライズ） → MVP確認OK後に公開

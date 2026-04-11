@@ -263,7 +263,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="text-left text-[10px] sm:text-[11px] leading-tight rounded px-1 py-[2px] truncate hover:brightness-95 transition flex items-center gap-0.5"
+                                className="text-left text-[11px] sm:text-[12px] leading-tight rounded px-1 py-[2px] truncate hover:brightness-95 transition flex items-center gap-0.5"
                                 style={{
                                   backgroundColor: c.bg,
                                   color: c.fg,
@@ -432,7 +432,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                     <button
                       key={`${b.event.id}__${b.weekIdx}__${b.startCol}`}
                       onClick={(e) => { e.stopPropagation(); onEventClick(b.event); }}
-                      className="pointer-events-auto absolute text-left text-[10px] sm:text-[11px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-medium shadow-sm"
+                      className="pointer-events-auto absolute text-left text-[11px] sm:text-[12px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-medium shadow-sm"
                       style={{
                         left: `calc(${leftPct}% + 3px)`,
                         width: `calc(${widthPct}% - 6px)`,

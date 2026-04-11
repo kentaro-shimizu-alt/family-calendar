@@ -269,9 +269,9 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Sub-calendar filter chips */}
+        {/* Sub-calendar filter chips (hiddenFromBar=trueは表示しない) */}
         <div className="flex items-center justify-center gap-1.5 pt-2 flex-wrap">
-          {subCalendars.map((c) => (
+          {subCalendars.filter((c) => !c.hiddenFromBar).map((c) => (
             <button
               key={c.id}
               onClick={() => toggleCalendarVisible(c.id)}
@@ -399,6 +399,7 @@ export default function HomePage() {
         open={settingsOpen}
         members={members}
         subCalendars={subCalendars}
+        totalEventCount={events.length}
         onClose={() => setSettingsOpen(false)}
         onSaved={(m, s) => {
           setMembers(m);

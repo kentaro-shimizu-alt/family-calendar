@@ -7,6 +7,7 @@ interface Props {
   open: boolean;
   members: Member[];
   subCalendars: SubCalendar[];
+  totalEventCount?: number;
   onClose: () => void;
   onSaved: (members: Member[], subCalendars: SubCalendar[]) => void;
 }
@@ -16,7 +17,7 @@ const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽
 // 💣 削除（カレンダー・メンバー）操作用のPIN。将来変更する時はここだけ書き換える。
 const DELETE_PIN = '0713';
 
-export default function SettingsModal({ open, members, subCalendars, onClose, onSaved }: Props) {
+export default function SettingsModal({ open, members, subCalendars, totalEventCount, onClose, onSaved }: Props) {
   const [tab, setTab] = useState<'members' | 'calendars' | 'export'>('members');
   const [localMembers, setLocalMembers] = useState<Member[]>(members);
   const [localCals, setLocalCals] = useState<SubCalendar[]>(subCalendars);
@@ -202,8 +203,13 @@ export default function SettingsModal({ open, members, subCalendars, onClose, on
 
           {tab === 'calendars' && (
             <>
+              {totalEventCount != null && (
+                <div className="text-xs text-slate-500 text-right pb-1">
+                  総予定件数: <span className="font-bold text-slate-700">{totalEventCount.toLocaleString()}</span> 件
+                </div>
+              )}
               {localCals.map((c) => (
-                <div key={c.id} className="border border-slate-200 rounded-lg p-3 space-y-2">
+                <div key={c.id} className={`border rounded-lg p-3 space-y-2 ${c.hiddenFromBar ? 'border-slate-100 bg-slate-50 opacity-70' : 'border-slate-200'}`}>
                   <div className="flex items-center gap-2">
                     <span className="text-xl">{c.icon}</span>
                     <input
@@ -212,7 +218,7 @@ export default function SettingsModal({ open, members, subCalendars, onClose, on
                       onChange={(e) => updateCal(c.id, { name: e.target.value })}
                       className="flex-1 border border-slate-200 rounded-lg px-2 py-1 text-sm"
                     />
-                    <label className="text-xs flex items-center gap-1">
+                    <label className="text-xs flex items-center gap-1 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={c.visible}
@@ -220,6 +226,15 @@ export default function SettingsModal({ open, members, subCalendars, onClose, on
                         className="w-3.5 h-3.5"
                       />
                       表示
+                    </label>
+                    <label className="text-xs flex items-center gap-1 cursor-pointer text-slate-400">
+                      <input
+                        type="checkbox"
+                        checked={!!c.hiddenFromBar}
+                        onChange={(e) => updateCal(c.id, { hiddenFromBar: e.target.checked })}
+                        className="w-3.5 h-3.5"
+                      />
+                      バー非表示
                     </label>
                     <button
                       onClick={() => removeCal(c.id)}
