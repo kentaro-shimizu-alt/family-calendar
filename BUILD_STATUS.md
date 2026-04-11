@@ -135,6 +135,42 @@ family_calendar/
 
 ---
 
+---
+
+## 📦 TimeTree → Supabase インポートログ
+
+### 2026-04-11 くろさん⑤実施
+
+**変更前**: Supabase `events` テーブル 0件（TimeTreeデータ未投入）  
+**変更後**: 4273件 upsert（重複なし・全件新規追加）
+
+| カレンダー | 件数 | member_id |
+|---|---|---|
+| tt_work（テクネスト予定表） | 3560 | kentaro |
+| tt_private（プライベート） | 659 | kentaro |
+| tt_misa（みさシフト） | 54 | misa |
+
+- 期間: 1949-02-26 〜 2026-03-01（TimeTree全期間）
+- ファイル添付あり注記: 116件（`[添付ファイルあり・TimeTreeにて確認可]` をnoteに追記）
+- label_id→color: LABEL_COLOR_MAP で1-10をCOLOR_PALETTEに近似変換済み
+- member_id: tt_misa→misa、それ以外→kentaro（①指示に従い設定）
+- スナップショット: `scripts/_snapshots/timetree_events.json`（4273件）
+- ファイル参照: `scripts/_snapshots/timetree_file_refs.json`（116件）
+
+**⚠️ 手動残タスク（健太郎さんへ）**:
+- Supabase Dashboard SQL Editorで `sub_calendars` 追加SQL実行:
+  ```sql
+  insert into public.sub_calendars (id, name, color, icon, visible) values
+    ('tt_work',    'TimeTree:テクネスト',    '#10b981', '🏢', true),
+    ('tt_misa',    'TimeTree:みさシフト',    '#db2777', '👩', true),
+    ('tt_private', 'TimeTree:プライベート',  '#f59e0b', '🌟', true),
+    ('tt_family',  'TimeTree:家族',          '#3b82f6', '🏠', true),
+    ('tt_legacy',  'TimeTree:その他',        '#9ca3af', '📅', true)
+  on conflict (id) do nothing;
+  ```
+
+---
+
 ## ⚠️ 制約・決定事項
 
 - **美砂ちゃんへの公開**: 内緒（サプライズ） → MVP確認OK後に公開

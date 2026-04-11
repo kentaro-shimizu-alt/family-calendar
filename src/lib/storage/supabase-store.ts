@@ -119,7 +119,7 @@ export const supabaseStore: Store = {
   // ===== Events =====
   async getAllEventsRaw(): Promise<CalendarEvent[]> {
     const sb = getSupabase();
-    const { data, error } = await sb.from('events').select('*');
+    const { data, error } = await sb.from('events').select('*').range(0, 99999);
     if (error) throw new Error(`supabase events select: ${error.message}`);
     return (data || []).map(rowToEvent);
   },

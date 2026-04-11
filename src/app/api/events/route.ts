@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { listEvents, createEvent } from '@/lib/db';
 import { MemberId } from '@/lib/types';
 
+// キャッシュ無効化（Vercel の route cache で古いデータが出るのを防ぐ）
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
   const yearMonth = req.nextUrl.searchParams.get('month') || undefined;
   const events = await listEvents(yearMonth);
