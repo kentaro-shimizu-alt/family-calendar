@@ -14,6 +14,12 @@ export const config = {
 };
 
 export function middleware(req: NextRequest) {
+  // 🚧 2026-04-11: 一旦認証OFF。ゆくゆく家族共通パスワードを復活させるときは
+  //    下の `return NextResponse.next();` を削除するだけでOK（env var は Vercel 側で設定）
+  return NextResponse.next();
+
+  // --- 以下、将来の認証復活用コード（現在は到達しない） ---
+  // eslint-disable-next-line no-unreachable
   const enableAuth = (process.env.ENABLE_AUTH || '').toLowerCase() === 'true';
   const familyPassword = process.env.FAMILY_PASSWORD;
   if (!enableAuth || !familyPassword) {
