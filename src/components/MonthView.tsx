@@ -93,7 +93,7 @@ interface BarSeg {
 }
 
 // Constants for layout
-const DATE_HEADER_H = 44; // px, top date row (date + sales chip stack)
+const DATE_HEADER_H = 28; // px, top date row (date + single row of sales chips)
 const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
@@ -306,52 +306,76 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                     (e) => ((e.type as any) === 'normal' || !e.type || e.type === 'site')
                   );
                   const matEntries = allEntries.filter((e) => e.type === 'material');
-                  const hasAnySales = siteEntries.length > 0 || matEntries.length > 0;
+                  const totalN = siteEntries.length + matEntries.length;
+                  const hasAnySales = totalN > 0;
+                  // 合計が3件以上なら各タイプをまとめチップに崩す（1行に収めるため）
+                  const useSummary = totalN > 2;
 
-                  const renderChipRow = (entries: SalesEntry[], kind: 'site' | 'material') => {
-                    if (entries.length === 0) return null;
+                  const renderChips = (
+                    entries: SalesEntry[],
+                    kind: 'site' | 'material'
+                  ): JSX.Element[] => {
+                    if (entries.length === 0) return [];
                     const colorCls =
                       kind === 'site'
                         ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200'
                         : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200';
-                    const total = entries.reduce((s, e) => s + (e.amount || 0), 0);
-                    const showIndividual = entries.length <= 2;
-                    return (
-                      <div className="flex gap-[2px] justify-end flex-wrap">
-                        {showIndividual ? (
-                          entries.map((e, i) => (
-                            <button
-                              key={i}
-                              onClick={(ev) => {
-                                ev.stopPropagation();
-                                onSalesClick(day);
-                              }}
-                              className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold ${colorCls}`}
-                              title={
-                                e.amount
-                                  ? `${kind === 'site' ? '現場' : '材料'} ¥${e.amount.toLocaleString()}${e.customer ? ` (${e.customer})` : ''}`
-                                  : `${kind === 'site' ? '現場' : '材料'} (金額未入力)`
-                              }
-                            >
-                              {e.amount ? `¥${formatYen(e.amount)}` : '¥?'}
-                            </button>
-                          ))
-                        ) : (
-                          <button
-                            onClick={(ev) => {
-                              ev.stopPropagation();
-                              onSalesClick(day);
-                            }}
-                            className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold flex items-center gap-0.5 ${colorCls}`}
-                            title={`${kind === 'site' ? '現場' : '材料'} 計 ¥${total.toLocaleString()}（${entries.length}件）`}
-                          >
-                            ¥{formatYen(total)}
-                            <span className="opacity-70 font-normal">×{entries.length}</span>
-                          </button>
-                        )}
-                      </div>
-                    );
+                    const kanaKind = kind === 'site' ? '現場' : '材料';
+                    const filled = entries.filter((e) => e.amount != null && e.amount > 0);
+                    const sum = filled.reduce((s, e) => s + (e.amount || 0), 0);
+                    const hasUnknown = filled.length < entries.length;
+
+                    if (!useSummary) {
+                      // 個別表示（1〜2件）
+                      return entries.map((e, i) => (
+                        <button
+                          key={`${kind}-${i}`}
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            onSalesClick(day);
+                          }}
+                          className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold ${colorCls}`}
+                          title={
+                            e.amount
+                              ? `${kanaKind} ¥${e.amount.toLocaleString()}${e.customer ? ` (${e.customer})` : ''}`
+                              : `${kanaKind} (金額未入力)`
+                          }
+                        >
+                          {e.amount ? `¥${formatYen(e.amount)}` : '¥?'}
+                        </button>
+                      ));
+                    }
+
+                    // まとめ表示（3件以上、または混在時の強制まとめ）
+                    let label: string;
+                    if (filled.length === 0) {
+                      label = `¥? ${entries.length}件`;
+                    } else if (hasUnknown) {
+                      label = `計¥${formatYen(sum)}+? ${entries.length}件`;
+                    } else {
+                      label = `計¥${formatYen(sum)} ${entries.length}件`;
+                    }
+                    return [
+                      (
+                        <button
+                          key={`${kind}-sum`}
+                          onClick={(ev) => {
+                            ev.stopPropagation();
+                            onSalesClick(day);
+                          }}
+                          className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold whitespace-nowrap ${colorCls}`}
+                          title={`${kanaKind} 計 ¥${sum.toLocaleString()}（${entries.length}件${hasUnknown ? `・うち${entries.length - filled.length}件金額未入力` : ''}）`}
+                        >
+                          {label}
+                        </button>
+                      ),
+                    ];
                   };
+
+                  const chips = [
+                    ...renderChips(siteEntries, 'site'),
+                    ...renderChips(matEntries, 'material'),
+                  ];
 
                   return (
                     <div
@@ -372,12 +396,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       >
                         {format(day, 'd')}
                       </span>
-                      <div className="flex flex-col gap-[2px] items-end min-w-0">
+                      <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden">
                         {hasAnySales ? (
-                          <>
-                            {renderChipRow(siteEntries, 'site')}
-                            {renderChipRow(matEntries, 'material')}
-                          </>
+                          chips
                         ) : (
                           <button
                             onClick={(e) => {
