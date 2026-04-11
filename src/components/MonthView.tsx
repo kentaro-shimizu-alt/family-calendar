@@ -1,6 +1,6 @@
 'use client';
 
-import { CalendarEvent, DailyData, Member, SubCalendar, totalSales, salesCount } from '@/lib/types';
+import { CalendarEvent, DailyData, Member, SalesEntry, SubCalendar } from '@/lib/types';
 import {
   startOfMonth,
   endOfMonth,
@@ -93,7 +93,7 @@ interface BarSeg {
 }
 
 // Constants for layout
-const DATE_HEADER_H = 26; // px, top date row
+const DATE_HEADER_H = 44; // px, top date row (date + sales chip stack)
 const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
@@ -240,13 +240,6 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const dayEvents = singleByDate.get(dateKey) || [];
                   const inMonth = isSameMonth(day, currentMonth);
-                  const today = isToday(day);
-                  const dailyEntry = dailyData[dateKey];
-                  const salesSum = totalSales(dailyEntry);
-                  const siteSum = siteAmountByDate.get(dateKey) || 0;
-                  const combinedSum = salesSum + siteSum;
-                  const salesCnt = salesCount(dailyEntry);
-                  const hasSales = combinedSum > 0;
                   return (
                     <div
                       key={dateKey}
@@ -301,26 +294,73 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                 })}
               </div>
 
-              {/* Overlay: date numbers + sales buttons on top of each cell */}
+              {/* Overlay: date numbers + sales chips on top of each cell */}
               <div className="absolute top-0 left-0 right-0 grid grid-cols-7 gap-px pointer-events-none">
                 {week.map((day, di) => {
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const inMonth = isSameMonth(day, currentMonth);
                   const today = isToday(day);
                   const dailyEntry = dailyData[dateKey];
-                  const salesSum = totalSales(dailyEntry);
-                  const siteSum = siteAmountByDate.get(dateKey) || 0;
-                  const combinedSum = salesSum + siteSum;
-                  const salesCnt = salesCount(dailyEntry);
-                  const hasSales = combinedSum > 0;
+                  const allEntries: SalesEntry[] = dailyEntry?.salesEntries || [];
+                  const siteEntries = allEntries.filter(
+                    (e) => ((e.type as any) === 'normal' || !e.type || e.type === 'site')
+                  );
+                  const matEntries = allEntries.filter((e) => e.type === 'material');
+                  const hasAnySales = siteEntries.length > 0 || matEntries.length > 0;
+
+                  const renderChipRow = (entries: SalesEntry[], kind: 'site' | 'material') => {
+                    if (entries.length === 0) return null;
+                    const colorCls =
+                      kind === 'site'
+                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200'
+                        : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200';
+                    const total = entries.reduce((s, e) => s + (e.amount || 0), 0);
+                    const showIndividual = entries.length <= 2;
+                    return (
+                      <div className="flex gap-[2px] justify-end flex-wrap">
+                        {showIndividual ? (
+                          entries.map((e, i) => (
+                            <button
+                              key={i}
+                              onClick={(ev) => {
+                                ev.stopPropagation();
+                                onSalesClick(day);
+                              }}
+                              className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold ${colorCls}`}
+                              title={
+                                e.amount
+                                  ? `${kind === 'site' ? '現場' : '材料'} ¥${e.amount.toLocaleString()}${e.customer ? ` (${e.customer})` : ''}`
+                                  : `${kind === 'site' ? '現場' : '材料'} (金額未入力)`
+                              }
+                            >
+                              {e.amount ? `¥${formatYen(e.amount)}` : '¥?'}
+                            </button>
+                          ))
+                        ) : (
+                          <button
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              onSalesClick(day);
+                            }}
+                            className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold flex items-center gap-0.5 ${colorCls}`}
+                            title={`${kind === 'site' ? '現場' : '材料'} 計 ¥${total.toLocaleString()}（${entries.length}件）`}
+                          >
+                            ¥{formatYen(total)}
+                            <span className="opacity-70 font-normal">×{entries.length}</span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  };
+
                   return (
                     <div
                       key={dateKey}
-                      className={`flex items-center justify-between px-2 pt-1 gap-1 ${inMonth ? '' : 'opacity-40'}`}
+                      className={`flex items-start justify-between px-1.5 pt-1 gap-1 ${inMonth ? '' : 'opacity-40'}`}
                       style={{ height: DATE_HEADER_H }}
                     >
                       <span
-                        className={`text-xs font-semibold ${
+                        className={`text-xs font-semibold flex-shrink-0 ${
                           today
                             ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
                             : di === 0
@@ -332,22 +372,25 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       >
                         {format(day, 'd')}
                       </span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onSalesClick(day); }}
-                        className={`pointer-events-auto text-[10px] leading-none px-1.5 py-1 rounded min-w-[24px] min-h-[22px] flex items-center justify-center gap-0.5 transition ${
-                          hasSales
-                            ? 'bg-emerald-100 text-emerald-700 font-semibold hover:bg-emerald-200'
-                            : 'text-slate-300 hover:text-emerald-500 hover:bg-emerald-50'
-                        }`}
-                        title={hasSales
-                          ? `売上: ¥${combinedSum.toLocaleString()}${siteSum > 0 ? ` (うち現場 ¥${siteSum.toLocaleString()})` : ''}`
-                          : '売上を入力'}
-                      >
-                        {hasSales ? `¥${formatYen(combinedSum)}` : '¥'}
-                        {salesCnt > 1 && (
-                          <span className="text-[8px] font-normal opacity-75">×{salesCnt}</span>
+                      <div className="flex flex-col gap-[2px] items-end min-w-0">
+                        {hasAnySales ? (
+                          <>
+                            {renderChipRow(siteEntries, 'site')}
+                            {renderChipRow(matEntries, 'material')}
+                          </>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSalesClick(day);
+                            }}
+                            className="pointer-events-auto text-[10px] leading-none px-1.5 py-[3px] rounded min-w-[22px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
+                            title="売上を入力"
+                          >
+                            ¥
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </div>
                   );
                 })}
