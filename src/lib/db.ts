@@ -252,8 +252,10 @@ export async function upsertDailyData(
   }
   delete merged.sales;
   if (!merged.memo) delete merged.memo;
+  if (!merged.misaMemo) delete merged.misaMemo;
+  if (!merged.misaMemoImages || merged.misaMemoImages.length === 0) delete merged.misaMemoImages;
 
-  if (!merged.salesEntries && !merged.memo) {
+  if (!merged.salesEntries && !merged.memo && !merged.misaMemo) {
     await store.upsertDailyRaw(date, null);
     return { date };
   }

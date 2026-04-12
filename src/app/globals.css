@@ -48,31 +48,35 @@ body {
   }
 }
 
-/* ===== Dark mode ===== */
+/* ===== Dark mode（TimeTree風：真っ黒ベース） ===== */
 .dark {
   color-scheme: dark;
 }
+/* ベース背景（真っ黒） */
 .dark body,
 .dark main,
 .dark .bg-white { background-color: #000000 !important; color: #e2e8f0 !important; }
 .dark .bg-slate-50 { background-color: #0a0a0a !important; }
 .dark header,
 .dark .sticky { background-color: #000000 !important; }
+/* 罫線（極細・暗い） */
 .dark .border-slate-200,
 .dark .border-slate-100,
 .dark .border-b,
 .dark .border-t { border-color: #1a1a1a !important; }
+/* テキスト */
 .dark .text-slate-800 { color: #f1f5f9 !important; }
 .dark .text-slate-700 { color: #e2e8f0 !important; }
 .dark .text-slate-600 { color: #cbd5e1 !important; }
 .dark .text-slate-500 { color: #94a3b8 !important; }
 .dark .text-slate-400 { color: #64748b !important; }
+/* グリッド背景・セル */
 .dark .bg-slate-200 { background-color: #1a1a1a !important; }
 .dark .hover\:bg-slate-50:hover { background-color: #111111 !important; }
 .dark .hover\:bg-slate-100:hover { background-color: #1a1a1a !important; }
-.dark .bg-blue-50 { background-color: #0a1628 !important; }
-.dark .hover\:bg-blue-100:hover { background-color: #111d33 !important; }
-/* 日曜・土曜の薄背景 → 真っ黒 */
+.dark .bg-blue-50 { background-color: #0a1020 !important; }
+.dark .hover\:bg-blue-100:hover { background-color: #101830 !important; }
+/* 日曜・土曜も真っ黒 */
 .dark .bg-rose-50 { background-color: #000000 !important; }
 .dark .hover\:bg-rose-100:hover { background-color: #111111 !important; }
 .dark .bg-sky-50 { background-color: #000000 !important; }
@@ -87,12 +91,12 @@ body {
 .dark input, .dark textarea, .dark select {
   background-color: #0a0a0a !important;
   color: #e2e8f0 !important;
-  border-color: #222222 !important;
+  border-color: #1a1a1a !important;
 }
 .dark input::placeholder, .dark textarea::placeholder { color: #475569 !important; }
 /* スクロールバー */
 .dark .event-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
-/* ダークモード: 濃い背景 + 白抜き文字 + 太字 */
+/* ダークモード: 予定ブロック — アクセントカラー背景 + 白抜き太字 */
 .dark .ev-block {
   background-color: var(--ev-accent) !important;
   color: #ffffff !important;

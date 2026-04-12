@@ -91,6 +91,18 @@ export default function HomePage() {
   }, []);
 
   const loadAll = useCallback(async () => {
+    // まずキャッシュから即表示（ぱっと出す）
+    try {
+      const cacheKey = `cal-cache-${monthKey}`;
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { events: cEv, daily: cD } = JSON.parse(cached);
+        if (cEv) setEvents(cEv);
+        if (cD) setDailyData(cD);
+      }
+    } catch {}
+
+    // バックグラウンドで最新を取得
     setLoading(true);
     try {
       const [evRes, dRes] = await Promise.all([
@@ -99,10 +111,15 @@ export default function HomePage() {
       ]);
       const evData = await evRes.json();
       const dData = await dRes.json();
-      setEvents(evData.events || []);
+      const evList = evData.events || [];
       const map: Record<string, DailyData> = {};
       for (const d of (dData.data || []) as DailyData[]) map[d.date] = d;
+      setEvents(evList);
       setDailyData(map);
+      // キャッシュ保存
+      try {
+        localStorage.setItem(`cal-cache-${monthKey}`, JSON.stringify({ events: evList, daily: map }));
+      } catch {}
     } catch (e) {
       console.error(e);
     } finally {
