@@ -255,7 +255,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
           const cellPadTop = CELL_PAD_TOP_BASE + barAreaH;
           return (
             <div key={wi} className="relative mb-px">
-              <div className="grid grid-cols-7 gap-px bg-slate-200">
+              <div className="grid grid-cols-7 gap-px bg-slate-300/40">
                 {week.map((day, di) => {
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const dayEvents = singleByDate.get(dateKey) || [];
@@ -285,7 +285,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="ev-block text-left text-[9px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold sm:font-medium"
+                                className="ev-block text-left text-[9px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold whitespace-nowrap overflow-hidden text-ellipsis"
                                 style={{
                                   '--ev-bg': c.bg,
                                   '--ev-fg': c.fg,
@@ -304,7 +304,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 {ev.startTime && (
                                   <span className="font-bold">{ev.startTime}</span>
                                 )}
-                                <span className="sm:truncate">{ev.title}</span>
+                                <span className="truncate">{ev.title}</span>
                                 {ev.images && ev.images.length > 0 && (
                                   <span className="text-[8px]">📷</span>
                                 )}
@@ -322,7 +322,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
               </div>
 
               {/* Overlay: date numbers + sales chips on top of each cell */}
-              <div className="absolute top-0 left-0 right-0 grid grid-cols-7 gap-px pointer-events-none">
+              <div className="absolute top-0 left-0 right-0 grid grid-cols-7 gap-px bg-slate-300/40 pointer-events-none">
                 {week.map((day, di) => {
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const inMonth = isSameMonth(day, currentMonth);

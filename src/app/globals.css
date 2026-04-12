@@ -18,6 +18,11 @@ body {
   overscroll-behavior: none;
 }
 
+/* 予定ブロック共通: 太字 */
+.ev-block {
+  font-weight: 700 !important;
+}
+
 /* Scrollbar inside event list */
 .event-scroll::-webkit-scrollbar {
   width: 4px;
@@ -35,11 +40,11 @@ body {
     border-left-color: var(--ev-accent) !important;
     text-shadow: 0 0.5px 1px rgba(0,0,0,0.2);
     font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    font-weight: 800 !important;
     letter-spacing: -0.02em;
-    word-break: break-all;
-    overflow-wrap: anywhere;
-    white-space: normal !important;
-    text-overflow: clip !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 }
 
@@ -49,49 +54,49 @@ body {
 }
 .dark body,
 .dark main,
-.dark .bg-white { background-color: #1e293b !important; color: #e2e8f0 !important; }
-.dark .bg-slate-50 { background-color: #263348 !important; }
+.dark .bg-white { background-color: #000000 !important; color: #e2e8f0 !important; }
+.dark .bg-slate-50 { background-color: #0a0a0a !important; }
 .dark header,
-.dark .sticky { background-color: #1e293b !important; }
+.dark .sticky { background-color: #000000 !important; }
 .dark .border-slate-200,
 .dark .border-slate-100,
 .dark .border-b,
-.dark .border-t { border-color: #334155 !important; }
+.dark .border-t { border-color: #1a1a1a !important; }
 .dark .text-slate-800 { color: #f1f5f9 !important; }
 .dark .text-slate-700 { color: #e2e8f0 !important; }
 .dark .text-slate-600 { color: #cbd5e1 !important; }
 .dark .text-slate-500 { color: #94a3b8 !important; }
 .dark .text-slate-400 { color: #64748b !important; }
-.dark .bg-slate-200 { background-color: #334155 !important; }
-.dark .hover\:bg-slate-50:hover { background-color: #263348 !important; }
-.dark .hover\:bg-slate-100:hover { background-color: #2d3f55 !important; }
-.dark .bg-blue-50 { background-color: #1e3a5f !important; }
-.dark .hover\:bg-blue-100:hover { background-color: #1e4080 !important; }
-/* 日曜・土曜の薄背景 */
-.dark .bg-rose-50 { background-color: #2d1a1a !important; }
-.dark .hover\:bg-rose-100:hover { background-color: #3d1f1f !important; }
-.dark .bg-sky-50 { background-color: #0c2235 !important; }
-.dark .hover\:bg-sky-100:hover { background-color: #0f2d45 !important; }
+.dark .bg-slate-200 { background-color: #1a1a1a !important; }
+.dark .hover\:bg-slate-50:hover { background-color: #111111 !important; }
+.dark .hover\:bg-slate-100:hover { background-color: #1a1a1a !important; }
+.dark .bg-blue-50 { background-color: #0a1628 !important; }
+.dark .hover\:bg-blue-100:hover { background-color: #111d33 !important; }
+/* 日曜・土曜の薄背景 → 真っ黒 */
+.dark .bg-rose-50 { background-color: #000000 !important; }
+.dark .hover\:bg-rose-100:hover { background-color: #111111 !important; }
+.dark .bg-sky-50 { background-color: #000000 !important; }
+.dark .hover\:bg-sky-100:hover { background-color: #111111 !important; }
 /* カレンダーグリッドの罫線 */
-.dark .bg-slate-200.grid { background-color: #334155 !important; }
+.dark .bg-slate-200.grid { background-color: #1a1a1a !important; }
 /* モーダル背景 */
 .dark .bg-white.rounded-t-2xl,
 .dark .bg-white.rounded-2xl,
-.dark .bg-white.rounded-lg { background-color: #1e293b !important; }
+.dark .bg-white.rounded-lg { background-color: #111111 !important; }
 /* 入力欄 */
 .dark input, .dark textarea, .dark select {
-  background-color: #0f172a !important;
+  background-color: #0a0a0a !important;
   color: #e2e8f0 !important;
-  border-color: #334155 !important;
+  border-color: #222222 !important;
 }
 .dark input::placeholder, .dark textarea::placeholder { color: #475569 !important; }
 /* スクロールバー */
 .dark .event-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
-/* ダークモード: 濃い背景 + 白抜き文字 */
+/* ダークモード: 濃い背景 + 白抜き文字 + 太字 */
 .dark .ev-block {
   background-color: var(--ev-accent) !important;
   color: #ffffff !important;
-  font-weight: 700;
+  font-weight: 800 !important;
   text-shadow: 0 0.5px 2px rgba(0,0,0,0.4);
 }
 /* 今日の青丸はそのまま */
