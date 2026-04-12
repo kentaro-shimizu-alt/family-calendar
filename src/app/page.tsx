@@ -49,6 +49,17 @@ export default function HomePage() {
   const [keepOpen, setKeepOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [filterBarVisible, setFilterBarVisible] = useState(true);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('calendar-theme') as 'light' | 'dark') || 'light';
+    }
+    return 'light';
+  });
+
+  function toggleTheme(t: 'light' | 'dark') {
+    setTheme(t);
+    localStorage.setItem('calendar-theme', t);
+  }
 
   const [loading, setLoading] = useState(false);
 
@@ -219,7 +230,7 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className={`min-h-screen flex flex-col${theme === 'dark' ? ' dark' : ''}`}>
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-3 py-2 sticky top-0 z-20">
         <div className="flex items-center justify-center gap-1">
@@ -413,6 +424,8 @@ export default function HomePage() {
         members={members}
         subCalendars={subCalendars}
         totalEventCount={events.length}
+        theme={theme}
+        onThemeChange={toggleTheme}
         onClose={() => setSettingsOpen(false)}
         onSaved={(m, s) => {
           setMembers(m);

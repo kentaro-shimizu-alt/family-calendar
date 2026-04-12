@@ -26,3 +26,49 @@ body {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 2px;
 }
+
+/* ===== Dark mode ===== */
+.dark {
+  color-scheme: dark;
+}
+.dark body,
+.dark main,
+.dark .bg-white { background-color: #1e293b !important; color: #e2e8f0 !important; }
+.dark .bg-slate-50 { background-color: #263348 !important; }
+.dark header,
+.dark .sticky { background-color: #1e293b !important; }
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-b,
+.dark .border-t { border-color: #334155 !important; }
+.dark .text-slate-800 { color: #f1f5f9 !important; }
+.dark .text-slate-700 { color: #e2e8f0 !important; }
+.dark .text-slate-600 { color: #cbd5e1 !important; }
+.dark .text-slate-500 { color: #94a3b8 !important; }
+.dark .text-slate-400 { color: #64748b !important; }
+.dark .bg-slate-200 { background-color: #334155 !important; }
+.dark .hover\:bg-slate-50:hover { background-color: #263348 !important; }
+.dark .hover\:bg-slate-100:hover { background-color: #2d3f55 !important; }
+.dark .bg-blue-50 { background-color: #1e3a5f !important; }
+.dark .hover\:bg-blue-100:hover { background-color: #1e4080 !important; }
+/* 日曜・土曜の薄背景 */
+.dark .bg-rose-50 { background-color: #2d1a1a !important; }
+.dark .hover\:bg-rose-100:hover { background-color: #3d1f1f !important; }
+.dark .bg-sky-50 { background-color: #0c2235 !important; }
+.dark .hover\:bg-sky-100:hover { background-color: #0f2d45 !important; }
+/* カレンダーグリッドの罫線 */
+.dark .bg-slate-200.grid { background-color: #334155 !important; }
+/* モーダル背景 */
+.dark .bg-white.rounded-t-2xl,
+.dark .bg-white.rounded-2xl,
+.dark .bg-white.rounded-lg { background-color: #1e293b !important; }
+/* 入力欄 */
+.dark input, .dark textarea, .dark select {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+.dark input::placeholder, .dark textarea::placeholder { color: #475569 !important; }
+/* スクロールバー */
+.dark .event-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+/* 今日の青丸はそのまま */

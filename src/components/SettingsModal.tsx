@@ -8,6 +8,8 @@ interface Props {
   members: Member[];
   subCalendars: SubCalendar[];
   totalEventCount?: number;
+  theme?: 'light' | 'dark';
+  onThemeChange?: (t: 'light' | 'dark') => void;
   onClose: () => void;
   onSaved: (members: Member[], subCalendars: SubCalendar[]) => void;
 }
@@ -17,8 +19,8 @@ const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽
 // 💣 削除（カレンダー・メンバー）操作用のPIN。将来変更する時はここだけ書き換える。
 const DELETE_PIN = '0713';
 
-export default function SettingsModal({ open, members, subCalendars, totalEventCount, onClose, onSaved }: Props) {
-  const [tab, setTab] = useState<'members' | 'calendars' | 'export'>('members');
+export default function SettingsModal({ open, members, subCalendars, totalEventCount, theme, onThemeChange, onClose, onSaved }: Props) {
+  const [tab, setTab] = useState<'members' | 'calendars' | 'display' | 'export'>('members');
   const [localMembers, setLocalMembers] = useState<Member[]>(members);
   const [localCals, setLocalCals] = useState<SubCalendar[]>(subCalendars);
   const [saving, setSaving] = useState(false);
@@ -146,6 +148,7 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
           {[
             { id: 'members' as const, label: '👤 メンバー' },
             { id: 'calendars' as const, label: '📅 カレンダー' },
+            { id: 'display' as const, label: '🎨 表示' },
             { id: 'export' as const, label: '📤 エクスポート' },
           ].map((t) => (
             <button
@@ -281,6 +284,34 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
                 + カレンダーを追加
               </button>
             </>
+          )}
+
+          {tab === 'display' && (
+            <div className="space-y-4">
+              <div className="border border-slate-200 rounded-lg p-4">
+                <div className="font-bold text-slate-800 mb-3">🌓 テーマ</div>
+                <div className="flex gap-3">
+                  {[
+                    { value: 'light' as const, label: '☀️ ライト', desc: '明るい背景' },
+                    { value: 'dark' as const, label: '🌙 ダーク', desc: '暗い背景' },
+                  ].map((t) => (
+                    <button
+                      key={t.value}
+                      onClick={() => onThemeChange?.(t.value)}
+                      className={`flex-1 rounded-xl border-2 p-4 text-center transition ${
+                        theme === t.value
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="text-2xl mb-1">{t.label.split(' ')[0]}</div>
+                      <div className="text-sm font-semibold">{t.label.split(' ')[1]}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{t.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
 
           {tab === 'export' && (
