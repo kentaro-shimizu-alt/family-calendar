@@ -48,6 +48,7 @@ export default function HomePage() {
   // Keep + Settings
   const [keepOpen, setKeepOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [filterBarVisible, setFilterBarVisible] = useState(true);
 
   const [loading, setLoading] = useState(false);
 
@@ -267,9 +268,20 @@ export default function HomePage() {
           >
             ⚙️
           </button>
+          <button
+            onClick={() => setFilterBarVisible((v) => !v)}
+            className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
+              filterBarVisible ? 'bg-slate-50 hover:bg-slate-100 text-slate-500' : 'bg-blue-100 text-blue-600'
+            }`}
+            aria-label="カレンダータグの表示切替"
+            title={filterBarVisible ? 'タグを隠す' : 'タグを表示'}
+          >
+            🏷️
+          </button>
         </div>
 
         {/* Sub-calendar filter chips (hiddenFromBar=trueは表示しない) */}
+        {filterBarVisible && (
         <div className="flex items-center justify-center gap-1.5 pt-2 flex-wrap">
           {subCalendars.filter((c) => !c.hiddenFromBar).map((c) => (
             <button
@@ -289,6 +301,7 @@ export default function HomePage() {
             </button>
           ))}
         </div>
+        )} {/* end filterBarVisible */}
 
         {/* Search panel */}
         {searchOpen && (

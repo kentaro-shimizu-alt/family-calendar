@@ -243,9 +243,11 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                   return (
                     <div
                       key={dateKey}
-                      className={`bg-white min-h-[140px] sm:min-h-[160px] flex flex-col cursor-pointer transition-colors hover:bg-slate-50 ${
-                        inMonth ? '' : 'opacity-40'
-                      }`}
+                      className={`min-h-[140px] sm:min-h-[160px] flex flex-col cursor-pointer transition-colors ${
+                        di === 0 ? 'bg-rose-50 hover:bg-rose-100' :
+                        di === 6 ? 'bg-sky-50 hover:bg-sky-100' :
+                        'bg-white hover:bg-slate-50'
+                      } ${inMonth ? '' : 'opacity-40'}`}
                       style={{ paddingTop: cellPadTop }}
                       onClick={() => onDayClick(day)}
                     >
