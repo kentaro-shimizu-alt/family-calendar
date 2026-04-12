@@ -8,6 +8,7 @@ interface Props {
   members: Member[];
   subCalendars: SubCalendar[];
   totalEventCount?: number;
+  eventCountByCalendar?: Record<string, number>;
   theme?: 'light' | 'dark';
   onThemeChange?: (t: 'light' | 'dark') => void;
   onClose: () => void;
@@ -19,7 +20,7 @@ const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽
 // 💣 削除（カレンダー・メンバー）操作用のPIN。将来変更する時はここだけ書き換える。
 const DELETE_PIN = '0713';
 
-export default function SettingsModal({ open, members, subCalendars, totalEventCount, theme, onThemeChange, onClose, onSaved }: Props) {
+export default function SettingsModal({ open, members, subCalendars, totalEventCount, eventCountByCalendar, theme, onThemeChange, onClose, onSaved }: Props) {
   const [tab, setTab] = useState<'members' | 'calendars' | 'display' | 'export'>('members');
   const [localMembers, setLocalMembers] = useState<Member[]>(members);
   const [localCals, setLocalCals] = useState<SubCalendar[]>(subCalendars);
@@ -221,6 +222,9 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
                       onChange={(e) => updateCal(c.id, { name: e.target.value })}
                       className="flex-1 border border-slate-200 rounded-lg px-2 py-1 text-sm"
                     />
+                    {eventCountByCalendar && eventCountByCalendar[c.id] != null && (
+                      <span className="text-[10px] text-slate-400 whitespace-nowrap">{eventCountByCalendar[c.id]}件</span>
+                    )}
                     <label className="text-xs flex items-center gap-1 cursor-pointer">
                       <input
                         type="checkbox"

@@ -265,7 +265,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="text-left text-[11px] sm:text-[12px] leading-tight rounded px-1 py-[2px] truncate hover:brightness-95 transition flex items-center gap-0.5"
+                                className="text-left text-[10px] sm:text-[12px] leading-tight rounded px-1 py-[2px] hover:brightness-95 transition flex items-center gap-0.5 overflow-hidden"
                                 style={{
                                   backgroundColor: c.bg,
                                   color: c.fg,
@@ -279,7 +279,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 {ev.startTime && (
                                   <span className="font-semibold">{ev.startTime}</span>
                                 )}
-                                <span className="truncate">{ev.title}</span>
+                                <span className="line-clamp-2 sm:truncate sm:line-clamp-none">{ev.title}</span>
                                 {ev.images && ev.images.length > 0 && (
                                   <span className="text-[8px]">📷</span>
                                 )}
@@ -439,7 +439,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                     <button
                       key={`${b.event.id}__${b.weekIdx}__${b.startCol}`}
                       onClick={(e) => { e.stopPropagation(); onEventClick(b.event); }}
-                      className="pointer-events-auto absolute text-left text-[11px] sm:text-[12px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-medium shadow-sm"
+                      className="pointer-events-auto absolute text-left text-[10px] sm:text-[12px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-medium shadow-sm"
                       style={{
                         left: `calc(${leftPct}% + 3px)`,
                         width: `calc(${widthPct}% - 6px)`,

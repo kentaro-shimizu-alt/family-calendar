@@ -117,6 +117,16 @@ export default function HomePage() {
     });
   }, [events, subCalendars]);
 
+  // Count events per calendar (for settings display)
+  const eventCountByCalendar = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const ev of events) {
+      const cid = ev.calendarId || '_none';
+      counts[cid] = (counts[cid] || 0) + 1;
+    }
+    return counts;
+  }, [events]);
+
   function handleDayClick(date: Date) {
     setModalDate(date);
     setEditing(null);
@@ -424,6 +434,7 @@ export default function HomePage() {
         members={members}
         subCalendars={subCalendars}
         totalEventCount={events.length}
+        eventCountByCalendar={eventCountByCalendar}
         theme={theme}
         onThemeChange={toggleTheme}
         onClose={() => setSettingsOpen(false)}
