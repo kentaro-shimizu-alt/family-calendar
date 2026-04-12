@@ -267,7 +267,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         di === 0 ? 'bg-rose-50 hover:bg-rose-100' :
                         di === 6 ? 'bg-sky-50 hover:bg-sky-100' :
                         'bg-white hover:bg-slate-50'
-                      } ${inMonth ? '' : 'opacity-40'}`}
+                      } ${inMonth ? '' : 'out-of-month'}`}
                       style={{ paddingTop: cellPadTop }}
                       onClick={() => onDayClick(day)}
                     >
