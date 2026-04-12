@@ -91,17 +91,21 @@ export default function HomePage() {
     })();
   }, []);
 
-  const loadAll = useCallback(async () => {
-    // まずキャッシュから即表示（ぱっと出す）
-    try {
-      const cacheKey = `cal-cache-${monthKey}`;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const { events: cEv, daily: cD } = JSON.parse(cached);
-        if (cEv) setEvents(cEv);
-        if (cD) setDailyData(cD);
-      }
-    } catch {}
+  const loadAll = useCallback(async (forceRefresh = false) => {
+    const cacheKey = `cal-cache-${monthKey}`;
+    // 保存後の強制リフレッシュ時はキャッシュをスキップ
+    if (!forceRefresh) {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const { events: cEv, daily: cD } = JSON.parse(cached);
+          if (cEv) setEvents(cEv);
+          if (cD) setDailyData(cD);
+        }
+      } catch {}
+    } else {
+      try { localStorage.removeItem(cacheKey); } catch {}
+    }
 
     // バックグラウンドで最新を取得
     setLoading(true);
@@ -443,7 +447,7 @@ export default function HomePage() {
         members={members}
         subCalendars={subCalendars}
         onClose={() => setModalOpen(false)}
-        onSaved={loadAll}
+        onSaved={() => loadAll(true)}
       />
 
       <SalesModal
@@ -451,7 +455,7 @@ export default function HomePage() {
         date={salesDate}
         initial={salesDate ? dailyData[format(salesDate, 'yyyy-MM-dd')] : null}
         onClose={() => setSalesOpen(false)}
-        onSaved={loadAll}
+        onSaved={() => loadAll(true)}
       />
 
       <DayEventsModal
