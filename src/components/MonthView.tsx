@@ -32,7 +32,7 @@ function eventColors(hex: string): { bg: string; fg: string; accent: string } {
   const b = parseInt(h.slice(4, 6), 16);
   const darken = (n: number) => Math.round(n * 0.4).toString(16).padStart(2, '0');
   return {
-    bg: hex + '33', // 20% alpha
+    bg: hex + '88', // 53% alpha
     fg: `#${darken(r)}${darken(g)}${darken(b)}`,
     accent: hex,
   };
