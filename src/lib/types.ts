@@ -188,12 +188,16 @@ export const DEFAULT_SUB_CALENDARS: SubCalendar[] = [
 
 // Color palette for label customization
 export const COLOR_PALETTE = [
+  // ビビッド系
   '#2563eb', '#db2777', '#059669', '#d97706', '#9333ea',
   '#dc2626', '#0891b2', '#ca8a04', '#7c3aed', '#0d9488',
+  // ディープ系
   '#e11d48', '#65a30d', '#9f1239', '#1e40af', '#7e22ce',
-  '#6b7280', '#374151', '#111827', // グレー・ダークグレー・ほぼ黒（夜勤用）
-  '#f87171', '#fb923c', '#f472b6', // ライトレッド・オレンジ・ピンク
-  '#e8837c', // コーラルピンク
+  // モノトーン
+  '#6b7280', '#374151', '#111827',
+  // パステル・ライト系
+  '#f87171', '#fb923c', '#f472b6', '#e8837c', '#a78bfa',
+  '#67e8f9', '#86efac', '#fcd34d', '#fda4af', '#c4b5fd',
 ];
 
 // Helper: derive bg/text colors from main color

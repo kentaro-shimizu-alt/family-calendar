@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listSubCalendars, setSubCalendars } from '@/lib/db';
+import { listSubCalendars, setSubCalendars, countEventsByCalendar } from '@/lib/db';
 
 // Next.js route cacheを無効化（Supabase直更新を即反映させるため）
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET() {
-  return NextResponse.json({ subCalendars: await listSubCalendars() });
+  const [subCalendars, eventCounts] = await Promise.all([
+    listSubCalendars(),
+    countEventsByCalendar(),
+  ]);
+  return NextResponse.json({ subCalendars, eventCounts });
 }
 
 export async function PUT(req: NextRequest) {
