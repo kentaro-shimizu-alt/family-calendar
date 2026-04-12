@@ -70,11 +70,52 @@ function eventToRow(e: CalendarEvent): any {
   };
 }
 
+// memo カラム(text)に misaMemo/misaMemoImages を JSON エンコードで同居させる
+// 既存の plain text memo との後方互換を維持
+interface MemoEnvelope {
+  text?: string;
+  misaMemo?: string;
+  misaMemoImages?: string[];
+}
+
+function encodeMemo(memo?: string, misaMemo?: string, misaMemoImages?: string[]): string | null {
+  if (!memo && !misaMemo && (!misaMemoImages || misaMemoImages.length === 0)) return null;
+  // misaMemo がなければ plain text のまま保存（後方互換）
+  if (!misaMemo && (!misaMemoImages || misaMemoImages.length === 0)) return memo ?? null;
+  const env: MemoEnvelope = {};
+  if (memo) env.text = memo;
+  if (misaMemo) env.misaMemo = misaMemo;
+  if (misaMemoImages && misaMemoImages.length > 0) env.misaMemoImages = misaMemoImages;
+  return JSON.stringify(env);
+}
+
+function decodeMemo(raw: any): { memo?: string; misaMemo?: string; misaMemoImages?: string[] } {
+  if (!raw) return {};
+  if (typeof raw !== 'string') return {};
+  // JSON envelope かどうか判定
+  if (raw.startsWith('{')) {
+    try {
+      const env: MemoEnvelope = JSON.parse(raw);
+      return {
+        memo: env.text || undefined,
+        misaMemo: env.misaMemo || undefined,
+        misaMemoImages: env.misaMemoImages && env.misaMemoImages.length > 0 ? env.misaMemoImages : undefined,
+      };
+    } catch {
+      // JSON パース失敗 → plain text として扱う
+    }
+  }
+  return { memo: raw };
+}
+
 function rowToDaily(r: any): DailyData {
+  const { memo, misaMemo, misaMemoImages } = decodeMemo(r.memo);
   return {
     date: typeof r.date === 'string' ? r.date : String(r.date),
     salesEntries: r.sales_entries || undefined,
-    memo: r.memo || undefined,
+    memo,
+    misaMemo,
+    misaMemoImages,
   };
 }
 
@@ -82,7 +123,7 @@ function dailyToRow(d: DailyData): any {
   return {
     date: d.date,
     sales_entries: d.salesEntries ?? null,
-    memo: d.memo ?? null,
+    memo: encodeMemo(d.memo, d.misaMemo, d.misaMemoImages),
     updated_at: new Date().toISOString(),
   };
 }
