@@ -49,6 +49,8 @@ export async function POST(req: NextRequest) {
       }
     }
     if ('memo' in body) patch.memo = body.memo;
+    if ('misaMemo' in body) patch.misaMemo = body.misaMemo || null;
+    if ('misaMemoImages' in body) patch.misaMemoImages = body.misaMemoImages || null;
     const result = await upsertDailyData(body.date, patch);
     return NextResponse.json({ data: result });
   } catch (e: any) {

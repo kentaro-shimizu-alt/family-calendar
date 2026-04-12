@@ -27,13 +27,19 @@ body {
   border-radius: 2px;
 }
 
-/* ===== Mobile: 濃い背景 + 白文字（TimeTree風） ===== */
+/* ===== Mobile: 濃い背景 + 白文字（TimeTree風）+ 見やすいフォント ===== */
 @media (max-width: 639px) {
   .ev-block {
     background-color: var(--ev-mobile-bg) !important;
     color: var(--ev-mobile-fg) !important;
     border-left-color: var(--ev-accent) !important;
     text-shadow: 0 0.5px 1px rgba(0,0,0,0.2);
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    letter-spacing: -0.02em;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    white-space: normal !important;
+    text-overflow: clip !important;
   }
 }
 

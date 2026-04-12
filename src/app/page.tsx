@@ -9,6 +9,7 @@ import EventDetailModal from '@/components/EventDetailModal';
 import SalesModal from '@/components/SalesModal';
 import KeepPanel from '@/components/KeepPanel';
 import SettingsModal from '@/components/SettingsModal';
+import DayEventsModal from '@/components/DayEventsModal';
 import TodaySummary from '@/components/TodaySummary';
 import ReminderRunner from '@/components/ReminderRunner';
 import {
@@ -45,16 +46,21 @@ export default function HomePage() {
   const [searchResults, setSearchResults] = useState<CalendarEvent[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  // Day events list
+  const [dayEventsOpen, setDayEventsOpen] = useState(false);
+  const [dayEventsDate, setDayEventsDate] = useState<Date | null>(null);
+
   // Keep + Settings
   const [keepOpen, setKeepOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [filterBarVisible, setFilterBarVisible] = useState(true);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('calendar-theme') as 'light' | 'dark') || 'light';
-    }
-    return 'light';
-  });
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Load theme from localStorage on mount (SSR-safe)
+  useEffect(() => {
+    const saved = localStorage.getItem('calendar-theme') as 'light' | 'dark' | null;
+    if (saved) setTheme(saved);
+  }, []);
 
   function toggleTheme(t: 'light' | 'dark') {
     setTheme(t);
@@ -128,7 +134,13 @@ export default function HomePage() {
   }, [events]);
 
   function handleDayClick(date: Date) {
-    setModalDate(date);
+    setDayEventsDate(date);
+    setDayEventsOpen(true);
+  }
+
+  function handleDayAddEvent() {
+    setDayEventsOpen(false);
+    setModalDate(dayEventsDate || new Date());
     setEditing(null);
     setModalOpen(true);
   }
@@ -427,6 +439,20 @@ export default function HomePage() {
         initial={salesDate ? dailyData[format(salesDate, 'yyyy-MM-dd')] : null}
         onClose={() => setSalesOpen(false)}
         onSaved={loadAll}
+      />
+
+      <DayEventsModal
+        open={dayEventsOpen}
+        date={dayEventsDate}
+        events={visibleEvents}
+        subCalendars={subCalendars}
+        onClose={() => setDayEventsOpen(false)}
+        onEventClick={(ev) => {
+          setDayEventsOpen(false);
+          setDetailEvent(ev);
+          setDetailOpen(true);
+        }}
+        onAddEvent={handleDayAddEvent}
       />
 
       <KeepPanel open={keepOpen} onClose={() => setKeepOpen(false)} />

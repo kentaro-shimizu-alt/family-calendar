@@ -285,7 +285,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="ev-block text-left text-[9px] sm:text-[12px] leading-tight rounded px-0.5 sm:px-1 py-[1px] sm:py-[2px] hover:brightness-95 transition flex items-center gap-0.5 overflow-hidden font-bold sm:font-medium"
+                                className="ev-block text-left text-[9px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold sm:font-medium"
                                 style={{
                                   '--ev-bg': c.bg,
                                   '--ev-fg': c.fg,
@@ -304,7 +304,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 {ev.startTime && (
                                   <span className="font-bold">{ev.startTime}</span>
                                 )}
-                                <span className="truncate">{ev.title}</span>
+                                <span className="sm:truncate">{ev.title}</span>
                                 {ev.images && ev.images.length > 0 && (
                                   <span className="text-[8px]">📷</span>
                                 )}
