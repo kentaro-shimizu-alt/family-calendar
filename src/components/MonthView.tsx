@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useRef } from 'react';
 import { CalendarEvent, DailyData, Member, SalesEntry, SubCalendar } from '@/lib/types';
 import {
   startOfMonth,
@@ -21,32 +22,34 @@ interface Props {
   onDayClick: (date: Date) => void;
   onEventClick: (event: CalendarEvent) => void;
   onSalesClick: (date: Date) => void;
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
 }
 
-// 色を薄くした背景色（hex + alpha）と濃くした文字色を返す
-function eventColors(hex: string): { bg: string; fg: string; accent: string } {
+// PC: 半透明背景＋暗い文字 / スマホ: 濃い背景＋白文字（TimeTree風）
+function eventColors(hex: string): { bg: string; fg: string; accent: string; mobileBg: string; mobileFg: string } {
   const h = hex.replace('#', '');
-  if (h.length !== 6) return { bg: '#e2e8f0', fg: '#334155', accent: '#64748b' };
+  if (h.length !== 6) return { bg: '#e2e8f0', fg: '#334155', accent: '#64748b', mobileBg: '#94a3b8', mobileFg: '#ffffff' };
   const r = parseInt(h.slice(0, 2), 16);
   const g = parseInt(h.slice(2, 4), 16);
   const b = parseInt(h.slice(4, 6), 16);
   const darken = (n: number) => Math.round(n * 0.4).toString(16).padStart(2, '0');
   return {
-    bg: hex + '88', // 53% alpha
+    bg: hex + '88', // 53% alpha (PC)
     fg: `#${darken(r)}${darken(g)}${darken(b)}`,
     accent: hex,
+    mobileBg: hex + 'DD', // 87% alpha (スマホ: 濃い)
+    mobileFg: '#ffffff',
   };
 }
 
 function resolveEventColor(
   ev: CalendarEvent,
   subCalendars: SubCalendar[]
-): { bg: string; fg: string; accent: string; subAccent?: string } {
+): { bg: string; fg: string; accent: string; mobileBg: string; mobileFg: string; subAccent?: string } {
   const subCal = ev.calendarId ? subCalendars.find((c) => c.id === ev.calendarId) : undefined;
   const mainHex = ev.color || subCal?.color || '#64748b';
   const colors = eventColors(mainHex);
-  // 予定に独自色が指定されていて、かつサブカレンダー色と違えば
-  // サブカレンダー色を右端のアクセントとして表示
   const subAccent =
     ev.color && subCal && subCal.color && subCal.color !== ev.color ? subCal.color : undefined;
   return { ...colors, subAccent };
@@ -98,7 +101,24 @@ const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
 
-export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick }: Props) {
+export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onSwipeLeft, onSwipeRight }: Props) {
+  // Swipe detection
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, []);
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    // 横移動が50px以上、かつ縦より横の方が大きい場合のみ
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) onSwipeLeft?.();  // 左スワイプ → 次の月
+      else onSwipeRight?.();         // 右スワイプ → 前の月
+    }
+    touchStart.current = null;
+  }, [onSwipeLeft, onSwipeRight]);
+
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const calStart = startOfWeek(monthStart, { weekStartsOn: 0 });
@@ -212,7 +232,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
   const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
 
   return (
-    <div className="w-full px-2 sm:px-3">
+    <div className="w-full px-2 sm:px-3" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Day-of-week header */}
       <div className="grid grid-cols-7 border-b border-slate-200 bg-white sticky top-0 z-10">
         {dayLabels.map((label, i) => (
@@ -265,21 +285,26 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="text-left text-[10px] sm:text-[12px] leading-tight rounded px-1 py-[2px] hover:brightness-95 transition flex items-center gap-0.5 overflow-hidden"
+                                className="ev-block text-left text-[9px] sm:text-[12px] leading-tight rounded px-0.5 sm:px-1 py-[1px] sm:py-[2px] hover:brightness-95 transition flex items-center gap-0.5 overflow-hidden font-bold sm:font-medium"
                                 style={{
+                                  '--ev-bg': c.bg,
+                                  '--ev-fg': c.fg,
+                                  '--ev-mobile-bg': c.mobileBg,
+                                  '--ev-mobile-fg': c.mobileFg,
+                                  '--ev-accent': c.accent,
                                   backgroundColor: c.bg,
                                   color: c.fg,
                                   borderLeft: `3px solid ${c.accent}`,
                                   borderRight: c.subAccent ? `3px solid ${c.subAccent}` : undefined,
-                                }}
+                                } as React.CSSProperties}
                                 title={ev.title}
                               >
-                                {ev.pinned && <span className="text-[8px]">📌</span>}
-                                {ev.site && <span className="text-[8px]">💼</span>}
+                                {ev.pinned && <span className="text-[7px] sm:text-[8px]">📌</span>}
+                                {ev.site && <span className="text-[7px] sm:text-[8px]">💼</span>}
                                 {ev.startTime && (
-                                  <span className="font-semibold">{ev.startTime}</span>
+                                  <span className="font-bold">{ev.startTime}</span>
                                 )}
-                                <span className="line-clamp-2 sm:truncate sm:line-clamp-none">{ev.title}</span>
+                                <span className="truncate">{ev.title}</span>
                                 {ev.images && ev.images.length > 0 && (
                                   <span className="text-[8px]">📷</span>
                                 )}
@@ -439,28 +464,33 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                     <button
                       key={`${b.event.id}__${b.weekIdx}__${b.startCol}`}
                       onClick={(e) => { e.stopPropagation(); onEventClick(b.event); }}
-                      className="pointer-events-auto absolute text-left text-[10px] sm:text-[12px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-medium shadow-sm"
+                      className="ev-block pointer-events-auto absolute text-left text-[9px] sm:text-[12px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-bold sm:font-medium shadow-sm"
                       style={{
-                        left: `calc(${leftPct}% + 3px)`,
-                        width: `calc(${widthPct}% - 6px)`,
+                        '--ev-bg': c.bg,
+                        '--ev-fg': c.fg,
+                        '--ev-mobile-bg': c.mobileBg,
+                        '--ev-mobile-fg': c.mobileFg,
+                        '--ev-accent': c.accent,
+                        left: `calc(${leftPct}% + 2px)`,
+                        width: `calc(${widthPct}% - 4px)`,
                         top,
                         height: BAR_H,
                         backgroundColor: c.bg,
                         color: c.fg,
-                        borderLeft: b.continuesLeft ? 'none' : `4px solid ${c.accent}`,
+                        borderLeft: b.continuesLeft ? 'none' : `3px solid ${c.accent}`,
                         borderRight: !b.continuesRight && c.subAccent ? `3px solid ${c.subAccent}` : undefined,
-                        borderTopLeftRadius: b.continuesLeft ? 0 : 6,
-                        borderBottomLeftRadius: b.continuesLeft ? 0 : 6,
-                        borderTopRightRadius: b.continuesRight ? 0 : 6,
-                        borderBottomRightRadius: b.continuesRight ? 0 : 6,
-                        paddingLeft: b.continuesLeft ? 4 : 6,
-                        paddingRight: b.continuesRight ? 4 : 6,
-                      }}
+                        borderTopLeftRadius: b.continuesLeft ? 0 : 4,
+                        borderBottomLeftRadius: b.continuesLeft ? 0 : 4,
+                        borderTopRightRadius: b.continuesRight ? 0 : 4,
+                        borderBottomRightRadius: b.continuesRight ? 0 : 4,
+                        paddingLeft: b.continuesLeft ? 2 : 4,
+                        paddingRight: b.continuesRight ? 2 : 4,
+                      } as React.CSSProperties}
                       title={b.event.title}
                     >
-                      {b.continuesLeft && <span className="text-[9px] opacity-60">◂</span>}
-                      {showTitle && b.event.pinned && <span className="text-[9px]">📌</span>}
-                      {showTitle && b.event.site && <span className="text-[9px]">💼</span>}
+                      {b.continuesLeft && <span className="text-[8px] opacity-60">◂</span>}
+                      {showTitle && b.event.pinned && <span className="text-[8px]">📌</span>}
+                      {showTitle && b.event.site && <span className="text-[8px]">💼</span>}
                       {showTitle && b.event.startTime && (
                         <span className="font-semibold">{b.event.startTime}</span>
                       )}

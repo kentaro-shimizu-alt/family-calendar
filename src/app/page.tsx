@@ -380,6 +380,8 @@ export default function HomePage() {
           onDayClick={handleDayClick}
           onEventClick={handleEventClick}
           onSalesClick={handleSalesClick}
+          onSwipeLeft={() => setCurrentMonth((d) => addMonths(d, 1))}
+          onSwipeRight={() => setCurrentMonth((d) => subMonths(d, 1))}
         />
       </div>
 
