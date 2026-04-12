@@ -254,8 +254,8 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
           const barAreaH = barCount > 0 ? barCount * (BAR_H + BAR_GAP) : 0;
           const cellPadTop = CELL_PAD_TOP_BASE + barAreaH;
           return (
-            <div key={wi} className="relative mb-px">
-              <div className="grid grid-cols-7 gap-px bg-slate-300/40">
+            <div key={wi} className="relative">
+              <div className="grid grid-cols-7">
                 {week.map((day, di) => {
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const dayEvents = singleByDate.get(dateKey) || [];
@@ -322,7 +322,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
               </div>
 
               {/* Overlay: date numbers + sales chips on top of each cell */}
-              <div className="absolute top-0 left-0 right-0 grid grid-cols-7 gap-px bg-slate-300/40 pointer-events-none">
+              <div className="absolute top-0 left-0 right-0 grid grid-cols-7 pointer-events-none">
                 {week.map((day, di) => {
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const inMonth = isSameMonth(day, currentMonth);
