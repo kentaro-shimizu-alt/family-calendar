@@ -494,7 +494,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
               value={draftCustomer}
               onChange={(e) => setDraftCustomer(e.target.value)}
               placeholder="取引先（例: 株式会社ウェイアウト 森河様）"
-              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2`}
+              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2.5 text-base focus:outline-none focus:ring-2`}
             />
 
             {/* 売値・原価 (両方空でOK) */}
@@ -506,7 +506,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                   value={draftAmount}
                   onChange={(e) => setDraftAmount(e.target.value.replace(/[^\d,]/g, ''))}
                   placeholder="売値（空欄OK）"
-                  className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm ${tabColors.text} focus:outline-none focus:ring-2`}
+                  className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2.5 text-base ${tabColors.text} focus:outline-none focus:ring-2`}
                 />
               </div>
               <div className="flex-1">
@@ -516,7 +516,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                   value={draftCost}
                   onChange={(e) => setDraftCost(e.target.value.replace(/[^\d,]/g, ''))}
                   placeholder="原価（空欄OK）"
-                  className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-sm ${tabColors.text} focus:outline-none focus:ring-2`}
+                  className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2.5 text-base ${tabColors.text} focus:outline-none focus:ring-2`}
                 />
               </div>
             </div>
@@ -670,7 +670,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                           updateEntry(e.id, { amount: v === '' ? undefined : Number(v) });
                         }}
                         placeholder="後で可"
-                        className={`w-24 bg-white border ${c.border} rounded px-2 py-1 ${c.text} focus:outline-none focus:ring-1`}
+                        className={`w-24 sm:w-28 bg-white border ${c.border} rounded px-2 py-1.5 text-sm ${c.text} focus:outline-none focus:ring-1`}
                       />
                       <span className={`${c.text} opacity-70 w-10 ml-2`}>原価</span>
                       <input
@@ -682,7 +682,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                           updateEntry(e.id, { cost: v === '' ? undefined : Number(v) });
                         }}
                         placeholder="後で可"
-                        className={`w-24 bg-white border ${c.border} rounded px-2 py-1 ${c.text} focus:outline-none focus:ring-1`}
+                        className={`w-24 sm:w-28 bg-white border ${c.border} rounded px-2 py-1.5 text-sm ${c.text} focus:outline-none focus:ring-1`}
                       />
                       {typeof e.amount === 'number' &&
                         typeof e.cost === 'number' &&

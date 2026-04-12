@@ -87,11 +87,12 @@ body {
 .dark .bg-white.rounded-t-2xl,
 .dark .bg-white.rounded-2xl,
 .dark .bg-white.rounded-lg { background-color: #000000 !important; }
-/* 入力欄 */
+/* 入力欄 — 背景は少し浮かせて見やすく */
 .dark input, .dark textarea, .dark select {
-  background-color: #000000 !important;
+  background-color: #1a1a1a !important;
   color: #e2e8f0 !important;
-  border-color: #111111 !important;
+  border-color: #333333 !important;
+  font-size: max(16px, 1em) !important;
 }
 .dark input::placeholder, .dark textarea::placeholder { color: #475569 !important; }
 /* スクロールバー */
