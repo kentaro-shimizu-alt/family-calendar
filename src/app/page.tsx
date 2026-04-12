@@ -82,6 +82,7 @@ export default function HomePage() {
         const mData = await mRes.json();
         const sData = await sRes.json();
         if (mData.members) setMembers(mData.members);
+        if (mData.eventCounts) setEventCountByMember(mData.eventCounts);
         if (sData.subCalendars) setSubCalendars(sData.subCalendars);
         if (sData.eventCounts) setEventCountByCalendar(sData.eventCounts);
       } catch (e) {
@@ -141,8 +142,9 @@ export default function HomePage() {
     });
   }, [events, subCalendars]);
 
-  // Count events per calendar (全期間、APIから取得)
+  // Count events per calendar / member (全期間、APIから取得)
   const [eventCountByCalendar, setEventCountByCalendar] = useState<Record<string, number>>({});
+  const [eventCountByMember, setEventCountByMember] = useState<Record<string, number>>({});
 
   function handleDayClick(date: Date) {
     setDayEventsDate(date);
@@ -474,6 +476,7 @@ export default function HomePage() {
         subCalendars={subCalendars}
         totalEventCount={events.length}
         eventCountByCalendar={eventCountByCalendar}
+        eventCountByMember={eventCountByMember}
         theme={theme}
         onThemeChange={toggleTheme}
         onClose={() => setSettingsOpen(false)}

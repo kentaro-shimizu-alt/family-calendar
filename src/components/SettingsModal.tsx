@@ -9,6 +9,7 @@ interface Props {
   subCalendars: SubCalendar[];
   totalEventCount?: number;
   eventCountByCalendar?: Record<string, number>;
+  eventCountByMember?: Record<string, number>;
   theme?: 'light' | 'dark';
   onThemeChange?: (t: 'light' | 'dark') => void;
   onClose: () => void;
@@ -20,7 +21,7 @@ const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽
 // 💣 削除（カレンダー・メンバー）操作用のPIN。将来変更する時はここだけ書き換える。
 const DELETE_PIN = '0713';
 
-export default function SettingsModal({ open, members, subCalendars, totalEventCount, eventCountByCalendar, theme, onThemeChange, onClose, onSaved }: Props) {
+export default function SettingsModal({ open, members, subCalendars, totalEventCount, eventCountByCalendar, eventCountByMember, theme, onThemeChange, onClose, onSaved }: Props) {
   const [tab, setTab] = useState<'members' | 'calendars' | 'display' | 'export'>('members');
   const [localMembers, setLocalMembers] = useState<Member[]>(members);
   const [localCals, setLocalCals] = useState<SubCalendar[]>(subCalendars);
@@ -177,6 +178,9 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
                       onChange={(e) => updateMember(m.id, { name: e.target.value })}
                       className="flex-1 border border-slate-200 rounded-lg px-2 py-1 text-sm"
                     />
+                    {eventCountByMember && eventCountByMember[m.id] != null && (
+                      <span className="text-[10px] text-slate-400 whitespace-nowrap">{eventCountByMember[m.id].toLocaleString()}件</span>
+                    )}
                     <button
                       onClick={() => removeMember(m.id)}
                       className="text-rose-400 hover:text-rose-600 text-xs px-2 py-1"

@@ -57,6 +57,17 @@ export async function countEventsByCalendar(): Promise<Record<string, number>> {
   return counts;
 }
 
+export async function countEventsByMember(): Promise<Record<string, number>> {
+  const store = getStore();
+  const all = await store.getAllEventsRaw();
+  const counts: Record<string, number> = {};
+  for (const ev of all) {
+    const mid = ev.memberId || '_none';
+    counts[mid] = (counts[mid] || 0) + 1;
+  }
+  return counts;
+}
+
 function formatDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
