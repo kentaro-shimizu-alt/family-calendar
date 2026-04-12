@@ -87,4 +87,8 @@ body {
 .dark input::placeholder, .dark textarea::placeholder { color: #475569 !important; }
 /* スクロールバー */
 .dark .event-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+/* ダークモード: イベント色を明るく */
+.dark .ev-block {
+  filter: brightness(1.35) saturate(1.1);
+}
 /* 今日の青丸はそのまま */
