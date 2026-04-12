@@ -61,7 +61,8 @@ function normalizeType(t: any): SalesEntryType {
 export default function SalesModal({ open, date, initial, onClose, onSaved }: Props) {
   const [entries, setEntries] = useState<SalesEntry[]>([]);
   const [memo, setMemo] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<SalesEntryType>('site');
+  const [misaMemo, setMisaMemo] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<SalesEntryType | 'misa'>('site');
 
   // Draft for adding new entry
   const [draftCustomer, setDraftCustomer] = useState<string>('');
@@ -105,6 +106,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     }
     setEntries(initialEntries);
     setMemo(initial?.memo || '');
+    setMisaMemo(initial?.misaMemo || '');
     setActiveTab('site');
     resetDraft('site');
     setTimeout(() => customerRef.current?.focus(), 50);
@@ -127,10 +129,12 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     setDraftPdfs([]);
   }
 
-  function switchTab(t: SalesEntryType) {
+  function switchTab(t: SalesEntryType | 'misa') {
     setActiveTab(t);
-    resetDraft(t);
-    setTimeout(() => customerRef.current?.focus(), 50);
+    if (t !== 'misa') {
+      resetDraft(t as SalesEntryType);
+      setTimeout(() => customerRef.current?.focus(), 50);
+    }
   }
 
   async function uploadFiles(files: File[], targetEntryId?: string) {
@@ -212,7 +216,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
       draftCustomer.trim() ||
       draftAmount ||
       draftCost ||
-      (draftNote.trim() && draftNote.trim() !== TEMPLATE[activeTab].trim()) ||
+      (draftNote.trim() && draftNote.trim() !== TEMPLATE[activeTab as SalesEntryType]?.trim()) ||
       draftImages.length > 0 ||
       draftPdfs.length > 0
     );
@@ -224,7 +228,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     const costN = Number(draftCost.replace(/,/g, '')) || undefined;
     return {
       id: newId(),
-      type: activeTab,
+      type: activeTab as SalesEntryType,
       deliveryNote: draftDeliveryNote || undefined,
       customer: draftCustomer.trim() || undefined,
       amount: amountN,
@@ -242,7 +246,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
       return;
     }
     setEntries((prev) => [...prev, entry]);
-    resetDraft(activeTab);
+    resetDraft(activeTab as SalesEntryType);
     customerRef.current?.focus();
   }
 
@@ -282,6 +286,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
         date: dateKey,
         salesEntries: finalEntries,
         memo,
+        misaMemo: misaMemo || undefined,
       };
       const res = await fetch('/api/daily', {
         method: 'POST',
@@ -314,7 +319,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     }
   }
 
-  const tabColors = TAB_COLOR[activeTab];
+  const tabColors = activeTab === 'misa' ? TAB_COLOR['site'] : TAB_COLOR[activeTab as SalesEntryType];
 
   return (
     <div
@@ -373,13 +378,39 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                 </button>
               );
             })}
+            {/* 美砂メモタブ */}
+            <button
+              onClick={() => switchTab('misa')}
+              className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition border-b-2 ${
+                activeTab === 'misa'
+                  ? 'bg-orange-50 text-orange-600 border-orange-500'
+                  : 'text-slate-400 border-transparent hover:text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              美砂メモ
+            </button>
           </div>
 
-          {/* Add area */}
+          {/* 美砂メモパネル */}
+          {activeTab === 'misa' && (
+            <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-2">
+              <div className="text-xs font-bold text-orange-600">美砂メモ</div>
+              <textarea
+                value={misaMemo}
+                onChange={(e) => setMisaMemo(e.target.value)}
+                ref={(el) => { if (el) { autoResize(el); } }}
+                placeholder="自由に書いてください"
+                className="w-full border border-orange-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none overflow-hidden min-h-[120px]"
+              />
+            </div>
+          )}
+
+          {/* Add area (売上タブのみ表示) */}
+          {activeTab !== 'misa' && (
           <div className={`rounded-xl border ${tabColors.border} ${tabColors.bg} p-3 space-y-2`}>
             <div className="flex items-center justify-between">
               <span className={`text-xs font-bold ${tabColors.text}`}>
-                ＋ {SALES_TYPE_LABEL[activeTab]}を追加
+                ＋ {SALES_TYPE_LABEL[activeTab as SalesEntryType]}を追加
               </span>
               {/* 納品書の要否 toggle */}
               <label className="flex items-center gap-2 cursor-pointer text-xs">
@@ -513,14 +544,18 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                 onClick={addDraft}
                 className={`${tabColors.btn} text-white text-sm font-bold px-4 py-2 rounded-lg`}
               >
-                ＋ この{SALES_TYPE_LABEL[activeTab]}を追加
+                ＋ この{SALES_TYPE_LABEL[activeTab as SalesEntryType]}を追加
               </button>
               <div className="text-[10px] text-slate-400 flex-1">
                 売値・原価は空欄OK。あとからくろさんが計算して清書します。
               </div>
             </div>
           </div>
+          )} {/* end activeTab !== 'misa' */}
 
+          {/* Entries list (売上タブのみ表示) */}
+          {activeTab !== 'misa' && (
+          <>
           {/* Entries list */}
           {entries.length > 0 && (
             <div className="space-y-2">
@@ -675,6 +710,8 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
               </div>
             </div>
           )}
+
+          </> )} {/* end activeTab !== 'misa' Entries list */}
 
           {/* Memo / Diary */}
           <div>

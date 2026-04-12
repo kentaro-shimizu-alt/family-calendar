@@ -144,6 +144,7 @@ export interface DailyData {
   salesEntries?: SalesEntry[]; // 複数件の売上
   sales?: number; // 旧フィールド（後方互換: 自動でsalesEntries[0]へ移行）
   memo?: string; // その日のメモ・日記
+  misaMemo?: string; // 美砂ちゃん専用メモ
 }
 
 // Helper: total sales of a day（amount未入力の売上はカウント0）

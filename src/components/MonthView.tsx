@@ -383,19 +383,24 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       className={`flex items-start justify-between px-1.5 pt-1 gap-1 ${inMonth ? '' : 'opacity-40'}`}
                       style={{ height: DATE_HEADER_H }}
                     >
-                      <span
-                        className={`text-xs font-semibold flex-shrink-0 ${
-                          today
-                            ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
-                            : di === 0
-                            ? 'text-rose-600'
-                            : di === 6
-                            ? 'text-sky-600'
-                            : 'text-slate-700'
-                        }`}
-                      >
-                        {format(day, 'd')}
-                      </span>
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                        <span
+                          className={`text-xs font-semibold ${
+                            today
+                              ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
+                              : di === 0
+                              ? 'text-rose-600'
+                              : di === 6
+                              ? 'text-sky-600'
+                              : 'text-slate-700'
+                          }`}
+                        >
+                          {format(day, 'd')}
+                        </span>
+                        {dailyEntry?.misaMemo && (
+                          <span className="text-[9px] font-bold text-orange-500 leading-none" title="美砂メモあり">美</span>
+                        )}
+                      </div>
                       <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden">
                         {hasAnySales ? (
                           chips
