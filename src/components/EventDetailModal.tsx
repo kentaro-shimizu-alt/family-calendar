@@ -333,7 +333,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                   <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
                     <span>{c.author || 'unknown'}</span>
                     <div className="flex items-center gap-2">
-                      <span>{format(parseISO(c.createdAt), 'M/d HH:mm')}</span>
+                      <span>{c.createdAt ? format(parseISO(c.createdAt), 'M/d HH:mm') : ''}</span>
                       <button
                         onClick={() => handleDeleteComment(c.id)}
                         className="opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition"

@@ -263,11 +263,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                   return (
                     <div
                       key={dateKey}
-                      className={`min-h-[140px] sm:min-h-[160px] flex flex-col cursor-pointer transition-colors ${
-                        di === 0 ? 'bg-rose-50 hover:bg-rose-100' :
-                        di === 6 ? 'bg-sky-50 hover:bg-sky-100' :
-                        'bg-white hover:bg-slate-50'
-                      } ${inMonth ? '' : 'out-of-month'}`}
+                      className={`min-h-[140px] sm:min-h-[160px] flex flex-col cursor-pointer transition-colors bg-white hover:bg-slate-50`}
                       style={{ paddingTop: cellPadTop }}
                       onClick={() => onDayClick(day)}
                     >

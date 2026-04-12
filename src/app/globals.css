@@ -18,9 +18,8 @@ body {
   overscroll-behavior: none;
 }
 
-/* 当月外セル（前月・翌月） */
-.out-of-month { opacity: 0.4; }
-.dark .out-of-month { opacity: 1; background-color: #030303 !important; }
+/* 当月外セル — ダークモードのみ背景を変える */
+.dark .out-of-month { background-color: #030303 !important; }
 
 /* 予定ブロック共通: 太字 */
 .ev-block {
