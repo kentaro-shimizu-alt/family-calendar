@@ -215,6 +215,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
   }
 
   function draftHasContent(): boolean {
+    if (activeTab === 'misa') return false; // 美砂メモはドラフトエントリにしない
     return !!(
       draftCustomer.trim() ||
       draftAmount ||
@@ -226,6 +227,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
   }
 
   function buildDraftEntry(): SalesEntry | null {
+    if (activeTab === 'misa') return null; // 美砂メモはドラフトエントリにしない
     if (!draftHasContent()) return null;
     const amountN = Number(draftAmount.replace(/,/g, '')) || undefined;
     const costN = Number(draftCost.replace(/,/g, '')) || undefined;
