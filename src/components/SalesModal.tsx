@@ -62,6 +62,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
   const [entries, setEntries] = useState<SalesEntry[]>([]);
   const [memo, setMemo] = useState<string>('');
   const [misaMemo, setMisaMemo] = useState<string>('');
+  const [misaMemoImages, setMisaMemoImages] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<SalesEntryType | 'misa'>('site');
 
   // Draft for adding new entry
@@ -78,6 +79,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
   const [saving, setSaving] = useState(false);
   const customerRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const misaFileRef = useRef<HTMLInputElement>(null);
   const draftNoteRef = useRef<HTMLTextAreaElement>(null);
   const memoRef = useRef<HTMLTextAreaElement>(null);
   const entryNoteRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
@@ -107,6 +109,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     setEntries(initialEntries);
     setMemo(initial?.memo || '');
     setMisaMemo(initial?.misaMemo || '');
+    setMisaMemoImages(initial?.misaMemoImages || []);
     setActiveTab('site');
     resetDraft('site');
     setTimeout(() => customerRef.current?.focus(), 50);
@@ -287,6 +290,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
         salesEntries: finalEntries,
         memo,
         misaMemo: misaMemo || undefined,
+        misaMemoImages: misaMemoImages.length > 0 ? misaMemoImages : undefined,
       };
       const res = await fetch('/api/daily', {
         method: 'POST',
@@ -393,7 +397,7 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
 
           {/* 美砂メモパネル */}
           {activeTab === 'misa' && (
-            <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-2">
+            <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-3">
               <div className="text-xs font-bold text-orange-600">美砂メモ</div>
               <textarea
                 value={misaMemo}
@@ -402,6 +406,52 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
                 placeholder="自由に書いてください"
                 className="w-full border border-orange-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none overflow-hidden min-h-[120px]"
               />
+              {/* 画像エリア */}
+              <div className="flex flex-wrap items-center gap-2">
+                {misaMemoImages.map((url) => (
+                  <div key={url} className="relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border border-orange-200 hover:opacity-80 transition" />
+                    </a>
+                    <button
+                      onClick={() => setMisaMemoImages((p) => p.filter((u) => u !== url))}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white rounded-full text-xs leading-none opacity-0 group-hover:opacity-100 transition"
+                    >×</button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => misaFileRef.current?.click()}
+                  disabled={uploading}
+                  className="w-20 h-20 border-2 border-dashed border-orange-300 rounded-lg text-[11px] text-orange-400 hover:bg-white transition flex flex-col items-center justify-center gap-0.5 disabled:opacity-50"
+                  title="写真を追加（ペースト・ドラッグも可）"
+                >
+                  <span className="text-xl leading-none">📷</span>
+                  <span>{uploading ? '...' : '写真追加'}</span>
+                </button>
+                <input
+                  ref={misaFileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (!files.length) return;
+                    setUploading(true);
+                    try {
+                      const fd = new FormData();
+                      for (const f of files) fd.append('files', f);
+                      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                      const data = await res.json();
+                      const urls = (data.items || []).filter((it: any) => it.kind === 'image').map((it: any) => it.url);
+                      if (urls.length) setMisaMemoImages((p) => [...p, ...urls]);
+                    } catch { alert('アップロード失敗'); }
+                    finally { setUploading(false); if (misaFileRef.current) misaFileRef.current.value = ''; }
+                  }}
+                />
+              </div>
             </div>
           )}
 
