@@ -61,6 +61,20 @@ export const jsonStore = {
   async getAllEventsRaw(): Promise<CalendarEvent[]> {
     return ensureDb().events;
   },
+  // 月指定でイベント取得（JSON store は全件からフィルタ）
+  async getEventsByMonth(yearMonth: string): Promise<CalendarEvent[]> {
+    const all = ensureDb().events;
+    const [y, m] = yearMonth.split('-').map(Number);
+    const ms = `${yearMonth}-01`;
+    const me = `${yearMonth}-${new Date(y, m, 0).getDate()}`;
+    return all.filter((ev) => {
+      if (ev.dateRanges && ev.dateRanges.length > 0) {
+        return ev.dateRanges.some((r) => r.start <= me && (r.end || r.start) >= ms);
+      }
+      if (ev.endDate && ev.date <= me && ev.endDate >= ms) return true;
+      return ev.date.startsWith(yearMonth);
+    });
+  },
   async getEventById(id: string): Promise<CalendarEvent | null> {
     const db = ensureDb();
     return db.events.find((e) => e.id === id) || null;

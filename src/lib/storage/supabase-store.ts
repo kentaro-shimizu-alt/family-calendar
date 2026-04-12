@@ -179,6 +179,33 @@ export const supabaseStore: Store = {
     }
     return all.map(rowToEvent);
   },
+  // 月指定でイベント取得（Supabase 側で日付フィルタ → 高速）
+  async getEventsByMonth(yearMonth: string): Promise<CalendarEvent[]> {
+    const sb = getSupabase();
+    const [y, m] = yearMonth.split('-').map(Number);
+    const monthStart = `${yearMonth}-01`;
+    const monthEnd = `${yearMonth}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`;
+    // date が月内 OR endDate が月始以降（複数日イベント対応）
+    // PostgREST の or フィルタで、date が月内のもの、または endDate >= monthStart のもの
+    const pageSize = 1000;
+    const all: any[] = [];
+    for (let page = 0; page < 10; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      const { data, error } = await sb
+        .from('events')
+        .select('*')
+        .or(`date.gte.${monthStart},end_date.gte.${monthStart}`)
+        .lte('date', monthEnd)
+        .order('id', { ascending: true })
+        .range(from, to);
+      if (error) throw new Error(`supabase events select month: ${error.message}`);
+      if (!data || data.length === 0) break;
+      all.push(...data);
+      if (data.length < pageSize) break;
+    }
+    return all.map(rowToEvent);
+  },
   async getEventById(id: string): Promise<CalendarEvent | null> {
     const sb = getSupabase();
     const { data, error } = await sb.from('events').select('*').eq('id', id).maybeSingle();

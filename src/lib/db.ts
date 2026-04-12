@@ -19,31 +19,34 @@ import { getStore } from './storage';
 
 export async function listEvents(yearMonth?: string): Promise<CalendarEvent[]> {
   const store = getStore();
-  const all = await store.getAllEventsRaw();
-  let result = all;
-  if (yearMonth) {
-    const [y, m] = yearMonth.split('-').map(Number);
-    const monthStart = new Date(y, m - 1, 1);
-    const monthEnd = new Date(y, m, 0);
-    const expanded: CalendarEvent[] = [];
-    const monthStartStr = formatDate(monthStart);
-    const monthEndStr = formatDate(monthEnd);
-    for (const ev of all) {
-      if (ev.recurrence) {
-        expanded.push(...expandRecurrence(ev, monthStart, monthEnd));
-      } else if (ev.dateRanges && ev.dateRanges.length > 0) {
-        if (ev.dateRanges.some((r) => r.start <= monthEndStr && r.end >= monthStartStr)) {
-          expanded.push(ev);
-        }
-      } else if (ev.date.startsWith(yearMonth)) {
-        expanded.push(ev);
-      } else if (ev.endDate && ev.date <= monthEndStr && ev.endDate >= monthStartStr) {
+  if (!yearMonth) {
+    // 月指定なし: 全件取得（管理用途のみ）
+    const all = await store.getAllEventsRaw();
+    return all.sort(sortByDateTime);
+  }
+  // 月指定あり: store 側で DB フィルタして高速取得
+  const events = await store.getEventsByMonth(yearMonth);
+  const [y, m] = yearMonth.split('-').map(Number);
+  const monthStart = new Date(y, m - 1, 1);
+  const monthEnd = new Date(y, m, 0);
+  const monthStartStr = formatDate(monthStart);
+  const monthEndStr = formatDate(monthEnd);
+  // 繰り返しイベント展開 & 日付範囲の再フィルタ（DB フィルタは粗いため）
+  const expanded: CalendarEvent[] = [];
+  for (const ev of events) {
+    if (ev.recurrence) {
+      expanded.push(...expandRecurrence(ev, monthStart, monthEnd));
+    } else if (ev.dateRanges && ev.dateRanges.length > 0) {
+      if (ev.dateRanges.some((r) => r.start <= monthEndStr && (r.end || r.start) >= monthStartStr)) {
         expanded.push(ev);
       }
+    } else if (ev.date.startsWith(yearMonth)) {
+      expanded.push(ev);
+    } else if (ev.endDate && ev.date <= monthEndStr && ev.endDate >= monthStartStr) {
+      expanded.push(ev);
     }
-    result = expanded;
   }
-  return result.sort(sortByDateTime);
+  return expanded.sort(sortByDateTime);
 }
 
 export async function countEventsByCalendar(): Promise<Record<string, number>> {
