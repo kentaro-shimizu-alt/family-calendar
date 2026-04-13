@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { CalendarEvent, SubCalendar } from '@/lib/types';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -20,6 +21,15 @@ function eventColor(ev: CalendarEvent, subs: SubCalendar[]): string {
 }
 
 export default function DayEventsModal({ open, date, events, subCalendars, onClose, onEventClick, onAddEvent }: Props) {
+  // #9: 戻るボタンでポップアップだけ閉じる
+  useEffect(() => {
+    if (!open) return;
+    history.pushState({ modal: 'day-events' }, '');
+    const handler = () => onClose();
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, [open, onClose]);
+
   if (!open || !date) return null;
 
   const dateKey = format(date, 'yyyy-MM-dd');

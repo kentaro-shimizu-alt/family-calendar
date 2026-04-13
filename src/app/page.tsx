@@ -101,7 +101,17 @@ export default function HomePage() {
         const mData = await mRes.json();
         const sData = await sRes.json();
         if (mData.members) setMembers(mData.members);
-        if (sData.subCalendars) setSubCalendars(sData.subCalendars);
+        if (sData.subCalendars) {
+          // Restore visibility from localStorage
+          try {
+            const saved = localStorage.getItem('subCalendarVisibility');
+            if (saved) {
+              const vis = JSON.parse(saved);
+              sData.subCalendars = sData.subCalendars.map((c: SubCalendar) => ({ ...c, visible: vis[c.id] ?? c.visible }));
+            }
+          } catch {}
+          setSubCalendars(sData.subCalendars);
+        }
         // キャッシュに保存
         try {
           localStorage.setItem('cal-members', JSON.stringify(mData));
@@ -280,7 +290,9 @@ export default function HomePage() {
   function toggleCalendarVisible(id: string) {
     const next = subCalendars.map((c) => (c.id === id ? { ...c, visible: !c.visible } : c));
     setSubCalendars(next);
-    // Persist
+    // Persist to localStorage for instant restore
+    try { localStorage.setItem('subCalendarVisibility', JSON.stringify(Object.fromEntries(next.map(c => [c.id, c.visible])))); } catch {}
+    // Persist to server
     fetch('/api/subcalendars', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

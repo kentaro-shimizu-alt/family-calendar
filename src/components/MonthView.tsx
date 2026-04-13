@@ -96,6 +96,25 @@ interface BarSeg {
   slot: number;
 }
 
+// 日本の祝日（2025-2027）
+const HOLIDAYS: Record<string, string> = {
+  '2025-01-01': '元日', '2025-01-13': '成人の日', '2025-02-11': '建国記念の日', '2025-02-23': '天皇誕生日', '2025-02-24': '振替休日',
+  '2025-03-20': '春分の日', '2025-04-29': '昭和の日', '2025-05-03': '憲法記念日', '2025-05-04': 'みどりの日', '2025-05-05': 'こどもの日', '2025-05-06': '振替休日',
+  '2025-07-21': '海の日', '2025-08-11': '山の日', '2025-09-15': '敬老の日', '2025-09-23': '秋分の日',
+  '2025-10-13': 'スポーツの日', '2025-11-03': '文化の日', '2025-11-23': '勤労感謝の日', '2025-11-24': '振替休日',
+  '2026-01-01': '元日', '2026-01-12': '成人の日', '2026-02-11': '建国記念の日', '2026-02-23': '天皇誕生日',
+  '2026-03-20': '春分の日', '2026-04-29': '昭和の日', '2026-05-03': '憲法記念日', '2026-05-04': 'みどりの日', '2026-05-05': 'こどもの日', '2026-05-06': '振替休日',
+  '2026-07-20': '海の日', '2026-08-11': '山の日', '2026-09-21': '敬老の日', '2026-09-22': '振替休日', '2026-09-23': '秋分の日',
+  '2026-10-12': 'スポーツの日', '2026-11-03': '文化の日', '2026-11-23': '勤労感謝の日',
+  '2027-01-01': '元日', '2027-01-11': '成人の日', '2027-02-11': '建国記念の日', '2027-02-23': '天皇誕生日',
+  '2027-03-21': '春分の日', '2027-04-29': '昭和の日', '2027-05-03': '憲法記念日', '2027-05-04': 'みどりの日', '2027-05-05': 'こどもの日',
+  '2027-07-19': '海の日', '2027-08-11': '山の日', '2027-09-20': '敬老の日', '2027-09-23': '秋分の日',
+  '2027-10-11': 'スポーツの日', '2027-11-03': '文化の日', '2027-11-23': '勤労感謝の日',
+};
+function isHoliday(date: Date): boolean {
+  return !!HOLIDAYS[format(date, 'yyyy-MM-dd')];
+}
+
 // Constants for layout
 // スマホ: 2行構成（日付 + チップ行）36pxで収まる
 // PC(sm+): 28pxで十分だが、JS計算はスマホ基準36pxで統一
@@ -242,7 +261,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
           <div
             key={label}
             className={`text-center text-xs font-semibold py-2 ${
-              i === 0 ? 'text-rose-600' : i === 6 ? 'text-sky-600' : 'text-slate-700'
+              i === 0 ? 'text-rose-500' : i === 6 ? 'text-sky-500' : 'text-slate-400'
             }`}
           >
             {label}
@@ -426,12 +445,13 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           className={`text-[12px] font-semibold leading-none ${
                             today
                               ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
-                              : di === 0
-                              ? 'text-rose-600'
+                              : di === 0 || isHoliday(day)
+                              ? 'text-rose-500'
                               : di === 6
-                              ? 'text-sky-600'
-                              : 'text-slate-700'
+                              ? 'text-sky-500'
+                              : 'text-slate-300'
                           }`}
+                          title={HOLIDAYS[format(day, 'yyyy-MM-dd')] || ''}
                         >
                           {format(day, 'd')}
                         </span>
@@ -472,12 +492,13 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                             className={`text-xs font-semibold leading-none ${
                               today
                                 ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
-                                : di === 0
-                                ? 'text-rose-600'
+                                : di === 0 || isHoliday(day)
+                                ? 'text-rose-500'
                                 : di === 6
-                                ? 'text-sky-600'
-                                : 'text-slate-700'
+                                ? 'text-sky-500'
+                                : 'text-slate-300'
                             }`}
+                            title={HOLIDAYS[format(day, 'yyyy-MM-dd')] || ''}
                           >
                             {format(day, 'd')}
                           </span>

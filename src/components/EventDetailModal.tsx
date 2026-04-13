@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CalendarEvent, EventComment, Member, getMember } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -21,6 +21,15 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [posting, setPosting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+
+  // #9: 戻るボタンでポップアップだけ閉じる
+  useEffect(() => {
+    if (!open) return;
+    history.pushState({ modal: 'event-detail' }, '');
+    const handler = () => onClose();
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, [open, onClose]);
 
   if (!open || !event) return null;
   const member = getMember(event.memberId, members);
