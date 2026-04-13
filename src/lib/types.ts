@@ -130,6 +130,7 @@ export const MATERIAL_TEMPLATE = `■材料販売　納品書の要否：
 取引先：
 担当：
 使用現場名：
+上代（定価）：円/m
 品番：
 数量：m
 売値単価：円/m

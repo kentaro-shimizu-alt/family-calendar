@@ -97,9 +97,9 @@ interface BarSeg {
 }
 
 // Constants for layout
-// スマホ: 2行構成（日付 + チップ行）なので44px
-// PC(sm+): 28pxで十分だが、JS計算はスマホ基準44pxで統一（PCは余白が増えるだけで問題なし）
-const DATE_HEADER_H = 44; // px ← スマホ2行分に合わせて統一
+// スマホ: 2行構成（日付 + チップ行）36pxで収まる
+// PC(sm+): 28pxで十分だが、JS計算はスマホ基準36pxで統一
+const DATE_HEADER_H = 36; // px ← 空白行をなくすため44→36に縮小
 const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
@@ -421,9 +421,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       <div className="sm:hidden flex flex-col items-center pt-0.5 gap-[1px]">
                         {/* 1行目: 日付数字（センター） */}
                         <span
-                          className={`text-[10px] font-semibold leading-none ${
+                          className={`text-[12px] font-semibold leading-none ${
                             today
-                              ? 'inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 text-white'
+                              ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
                               : di === 0
                               ? 'text-rose-600'
                               : di === 6
@@ -437,7 +437,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         <div className="flex items-center justify-center gap-[2px] flex-nowrap">
                           {dailyEntry?.misaMemo && (
                             <button
-                              className="pointer-events-auto text-[8px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
+                              className="pointer-events-auto text-[7px] font-bold leading-none px-0.5 py-[2px] rounded bg-orange-100 text-orange-600 hover:bg-orange-200 border border-orange-200"
                               title="美砂メモあり（クリックで表示）"
                               onClick={(e) => {
                                 e.stopPropagation();
