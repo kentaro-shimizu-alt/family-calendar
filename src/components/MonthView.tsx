@@ -358,7 +358,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                             ev.stopPropagation();
                             onSalesClick(day);
                           }}
-                          className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold ${colorCls}`}
+                          className={`pointer-events-auto text-[7px] sm:text-[9px] leading-none px-0.5 sm:px-1 py-[2px] sm:py-[3px] rounded font-semibold ${colorCls}`}
                           title={
                             e.amount
                               ? `${kanaKind} ¥${e.amount.toLocaleString()}${e.customer ? ` (${e.customer})` : ''}`
@@ -387,7 +387,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                             ev.stopPropagation();
                             onSalesClick(day);
                           }}
-                          className={`pointer-events-auto text-[9px] leading-none px-1 py-[3px] rounded font-semibold whitespace-nowrap ${colorCls}`}
+                          className={`pointer-events-auto text-[7px] sm:text-[9px] leading-none px-0.5 sm:px-1 py-[2px] sm:py-[3px] rounded font-semibold whitespace-nowrap ${colorCls}`}
                           title={`${kanaKind} 計 ¥${sum.toLocaleString()}（${entries.length}件${hasUnknown ? `・うち${entries.length - filled.length}件金額未入力` : ''}）`}
                         >
                           {label}
@@ -409,9 +409,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                     >
                       <div className="flex items-center gap-0.5 flex-shrink-0">
                         <span
-                          className={`text-xs font-semibold ${
+                          className={`text-[10px] sm:text-xs font-semibold leading-none ${
                             today
-                              ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
+                              ? 'inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-500 text-white'
                               : di === 0
                               ? 'text-rose-600'
                               : di === 6
@@ -423,7 +423,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         </span>
                         {dailyEntry?.misaMemo && (
                           <button
-                            className="pointer-events-auto text-[9px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
+                            className="pointer-events-auto text-[8px] sm:text-[9px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
                             title="美砂メモあり（クリックで表示）"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -442,7 +442,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               e.stopPropagation();
                               onSalesClick(day);
                             }}
-                            className="pointer-events-auto text-[10px] leading-none px-1.5 py-[3px] rounded min-w-[22px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
+                            className="pointer-events-auto text-[8px] sm:text-[10px] leading-none px-1 sm:px-1.5 py-[2px] sm:py-[3px] rounded min-w-[16px] sm:min-w-[22px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
                             title="売上を入力"
                           >
                             ¥
