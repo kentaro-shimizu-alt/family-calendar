@@ -42,8 +42,8 @@ body {
     color: var(--ev-mobile-fg) !important;
     border-left-color: var(--ev-accent) !important;
     text-shadow: 0 0.5px 1px rgba(0,0,0,0.2);
-    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
-    font-weight: 800 !important;
+    font-family: 'M PLUS Rounded 1c', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    font-weight: 700 !important;
     letter-spacing: -0.02em;
     white-space: nowrap !important;
     overflow: hidden !important;
