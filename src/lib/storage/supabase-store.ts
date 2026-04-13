@@ -231,6 +231,75 @@ export const supabaseStore: Store = {
     return (count || 0) > 0;
   },
 
+  // ===== Event counts (SQL で集計 → 全件取得を回避) =====
+  async countEventsByCalendar(): Promise<Record<string, number>> {
+    const sb = getSupabase();
+    // calendar_id ごとの件数を取得
+    const { data, error } = await sb.rpc('count_events_by_calendar');
+    if (!error && data) {
+      const counts: Record<string, number> = {};
+      for (const row of data) {
+        counts[row.cid || '_none'] = Number(row.cnt);
+      }
+      return counts;
+    }
+    // RPC が無い場合は calendar_id だけ SELECT して集計（全カラム取得より遥かに軽い）
+    const pageSize = 1000;
+    const all: any[] = [];
+    for (let page = 0; page < 50; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      const { data: d, error: e } = await sb
+        .from('events')
+        .select('calendar_id')
+        .order('id', { ascending: true })
+        .range(from, to);
+      if (e) throw new Error(`supabase events count by cal: ${e.message}`);
+      if (!d || d.length === 0) break;
+      all.push(...d);
+      if (d.length < pageSize) break;
+    }
+    const counts: Record<string, number> = {};
+    for (const r of all) {
+      const cid = r.calendar_id || '_none';
+      counts[cid] = (counts[cid] || 0) + 1;
+    }
+    return counts;
+  },
+  async countEventsByMember(): Promise<Record<string, number>> {
+    const sb = getSupabase();
+    const { data, error } = await sb.rpc('count_events_by_member');
+    if (!error && data) {
+      const counts: Record<string, number> = {};
+      for (const row of data) {
+        counts[row.mid || '_none'] = Number(row.cnt);
+      }
+      return counts;
+    }
+    // RPC が無い場合は member_id だけ SELECT して集計
+    const pageSize = 1000;
+    const all: any[] = [];
+    for (let page = 0; page < 50; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      const { data: d, error: e } = await sb
+        .from('events')
+        .select('member_id')
+        .order('id', { ascending: true })
+        .range(from, to);
+      if (e) throw new Error(`supabase events count by member: ${e.message}`);
+      if (!d || d.length === 0) break;
+      all.push(...d);
+      if (d.length < pageSize) break;
+    }
+    const counts: Record<string, number> = {};
+    for (const r of all) {
+      const mid = r.member_id || '_none';
+      counts[mid] = (counts[mid] || 0) + 1;
+    }
+    return counts;
+  },
+
   // ===== Daily =====
   async getAllDailyData(): Promise<Record<string, DailyData>> {
     // 同じく 1000 件上限対策でページ分割
@@ -252,6 +321,25 @@ export const supabaseStore: Store = {
         out[d.date] = d;
       }
       if (data.length < pageSize) break;
+    }
+    return out;
+  },
+  async getDailyDataByMonth(yearMonth: string): Promise<Record<string, DailyData>> {
+    const sb = getSupabase();
+    const monthStart = `${yearMonth}-01`;
+    const [y, m] = yearMonth.split('-').map(Number);
+    const monthEnd = `${yearMonth}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`;
+    const { data, error } = await sb
+      .from('daily_data')
+      .select('*')
+      .gte('date', monthStart)
+      .lte('date', monthEnd)
+      .order('date', { ascending: true });
+    if (error) throw new Error(`supabase daily_data select month: ${error.message}`);
+    const out: Record<string, DailyData> = {};
+    for (const r of (data || [])) {
+      const d = rowToDaily(r);
+      out[d.date] = d;
     }
     return out;
   },

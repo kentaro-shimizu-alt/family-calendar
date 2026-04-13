@@ -102,9 +102,37 @@ export const jsonStore = {
     return true;
   },
 
+  // ===== Event counts (カウントのみ高速取得) =====
+  async countEventsByCalendar(): Promise<Record<string, number>> {
+    const events = ensureDb().events;
+    const counts: Record<string, number> = {};
+    for (const ev of events) {
+      const cid = ev.calendarId || '_none';
+      counts[cid] = (counts[cid] || 0) + 1;
+    }
+    return counts;
+  },
+  async countEventsByMember(): Promise<Record<string, number>> {
+    const events = ensureDb().events;
+    const counts: Record<string, number> = {};
+    for (const ev of events) {
+      const mid = ev.memberId || '_none';
+      counts[mid] = (counts[mid] || 0) + 1;
+    }
+    return counts;
+  },
+
   // ===== Daily =====
   async getAllDailyData(): Promise<Record<string, DailyData>> {
     return ensureDb().dailyData || {};
+  },
+  async getDailyDataByMonth(yearMonth: string): Promise<Record<string, DailyData>> {
+    const all = ensureDb().dailyData || {};
+    const out: Record<string, DailyData> = {};
+    for (const [k, v] of Object.entries(all)) {
+      if (k.startsWith(yearMonth)) out[k] = v;
+    }
+    return out;
   },
   async getDailyDataByDate(date: string): Promise<DailyData | null> {
     const db = ensureDb();

@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listMembers, setMembers, countEventsByMember } from '@/lib/db';
 
-// Next.js route cacheを無効化（Supabase直更新を即反映させるため）
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: 30秒キャッシュ後に再検証（members は滅多に変わらない）
+export const revalidate = 30;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const skipCounts = req.nextUrl.searchParams.get('skipCounts') === '1';
+  if (skipCounts) {
+    // 高速パス: members のみ返す（カウント不要の初期ロード用）
+    const members = await listMembers();
+    return NextResponse.json({ members });
+  }
   const [members, eventCounts] = await Promise.all([
     listMembers(),
     countEventsByMember(),

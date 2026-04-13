@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listDailyData, upsertDailyData } from '@/lib/db';
 
-// キャッシュ無効化
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: 10秒キャッシュ後に再検証
+export const revalidate = 10;
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

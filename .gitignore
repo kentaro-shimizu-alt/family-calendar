@@ -7,3 +7,7 @@ build/
 data/calendar.db
 data/uploads/*
 !data/uploads/.gitkeep
+
+public/uploads/timetree_photos/
+
+.vercel

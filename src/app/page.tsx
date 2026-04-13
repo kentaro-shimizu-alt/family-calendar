@@ -72,22 +72,58 @@ export default function HomePage() {
   const monthKey = useMemo(() => format(currentMonth, 'yyyy-MM'), [currentMonth]);
 
   // Load static collections once (members + sub-calendars)
+  // localStorage キャッシュで即表示 → バックグラウンドで最新を取得
   useEffect(() => {
+    // 1) キャッシュから即座に表示
+    try {
+      const cachedM = localStorage.getItem('cal-members');
+      const cachedS = localStorage.getItem('cal-subcalendars');
+      if (cachedM) {
+        const parsed = JSON.parse(cachedM);
+        if (parsed.members) setMembers(parsed.members);
+        if (parsed.eventCounts) setEventCountByMember(parsed.eventCounts);
+      }
+      if (cachedS) {
+        const parsed = JSON.parse(cachedS);
+        if (parsed.subCalendars) setSubCalendars(parsed.subCalendars);
+        if (parsed.eventCounts) setEventCountByCalendar(parsed.eventCounts);
+      }
+    } catch {}
+
+    // 2) バックグラウンドで最新を取得（skipCounts=1 で高速、カウントは後から）
     (async () => {
       try {
         const [mRes, sRes] = await Promise.all([
-          fetch('/api/members'),
-          fetch('/api/subcalendars'),
+          fetch('/api/members?skipCounts=1'),
+          fetch('/api/subcalendars?skipCounts=1'),
         ]);
         const mData = await mRes.json();
         const sData = await sRes.json();
         if (mData.members) setMembers(mData.members);
-        if (mData.eventCounts) setEventCountByMember(mData.eventCounts);
         if (sData.subCalendars) setSubCalendars(sData.subCalendars);
-        if (sData.eventCounts) setEventCountByCalendar(sData.eventCounts);
+        // キャッシュに保存
+        try {
+          localStorage.setItem('cal-members', JSON.stringify(mData));
+          localStorage.setItem('cal-subcalendars', JSON.stringify(sData));
+        } catch {}
       } catch (e) {
         console.error(e);
       }
+      // カウントは遅延ロード（設定画面で使う程度なので表示を遅らせてOK）
+      try {
+        const [mRes2, sRes2] = await Promise.all([
+          fetch('/api/members'),
+          fetch('/api/subcalendars'),
+        ]);
+        const mData2 = await mRes2.json();
+        const sData2 = await sRes2.json();
+        if (mData2.eventCounts) setEventCountByMember(mData2.eventCounts);
+        if (sData2.eventCounts) setEventCountByCalendar(sData2.eventCounts);
+        try {
+          localStorage.setItem('cal-members', JSON.stringify(mData2));
+          localStorage.setItem('cal-subcalendars', JSON.stringify(sData2));
+        } catch {}
+      } catch {}
     })();
   }, []);
 
@@ -110,9 +146,11 @@ export default function HomePage() {
     // バックグラウンドで最新を取得
     setLoading(true);
     try {
+      // forceRefresh 時は cache-busting で Vercel CDN キャッシュをバイパス
+      const cacheBust = forceRefresh ? `&_t=${Date.now()}` : '';
       const [evRes, dRes] = await Promise.all([
-        fetch(`/api/events?month=${monthKey}`),
-        fetch(`/api/daily?month=${monthKey}`),
+        fetch(`/api/events?month=${monthKey}${cacheBust}`),
+        fetch(`/api/daily?month=${monthKey}${cacheBust}`),
       ]);
       const evData = await evRes.json();
       const dData = await dRes.json();

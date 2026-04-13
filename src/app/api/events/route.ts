@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { listEvents, createEvent } from '@/lib/db';
 import { MemberId } from '@/lib/types';
 
-// キャッシュ無効化（Vercel の route cache で古いデータが出るのを防ぐ）
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: 10秒キャッシュ後に再検証（stale-while-revalidate で高速応答）
+export const revalidate = 10;
 
 export async function GET(req: NextRequest) {
   const yearMonth = req.nextUrl.searchParams.get('month') || undefined;

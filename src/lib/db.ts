@@ -50,25 +50,11 @@ export async function listEvents(yearMonth?: string): Promise<CalendarEvent[]> {
 }
 
 export async function countEventsByCalendar(): Promise<Record<string, number>> {
-  const store = getStore();
-  const all = await store.getAllEventsRaw();
-  const counts: Record<string, number> = {};
-  for (const ev of all) {
-    const cid = ev.calendarId || '_none';
-    counts[cid] = (counts[cid] || 0) + 1;
-  }
-  return counts;
+  return getStore().countEventsByCalendar();
 }
 
 export async function countEventsByMember(): Promise<Record<string, number>> {
-  const store = getStore();
-  const all = await store.getAllEventsRaw();
-  const counts: Record<string, number> = {};
-  for (const ev of all) {
-    const mid = ev.memberId || '_none';
-    counts[mid] = (counts[mid] || 0) + 1;
-  }
-  return counts;
+  return getStore().countEventsByMember();
 }
 
 function formatDate(d: Date): string {
@@ -220,9 +206,13 @@ function migrateDaily(d: DailyData): DailyData {
 
 export async function listDailyData(yearMonth?: string): Promise<DailyData[]> {
   const store = getStore();
+  if (yearMonth) {
+    // 月指定あり: store 側で DB フィルタして高速取得
+    const monthly = await store.getDailyDataByMonth(yearMonth);
+    return Object.values(monthly).map(migrateDaily);
+  }
   const all = Object.values(await store.getAllDailyData()).map(migrateDaily);
-  if (!yearMonth) return all;
-  return all.filter((d) => d.date.startsWith(yearMonth));
+  return all;
 }
 
 export async function getDailyData(date: string): Promise<DailyData | null> {
