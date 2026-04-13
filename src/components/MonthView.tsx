@@ -97,7 +97,9 @@ interface BarSeg {
 }
 
 // Constants for layout
-const DATE_HEADER_H = 28; // px, top date row (date + single row of sales chips)
+// スマホ: 2行構成（日付 + チップ行）なので44px
+// PC(sm+): 28pxで十分だが、JS計算はスマホ基準44pxで統一（PCは余白が増えるだけで問題なし）
+const DATE_HEADER_H = 44; // px ← スマホ2行分に合わせて統一
 const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
@@ -365,7 +367,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               : `${kanaKind} (金額未入力)`
                           }
                         >
-                          {e.amount ? `¥${formatYen(e.amount)}` : '¥?'}
+                          {/* スマホ: ¥のみ（金額非表示）、PC: ¥金額 */}
+                          <span className="hidden sm:inline">{e.amount ? `¥${formatYen(e.amount)}` : '¥?'}</span>
+                          <span className="sm:hidden">{e.amount ? '¥' : '¥?'}</span>
                         </button>
                       ));
                     }
@@ -379,6 +383,10 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                     } else {
                       label = `計¥${formatYen(sum)} ${entries.length}件`;
                     }
+                    // スマホ用まとめラベル: ¥件数（金額なし）
+                    const mobileLabel = filled.length === 0
+                      ? `¥?${entries.length}`
+                      : `¥${entries.length}`;
                     return [
                       (
                         <button
@@ -390,7 +398,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           className={`pointer-events-auto text-[7px] sm:text-[9px] leading-none px-0.5 sm:px-1 py-[2px] sm:py-[3px] rounded font-semibold whitespace-nowrap ${colorCls}`}
                           title={`${kanaKind} 計 ¥${sum.toLocaleString()}（${entries.length}件${hasUnknown ? `・うち${entries.length - filled.length}件金額未入力` : ''}）`}
                         >
-                          {label}
+                          {/* スマホ: ¥件数のみ、PC: 計¥金額 件数 */}
+                          <span className="hidden sm:inline">{label}</span>
+                          <span className="sm:hidden">{mobileLabel}</span>
                         </button>
                       ),
                     ];
@@ -404,14 +414,16 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                   return (
                     <div
                       key={dateKey}
-                      className={`flex items-start justify-between px-1.5 pt-1 gap-1 ${inMonth ? '' : 'opacity-40'}`}
+                      className={`${inMonth ? '' : 'opacity-40'}`}
                       style={{ height: DATE_HEADER_H }}
                     >
-                      <div className="flex items-center gap-0.5 flex-shrink-0">
+                      {/* ===== スマホ: 2行構成 ===== */}
+                      <div className="sm:hidden flex flex-col items-center pt-0.5 gap-[1px]">
+                        {/* 1行目: 日付数字（センター） */}
                         <span
-                          className={`text-[10px] sm:text-xs font-semibold leading-none ${
+                          className={`text-[10px] font-semibold leading-none ${
                             today
-                              ? 'inline-flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-blue-500 text-white'
+                              ? 'inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 text-white'
                               : di === 0
                               ? 'text-rose-600'
                               : di === 6
@@ -421,33 +433,80 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         >
                           {format(day, 'd')}
                         </span>
-                        {dailyEntry?.misaMemo && (
-                          <button
-                            className="pointer-events-auto text-[8px] sm:text-[9px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
-                            title="美砂メモあり（クリックで表示）"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (onMisaClick) onMisaClick(day);
-                              else onSalesClick(day);
-                            }}
-                          >美</button>
-                        )}
+                        {/* 2行目: 美マーク + ¥チップ（センター横並び） */}
+                        <div className="flex items-center justify-center gap-[2px] flex-nowrap">
+                          {dailyEntry?.misaMemo && (
+                            <button
+                              className="pointer-events-auto text-[8px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
+                              title="美砂メモあり（クリックで表示）"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onMisaClick) onMisaClick(day);
+                                else onSalesClick(day);
+                              }}
+                            >美</button>
+                          )}
+                          {hasAnySales ? (
+                            chips
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSalesClick(day);
+                              }}
+                              className="pointer-events-auto text-[8px] leading-none px-1 py-[2px] rounded min-w-[16px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
+                              title="売上を入力"
+                            >
+                              ¥
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden">
-                        {hasAnySales ? (
-                          chips
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSalesClick(day);
-                            }}
-                            className="pointer-events-auto text-[8px] sm:text-[10px] leading-none px-1 sm:px-1.5 py-[2px] sm:py-[3px] rounded min-w-[16px] sm:min-w-[22px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
-                            title="売上を入力"
+
+                      {/* ===== PC (sm+): 従来の横並び1行 ===== */}
+                      <div className="hidden sm:flex items-start justify-between px-1.5 pt-1 gap-1 h-full">
+                        <div className="flex items-center gap-0.5 flex-shrink-0">
+                          <span
+                            className={`text-xs font-semibold leading-none ${
+                              today
+                                ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
+                                : di === 0
+                                ? 'text-rose-600'
+                                : di === 6
+                                ? 'text-sky-600'
+                                : 'text-slate-700'
+                            }`}
                           >
-                            ¥
-                          </button>
-                        )}
+                            {format(day, 'd')}
+                          </span>
+                          {dailyEntry?.misaMemo && (
+                            <button
+                              className="pointer-events-auto text-[9px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
+                              title="美砂メモあり（クリックで表示）"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (onMisaClick) onMisaClick(day);
+                                else onSalesClick(day);
+                              }}
+                            >美</button>
+                          )}
+                        </div>
+                        <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden">
+                          {hasAnySales ? (
+                            chips
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSalesClick(day);
+                              }}
+                              className="pointer-events-auto text-[10px] leading-none px-1.5 py-[3px] rounded min-w-[22px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
+                              title="売上を入力"
+                            >
+                              ¥
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
