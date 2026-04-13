@@ -30,8 +30,11 @@ export const STORAGE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET || 'family-upl
  * 環境変数 STORAGE_BACKEND の解釈:
  *   'json'     : 従来のローカル JSON + data/uploads（デフォルト）
  *   'supabase' : Supabase Postgres + Supabase Storage
+ *   'gdrive'   : Supabase Postgres + Google Drive Storage
  */
-export function getStorageBackend(): 'json' | 'supabase' {
+export function getStorageBackend(): 'json' | 'supabase' | 'gdrive' {
   const v = (process.env.STORAGE_BACKEND || 'json').toLowerCase();
-  return v === 'supabase' ? 'supabase' : 'json';
+  if (v === 'supabase') return 'supabase';
+  if (v === 'gdrive') return 'gdrive';
+  return 'json';
 }

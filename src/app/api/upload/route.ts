@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'node:fs';
 import path from 'node:path';
 import { getStorageBackend, getSupabase, STORAGE_BUCKET } from '@/lib/supabase';
+import { uploadToGDrive, isGDriveConfigured } from '@/lib/gdrive';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'data', 'uploads');
 
@@ -25,6 +26,32 @@ export async function POST(req: NextRequest) {
     const backend = getStorageBackend();
     const items: UploadedFile[] = [];
     const urls: string[] = []; // legacy: images only
+
+    if (backend === 'gdrive') {
+      if (!isGDriveConfigured()) {
+        return NextResponse.json(
+          { error: 'Google Drive not configured. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GOOGLE_DRIVE_FOLDER_ID.' },
+          { status: 500 }
+        );
+      }
+      for (const file of files) {
+        const type = (file.type || '').toLowerCase();
+        const isImage = ACCEPTED_IMAGE.includes(type) || type.startsWith('image/');
+        const isPdf = ACCEPTED_PDF.includes(type) || file.name.toLowerCase().endsWith('.pdf');
+        if (!isImage && !isPdf) continue;
+        const buf = Buffer.from(await file.arrayBuffer());
+        const ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : '.bin')).toLowerCase();
+        const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        const filename = `${id}${ext}`;
+        const mimeType = type || (isPdf ? 'application/pdf' : 'application/octet-stream');
+        const fileId = await uploadToGDrive(buf, filename, mimeType);
+        const url = `/api/gdrive-image/${fileId}`;
+        const kind: 'image' | 'pdf' = isPdf ? 'pdf' : 'image';
+        items.push({ url, kind, name: file.name });
+        if (kind === 'image') urls.push(url);
+      }
+      return NextResponse.json({ items, urls });
+    }
 
     if (backend === 'supabase') {
       const sb = getSupabase();
