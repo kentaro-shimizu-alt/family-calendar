@@ -110,6 +110,18 @@ const HOLIDAYS: Record<string, string> = {
   '2027-03-21': '春分の日', '2027-04-29': '昭和の日', '2027-05-03': '憲法記念日', '2027-05-04': 'みどりの日', '2027-05-05': 'こどもの日',
   '2027-07-19': '海の日', '2027-08-11': '山の日', '2027-09-20': '敬老の日', '2027-09-23': '秋分の日',
   '2027-10-11': 'スポーツの日', '2027-11-03': '文化の日', '2027-11-23': '勤労感謝の日',
+  '2028-01-01': '元日', '2028-01-10': '成人の日', '2028-02-11': '建国記念の日', '2028-02-23': '天皇誕生日',
+  '2028-03-20': '春分の日', '2028-04-29': '昭和の日', '2028-05-03': '憲法記念日', '2028-05-04': 'みどりの日', '2028-05-05': 'こどもの日',
+  '2028-07-17': '海の日', '2028-08-11': '山の日', '2028-09-18': '敬老の日', '2028-09-22': '秋分の日',
+  '2028-10-09': 'スポーツの日', '2028-11-03': '文化の日', '2028-11-23': '勤労感謝の日',
+  '2029-01-01': '元日', '2029-01-08': '成人の日', '2029-02-11': '建国記念の日', '2029-02-12': '振替休日', '2029-02-23': '天皇誕生日',
+  '2029-03-20': '春分の日', '2029-04-29': '昭和の日', '2029-04-30': '振替休日', '2029-05-03': '憲法記念日', '2029-05-04': 'みどりの日', '2029-05-05': 'こどもの日',
+  '2029-07-16': '海の日', '2029-08-11': '山の日', '2029-09-17': '敬老の日', '2029-09-23': '秋分の日', '2029-09-24': '振替休日',
+  '2029-10-08': 'スポーツの日', '2029-11-03': '文化の日', '2029-11-23': '勤労感謝の日',
+  '2030-01-01': '元日', '2030-01-14': '成人の日', '2030-02-11': '建国記念の日', '2030-02-23': '天皇誕生日',
+  '2030-03-20': '春分の日', '2030-04-29': '昭和の日', '2030-05-03': '憲法記念日', '2030-05-04': 'みどりの日', '2030-05-05': 'こどもの日', '2030-05-06': '振替休日',
+  '2030-07-15': '海の日', '2030-08-11': '山の日', '2030-08-12': '振替休日', '2030-09-16': '敬老の日', '2030-09-23': '秋分の日',
+  '2030-10-14': 'スポーツの日', '2030-11-03': '文化の日', '2030-11-04': '振替休日', '2030-11-23': '勤労感謝の日',
 };
 function isHoliday(date: Date): boolean {
   return !!HOLIDAYS[format(date, 'yyyy-MM-dd')];
@@ -125,18 +137,24 @@ const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
 
 export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight }: Props) {
   // Swipe detection
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const touchStart = useRef<{ x: number; y: number; touches: number } | null>(null);
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    // #7: ピンチ（2本指）は無視
+    if (e.touches.length > 1) { touchStart.current = null; return; }
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, touches: e.touches.length };
   }, []);
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!touchStart.current) return;
-    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    if (!touchStart.current || touchStart.current.touches > 1) return;
+    const startX = touchStart.current.x;
+    const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - touchStart.current.y;
-    // 横移動が50px以上、かつ縦より横の方が大きい場合のみ
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      if (dx < 0) onSwipeLeft?.();  // 左スワイプ → 次の月
-      else onSwipeRight?.();         // 右スワイプ → 前の月
+    const screenW = window.innerWidth;
+    // #6: スマホは画面端50px以内からのスワイプのみ。デスクトップ(768px+)はスワイプ無効
+    const isEdgeSwipe = startX < 50 || startX > screenW - 50;
+    const isMobile = screenW < 768;
+    if (isMobile && isEdgeSwipe && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) onSwipeLeft?.();
+      else onSwipeRight?.();
     }
     touchStart.current = null;
   }, [onSwipeLeft, onSwipeRight]);

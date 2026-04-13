@@ -404,7 +404,16 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
           {/* 美砂メモパネル */}
           {activeTab === 'misa' && (
             <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-3">
-              <div className="text-xs font-bold text-orange-600">美砂メモ</div>
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-bold text-orange-600">美砂メモ</div>
+                {(misaMemo || misaMemoImages.length > 0) && (
+                  <button
+                    type="button"
+                    onClick={() => { setMisaMemo(''); setMisaMemoImages([]); }}
+                    className="text-[10px] text-rose-400 hover:text-rose-600 px-2 py-0.5 rounded border border-rose-200 hover:bg-rose-50"
+                  >クリア</button>
+                )}
+              </div>
               <textarea
                 value={misaMemo}
                 onChange={(e) => setMisaMemo(e.target.value)}
