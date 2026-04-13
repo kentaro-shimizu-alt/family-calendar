@@ -237,7 +237,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
   return (
     <div className="w-full px-2 sm:px-3" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Day-of-week header */}
-      <div className="grid grid-cols-7 border-b border-slate-200 bg-white sticky top-0 z-10">
+      <div className="grid grid-cols-7 border-b border-neutral-800 bg-neutral-900 sticky top-0 z-10">
         {dayLabels.map((label, i) => (
           <div
             key={label}
@@ -266,7 +266,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                   return (
                     <div
                       key={dateKey}
-                      className={`min-h-[140px] sm:min-h-[160px] flex flex-col cursor-pointer transition-colors bg-white hover:bg-slate-50`}
+                      className={`min-h-[140px] sm:min-h-[160px] flex flex-col cursor-pointer transition-colors bg-neutral-950 hover:bg-neutral-900`}
                       style={{ paddingTop: cellPadTop }}
                       onClick={() => onDayClick(day)}
                     >

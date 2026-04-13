@@ -317,7 +317,7 @@ export default function HomePage() {
   return (
     <main className={`min-h-screen flex flex-col${theme === 'dark' ? ' dark' : ''}`}>
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-3 py-2 sticky top-0 z-20">
+      <header className="bg-neutral-900 border-b border-neutral-800 px-3 py-2 sticky top-0 z-20">
         <div className="flex items-center justify-center gap-1">
           <button
             onClick={() => setCurrentMonth((d) => subMonths(d, 1))}
@@ -328,7 +328,7 @@ export default function HomePage() {
           </button>
           <button
             onClick={() => setCurrentMonth(new Date())}
-            className="text-xl font-bold text-slate-800 px-4 py-1 rounded-lg hover:bg-slate-50 min-w-[140px] text-center"
+            className="text-xl font-bold text-white px-4 py-1 rounded-lg hover:bg-neutral-800 min-w-[140px] text-center"
             title="今月へ"
           >
             {format(currentMonth, 'yyyy年 M月', { locale: ja })}
@@ -342,7 +342,7 @@ export default function HomePage() {
           </button>
           <button
             onClick={() => setSearchOpen((v) => !v)}
-            className="ml-2 w-9 h-9 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500 text-base"
+            className="ml-2 w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-slate-300 text-base"
             aria-label="検索"
             title="検索"
           >
@@ -350,7 +350,7 @@ export default function HomePage() {
           </button>
           <button
             onClick={() => setKeepOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500 text-base"
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-slate-300 text-base"
             aria-label="Keep"
             title="Keep（メモ・ToDo・買い物）"
           >
@@ -358,7 +358,7 @@ export default function HomePage() {
           </button>
           <button
             onClick={() => setSettingsOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500 text-base"
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-slate-300 text-base"
             aria-label="設定"
             title="設定"
           >
@@ -367,7 +367,7 @@ export default function HomePage() {
           <button
             onClick={() => setFilterBarVisible((v) => !v)}
             className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
-              filterBarVisible ? 'bg-slate-50 hover:bg-slate-100 text-slate-500' : 'bg-blue-100 text-blue-600'
+              filterBarVisible ? 'bg-neutral-800 hover:bg-neutral-700 text-slate-300' : 'bg-blue-100 text-blue-600'
             }`}
             aria-label="カレンダータグの表示切替"
             title={filterBarVisible ? 'タグを隠す' : 'タグを表示'}
@@ -411,7 +411,7 @@ export default function HomePage() {
               autoFocus
             />
             {searchQuery && (
-              <div className="mt-2 max-h-64 overflow-y-auto bg-white border border-slate-100 rounded-lg shadow-sm">
+              <div className="mt-2 max-h-64 overflow-y-auto bg-neutral-900 border border-neutral-700 rounded-lg shadow-sm">
                 {searchResults.length === 0 && (
                   <div className="text-xs text-slate-400 text-center py-3">
                     該当する予定はありません
@@ -421,7 +421,7 @@ export default function HomePage() {
                   <button
                     key={ev.id}
                     onClick={() => jumpToEvent(ev)}
-                    className="w-full text-left px-3 py-2 text-sm border-b border-slate-50 hover:bg-slate-50 flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-sm border-b border-neutral-800 hover:bg-neutral-800 flex items-center gap-2"
                   >
                     <span className="text-xs text-slate-400 w-20 flex-shrink-0">{ev.date}</span>
                     <span className="font-semibold text-slate-700 truncate flex-1">{ev.title}</span>
@@ -471,7 +471,7 @@ export default function HomePage() {
       </button>
 
       {loading && (
-        <div className="fixed top-2 right-2 text-xs text-slate-400 bg-white/80 px-2 py-1 rounded">
+        <div className="fixed top-2 right-2 text-xs text-slate-500 bg-black/80 px-2 py-1 rounded">
           読み込み中...
         </div>
       )}
