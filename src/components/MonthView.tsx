@@ -280,8 +280,6 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         <div className="flex flex-col gap-[2px]">
                           {dayEvents.map((ev) => {
                             const c = resolveEventColor(ev, subCalendars);
-                            // スマホ: 時間指定予定は背景なし・accent色テキスト
-                            const isTimed = !!ev.startTime;
                             return (
                               <button
                                 key={ev.id}
@@ -290,16 +288,14 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 style={{
                                   '--ev-bg': c.bg,
                                   '--ev-fg': c.fg,
-                                  '--ev-mobile-bg': isTimed ? 'transparent' : c.mobileBg,
-                                  '--ev-mobile-fg': isTimed ? c.accent : c.mobileFg,
+                                  '--ev-mobile-bg': c.mobileBg,
+                                  '--ev-mobile-fg': c.mobileFg,
                                   '--ev-accent': c.accent,
                                   '--ev-sub-accent': c.subAccent || '',
                                   backgroundColor: c.bg,
                                   color: c.fg,
-                                  borderLeft: `3px solid ${c.accent}`,
-                                  borderRight: c.subAccent ? `3px solid ${c.subAccent}` : undefined,
+                                  borderLeft: `3px solid ${c.subAccent || c.accent}`,
                                 } as React.CSSProperties}
-                                data-timed={isTimed ? 'true' : undefined}
                                 data-sub-accent={c.subAccent || undefined}
                                 title={ev.title}
                               >
@@ -548,8 +544,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         height: BAR_H,
                         backgroundColor: c.bg,
                         color: c.fg,
-                        borderLeft: b.continuesLeft ? 'none' : `3px solid ${c.accent}`,
-                        borderRight: !b.continuesRight && c.subAccent ? `3px solid ${c.subAccent}` : undefined,
+                        borderLeft: b.continuesLeft ? 'none' : `3px solid ${c.subAccent || c.accent}`,
                         borderTopLeftRadius: b.continuesLeft ? 0 : 4,
                         borderBottomLeftRadius: b.continuesLeft ? 0 : 4,
                         borderTopRightRadius: b.continuesRight ? 0 : 4,
