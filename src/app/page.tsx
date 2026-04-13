@@ -434,13 +434,6 @@ export default function HomePage() {
         )}
       </header>
 
-      {/* Today summary banner */}
-      <TodaySummary
-        events={visibleEvents}
-        members={members}
-        onEventClick={handleEventClick}
-      />
-
       {/* Reminder runner (no UI) */}
       <ReminderRunner events={visibleEvents} />
 
