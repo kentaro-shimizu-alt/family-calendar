@@ -22,6 +22,7 @@ interface Props {
   onDayClick: (date: Date) => void;
   onEventClick: (event: CalendarEvent) => void;
   onSalesClick: (date: Date) => void;
+  onMisaClick?: (date: Date) => void;
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
 }
@@ -101,7 +102,7 @@ const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
 
-export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onSwipeLeft, onSwipeRight }: Props) {
+export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight }: Props) {
   // Swipe detection
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -421,7 +422,15 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           {format(day, 'd')}
                         </span>
                         {dailyEntry?.misaMemo && (
-                          <span className="text-[9px] font-bold text-orange-500 leading-none" title="美砂メモあり">美</span>
+                          <button
+                            className="pointer-events-auto text-[9px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
+                            title="美砂メモあり（クリックで表示）"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onMisaClick) onMisaClick(day);
+                              else onSalesClick(day);
+                            }}
+                          >美</button>
                         )}
                       </div>
                       <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden">

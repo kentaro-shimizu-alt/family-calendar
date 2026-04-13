@@ -40,6 +40,7 @@ export default function HomePage() {
   // Sales modal
   const [salesOpen, setSalesOpen] = useState(false);
   const [salesDate, setSalesDate] = useState<Date | null>(null);
+  const [salesInitialTab, setSalesInitialTab] = useState<'site' | 'material' | 'misa'>('site');
 
   // Search
   const [searchQuery, setSearchQuery] = useState('');
@@ -212,6 +213,13 @@ export default function HomePage() {
   }
 
   function handleSalesClick(date: Date) {
+    setSalesInitialTab('site');
+    setSalesDate(date);
+    setSalesOpen(true);
+  }
+
+  function handleMisaClick(date: Date) {
+    setSalesInitialTab('misa');
     setSalesDate(date);
     setSalesOpen(true);
   }
@@ -447,6 +455,7 @@ export default function HomePage() {
           onDayClick={handleDayClick}
           onEventClick={handleEventClick}
           onSalesClick={handleSalesClick}
+          onMisaClick={handleMisaClick}
           onSwipeLeft={() => setCurrentMonth((d) => addMonths(d, 1))}
           onSwipeRight={() => setCurrentMonth((d) => subMonths(d, 1))}
         />
@@ -492,6 +501,7 @@ export default function HomePage() {
         open={salesOpen}
         date={salesDate}
         initial={salesDate ? dailyData[format(salesDate, 'yyyy-MM-dd')] : null}
+        initialTab={salesInitialTab}
         onClose={() => setSalesOpen(false)}
         onSaved={() => loadAll(true)}
       />

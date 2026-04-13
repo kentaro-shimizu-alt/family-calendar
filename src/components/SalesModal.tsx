@@ -17,6 +17,7 @@ interface Props {
   open: boolean;
   date: Date | null;
   initial?: DailyData | null;
+  initialTab?: SalesEntryType | 'misa';
   onClose: () => void;
   onSaved: () => void;
 }
@@ -58,7 +59,7 @@ function normalizeType(t: any): SalesEntryType {
   return 'site';
 }
 
-export default function SalesModal({ open, date, initial, onClose, onSaved }: Props) {
+export default function SalesModal({ open, date, initial, initialTab, onClose, onSaved }: Props) {
   const [entries, setEntries] = useState<SalesEntry[]>([]);
   const [memo, setMemo] = useState<string>('');
   const [misaMemo, setMisaMemo] = useState<string>('');
@@ -110,11 +111,14 @@ export default function SalesModal({ open, date, initial, onClose, onSaved }: Pr
     setMemo(initial?.memo || '');
     setMisaMemo(initial?.misaMemo || '');
     setMisaMemoImages(initial?.misaMemoImages || []);
-    setActiveTab('site');
-    resetDraft('site');
-    setTimeout(() => customerRef.current?.focus(), 50);
+    const startTab = initialTab ?? 'site';
+    setActiveTab(startTab);
+    if (startTab !== 'misa') {
+      resetDraft(startTab as SalesEntryType);
+      setTimeout(() => customerRef.current?.focus(), 50);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initial]);
+  }, [open, initial, initialTab]);
 
   if (!open || !date) return null;
 
