@@ -47,6 +47,15 @@ body {
     letter-spacing: -0.02em;
     overflow: hidden !important;
   }
+  /* 変更3: subAccentがある場合、ブロック下部に2pxの線をつける */
+  .ev-block[data-sub-accent] {
+    border-bottom: 2px solid var(--ev-sub-accent) !important;
+  }
+  /* 変更4: 時間指定予定はtransparent背景・text-shadowなし */
+  .ev-block[data-timed] {
+    background-color: transparent !important;
+    text-shadow: none !important;
+  }
 }
 
 /* ===== Dark mode（TimeTree風：真っ黒ベース） ===== */

@@ -280,28 +280,34 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         <div className="flex flex-col gap-[2px]">
                           {dayEvents.map((ev) => {
                             const c = resolveEventColor(ev, subCalendars);
+                            // スマホ: 時間指定予定は背景なし・accent色テキスト
+                            const isTimed = !!ev.startTime;
                             return (
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="ev-block text-left text-[11px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold overflow-hidden"
+                                className="ev-block text-left text-[10px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold overflow-hidden"
                                 style={{
                                   '--ev-bg': c.bg,
                                   '--ev-fg': c.fg,
-                                  '--ev-mobile-bg': c.mobileBg,
-                                  '--ev-mobile-fg': c.mobileFg,
+                                  '--ev-mobile-bg': isTimed ? 'transparent' : c.mobileBg,
+                                  '--ev-mobile-fg': isTimed ? c.accent : c.mobileFg,
                                   '--ev-accent': c.accent,
+                                  '--ev-sub-accent': c.subAccent || '',
                                   backgroundColor: c.bg,
                                   color: c.fg,
                                   borderLeft: `3px solid ${c.accent}`,
                                   borderRight: c.subAccent ? `3px solid ${c.subAccent}` : undefined,
                                 } as React.CSSProperties}
+                                data-timed={isTimed ? 'true' : undefined}
+                                data-sub-accent={c.subAccent || undefined}
                                 title={ev.title}
                               >
                                 {ev.pinned && <span className="text-[7px] sm:text-[8px]">📌</span>}
                                 {ev.site && <span className="text-[7px] sm:text-[8px]">💼</span>}
+                                {/* スマホでは時間指定予定の時間は非表示 */}
                                 {ev.startTime && (
-                                  <span className="font-bold">{ev.startTime}</span>
+                                  <span className="font-bold hidden sm:inline">{ev.startTime}</span>
                                 )}
                                 <span className="truncate">{ev.title}</span>
                                 {ev.images && ev.images.length > 0 && (
@@ -528,13 +534,14 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                     <button
                       key={`${b.event.id}__${b.weekIdx}__${b.startCol}`}
                       onClick={(e) => { e.stopPropagation(); onEventClick(b.event); }}
-                      className="ev-block pointer-events-auto absolute text-left text-[9px] sm:text-[12px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-bold sm:font-medium shadow-sm"
+                      className="ev-block pointer-events-auto absolute text-left text-[10px] sm:text-[12px] leading-tight truncate hover:brightness-95 transition flex items-center gap-0.5 font-bold sm:font-medium shadow-sm"
                       style={{
                         '--ev-bg': c.bg,
                         '--ev-fg': c.fg,
                         '--ev-mobile-bg': c.mobileBg,
                         '--ev-mobile-fg': c.mobileFg,
                         '--ev-accent': c.accent,
+                        '--ev-sub-accent': c.subAccent || '',
                         left: `calc(${leftPct}% + 2px)`,
                         width: `calc(${widthPct}% - 4px)`,
                         top,
@@ -550,6 +557,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         paddingLeft: b.continuesLeft ? 2 : 4,
                         paddingRight: b.continuesRight ? 2 : 4,
                       } as React.CSSProperties}
+                      data-sub-accent={c.subAccent || undefined}
                       title={b.event.title}
                     >
                       {b.continuesLeft && <span className="text-[8px] opacity-60">◂</span>}
