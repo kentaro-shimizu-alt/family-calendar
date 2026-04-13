@@ -284,7 +284,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="ev-block text-left text-[9px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold whitespace-nowrap overflow-hidden text-ellipsis"
+                                className="ev-block text-left text-[11px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold overflow-hidden"
                                 style={{
                                   '--ev-bg': c.bg,
                                   '--ev-fg': c.fg,
