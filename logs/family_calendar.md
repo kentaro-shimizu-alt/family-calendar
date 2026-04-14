@@ -1,3 +1,31 @@
+## B33v4: バッジ高さ統一 → ev-block完全揃え (2026-04-14)
+
+- 担当: くろさん
+- 問題: 日付バッジ（¥マーク/みマーク/今日ハイライト）の高さが不揃いで、チップ行の開始y座標が可変、ev-blockの見た目位置がずれて見える
+- 根本原因: DATE_HEADER_H=36px は固定だが、中の「今日円」が `w-5 h-5`(20px)、通常日付は `h: 12px`、みマークは `py-[2px]`+`text-[9px]`(13px)、¥チップは `py-[2px]/py-[3px]`(12-13px)…バラバラ
+- 修正 (`src/components/MonthView.tsx`):
+  - スマホ: 外枠 `h-full` 固定、1行目(日付) と 2行目(チップ) を各 `h-[16px]` 固定
+  - 今日円: mobile `w-5 h-5` → `w-4 h-4` (16px)、PC は `h-[18px] w-[18px]`
+  - PC: 外枠 `items-center h-full`、左(日付+み)右(¥) それぞれ `h-[18px]`
+  - 全バッジ/チップに `inline-flex items-center justify-center h-[16px] sm:h-[18px] box-border` を付与。`py-*` を全撤去
+- 検証（preview_eval で実測）:
+  - 35セル中、mobile: 全て `overlayH=36 / row1H=16 / row1Top=0 / row2H=16 / row2Top=16` (1値のみ)
+  - 35セル中、PC: 全て `overlayH=36 / dateH=18 / dateTop=9` (1値のみ)
+  - ev-block top: `36 → 58 → 80` のみ (36 + N*22、B24のマルチデイ積み上げ通り)
+- 結果: 全日付セルの ¥/み/日付バッジ位置がピクセル単位で完全一致、予定バー開始位置の視覚的ズレ解消
+
+## B23: ローカル画像をGoogle Driveに全移行完了 (2026-04-14)
+
+- 担当: くろさん
+- 内容: `/uploads/timetree_photos/` ローカル保存画像をすべて Google Drive にアップロードし、Supabase DB の `events.images` を `/api/gdrive-image/[id]` URL に書き換え
+- 結果:
+  - イベント: **成功 1,933 / 失敗 0**
+  - 画像: **アップロード 9,056枚 / 重複スキップ 0 / 失敗 0**
+  - 所要時間: 6,500秒（約108分）
+  - B19 rotation データ（`{url, rotation}` オブジェクト形式）も完全保持
+- 本番: https://family-calendar-delta-snowy.vercel.app でGDrive画像表示を確認済み
+- スクリプト: `scripts/migrate_local_images_to_gdrive.mjs`（OAuth秘密情報含むため .gitignore 済み）
+
 ## B35: 繰り返し機能（毎週/毎月/毎年）をモーダル常時表示に変更 (2026-04-14)
 
 - 担当: くろさん

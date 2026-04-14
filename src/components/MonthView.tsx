@@ -477,7 +477,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                             ev.stopPropagation();
                             onSalesClick(day);
                           }}
-                          className={`pointer-events-auto text-[7px] sm:text-[9px] leading-none px-0.5 sm:px-1 py-[2px] sm:py-[3px] rounded font-semibold ${colorCls}`}
+                          className={`pointer-events-auto text-[7px] sm:text-[9px] leading-none px-0.5 sm:px-1 rounded font-semibold inline-flex items-center justify-center h-[16px] sm:h-[18px] box-border ${colorCls}`}
                           title={
                             e.amount
                               ? `${kanaKind} ¥${e.amount.toLocaleString()}${e.customer ? ` (${e.customer})` : ''}`
@@ -512,7 +512,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                             ev.stopPropagation();
                             onSalesClick(day);
                           }}
-                          className={`pointer-events-auto text-[7px] sm:text-[9px] leading-none px-0.5 sm:px-1 py-[2px] sm:py-[3px] rounded font-semibold whitespace-nowrap ${colorCls}`}
+                          className={`pointer-events-auto text-[7px] sm:text-[9px] leading-none px-0.5 sm:px-1 rounded font-semibold whitespace-nowrap inline-flex items-center justify-center h-[16px] sm:h-[18px] box-border ${colorCls}`}
                           title={`${kanaKind} 計 ¥${sum.toLocaleString()}（${entries.length}件${hasUnknown ? `・うち${entries.length - filled.length}件金額未入力` : ''}）`}
                         >
                           {/* スマホ: ¥件数のみ、PC: 計¥金額 件数 */}
@@ -534,28 +534,30 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       className={`${inMonth ? '' : 'opacity-40'}`}
                       style={{ height: DATE_HEADER_H }}
                     >
-                      {/* ===== スマホ: 2行構成 ===== */}
-                      <div className="sm:hidden flex flex-col items-center pt-0.5 gap-[1px]">
-                        {/* 1行目: 日付数字（センター） */}
-                        <span
-                          className={`text-[12px] font-semibold leading-none ${
-                            today
-                              ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
-                              : di === 0 || isHoliday(day)
-                              ? 'text-rose-500'
-                              : di === 6
-                              ? 'text-sky-500'
-                              : 'text-slate-300'
-                          }`}
-                          title={HOLIDAYS[format(day, 'yyyy-MM-dd')] || ''}
-                        >
-                          {format(day, 'd')}
-                        </span>
-                        {/* 2行目: 美マーク + ¥チップ（センター横並び） */}
-                        <div className="flex items-center justify-center gap-[2px] flex-nowrap">
+                      {/* ===== スマホ: 2行構成（全行固定16px = 合計32px+4px余白）===== */}
+                      <div className="sm:hidden flex flex-col items-center h-full">
+                        {/* 1行目: 日付数字（固定16px） */}
+                        <div className="flex items-center justify-center h-[16px] w-full">
+                          <span
+                            className={`text-[12px] font-semibold leading-none ${
+                              today
+                                ? 'inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 text-white'
+                                : di === 0 || isHoliday(day)
+                                ? 'text-rose-500'
+                                : di === 6
+                                ? 'text-sky-500'
+                                : 'text-slate-300'
+                            }`}
+                            title={HOLIDAYS[format(day, 'yyyy-MM-dd')] || ''}
+                          >
+                            {format(day, 'd')}
+                          </span>
+                        </div>
+                        {/* 2行目: 美マーク + ¥チップ（固定16px） */}
+                        <div className="flex items-center justify-center gap-[2px] flex-nowrap h-[16px] w-full">
                           {dailyEntry?.misaMemo && (
                             <button
-                              className="pointer-events-auto text-[7px] font-bold leading-none px-0.5 py-[2px] rounded border"
+                              className="pointer-events-auto text-[7px] font-bold leading-none px-0.5 rounded border inline-flex items-center justify-center h-[16px] box-border"
                               style={{ backgroundColor: '#fce7f3', color: '#be185d', borderColor: '#be185d' }}
                               title="美砂メモあり（クリックで表示）"
                               onClick={(e) => {
@@ -573,7 +575,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 e.stopPropagation();
                                 onSalesClick(day);
                               }}
-                              className="pointer-events-auto text-[8px] leading-none px-1 py-[2px] rounded min-w-[16px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
+                              className="pointer-events-auto text-[8px] leading-none px-1 rounded min-w-[16px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold inline-flex items-center justify-center h-[16px] box-border"
                               title="売上を入力"
                             >
                               ¥
@@ -582,13 +584,13 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         </div>
                       </div>
 
-                      {/* ===== PC (sm+): 従来の横並び1行 ===== */}
-                      <div className="hidden sm:flex items-start justify-between px-1.5 pt-1 gap-1 h-full">
-                        <div className="flex items-center gap-0.5 flex-shrink-0">
+                      {/* ===== PC (sm+): 1行固定18px高さバッジ ===== */}
+                      <div className="hidden sm:flex items-center justify-between px-1.5 gap-1 h-full">
+                        <div className="flex items-center gap-0.5 flex-shrink-0 h-[18px]">
                           <span
-                            className={`text-xs font-semibold leading-none ${
+                            className={`text-xs font-semibold leading-none inline-flex items-center justify-center h-[18px] ${
                               today
-                                ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white'
+                                ? 'w-[18px] rounded-full bg-blue-500 text-white'
                                 : di === 0 || isHoliday(day)
                                 ? 'text-rose-500'
                                 : di === 6
@@ -601,7 +603,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           </span>
                           {dailyEntry?.misaMemo && (
                             <button
-                              className="pointer-events-auto text-[9px] font-bold leading-none px-0.5 py-[2px] rounded border"
+                              className="pointer-events-auto text-[9px] font-bold leading-none px-0.5 rounded border inline-flex items-center justify-center h-[18px] box-border"
                               style={{ backgroundColor: '#fce7f3', color: '#be185d', borderColor: '#be185d' }}
                               title="美砂メモあり（クリックで表示）"
                               onClick={(e) => {
@@ -612,7 +614,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                             >み</button>
                           )}
                         </div>
-                        <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden">
+                        <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden h-[18px]">
                           {hasAnySales ? (
                             chips
                           ) : (
@@ -621,7 +623,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 e.stopPropagation();
                                 onSalesClick(day);
                               }}
-                              className="pointer-events-auto text-[10px] leading-none px-1.5 py-[3px] rounded min-w-[22px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold"
+                              className="pointer-events-auto text-[10px] leading-none px-1.5 rounded min-w-[22px] text-slate-300 hover:text-emerald-500 hover:bg-emerald-50 font-semibold inline-flex items-center justify-center h-[18px] box-border"
                               title="売上を入力"
                             >
                               ¥
