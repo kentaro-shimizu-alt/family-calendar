@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, isSameMonth, parseISO, startOfMonth, startOfWeek, endOfWeek, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, SiteInfo, COLOR_PALETTE, normalizeImageEntry } from '@/lib/types';
+import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, COLOR_PALETTE, normalizeImageEntry } from '@/lib/types';
 
 interface Props {
   open: boolean;
@@ -220,8 +220,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       const dateRanges = hasExtra
         ? [{ start: date, end: endDate || date }, ...extraRanges.filter((r) => r.start && r.end)]
         : undefined;
-      // site フィールドは UI 削除済み。編集時は既存値を引き継ぎ、新規は undefined
-      const site: SiteInfo | undefined = editing?.site ?? undefined;
       // editing の既存 rotation を URL をキーにしてマップ化し引き継ぐ
       const existingRotationMap = new Map<string, 0 | 90 | 180 | 270>();
       if (editing?.images) {
@@ -244,7 +242,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
         pdfs: pdfs.length > 0 ? pdfs : undefined,
         pinned, recurrence,
         reminderMinutes: reminders.length > 0 ? reminders : undefined,
-        site,
       };
 
       if (!editing && multiDaySelected.size > 0) {
@@ -580,70 +577,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
               placeholder="自由メモ・連絡先など何でも"
               className="w-full border border-slate-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-300 resize-y min-h-[100px]"
             />
-          </div>
-
-          {/* 現場案件セクション */}
-          <div className="border-2 border-amber-200 rounded-xl bg-amber-50/50 p-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={siteEnabled}
-                onChange={(e) => setSiteEnabled(e.target.checked)}
-                className="w-4 h-4 accent-amber-500"
-              />
-              <span className="text-sm font-bold text-amber-700">💼 現場案件として登録（売上・原価を記録）</span>
-            </label>
-            {siteEnabled && (
-              <div className="mt-3 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-amber-700 mb-1">売値（税別）</label>
-                    <div className="flex items-center gap-1">
-                      <span className="text-amber-700 text-sm">¥</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={siteAmount}
-                        onChange={(e) => setSiteAmount(e.target.value.replace(/[^\d,]/g, ''))}
-                        placeholder="500000"
-                        className="flex-1 border border-amber-200 bg-white rounded-lg px-3 py-2 text-base font-semibold text-amber-800"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-amber-700 mb-1">原価（材料＋人件費＋外注）</label>
-                    <div className="flex items-center gap-1">
-                      <span className="text-amber-700 text-sm">¥</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={siteCost}
-                        onChange={(e) => setSiteCost(e.target.value.replace(/[^\d,]/g, ''))}
-                        placeholder="後で可"
-                        className="flex-1 border border-amber-200 bg-white rounded-lg px-3 py-2 text-base font-semibold text-amber-800"
-                      />
-                    </div>
-                  </div>
-                </div>
-                {siteAmountNum > 0 && (
-                  <div className="flex items-center gap-3 text-xs bg-white rounded px-3 py-1.5 border border-amber-200">
-                    <span className="text-slate-500">粗利:</span>
-                    <span className="font-bold text-amber-700">¥{siteProfit.toLocaleString()}</span>
-                    <span className="text-slate-400">({siteMargin}%)</span>
-                  </div>
-                )}
-                <div>
-                  <label className="block text-[11px] font-semibold text-amber-700 mb-1">現場情報（内訳・備考）</label>
-                  <textarea
-                    value={siteNote}
-                    onChange={(e) => setSiteNote(e.target.value)}
-                    rows={5}
-                    placeholder={'現場住所：\n材料：\n人件費：\n外注費：\n備考：'}
-                    className="w-full border border-amber-200 bg-white rounded-lg px-3 py-2 text-xs font-mono resize-y min-h-[100px]"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Pin */}
