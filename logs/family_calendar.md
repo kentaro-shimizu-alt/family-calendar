@@ -6,7 +6,7 @@
 - 原因: B27で max-height のみ追加、height / min-height / overflow が未明示のため環境差が出る可能性
 - 修正: .ev-block に height:20px / min-height:20px / overflow:hidden を追加（PC・スマホ全環境で完全固定）
 - 実測: PC(1280px) absolute11本・static40本 全51ブロック 20px統一確認 / mobile(375px) 同51ブロック 20px統一確認
-- ビルド: ✓ / push: 後述 / Vercel: デプロイ後確認
+- ビルド: ✓ / push: 96e9f24 / Vercel: 自動デプロイ中
 
 ## B28: 現場売上noteテンプレ簡略化 (2026-04-14)
 
