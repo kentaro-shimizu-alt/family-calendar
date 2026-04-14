@@ -1,3 +1,71 @@
+## B27: スマホ 予定バー高さ統一（¥アイコン有無によるズレ修正）(2026-04-14)
+
+- 担当: くろさん
+- 対象ファイル: src/app/globals.css
+- バグ: スマホビューで💼アイコン等の絵文字spanがev-blockのline-heightを押し上げ、20px固定のはずのバーが高さズレを起こす
+- 原因: 絵文字のデフォルトline-heightが1より大きく、flex items-centerコンテナ内でbutton高さに影響
+- 修正内容: globals.cssのB14ブロック末尾に`.ev-block`へ`max-height:20px`・`line-height:1`・`box-sizing:border-box`を追加。`.ev-block > span`にも`line-height:1`・`vertical-align:middle`・`display:inline-block`を適用
+- 確認: スマホ375x812で全51 ev-blockがheight:20px統一、PCデスクトップでも崩れなし
+
+## B26: スマホビュー 納品書トグル文字被り修正 (2026-04-14)
+
+- 担当: くろさん
+- 対象ファイル: src/components/SalesModal.tsx
+- バグ: スマホ幅(375px)で納品書トグルON時、トグルのサムが「納品書」ラベルに重なって読めなくなる
+- 原因: `label`内が「納品書」テキスト + トグルbutton + 「要/不要」テキストの3要素横並び。ONにするとサムが右移動し左の「納品書」文字に被る
+- 修正内容:
+  - 入力エリアトグル(524行目): 左の単独「納品書」`<span>`を削除、右「要/不要」を「納品書要/納品書不要」に統合
+  - 既存エントリトグル(691行目): 同様に `whitespace-nowrap` 追加
+  - トグルbutton両方に `shrink-0` 追加（flexで縮まらないよう）
+- 確認: スマホ(375x812)ON/OFF両状態でテキスト被りなし、PCビュー(desktop)でも崩れなし
+- commit: 3dbd648
+
+## B25: 売上入力モーダル キー入力スクロールジャンプ修正 (2026-04-14)
+
+- 担当: くろさん
+- 対象ファイル: src/components/SalesModal.tsx
+- バグ: テキスト入力1文字ごとにモーダルが下にガクッとスクロールジャンプする
+- 原因: `autoResize`関数内で `el.style.height = 'auto'` を設定する際、ブラウザのレイアウト再計算によりモーダルコンテナ（`overflow-y-auto`）のscrollTopが0にリセットされていた
+- 修正内容:
+  - `modalScrollRef`（`useRef<HTMLDivElement>`）をモーダルコンテナに追加
+  - `autoResize`実行前にscrollTopを保存、`height='auto'`→`height=scrollHeight`変更後に同期＋`requestAnimationFrame`非同期の両タイミングで復元
+  - `misaMemo` textareaのrefコールバック（毎レンダー実行）を`misaMemoRef`＋`useEffect`に整理
+- 検証: devサーバーでscrollTop=200設定後にtextareaへ入力 → ジャンプしないことを確認
+- コミット: 2ea730f
+- push: origin/main済み → Vercel自動デプロイ
+
+---
+
+## B24: 単日予定の上詰め表示（gap埋め）(2026-04-14)
+
+- 担当: くろさん
+- 対象ファイル: src/components/MonthView.tsx
+- 変更内容:
+  - 月表示セルのpaddingTopを週全体の最大スロット数から各日付列の最大スロット数に変更
+  - `maxSlotByWeekCol[wi][col]` を追加：スロット割当ループ内で各列ごとの最大スロット番号を記録
+  - 各セルの `cellPadTop = CELL_PAD_TOP_BASE + colBarAreaH`（col単位で計算）
+  - `barAreaH`（week全体のオーバーレイ高さ）は維持（複数日バーの絶対配置に必要）
+- 効果: 複数日バーが通過しない日のセルに大きな空白が生じるバグを修正、単日予定が上詰めで表示
+- コミット: 7647c55
+- push: origin/main済み
+
+---
+
+## 緊急: 本番API 500エラー復旧 (2026-04-14 21:30)
+
+- 症状: /api/* が全て 500、カレンダーに予定が1件も表示されない。/ は 200。
+- 原因: **Vercel本番環境変数 `STORAGE_BACKEND` が `gdrive` に書き換わっていた**。
+  - `src/lib/storage/index.ts` は `'supabase'` 以外を全部 `jsonStore` fallback するため、
+    jsonStore が `mkdirSync('/var/task/data/uploads')` で ENOENT 死。
+  - Vercel logs で `ENOENT: no such file or directory, mkdir '/var/task/data/uploads'` を確認。
+- 修正: `vercel env rm STORAGE_BACKEND production` → `add STORAGE_BACKEND=supabase production` → `vercel redeploy` で直前デプロイを再適用（再ビルドせず環境変数だけ差し替え）。
+- 確認: `/api/events?month=2026-04` が 200 と 52件返すこと、`/api/members`, `/api/subcalendars` も 200。
+- 犯人はコード（B19/B20/B21/B22）ではなくVercel環境変数。コミットrevertは不要。
+- 再発予防: `src/lib/storage/index.ts` の未知値→jsonStore fallback は将来 throw に変えた方が安全（Vercel本番でfail-fast）。
+- 詳細: `dispatch/done/urgent_api_500_fix.md` 参照。
+
+---
+
 ## B22: 管理モーダルの記念日/花火カードを他カレンダーと同じUIに統一 (2026-04-14)
 
 - 担当: くろさん

@@ -211,3 +211,18 @@ html:has(main.dark) body { background-color: #000000 !important; color: #e2e8f0 
     white-space: nowrap;
   }
 }
+
+/* ===== B27: スマホで¥アイコン付き予定バーの高さズレを防ぐ =====
+   絵文字アイコン(💼📌等)のline-heightがbutton高さを20pxより押し上げるのを防止。
+   height/max-height を強制し、inline要素のline-heightを1にして絵文字の余白を潰す。 */
+.ev-block {
+  box-sizing: border-box !important;
+  max-height: 20px !important;
+  line-height: 1 !important;
+}
+.ev-block > span,
+.ev-block .truncate {
+  line-height: 1 !important;
+  vertical-align: middle;
+  display: inline-block;
+}
