@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listDailyData, upsertDailyData } from '@/lib/db';
 
-// ISR: 10秒キャッシュ後に再検証
-export const revalidate = 10;
+// B21修正: 削除後にキャッシュで古いデータが返るのを防ぐため no-store
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

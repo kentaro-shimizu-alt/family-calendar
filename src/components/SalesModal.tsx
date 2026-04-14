@@ -430,6 +430,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                             body: JSON.stringify({ date: dateKey, misaMemo: null, misaMemoImages: null }),
                           });
                           onSaved();
+                          onClose();
                         } catch {
                           alert('削除失敗');
                         } finally {
