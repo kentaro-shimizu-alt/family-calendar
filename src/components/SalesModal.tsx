@@ -297,8 +297,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
         date: dateKey,
         salesEntries: finalEntries,
         memo,
-        misaMemo: misaMemo || undefined,
-        misaMemoImages: misaMemoImages.length > 0 ? misaMemoImages : undefined,
+        misaMemo: misaMemo || null,
+        misaMemoImages: misaMemoImages.length > 0 ? misaMemoImages : null,
       };
       const res = await fetch('/api/daily', {
         method: 'POST',
@@ -322,7 +322,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
       await fetch('/api/daily', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: dateKey, salesEntries: [], memo: '' }),
+        body: JSON.stringify({ date: dateKey, salesEntries: [], memo: '', misaMemo: null, misaMemoImages: null }),
       });
       onSaved();
       onClose();
@@ -418,7 +418,24 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                   {(misaMemo || misaMemoImages.length > 0) && (
                     <button
                       type="button"
-                      onClick={() => { setMisaMemo(''); setMisaMemoImages([]); }}
+                      onClick={async () => {
+                        if (!confirm('美砂メモを削除しますか？')) return;
+                        setMisaMemo('');
+                        setMisaMemoImages([]);
+                        setSaving(true);
+                        try {
+                          await fetch('/api/daily', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ date: dateKey, misaMemo: null, misaMemoImages: null }),
+                          });
+                          onSaved();
+                        } catch {
+                          alert('削除失敗');
+                        } finally {
+                          setSaving(false);
+                        }
+                      }}
                       className="text-[10px] text-rose-400 hover:text-rose-600 px-2 py-0.5 rounded border border-rose-200 hover:bg-rose-50"
                     >削除</button>
                   )}
