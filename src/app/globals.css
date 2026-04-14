@@ -77,6 +77,41 @@ main:not(.dark) header .hover\:bg-neutral-700:hover {
 main:not(.dark) header .text-slate-300 {
   color: #475569 !important;
 }
+/* ライトモード: 全 neutral-* ハードコード黒色を白系に上書き */
+main:not(.dark) .bg-neutral-950 {
+  background-color: #ffffff !important;
+}
+main:not(.dark) .bg-neutral-900 {
+  background-color: #f8fafc !important;
+}
+main:not(.dark) .bg-neutral-800 {
+  background-color: #f1f5f9 !important;
+}
+main:not(.dark) .hover\:bg-neutral-900:hover {
+  background-color: #f1f5f9 !important;
+}
+main:not(.dark) .hover\:bg-neutral-800:hover {
+  background-color: #e2e8f0 !important;
+}
+main:not(.dark) .hover\:bg-neutral-700:hover {
+  background-color: #cbd5e1 !important;
+}
+main:not(.dark) .border-neutral-800,
+main:not(.dark) .border-neutral-700 {
+  border-color: #e2e8f0 !important;
+}
+/* ヘッダーやセル内の白文字をライト時は黒に */
+main:not(.dark) .text-white {
+  color: #1e293b !important;
+}
+main:not(.dark) .text-slate-300,
+main:not(.dark) .text-slate-400 {
+  color: #475569 !important;
+}
+/* MonthView ヘッダー（曜日行）背景もライト化 */
+main:not(.dark) .grid.bg-neutral-900 {
+  background-color: #f8fafc !important;
+}
 /* ライトモード: bodyを白に強制（layout.tsx変更が効かない場合の保険） */
 html:not(:has(main.dark)) body {
   background-color: #ffffff !important;
