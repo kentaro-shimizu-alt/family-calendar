@@ -1,5 +1,8 @@
 'use client';
 
+// B17: カメラアイコン表示フラグ（false=非表示、true=表示）
+const SHOW_CAMERA_ICON = false;
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CalendarEvent, DailyData, Member, SalesEntry, SubCalendar } from '@/lib/types';
 import { getKinenbi } from '@/lib/kinenbi';
@@ -372,7 +375,8 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                   <span className="font-bold hidden sm:inline">{ev.startTime}</span>
                                 )}
                                 <span className="truncate">{ev.title}</span>
-                                {ev.images && ev.images.length > 0 && (
+                                {/* B17: SHOW_CAMERA_ICON フラグで復活可能 */}
+                                {SHOW_CAMERA_ICON && ev.images && ev.images.length > 0 && (
                                   <span className="text-[8px]">📷</span>
                                 )}
                                 {ev.pdfs && ev.pdfs.length > 0 && (
