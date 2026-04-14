@@ -36,7 +36,7 @@ const TARGET_CALENDARS = [
 
   // TimeTree由来（名前修正）
   { id: 'tt_work',    name: 'TT:テクネスト予定表', color: '#10b981', icon: '🏢', visible: true,  hiddenFromBar: false },
-  { id: 'tt_misa',    name: 'TT:みさシフト',       color: '#db2777', icon: '👩', visible: true,  hiddenFromBar: false },
+  { id: 'tt_misa',    name: 'TT:みさシフト',       color: '#be185d', icon: '👩', visible: true,  hiddenFromBar: false },
   { id: 'tt_private', name: 'TT:プライベート',     color: '#f59e0b', icon: '🌟', visible: true,  hiddenFromBar: false },
   { id: 'tt_family',  name: 'TT:家族',             color: '#3b82f6', icon: '🏠', visible: true,  hiddenFromBar: true  },
   { id: 'tt_legacy',  name: 'TT:その他',           color: '#9ca3af', icon: '📅', visible: true,  hiddenFromBar: true  },

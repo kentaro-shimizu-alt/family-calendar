@@ -174,7 +174,7 @@ export function salesCount(d?: DailyData | null): number {
 
 export const DEFAULT_MEMBERS: Member[] = [
   { id: 'kentaro', name: '健太郎', color: '#2563eb', bgColor: '#bfdbfe', textColor: '#1e3a8a' },
-  { id: 'misa', name: '美砂ちゃん', color: '#db2777', bgColor: '#fbcfe8', textColor: '#831843' },
+  { id: 'misa', name: '美砂ちゃん', color: '#be185d', bgColor: '#fbcfe8', textColor: '#831843' },
   { id: 'child1', name: 'お子さん1', color: '#059669', bgColor: '#a7f3d0', textColor: '#064e3b' },
   { id: 'child2', name: 'お子さん2', color: '#d97706', bgColor: '#fde68a', textColor: '#78350f' },
   { id: 'all', name: '家族みんな', color: '#9333ea', bgColor: '#e9d5ff', textColor: '#581c87' },

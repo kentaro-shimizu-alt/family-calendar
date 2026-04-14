@@ -138,7 +138,7 @@ async function ensureSubCalendars() {
   const sql = `
     insert into public.sub_calendars (id, name, color, icon, visible) values
       ('tt_work',    'TimeTree:テクネスト',    '#10b981', '🏢', true),
-      ('tt_misa',    'TimeTree:みさシフト',    '#db2777', '👩', true),
+      ('tt_misa',    'TimeTree:みさシフト',    '#be185d', '👩', true),
       ('tt_private', 'TimeTree:プライベート',  '#f59e0b', '🌟', true),
       ('tt_family',  'TimeTree:家族',          '#3b82f6', '🏠', true),
       ('tt_legacy',  'TimeTree:その他',        '#9ca3af', '📅', true)
