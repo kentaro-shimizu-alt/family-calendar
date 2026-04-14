@@ -522,12 +522,11 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                 ＋ {SALES_TYPE_LABEL[activeTab as SalesEntryType]}を追加
               </span>
               {/* 納品書の要否 toggle */}
-              <label className="flex items-center gap-2 cursor-pointer text-xs">
-                <span className={tabColors.text}>納品書</span>
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs">
                 <button
                   type="button"
                   onClick={() => setDraftDeliveryNote((v) => !v)}
-                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${
+                  className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition ${
                     draftDeliveryNote ? 'bg-amber-500' : 'bg-slate-300'
                   }`}
                   aria-label="納品書の要否"
@@ -538,8 +537,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                     }`}
                   />
                 </button>
-                <span className={`font-semibold ${draftDeliveryNote ? tabColors.text : 'text-slate-400'}`}>
-                  {draftDeliveryNote ? '要' : '不要'}
+                <span className={`font-semibold whitespace-nowrap ${draftDeliveryNote ? tabColors.text : 'text-slate-400'}`}>
+                  納品書{draftDeliveryNote ? '要' : '不要'}
                 </span>
               </label>
             </div>
@@ -692,7 +691,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                         <button
                           type="button"
                           onClick={() => updateEntry(e.id, { deliveryNote: !e.deliveryNote })}
-                          className={`relative inline-flex h-4 w-7 items-center rounded-full transition ${
+                          className={`relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition ${
                             e.deliveryNote ? 'bg-amber-500' : 'bg-slate-300'
                           }`}
                           aria-label="納品書の要否"
@@ -703,7 +702,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                             }`}
                           />
                         </button>
-                        <span className={e.deliveryNote ? c.text : 'text-slate-400'}>
+                        <span className={`whitespace-nowrap ${e.deliveryNote ? c.text : 'text-slate-400'}`}>
                           納品書{e.deliveryNote ? '要' : '不要'}
                         </span>
                       </label>
