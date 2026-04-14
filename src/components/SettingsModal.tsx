@@ -14,6 +14,10 @@ interface Props {
   onThemeChange?: (t: 'light' | 'dark') => void;
   onClose: () => void;
   onSaved: (members: Member[], subCalendars: SubCalendar[]) => void;
+  showKinenbi?: boolean;
+  showHanabi?: boolean;
+  onToggleKinenbi?: () => void;
+  onToggleHanabi?: () => void;
 }
 
 const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽', '🎸', '🏥', '🛒', '✈️', '🍽️', '🐶', '📅', '🎉', '💪'];
@@ -21,7 +25,7 @@ const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽
 // 💣 削除（カレンダー・メンバー）操作用のPIN。将来変更する時はここだけ書き換える。
 const DELETE_PIN = '0713';
 
-export default function SettingsModal({ open, members, subCalendars, totalEventCount, eventCountByCalendar, eventCountByMember, theme, onThemeChange, onClose, onSaved }: Props) {
+export default function SettingsModal({ open, members, subCalendars, totalEventCount, eventCountByCalendar, eventCountByMember, theme, onThemeChange, onClose, onSaved, showKinenbi, showHanabi, onToggleKinenbi, onToggleHanabi }: Props) {
   const [tab, setTab] = useState<'members' | 'calendars' | 'display' | 'export'>('members');
   const [localMembers, setLocalMembers] = useState<Member[]>(members);
   const [localCals, setLocalCals] = useState<SubCalendar[]>(subCalendars);
@@ -285,6 +289,42 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
                   </div>
                 </div>
               ))}
+              {/* 仮想エントリ: 今日は何の日（静的データ、DB非登録） */}
+              <div className="border border-pink-200 rounded-lg p-3 bg-pink-50/40 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🎉</span>
+                  <span className="flex-1 text-sm font-medium text-slate-700">今日は何の日</span>
+                  <span className="text-[10px] text-slate-400">静的データ</span>
+                  <label className="text-xs flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showKinenbi ?? false}
+                      onChange={() => onToggleKinenbi?.()}
+                      className="w-3.5 h-3.5"
+                    />
+                    表示
+                  </label>
+                </div>
+                <div className="text-[11px] text-slate-500 pl-8">記念日・国民の祝日などを日付に表示します</div>
+              </div>
+              {/* 仮想エントリ: 花火大会（静的データ、DB非登録） */}
+              <div className="border border-orange-200 rounded-lg p-3 bg-orange-50/40 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🎆</span>
+                  <span className="flex-1 text-sm font-medium text-slate-700">花火大会</span>
+                  <span className="text-[10px] text-slate-400">静的データ</span>
+                  <label className="text-xs flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showHanabi ?? false}
+                      onChange={() => onToggleHanabi?.()}
+                      className="w-3.5 h-3.5"
+                    />
+                    表示
+                  </label>
+                </div>
+                <div className="text-[11px] text-slate-500 pl-8">全国の花火大会スケジュールをカレンダーに重ねて表示します</div>
+              </div>
               <button
                 onClick={addCal}
                 className="w-full border-2 border-dashed border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-lg py-2 text-sm transition"

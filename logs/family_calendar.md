@@ -1,3 +1,26 @@
+## B20: 新規予定作成時にカラー選択が初回保存で反映されないバグ修正 (2026-04-14)
+
+- 対象: `src/app/api/events/route.ts`
+- 根本原因: POST /api/events の `createEvent` 呼び出しに `color` フィールドが欠落していた
+  - EventModal.tsx はカラー選択時に `color: color || undefined` を正しくリクエストbodyに含めていた
+  - しかし route.ts のPOSTハンドラでは `createEvent({...})` に `color` を渡す行が丸ごと抜けていた
+  - 結果: 新規作成時は常にDBへ color=undefined で保存 → カレンダーデフォルト色で表示
+  - 編集（PUT）は `updateEvent(id, body)` に body をそのまま渡すため color が通っており影響なし
+  - これが「2回目の保存（編集→保存）で反映される」という症状の原因
+- 修正内容: route.ts POST内の createEvent 引数に `color: body.color || undefined` を1行追加
+- commit hash: 79e7ec3
+
+## B18: 今日は何の日・花火大会をサブカレンダーバーに統合 (2026-04-14)
+
+- 対象: `src/app/page.tsx`
+- 変更内容:
+  - ヘッダー右上の 🎉（今日は何の日）・🎆（花火大会）トグルアイコンボタンを**削除**
+  - サブカレンダーフィルターバーの末尾に **チップ型トグル**として追加（他チップと同じ pill スタイル）
+  - 🎉 今日は何の日: ON時はピンク (#ec4899)、OFF時はグレー＋取り消し線
+  - 🎆 花火大会: ON時はオレンジ (#f97316)、OFF時はグレー＋取り消し線
+  - localStorage キー `cal-show-kinenbi` / `cal-show-hanabi` はそのまま流用（互換性維持）
+- commit hash: c4e28c3
+
 ## B17: 予定バーのカメラアイコン非表示 (2026-04-14)
 
 - 対象: `src/components/MonthView.tsx`

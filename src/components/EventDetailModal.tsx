@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { CalendarEvent, EventComment, Member, getMember } from '@/lib/types';
+import { CalendarEvent, EventComment, Member, getMember, normalizeImageEntry } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import EventCopyModal from './EventCopyModal';
@@ -20,7 +20,7 @@ interface Props {
 // Time-series feed item: comment, image, or pdf, all rendered inline in posting order
 type FeedItem =
   | { kind: 'comment'; id: string; ts: number; comment: EventComment }
-  | { kind: 'image'; id: string; ts: number; url: string; index: number }
+  | { kind: 'image'; id: string; ts: number; url: string; rotation: 0 | 90 | 180 | 270; index: number }
   | { kind: 'pdf'; id: string; ts: number; url: string; name?: string; index: number };
 
 export default function EventDetailModal({ open, event, members, onClose, onEdit, onTogglePin, onDelete, onCommentAdded }: Props) {
@@ -31,7 +31,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [copyOpen, setCopyOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ url: string; rotation: 0 | 90 | 180 | 270 } | null>(null);
+  const [rotatingIndex, setRotatingIndex] = useState<number | null>(null); // 回転中の画像インデックス
 
   // #9: 戻るボタンでポップアップだけ閉じる
   useEffect(() => {
@@ -57,11 +58,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       items.push({ kind: 'comment', id: `c_${c.id}`, ts, comment: c });
     });
 
-    (event.images || []).forEach((url, i) => {
+    (event.images || []).forEach((entry, i) => {
+      const img = normalizeImageEntry(entry);
       // Images have no timestamp; place them slightly after event date to render after comments,
       // but interleave by their index to preserve upload order.
       const ts = eventDateMs + 1000 * 60 * 60 * (i + 1);
-      items.push({ kind: 'image', id: `i_${url}_${i}`, ts, url, index: i });
+      items.push({ kind: 'image', id: `i_${img.url}_${i}`, ts, url: img.url, rotation: (img.rotation ?? 0) as 0 | 90 | 180 | 270, index: i });
     });
 
     (event.pdfs || []).forEach((p, i) => {
@@ -152,12 +154,15 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       }
       const data = await res.json();
       if (!data.items || !Array.isArray(data.items) || data.items.length === 0) return;
-      const newImages = data.items.filter((it: any) => it.kind === 'image').map((it: any) => it.url);
+      const newImages = data.items.filter((it: any) => it.kind === 'image').map((it: any) => ({ url: it.url, rotation: 0 }));
       const newPdfs = data.items
         .filter((it: any) => it.kind === 'pdf')
         .map((it: any) => ({ url: it.url, name: it.name }));
       const patch: any = {};
-      if (newImages.length) patch.images = [...(event.images || []), ...newImages];
+      if (newImages.length) patch.images = [
+        ...(event.images || []).map((e) => normalizeImageEntry(e)),
+        ...newImages,
+      ];
       if (newPdfs.length) patch.pdfs = [...(event.pdfs || []), ...newPdfs];
       const putRes = await fetch(`/api/events/${event.id}`, {
         method: 'PUT',
@@ -197,6 +202,32 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     const files = Array.from(e.target.files || []);
     await uploadAndAttach(files);
     e.target.value = '';
+  }
+
+  // 画像の回転: 指定インデックスの rotation を 90°ずつ変化させて保存
+  async function handleRotate(index: number, direction: 'cw' | 'ccw') {
+    if (!event) return;
+    setRotatingIndex(index);
+    try {
+      const currentImages = (event.images || []).map((entry) => normalizeImageEntry(entry));
+      const current = currentImages[index] ?? { url: '' };
+      const delta = direction === 'cw' ? 90 : -90;
+      const newRotation = (((current.rotation ?? 0) + delta) % 360 + 360) % 360 as 0 | 90 | 180 | 270;
+      const updatedImages = currentImages.map((img, i) =>
+        i === index ? { ...img, rotation: newRotation } : img
+      );
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ images: updatedImages }),
+      });
+      if (!res.ok) throw new Error('rotate failed');
+      onCommentAdded(); // reload event
+    } catch (e: any) {
+      alert('回転の保存に失敗しました: ' + e.message);
+    } finally {
+      setRotatingIndex(null);
+    }
   }
 
   const siteProfit = event.site
@@ -449,16 +480,48 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 }
 
                 if (item.kind === 'image') {
+                  const isRotating = rotatingIndex === item.index;
                   return (
-                    <div key={item.id} className="rounded-lg overflow-hidden border border-slate-100 bg-black/5">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.url}
-                        alt={`画像${item.index + 1}`}
-                        loading="lazy"
-                        className="w-full h-auto object-contain max-h-[80vh] cursor-zoom-in"
-                        onClick={() => setLightboxUrl(item.url)}
-                      />
+                    <div key={item.id} className="rounded-lg border border-slate-100 bg-black/5 overflow-hidden">
+                      {/* 回転ボタン行 */}
+                      <div className="flex items-center gap-1 px-2 py-1 bg-black/10">
+                        <span className="text-xs text-slate-500 flex-1">画像 {item.index + 1}</span>
+                        <button
+                          onClick={() => handleRotate(item.index, 'ccw')}
+                          disabled={isRotating}
+                          className="text-slate-600 hover:text-slate-900 disabled:opacity-40 text-lg px-1 leading-none"
+                          title="反時計回りに90°回転"
+                        >
+                          ↺
+                        </button>
+                        <button
+                          onClick={() => handleRotate(item.index, 'cw')}
+                          disabled={isRotating}
+                          className="text-slate-600 hover:text-slate-900 disabled:opacity-40 text-lg px-1 leading-none"
+                          title="時計回りに90°回転"
+                        >
+                          ↻
+                        </button>
+                      </div>
+                      {/* 画像本体 */}
+                      <div
+                        className="w-full flex items-center justify-center overflow-hidden"
+                        style={{
+                          // 90/270度回転時は幅と高さを入れ替えないとはみ出すため、
+                          // paddingTopでアスペクト比を確保し、transformで回転
+                          minHeight: (item.rotation === 90 || item.rotation === 270) ? '60vw' : undefined,
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.url}
+                          alt={`画像${item.index + 1}`}
+                          loading="lazy"
+                          className="max-w-full max-h-[70vh] object-contain cursor-zoom-in transition-transform duration-300"
+                          style={{ transform: `rotate(${item.rotation}deg)` }}
+                          onClick={() => setLightbox({ url: item.url, rotation: item.rotation })}
+                        />
+                      </div>
                     </div>
                   );
                 }
@@ -560,21 +623,22 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       </div>
 
       {/* Lightbox for fullscreen image view */}
-      {lightboxUrl && (
+      {lightbox && (
         <div
           className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
-          onClick={() => setLightboxUrl(null)}
+          onClick={() => setLightbox(null)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={lightboxUrl}
+            src={lightbox.url}
             alt=""
-            className="max-w-full max-h-full object-contain"
+            className="max-w-full max-h-full object-contain transition-transform duration-300"
+            style={{ transform: `rotate(${lightbox.rotation}deg)` }}
             onClick={(e) => e.stopPropagation()}
           />
           <button
             className="absolute top-4 right-4 text-white text-4xl leading-none"
-            onClick={() => setLightboxUrl(null)}
+            onClick={() => setLightbox(null)}
           >
             ×
           </button>

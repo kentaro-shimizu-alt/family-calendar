@@ -39,6 +39,21 @@ export interface SiteInfo {
   note?: string; // 現場情報メモ（住所・内訳など）
 }
 
+// 画像アイテム: 後方互換で string（URL のみ）も受け付ける
+export interface ImageItem {
+  url: string;
+  rotation?: 0 | 90 | 180 | 270; // 回転角度（省略時は0）
+}
+
+// images 配列の各要素: string（旧形式）または ImageItem（新形式）
+export type ImageEntry = string | ImageItem;
+
+// 正規化ヘルパー: string → ImageItem に統一
+export function normalizeImageEntry(entry: ImageEntry): ImageItem {
+  if (typeof entry === 'string') return { url: entry };
+  return entry;
+}
+
 export interface CalendarEvent {
   id: string;
   calendarId?: string; // 所属サブカレンダー
@@ -53,7 +68,7 @@ export interface CalendarEvent {
   note?: string;
   url?: string;
   location?: string;
-  images?: string[]; // URLs (relative paths)
+  images?: ImageEntry[]; // URL文字列 または {url, rotation} オブジェクト（後方互換）
   pdfs?: Array<{ url: string; name?: string }>; // PDF添付
   pinned?: boolean; // 上部に固定表示
   comments?: EventComment[];

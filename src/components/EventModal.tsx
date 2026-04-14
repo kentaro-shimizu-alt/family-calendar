@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, isSameMonth, parseISO, startOfMonth, startOfWeek, endOfWeek, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, SiteInfo, COLOR_PALETTE } from '@/lib/types';
+import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, SiteInfo, COLOR_PALETTE, normalizeImageEntry } from '@/lib/types';
 
 interface Props {
   open: boolean;
@@ -79,7 +79,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setNote(editing.note || '');
       setUrl(editing.url || '');
       setLocation(editing.location || '');
-      setImages(editing.images || []);
+      setImages((editing.images || []).map((e) => normalizeImageEntry(e).url));
       setPdfs(editing.pdfs || []);
       setPinned(!!editing.pinned);
       if (editing.site) {
@@ -247,13 +247,26 @@ export default function EventModal({ open, initialDate, editing, members, subCal
             note: siteNote || undefined,
           }
         : undefined;
+      // editing の既存 rotation を URL をキーにしてマップ化し引き継ぐ
+      const existingRotationMap = new Map<string, 0 | 90 | 180 | 270>();
+      if (editing?.images) {
+        for (const entry of editing.images) {
+          const img = normalizeImageEntry(entry);
+          if (img.rotation) existingRotationMap.set(img.url, img.rotation);
+        }
+      }
+      const imagesWithRotation = images.map((url) => ({
+        url,
+        rotation: existingRotationMap.get(url) ?? 0,
+      }));
       const baseBody = {
         title: title.trim(),
         startTime, endTime,
         memberId, calendarId: calendarId || undefined,
         color: color || undefined,
         note, url: url || undefined, location: location || undefined,
-        images, pdfs: pdfs.length > 0 ? pdfs : undefined,
+        images: imagesWithRotation.length > 0 ? imagesWithRotation : undefined,
+        pdfs: pdfs.length > 0 ? pdfs : undefined,
         pinned, recurrence,
         reminderMinutes: reminders.length > 0 ? reminders : undefined,
         site,

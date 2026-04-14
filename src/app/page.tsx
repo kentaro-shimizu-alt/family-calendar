@@ -56,8 +56,8 @@ export default function HomePage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [filterBarVisible, setFilterBarVisible] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [showKinenbi, setShowKinenbi] = useState(false);
-  const [showHanabi, setShowHanabi] = useState(false);
+  const [showKinenbi, setShowKinenbi] = useState(true);
+  const [showHanabi, setShowHanabi] = useState(true);
   const [hanabiModalOpen, setHanabiModalOpen] = useState(false);
   const [hanabiModalData, setHanabiModalData] = useState<{ date: Date; items: any[] } | null>(null);
 
@@ -66,8 +66,13 @@ export default function HomePage() {
     const saved = localStorage.getItem('calendar-theme') as 'light' | 'dark' | null;
     if (saved) setTheme(saved);
     try {
-      if (localStorage.getItem('cal-show-kinenbi') === '1') setShowKinenbi(true);
-      if (localStorage.getItem('cal-show-hanabi') === '1') setShowHanabi(true);
+      const ki = localStorage.getItem('cal-show-kinenbi');
+      if (ki === '0') setShowKinenbi(false);
+      else if (ki === '1') setShowKinenbi(true);
+      // 未設定ならデフォルトtrue (useState初期値)のまま
+      const ha = localStorage.getItem('cal-show-hanabi');
+      if (ha === '0') setShowHanabi(false);
+      else if (ha === '1') setShowHanabi(true);
     } catch {}
   }, []);
 
@@ -634,6 +639,10 @@ export default function HomePage() {
           setMembers(m);
           setSubCalendars(s);
         }}
+        showKinenbi={showKinenbi}
+        showHanabi={showHanabi}
+        onToggleKinenbi={toggleKinenbi}
+        onToggleHanabi={toggleHanabi}
       />
     </main>
   );
