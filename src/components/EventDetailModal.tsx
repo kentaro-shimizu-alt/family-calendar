@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CalendarEvent, EventComment, Member, getMember } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import EventCopyModal from './EventCopyModal';
 
 interface Props {
   open: boolean;
@@ -19,6 +20,9 @@ interface Props {
 export default function EventDetailModal({ open, event, members, onClose, onEdit, onTogglePin, onDelete, onCommentAdded }: Props) {
   const [commentText, setCommentText] = useState('');
   const [posting, setPosting] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+  const [copyOpen, setCopyOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
@@ -53,6 +57,35 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       alert('コメント投稿失敗: ' + e.message);
     } finally {
       setPosting(false);
+    }
+  }
+
+  function handleStartEditComment(c: EventComment) {
+    setEditingCommentId(c.id);
+    setEditingCommentText(c.text);
+  }
+
+  function handleCancelEditComment() {
+    setEditingCommentId(null);
+    setEditingCommentText('');
+  }
+
+  async function handleSaveEditComment() {
+    if (!event || !editingCommentId) return;
+    const text = editingCommentText.trim();
+    if (!text) return;
+    try {
+      const res = await fetch(`/api/events/${event.id}/comments/${editingCommentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) throw new Error('failed');
+      setEditingCommentId(null);
+      setEditingCommentText('');
+      onCommentAdded();
+    } catch (e: any) {
+      alert('コメント更新失敗: ' + e.message);
     }
   }
 
@@ -346,16 +379,58 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                   <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
                     <span>{c.author || 'unknown'}</span>
                     <div className="flex items-center gap-2">
-                      <span>{c.createdAt ? format(parseISO(c.createdAt), 'M/d HH:mm') : ''}</span>
-                      <button
-                        onClick={() => handleDeleteComment(c.id)}
-                        className="opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition"
-                      >
-                        ×
-                      </button>
+                      <span>
+                        {c.createdAt ? format(parseISO(c.createdAt), 'M/d HH:mm') : ''}
+                        {c.updatedAt && c.updatedAt !== c.createdAt ? ' (編集済)' : ''}
+                      </span>
+                      {editingCommentId !== c.id && (
+                        <>
+                          <button
+                            onClick={() => handleStartEditComment(c)}
+                            className="opacity-60 sm:opacity-0 group-hover:opacity-100 text-blue-500 hover:text-blue-700 transition"
+                            title="編集"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => handleDeleteComment(c.id)}
+                            className="opacity-60 sm:opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition"
+                            title="削除"
+                          >
+                            ×
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
-                  <div className="text-sm text-slate-700 whitespace-pre-wrap">{c.text}</div>
+                  {editingCommentId === c.id ? (
+                    <div className="flex flex-col gap-2">
+                      <textarea
+                        value={editingCommentText}
+                        onChange={(e) => setEditingCommentText(e.target.value)}
+                        rows={2}
+                        className="w-full border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                        autoFocus
+                      />
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={handleCancelEditComment}
+                          className="text-xs px-3 py-1 rounded text-slate-500 hover:bg-slate-200"
+                        >
+                          キャンセル
+                        </button>
+                        <button
+                          onClick={handleSaveEditComment}
+                          disabled={!editingCommentText.trim()}
+                          className="text-xs px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-40"
+                        >
+                          保存
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-slate-700 whitespace-pre-wrap">{c.text}</div>
+                  )}
                 </div>
               ))}
               {(!event.comments || event.comments.length === 0) && (
@@ -399,6 +474,13 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           >
             削除
           </button>
+          <button
+            onClick={() => setCopyOpen(true)}
+            className="text-slate-600 text-sm hover:bg-slate-100 px-3 py-2 rounded-lg"
+            title="この予定を別の複数日にコピー"
+          >
+            📋 複数日に適用
+          </button>
           <div className="flex-1" />
           <button
             onClick={onEdit}
@@ -407,6 +489,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             ✏️ 編集
           </button>
         </div>
+        <EventCopyModal
+          open={copyOpen}
+          source={event}
+          onClose={() => setCopyOpen(false)}
+          onApplied={() => { setCopyOpen(false); onCommentAdded(); }}
+        />
       </div>
     </div>
   );

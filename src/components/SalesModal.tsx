@@ -12,6 +12,7 @@ import {
   MATERIAL_TEMPLATE,
   totalSales,
 } from '@/lib/types';
+import MisaMemoRangeModal from './MisaMemoRangeModal';
 
 interface Props {
   open: boolean;
@@ -81,6 +82,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
   const customerRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const misaFileRef = useRef<HTMLInputElement>(null);
+  const [rangeOpen, setRangeOpen] = useState(false);
   const draftNoteRef = useRef<HTMLTextAreaElement>(null);
   const memoRef = useRef<HTMLTextAreaElement>(null);
   const entryNoteRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
@@ -406,13 +408,21 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
             <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-bold text-orange-600">美砂メモ</div>
-                {(misaMemo || misaMemoImages.length > 0) && (
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => { setMisaMemo(''); setMisaMemoImages([]); }}
-                    className="text-[10px] text-rose-400 hover:text-rose-600 px-2 py-0.5 rounded border border-rose-200 hover:bg-rose-50"
-                  >削除</button>
-                )}
+                    onClick={() => setRangeOpen(true)}
+                    className="text-[10px] text-orange-600 px-2 py-0.5 rounded border border-orange-300 hover:bg-orange-100"
+                    title="期間を指定してまとめて表示"
+                  >📋 期間集計</button>
+                  {(misaMemo || misaMemoImages.length > 0) && (
+                    <button
+                      type="button"
+                      onClick={() => { setMisaMemo(''); setMisaMemoImages([]); }}
+                      className="text-[10px] text-rose-400 hover:text-rose-600 px-2 py-0.5 rounded border border-rose-200 hover:bg-rose-50"
+                    >削除</button>
+                  )}
+                </div>
               </div>
               <textarea
                 value={misaMemo}
@@ -820,6 +830,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
           </button>
         </div>
       </div>
+      <MisaMemoRangeModal open={rangeOpen} onClose={() => setRangeOpen(false)} />
     </div>
   );
 }

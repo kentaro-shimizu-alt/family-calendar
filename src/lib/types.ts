@@ -22,6 +22,7 @@ export interface EventComment {
   text: string;
   author?: string; // 'kentaro' | 'misa' | 'kuro' | etc
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface RecurrenceRule {

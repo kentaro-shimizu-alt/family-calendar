@@ -7,8 +7,36 @@ export const revalidate = 10;
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const month = searchParams.get('month') || undefined;
+  const from = searchParams.get('from') || undefined;
+  const to = searchParams.get('to') || undefined;
+  if (from && to) {
+    // Range fetch (across months): iterate months between from..to and merge
+    const months = monthsBetween(from, to);
+    const all: any[] = [];
+    for (const m of months) {
+      const md = await listDailyData(m);
+      for (const d of md) {
+        if (d.date >= from && d.date <= to) all.push(d);
+      }
+    }
+    all.sort((a, b) => a.date.localeCompare(b.date));
+    return NextResponse.json({ data: all });
+  }
   const data = await listDailyData(month);
   return NextResponse.json({ data });
+}
+
+function monthsBetween(from: string, to: string): string[] {
+  const out: string[] = [];
+  const [fy, fm] = from.split('-').map(Number);
+  const [ty, tm] = to.split('-').map(Number);
+  let y = fy, m = fm;
+  while (y < ty || (y === ty && m <= tm)) {
+    out.push(`${y}-${String(m).padStart(2, '0')}`);
+    m++;
+    if (m > 12) { m = 1; y++; }
+  }
+  return out;
 }
 
 export async function POST(req: NextRequest) {

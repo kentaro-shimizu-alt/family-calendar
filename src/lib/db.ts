@@ -174,6 +174,22 @@ export async function addComment(eventId: string, text: string, author?: string)
   return store.updateEventById(baseId, updated);
 }
 
+export async function updateComment(eventId: string, commentId: string, text: string): Promise<CalendarEvent | null> {
+  const store = getStore();
+  const baseId = eventId.split('__')[0];
+  const existing = await store.getEventById(baseId);
+  if (!existing) return null;
+  const comments = (existing.comments || []).map((c) =>
+    c.id === commentId ? { ...c, text, updatedAt: new Date().toISOString() } : c,
+  );
+  const updated: CalendarEvent = {
+    ...existing,
+    comments,
+    updatedAt: new Date().toISOString(),
+  };
+  return store.updateEventById(baseId, updated);
+}
+
 export async function deleteComment(eventId: string, commentId: string): Promise<CalendarEvent | null> {
   const store = getStore();
   const baseId = eventId.split('__')[0];
