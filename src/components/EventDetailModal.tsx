@@ -75,8 +75,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       const fd = new FormData();
       for (const f of files) fd.append('files', f);
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText.substring(0, 100));
+      }
       const data = await res.json();
-      if (!Array.isArray(data.items) || data.items.length === 0) return;
+      if (!data.items || !Array.isArray(data.items) || data.items.length === 0) return;
       const newImages = data.items.filter((it: any) => it.kind === 'image').map((it: any) => it.url);
       const newPdfs = data.items
         .filter((it: any) => it.kind === 'pdf')
