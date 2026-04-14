@@ -689,13 +689,74 @@ export default function EventModal({ open, initialDate, editing, members, subCal
             </label>
           </div>
 
+          {/* Recurrence - メインエリアに常時表示 */}
+          <div className="border border-indigo-200 rounded-xl bg-indigo-50/40 p-3">
+            <label className="block text-xs font-semibold text-indigo-600 mb-2">🔁 繰り返し</label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: 'none', label: 'なし' },
+                { value: 'weekly', label: '毎週' },
+                { value: 'monthly', label: '毎月' },
+                { value: 'yearly', label: '毎年' },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    if (opt.value === 'none') {
+                      setRecEnabled(false);
+                    } else {
+                      setRecEnabled(true);
+                      setRecFreq(opt.value as any);
+                      setRecInterval(1);
+                    }
+                  }}
+                  className={`px-4 py-2 text-sm rounded-lg border-2 font-semibold transition ${
+                    (opt.value === 'none' && !recEnabled) ||
+                    (opt.value !== 'none' && recEnabled && recFreq === opt.value)
+                      ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {recEnabled && (
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-semibold text-indigo-600 mb-1">
+                    間隔（例: 2=隔{recFreq === 'weekly' ? '週' : recFreq === 'monthly' ? '月' : '年'}）
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={recInterval}
+                    onChange={(e) => setRecInterval(Number(e.target.value) || 1)}
+                    className="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm bg-white"
+                    placeholder="1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-indigo-600 mb-1">終了日（空欄=無限）</label>
+                  <input
+                    type="date"
+                    value={recUntil}
+                    onChange={(e) => setRecUntil(e.target.value)}
+                    className="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm bg-white"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Advanced toggle */}
           <button
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
             className="text-sm text-blue-500 hover:text-blue-700"
           >
-            {showAdvanced ? '▼ 詳細設定を閉じる' : '▶ 詳細設定（URL・繰り返し・リマインダ）'}
+            {showAdvanced ? '▼ 詳細設定を閉じる' : '▶ 詳細設定（URL・リマインダ）'}
           </button>
 
           {showAdvanced && (
@@ -710,48 +771,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
                   placeholder="https://..."
                   className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
                 />
-              </div>
-
-              {/* Recurrence */}
-              <div>
-                <label className="flex items-center gap-2 cursor-pointer mb-2">
-                  <input
-                    type="checkbox"
-                    checked={recEnabled}
-                    onChange={(e) => setRecEnabled(e.target.checked)}
-                    className="w-4 h-4 accent-indigo-500"
-                  />
-                  <span className="text-sm font-semibold text-slate-700">🔁 繰り返し</span>
-                </label>
-                {recEnabled && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pl-6">
-                    <select
-                      value={recFreq}
-                      onChange={(e) => setRecFreq(e.target.value as any)}
-                      className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm"
-                    >
-                      <option value="daily">毎日</option>
-                      <option value="weekly">毎週</option>
-                      <option value="monthly">毎月</option>
-                      <option value="yearly">毎年</option>
-                    </select>
-                    <input
-                      type="number"
-                      min={1}
-                      value={recInterval}
-                      onChange={(e) => setRecInterval(Number(e.target.value) || 1)}
-                      className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm"
-                      placeholder="間隔"
-                    />
-                    <input
-                      type="date"
-                      value={recUntil}
-                      onChange={(e) => setRecUntil(e.target.value)}
-                      className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm"
-                      placeholder="終了日"
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Reminders */}

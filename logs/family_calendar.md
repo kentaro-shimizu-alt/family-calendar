@@ -1,3 +1,68 @@
+## B35: 繰り返し機能（毎週/毎月/毎年）をモーダル常時表示に変更 (2026-04-14)
+
+- 担当: くろさん
+- 内容: EventModal.tsx の繰り返し選択UIを「詳細設定」内から**メインエリアへ移動**
+- 変更点:
+  - 「詳細設定」内のチェックボックス+select形式の繰り返しUIを削除
+  - メインエリアに「🔁 繰り返し」セクションを新設（常時表示）
+  - なし/毎週/毎月/毎年 の4択ボタン形式に変更（選択中はハイライト）
+  - 繰り返し選択時のみ「間隔」「終了日（空欄=無限）」フィールドを展開
+  - 詳細設定は「URL・リマインダ」のみに整理
+- バックエンド: db.ts の expandRecurrence() / types.ts RecurrenceRule はすでに完全実装済み → 変更不要
+- 動作確認: プレビューでなし↔毎月切替、間隔フィールドの表示/非表示を目視確認済み
+- 既存データへの影響: recurrenceなしの予定はそのまま単発表示（影響なし）
+
+## B33v2: 4/16オズ・4/24親父のズレ再検証 → 修正済み確認 (2026-04-14)
+
+- 担当: くろさん
+- 要請: 健太郎スクショで「4/16 x1 オズ (グレー) まだズレ」「4/24 親父 病院 (紫) まだズレ」「隙間があちこち一定じゃない」との報告。徹底的に再検証
+- 手順:
+  1. `git pull` → `e1189ff` が origin/main と一致（Already up to date）
+  2. 本番バンドル `https://family-calendar-delta-snowy.vercel.app/_next/static/chunks/app/page-a7d1797adc3c4591.js` を取得・grep
+     - 検出: `paddingTop:36+(x>=0?(x+1)*22:0)` → DATE_HEADER_H=36、22=(BAR_H 20 + BAR_GAP 2)
+     - つまり本番は `CELL_PAD_TOP_BASE = DATE_HEADER_H` の修正版が deployed
+  3. `preview_start family_calendar` (localhost:3030) → PC(desktop) で 2026年4月表示
+  4. 全 `button.ev-block` を getBoundingClientRect で実測 (42バー)
+- 実測結果（4/12-4/18 週、t=globalTop px）:
+  - 4/12 (Sun) slot0 = `x2 衣川` 345, slot1 = `子供の相続権` 367
+  - 4/13 (Mon) slot0 = `休み` 345, slot1 = `梨乃入学式` 367
+  - 4/15 (Wed) slot0 = `12:00 みさ` 345, slot1 = `潤始業式` 367, slot2 = `ｘ1 シンワ` 389
+  - 4/16 (Thu) slot0 = `x2 森河` (multi/abs) 505, **slot1 = `x1 オズ` 527** ← アライン済み
+  - 4/17 (Fri) slot0 = `x2茶谷ev` 505, **slot1 = `x1 中井` 527** ← アライン済み
+  - 4/19 (Sun) slot0 = `◂ x12 ｳｪｲｱｳﾄ` (continuing) 505, slot1 = `🍓梨乃` 527, slot2 = `BBQ大泉緑地` 549
+- 4/19-4/25 週:
+  - slot0 = `16:30みさ`/`x1坂本`/`x1新和`/`x6-8新和トイレ(multi)` 全部 t=665
+  - slot1 = `ｘ4オズ北野202(multi)` t=687
+  - **slot2 = `親父 病院` 709, `11:00 梨乃` 709** ← アライン済み
+  - slot3 = `15:00 みさ` 731
+- 全バケット検査 (top を 11px 単位で bucket 化、同 bucket 内の min/max 差):
+  - **差 > 0.5px のバケット: 0件**（= 完全一致）
+- 隙間検査 (同一列の連続バー間 gap):
+  - 同週内の全ペア: gap = **2.0px 固定**、行間 dy = **22.0px 固定**
+  - 異なる gap は週またぎ (96/118/140/162px) のみで、これは正常（週の区切り）
+- 結論:
+  - ローカル/本番バンドル共に B33 修正 (CELL_PAD_TOP_BASE = DATE_HEADER_H) は正しく適用済み
+  - 4/16 x1 オズ、4/24 親父 病院、他全バー、pixel-perfect にアライン
+  - 健太郎のスクショは恐らく **Vercel CDN キャッシュ版** もしくはブラウザキャッシュ。ハードリロード (Ctrl+Shift+R) で最新版確認推奨
+- file: 変更なし（既にB33で修正済み）
+- 並行: W21画像移行・W46 proxy・W45カット指示とはファイル非競合
+
+---
+
+## B34: /api/gdrive-image/[id] 本番 502 → Vercel環境変数の引用符混入を除去 (2026-04-14)
+
+- 担当: くろさん
+- 症状: 本番 `https://family-calendar-delta-snowy.vercel.app/api/gdrive-image/<fileId>` が常に HTTP 502 Bad Gateway。B23移行で1610件がGDrive URLに切替済のため、画像が一切表示不可
+- 原因: Vercel Production の `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REFRESH_TOKEN` / `GOOGLE_DRIVE_FOLDER_ID` 4件すべてが **値を二重引用符で囲った状態で保存** されていた（local 72/35/103/33 文字に対し prod は 74/37/105/35 文字で+2、先頭/末尾が `"`）。Googleトークンエンドポイントが `invalid_client` (401) を返し、route.ts の catch で status=502 へマップされていた
+- 検証: 本番レスポンスbody = `{"error":"Google token refresh failed (401): {\"error\":\"invalid_client\",\"error_description\":\"The OAuth client was not found.\"}"}` で特定
+- 修正:
+  1. `vercel env rm` で4件をproduction環境から削除
+  2. `.env.local` の素の値を `printf "%s" | vercel env add` でパイプして再追加（引用符なしで保存）
+  3. `vercel --prod` で再デプロイ
+- 確認: `curl -sI .../api/gdrive-image/11lKYBngE5W_5RGC4mYALrmv-weNSX2TG` → `HTTP/1.1 200 OK`, `Content-Type: image/png`, 937KB PNG (1344x1008) 取得成功
+- 教訓: Vercel env var を貼り付ける時、値を `"..."` で囲まない。`vercel env add` のCLI対話入力はリテラルで保存される
+- 並行: W21移行 (PID 26944, 1610/1943) は未触
+
 ## B33: 予定バーの整列と隙間を完全統一 (2026-04-14)
 
 - 担当: くろさん
