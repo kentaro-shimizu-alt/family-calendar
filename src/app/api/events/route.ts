@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       note: body.note || undefined,
       url: body.url || undefined,
       location: body.location || undefined,
-      images: Array.isArray(body.images) ? body.images : [],
+      images: Array.isArray(body.images) && body.images.length > 0 ? body.images : undefined,
       pdfs: Array.isArray(body.pdfs) ? body.pdfs : undefined,
       pinned: !!body.pinned,
       recurrence: body.recurrence || undefined,
