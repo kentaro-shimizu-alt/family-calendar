@@ -411,7 +411,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                     type="button"
                     onClick={() => { setMisaMemo(''); setMisaMemoImages([]); }}
                     className="text-[10px] text-rose-400 hover:text-rose-600 px-2 py-0.5 rounded border border-rose-200 hover:bg-rose-50"
-                  >クリア</button>
+                  >削除</button>
                 )}
               </div>
               <textarea
