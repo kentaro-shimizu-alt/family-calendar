@@ -51,6 +51,11 @@ export default function HomePage() {
   const [dayEventsOpen, setDayEventsOpen] = useState(false);
   const [dayEventsDate, setDayEventsDate] = useState<Date | null>(null);
 
+  // Year/Month picker
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerYear, setPickerYear] = useState<number>(new Date().getFullYear());
+  const [pickerMonth, setPickerMonth] = useState<number>(new Date().getMonth() + 1);
+
   // Keep + Settings
   const [keepOpen, setKeepOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -389,9 +394,13 @@ export default function HomePage() {
             ‹
           </button>
           <button
-            onClick={() => setCurrentMonth(new Date())}
+            onClick={() => {
+              setPickerYear(currentMonth.getFullYear());
+              setPickerMonth(currentMonth.getMonth() + 1);
+              setPickerOpen(true);
+            }}
             className="text-xl font-bold text-white px-4 py-1 rounded-lg hover:bg-neutral-800 min-w-[140px] text-center"
-            title="今月へ"
+            title="年月を選択"
           >
             {format(currentMonth, 'yyyy年 M月', { locale: ja })}
           </button>
@@ -529,6 +538,70 @@ export default function HomePage() {
           </div>
         )}
       </header>
+
+      {/* Year/Month picker modal */}
+      {pickerOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setPickerOpen(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl p-5 w-72 max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 年選択 */}
+            <div className="mb-4">
+              <label className="block text-xs text-slate-500 mb-1 font-semibold">年</label>
+              <select
+                value={pickerYear}
+                onChange={(e) => setPickerYear(Number(e.target.value))}
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                {Array.from({ length: 21 }, (_, i) => new Date().getFullYear() - 10 + i).map((y) => (
+                  <option key={y} value={y}>{y}年</option>
+                ))}
+              </select>
+            </div>
+            {/* 月選択 */}
+            <div className="mb-5">
+              <label className="block text-xs text-slate-500 mb-1 font-semibold">月</label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setPickerMonth(m)}
+                    className={`py-2 rounded-lg text-sm font-semibold transition active:scale-95 ${
+                      pickerMonth === m
+                        ? 'bg-blue-500 text-white shadow'
+                        : 'bg-slate-100 text-slate-700 hover:bg-blue-100'
+                    }`}
+                  >
+                    {m}月
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* ボタン */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPickerOpen(false)}
+                className="flex-1 py-2 rounded-lg border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentMonth(new Date(pickerYear, pickerMonth - 1, 1));
+                  setPickerOpen(false);
+                }}
+                className="flex-1 py-2 rounded-lg bg-blue-500 text-white text-sm font-semibold hover:bg-blue-600 transition active:scale-95"
+              >
+                確定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reminder runner (no UI) */}
       <ReminderRunner events={visibleEvents} />
