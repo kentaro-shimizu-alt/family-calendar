@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
       endTime: body.endTime || undefined,
       memberId: (body.memberId || 'all') as MemberId,
       calendarId: body.calendarId || undefined,
+      color: body.color || undefined,
       note: body.note || undefined,
       url: body.url || undefined,
       location: body.location || undefined,
