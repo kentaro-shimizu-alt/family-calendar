@@ -56,16 +56,39 @@ export default function HomePage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [filterBarVisible, setFilterBarVisible] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [showKinenbi, setShowKinenbi] = useState(false);
+  const [showHanabi, setShowHanabi] = useState(false);
+  const [hanabiModalOpen, setHanabiModalOpen] = useState(false);
+  const [hanabiModalData, setHanabiModalData] = useState<{ date: Date; items: any[] } | null>(null);
 
   // Load theme from localStorage on mount (SSR-safe)
   useEffect(() => {
     const saved = localStorage.getItem('calendar-theme') as 'light' | 'dark' | null;
     if (saved) setTheme(saved);
+    try {
+      if (localStorage.getItem('cal-show-kinenbi') === '1') setShowKinenbi(true);
+      if (localStorage.getItem('cal-show-hanabi') === '1') setShowHanabi(true);
+    } catch {}
   }, []);
 
   function toggleTheme(t: 'light' | 'dark') {
     setTheme(t);
     localStorage.setItem('calendar-theme', t);
+  }
+
+  function toggleKinenbi() {
+    setShowKinenbi((v) => {
+      const next = !v;
+      try { localStorage.setItem('cal-show-kinenbi', next ? '1' : '0'); } catch {}
+      return next;
+    });
+  }
+  function toggleHanabi() {
+    setShowHanabi((v) => {
+      const next = !v;
+      try { localStorage.setItem('cal-show-hanabi', next ? '1' : '0'); } catch {}
+      return next;
+    });
   }
 
   const [loading, setLoading] = useState(false);
@@ -386,6 +409,26 @@ export default function HomePage() {
           >
             🏷️
           </button>
+          <button
+            onClick={toggleKinenbi}
+            className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
+              showKinenbi ? 'bg-pink-100 text-pink-600' : 'bg-neutral-800 hover:bg-neutral-700 text-slate-300'
+            }`}
+            aria-label="今日は何の日"
+            title={showKinenbi ? '今日は何の日: ON' : '今日は何の日: OFF'}
+          >
+            🎉
+          </button>
+          <button
+            onClick={toggleHanabi}
+            className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
+              showHanabi ? 'bg-orange-100 text-orange-600' : 'bg-neutral-800 hover:bg-neutral-700 text-slate-300'
+            }`}
+            aria-label="花火大会"
+            title={showHanabi ? '花火大会: ON' : '花火大会: OFF'}
+          >
+            🎆
+          </button>
         </div>
 
         {/* Sub-calendar filter chips (hiddenFromBar=trueは表示しない) */}
@@ -463,6 +506,12 @@ export default function HomePage() {
           onMisaClick={handleMisaClick}
           onSwipeLeft={() => setCurrentMonth((d) => addMonths(d, 1))}
           onSwipeRight={() => setCurrentMonth((d) => subMonths(d, 1))}
+          showKinenbi={showKinenbi}
+          showHanabi={showHanabi}
+          onHanabiClick={(items, date) => {
+            setHanabiModalData({ date, items });
+            setHanabiModalOpen(true);
+          }}
         />
       </div>
 
@@ -526,6 +575,40 @@ export default function HomePage() {
       />
 
       <KeepPanel open={keepOpen} onClose={() => setKeepOpen(false)} />
+
+      {/* Hanabi detail modal */}
+      {hanabiModalOpen && hanabiModalData && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+          onClick={() => setHanabiModalOpen(false)}
+        >
+          <div
+            className="bg-neutral-900 text-slate-100 rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">🎆 {format(hanabiModalData.date, 'M月d日', { locale: ja })}の花火大会</h2>
+              <button
+                onClick={() => setHanabiModalOpen(false)}
+                className="text-slate-400 hover:text-white text-xl"
+                aria-label="閉じる"
+              >×</button>
+            </div>
+            <div className="space-y-3">
+              {hanabiModalData.items.map((h: any, i: number) => (
+                <div key={i} className="border border-neutral-700 rounded p-3 bg-neutral-800">
+                  <div className="font-bold text-orange-300">{h.name}</div>
+                  <div className="text-xs text-slate-400 mt-1">📍 {h.place}</div>
+                  {h.note && <div className="text-xs text-slate-300 mt-1">{h.note}</div>}
+                </div>
+              ))}
+              <div className="text-[10px] text-slate-500 pt-2 border-t border-neutral-800">
+                ※ 日程は例年実績からの推定です。必ず主催者公式で確認してください。
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SettingsModal
         open={settingsOpen}

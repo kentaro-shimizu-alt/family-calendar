@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CalendarEvent, DailyData, Member, SalesEntry, SubCalendar } from '@/lib/types';
+import { getKinenbi } from '@/lib/kinenbi';
+import { getHanabiByDate, HanabiEvent } from '@/lib/hanabi';
 import {
   startOfMonth,
   endOfMonth,
@@ -25,6 +27,9 @@ interface Props {
   onMisaClick?: (date: Date) => void;
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
+  showKinenbi?: boolean;
+  showHanabi?: boolean;
+  onHanabiClick?: (hanabi: HanabiEvent[], date: Date) => void;
 }
 
 // PC: 半透明背景＋暗い文字 / スマホ: 濃い背景＋白文字（TimeTree風）
@@ -135,7 +140,7 @@ const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
 
-export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight }: Props) {
+export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight, showKinenbi = false, showHanabi = false, onHanabiClick }: Props) {
   // ===== B6: Smooth month-transition animation =====
   // Track previous month to determine slide direction
   const prevMonthRef = useRef<Date>(currentMonth);
@@ -376,6 +381,37 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                               </button>
                             );
                           })}
+                          {/* Kinenbi (今日は何の日) display */}
+                          {showKinenbi && (() => {
+                            const k = getKinenbi(day);
+                            if (k.length === 0) return null;
+                            return (
+                              <div
+                                className="text-[8px] sm:text-[9px] leading-tight text-pink-300/80 px-0.5 truncate"
+                                title={k.join(' / ')}
+                              >
+                                🎉 {k[0]}
+                              </div>
+                            );
+                          })()}
+                          {/* Hanabi (花火大会) display */}
+                          {showHanabi && (() => {
+                            const h = getHanabiByDate(day);
+                            if (h.length === 0) return null;
+                            return (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (onHanabiClick) onHanabiClick(h, day);
+                                  else alert(h.map((x) => `${x.name}\n${x.place}${x.note ? '\n' + x.note : ''}`).join('\n\n'));
+                                }}
+                                className="w-full text-left text-[8px] sm:text-[9px] leading-tight text-orange-300 bg-orange-900/30 hover:bg-orange-900/60 rounded px-0.5 truncate"
+                                title={h.map((x) => `${x.name} (${x.place})`).join('\n')}
+                              >
+                                🎆 {h[0].name}{h.length > 1 ? ` 他${h.length - 1}件` : ''}
+                              </button>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
