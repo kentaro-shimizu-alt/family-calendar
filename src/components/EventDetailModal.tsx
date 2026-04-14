@@ -407,10 +407,23 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                         <div className="flex flex-col gap-2">
                           <textarea
                             value={editingCommentText}
-                            onChange={(e) => setEditingCommentText(e.target.value)}
-                            rows={2}
-                            className="w-full border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                            onChange={(e) => {
+                              setEditingCommentText(e.target.value);
+                              // auto-grow: reset height then expand to scrollHeight
+                              e.target.style.height = 'auto';
+                              e.target.style.height = e.target.scrollHeight + 'px';
+                            }}
+                            rows={6}
+                            className="w-full border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-y"
+                            style={{ minHeight: '200px' }}
                             autoFocus
+                            ref={(el) => {
+                              // On mount, auto-size to fit existing content
+                              if (el) {
+                                el.style.height = 'auto';
+                                el.style.height = el.scrollHeight + 'px';
+                              }
+                            }}
                           />
                           <div className="flex gap-2 justify-end">
                             <button
