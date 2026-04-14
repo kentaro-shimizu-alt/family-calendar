@@ -363,13 +363,13 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               )}
             </div>
             <div className="flex gap-2">
-              <input
-                type="text"
+              <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) handlePostComment(); }}
-                placeholder="コメントを追加..."
-                className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handlePostComment(); } }}
+                placeholder="コメントを追加...（Shift+Enterで改行）"
+                rows={2}
+                className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
               />
               <button
                 onClick={handlePostComment}
