@@ -1,3 +1,45 @@
+## B33: 予定バーの整列と隙間を完全統一 (2026-04-14)
+
+- 担当: くろさん
+- 症状: 単日予定バーと複数日予定バー（overlay）が同じスロット行にあるのに2px縦ズレしていた
+- 原因: MonthView.tsx の `CELL_PAD_TOP_BASE = DATE_HEADER_H + 2` が +2px オフセットを持っていたが、overlayコンテナは `top: DATE_HEADER_H` で始まるため差分が出ていた
+- 修正: `CELL_PAD_TOP_BASE = DATE_HEADER_H` に変更（+2を削除）
+- 実測 (2026-04月、PC 1280x800、全 .ev-block を getBoundingClientRect):
+  - Before: 同行の (multi top / single top) が (345/347), (367/369), (505/507), (527/529), (665/667), (847/849) で **全部 2px ズレ**
+  - After: 同行の全バーが 345 / 367 / 505 / 527 / 665 / 847 に**完全一致**
+  - 全バーで height=20, mt=mb=pt=pb=0, line-height=12px, 行間デルタ=22px (BAR_H 20 + BAR_GAP 2) 統一
+- スマホ (375x812) 実測: 42バー全て height=20、行内tops一致、デルタ22px
+- 画面確認: 2026年4月/5月/6月 preview_screenshot 3枚で目視ズレなし
+- file: src/components/MonthView.tsx (L144 一行だけ変更)
+- commit: (本コミット)
+
+---
+
+## B32: 美砂メモマークも #be185d に統一 (2026-04-14)
+
+- 担当: くろさん
+- 変更: MonthView.tsx 美マークボタン2箇所（スマホ用・PC用）を orange → #be185d に変更
+- inspect確認: color=rgb(190,24,93) 一致、background=#fce7f3
+- commit: 63cd32c / push済み
+
+---
+
+## B31: 美砂ちゃんマーク色を濃いピンクに変更 (2026-04-14)
+
+- 担当: くろさん
+- 変更: #db2777 (ピンク600) → #be185d (ピンク700)
+- 美砂ちゃん本人リクエスト「もーちょい濃いピンクがいー」
+- 変更箇所:
+  - src/lib/types.ts: DEFAULT_MEMBERS misa.color
+  - data/calendar.json: misa.color
+  - scripts/setup_subcalendars.mjs: tt_misa.color
+  - scripts/import_timetree.mjs: tt_misa.color
+  - Supabase settings.members: misa.color
+  - Supabase settings.sub_calendars: tt_misa.color
+  - Supabase events: color=#db2777の3件を#be185dに一括更新
+- bgColor/textColorは変更なし（背景薄ピンク・文字濃紺そのまま）
+- push済み: commit 8122e24
+
 ## B30: 現場売上note textarea min-height 300px 拡大 (2026-04-14)
 
 - 担当: くろさん

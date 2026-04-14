@@ -141,7 +141,9 @@ function isHoliday(date: Date): boolean {
 const DATE_HEADER_H = 36; // px ← 空白行をなくすため44→36に縮小
 const BAR_H = 20;         // px, each bar slot height
 const BAR_GAP = 2;        // px between bars
-const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
+// B33: +2px offset was causing single-day bars to be 2px below multi-day overlay bars at the same slot.
+// CELL_PAD_TOP_BASE must match overlay start (DATE_HEADER_H) exactly for pixel-perfect alignment.
+const CELL_PAD_TOP_BASE = DATE_HEADER_H;
 
 export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight, showKinenbi = false, showHanabi = false, onHanabiClick }: Props) {
   // ===== B6: Smooth month-transition animation =====
