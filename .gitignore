@@ -11,3 +11,9 @@ data/uploads/*
 public/uploads/timetree_photos/
 
 .vercel
+scripts/gdrive_reauth.mjs
+scripts/monitor_migration.mjs
+scripts/migrate_local_images_to_gdrive.mjs
+logs/migrate_images*.json
+logs/migrate_images*.log
+scripts/_snapshots/
