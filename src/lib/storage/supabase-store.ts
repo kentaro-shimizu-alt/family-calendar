@@ -185,24 +185,41 @@ export const supabaseStore: Store = {
     const [y, m] = yearMonth.split('-').map(Number);
     const monthStart = `${yearMonth}-01`;
     const monthEnd = `${yearMonth}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`;
-    // date が月内 OR endDate が月始以降（複数日イベント対応）
-    // PostgREST の or フィルタで、date が月内のもの、または endDate >= monthStart のもの
+    // 以下のいずれかを含める:
+    //  1. date が月内 (date >= monthStart AND date <= monthEnd)
+    //  2. 複数日イベントで endDate が月始以降 (end_date >= monthStart AND date <= monthEnd)
+    //  3. 繰り返しイベントで base date が月末以前 (recurrence IS NOT NULL AND date <= monthEnd)
+    //     → 過去月に作られた繰り返しも拾う。期間終了(until)判定は expandRecurrence で行う
     const pageSize = 1000;
     const all: any[] = [];
-    for (let page = 0; page < 10; page++) {
-      const from = page * pageSize;
-      const to = from + pageSize - 1;
-      const { data, error } = await sb
-        .from('events')
-        .select('*')
-        .or(`date.gte.${monthStart},end_date.gte.${monthStart}`)
-        .lte('date', monthEnd)
-        .order('id', { ascending: true })
-        .range(from, to);
-      if (error) throw new Error(`supabase events select month: ${error.message}`);
-      if (!data || data.length === 0) break;
-      all.push(...data);
-      if (data.length < pageSize) break;
+    const seen = new Set<string>();
+    async function fetchWith(filter: (q: any) => any): Promise<any[]> {
+      const out: any[] = [];
+      for (let page = 0; page < 10; page++) {
+        const from = page * pageSize;
+        const to = from + pageSize - 1;
+        const q = sb.from('events').select('*').order('id', { ascending: true }).range(from, to);
+        const { data, error } = await filter(q);
+        if (error) throw new Error(`supabase events select month: ${error.message}`);
+        if (!data || data.length === 0) break;
+        out.push(...data);
+        if (data.length < pageSize) break;
+      }
+      return out;
+    }
+    // (1)(2): 既存ロジック
+    const rangeRows = await fetchWith((q) =>
+      q.or(`date.gte.${monthStart},end_date.gte.${monthStart}`).lte('date', monthEnd)
+    );
+    for (const r of rangeRows) {
+      if (!seen.has(r.id)) { seen.add(r.id); all.push(r); }
+    }
+    // (3): 繰り返しイベント（base date が月末以前、recurrence あり）
+    const recurRows = await fetchWith((q) =>
+      q.not('recurrence', 'is', null).lte('date', monthEnd)
+    );
+    for (const r of recurRows) {
+      if (!seen.has(r.id)) { seen.add(r.id); all.push(r); }
     }
     return all.map(rowToEvent);
   },

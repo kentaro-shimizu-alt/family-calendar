@@ -691,7 +691,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
 
           {/* Recurrence - メインエリアに常時表示 */}
           <div className="border border-indigo-200 rounded-xl bg-indigo-50/40 p-3">
-            <label className="block text-xs font-semibold text-indigo-600 mb-2">🔁 繰り返し</label>
+            <label className="block text-xs font-semibold text-indigo-800 mb-2">🔁 繰り返し</label>
             <div className="flex flex-wrap gap-2">
               {[
                 { value: 'none', label: 'なし' },
