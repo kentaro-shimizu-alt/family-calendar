@@ -53,10 +53,42 @@ body {
   }
 }
 
+/* ===== Light mode 上書き（main に .dark が付かない時、ハードコード黒要素を白系に戻す） ===== */
+main:not(.dark) {
+  background-color: #ffffff;
+  color: #1e293b;
+}
+main:not(.dark) header.bg-neutral-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  border-bottom-width: 1px;
+}
+main:not(.dark) header .text-white {
+  color: #1e293b !important;
+}
+main:not(.dark) header .bg-neutral-800 {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+main:not(.dark) header .hover\:bg-neutral-800:hover,
+main:not(.dark) header .hover\:bg-neutral-700:hover {
+  background-color: #e2e8f0 !important;
+}
+main:not(.dark) header .text-slate-300 {
+  color: #475569 !important;
+}
+/* ライトモード: bodyを白に強制（layout.tsx変更が効かない場合の保険） */
+html:not(:has(main.dark)) body {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+}
+
 /* ===== Dark mode（TimeTree風：真っ黒ベース） ===== */
 .dark {
   color-scheme: dark;
 }
+/* ダーク時はhtml/body全体も黒に */
+html:has(main.dark) body { background-color: #000000 !important; color: #e2e8f0 !important; }
 /* ベース背景（真っ黒） */
 .dark body,
 .dark main,
@@ -110,3 +142,18 @@ body {
   text-shadow: 0 0.5px 2px rgba(0,0,0,0.4);
 }
 /* 今日の青丸はそのまま */
+
+/* ===== B6: Smooth month-transition slide animations (TimeTree-like) ===== */
+@keyframes mvSlideFromRight {
+  from { transform: translateX(8%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+@keyframes mvSlideFromLeft {
+  from { transform: translateX(-8%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.mv-slide-from-right { animation: mvSlideFromRight 0.28s cubic-bezier(0.22, 0.61, 0.36, 1); will-change: transform, opacity; }
+.mv-slide-from-left  { animation: mvSlideFromLeft  0.28s cubic-bezier(0.22, 0.61, 0.36, 1); will-change: transform, opacity; }
+@media (prefers-reduced-motion: reduce) {
+  .mv-slide-from-right, .mv-slide-from-left { animation: none; }
+}

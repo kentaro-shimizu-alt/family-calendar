@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CalendarEvent, DailyData, Member, SalesEntry, SubCalendar } from '@/lib/types';
 import {
   startOfMonth,
@@ -136,6 +136,22 @@ const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H + 2;
 
 export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight }: Props) {
+  // ===== B6: Smooth month-transition animation =====
+  // Track previous month to determine slide direction
+  const prevMonthRef = useRef<Date>(currentMonth);
+  const [slideDir, setSlideDir] = useState<'left' | 'right' | null>(null);
+  const [animKey, setAnimKey] = useState<number>(0);
+  useEffect(() => {
+    const prev = prevMonthRef.current;
+    if (prev.getFullYear() !== currentMonth.getFullYear() || prev.getMonth() !== currentMonth.getMonth()) {
+      const dir: 'left' | 'right' =
+        currentMonth.getTime() > prev.getTime() ? 'left' : 'right';
+      setSlideDir(dir);
+      setAnimKey((k) => k + 1);
+      prevMonthRef.current = currentMonth;
+    }
+  }, [currentMonth]);
+
   // Swipe detection
   const touchStart = useRef<{ x: number; y: number; touches: number } | null>(null);
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -284,8 +300,18 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
         ))}
       </div>
 
-      {/* Weeks */}
+      {/* Weeks (B6: wrap in animated container for smooth month transitions) */}
       <div className="bg-slate-100 rounded-md overflow-hidden">
+        <div
+          key={animKey}
+          className={
+            slideDir === 'left'
+              ? 'mv-slide-from-right'
+              : slideDir === 'right'
+              ? 'mv-slide-from-left'
+              : ''
+          }
+        >
         {weeks.map((week, wi) => {
           const barCount = maxSlotByWeek[wi] + 1;
           const barAreaH = barCount > 0 ? barCount * (BAR_H + BAR_GAP) : 0;
@@ -311,14 +337,14 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
 
                       {/* Event blocks for single-day events */}
                       <div className="event-scroll flex-1 px-1 pb-1 overflow-y-auto">
-                        <div className="flex flex-col gap-[2px]">
+                        <div className="flex flex-col" style={{ gap: BAR_GAP }}>
                           {dayEvents.map((ev) => {
                             const c = resolveEventColor(ev, subCalendars);
                             return (
                               <button
                                 key={ev.id}
                                 onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                                className="ev-block text-left text-[10px] sm:text-[12px] leading-[1.2] rounded px-0.5 sm:px-1 py-0 sm:py-[2px] hover:brightness-95 transition font-bold overflow-hidden"
+                                className="ev-block w-full text-left text-[10px] sm:text-[12px] leading-tight rounded px-1 hover:brightness-95 transition font-bold sm:font-medium overflow-hidden flex items-center gap-0.5 shadow-sm"
                                 style={{
                                   '--ev-bg': c.bg,
                                   '--ev-fg': c.fg,
@@ -329,6 +355,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                   backgroundColor: c.bg,
                                   color: c.fg,
                                   borderLeft: `3px solid ${c.subAccent || c.accent}`,
+                                  height: BAR_H,
                                 } as React.CSSProperties}
                                 data-sub-accent={c.subAccent || undefined}
                                 title={ev.title}
@@ -606,6 +633,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );
