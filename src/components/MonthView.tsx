@@ -253,6 +253,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
   const barsByWeek: BarSeg[][] = weeks.map(() => []);
   for (const b of barSegs) barsByWeek[b.weekIdx].push(b);
   const maxSlotByWeek: number[] = weeks.map(() => -1);
+  // B24: 各日付ごとの最大使用スロット（上詰め用）
+  // maxSlotByWeekCol[wi][col] = その週・その列(日)を通過するバーの最大スロット番号
+  const maxSlotByWeekCol: number[][] = weeks.map(() => new Array(7).fill(-1));
   for (let wi = 0; wi < barsByWeek.length; wi++) {
     const wbars = barsByWeek[wi];
     // Sort by start column, then prefer longer spans first (stable layout)
@@ -269,7 +272,11 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
           if (slotCols[s][c]) { fits = false; break; }
         }
         if (fits) {
-          for (let c = b.startCol; c < b.startCol + b.span; c++) slotCols[s][c] = true;
+          for (let c = b.startCol; c < b.startCol + b.span; c++) {
+            slotCols[s][c] = true;
+            // B24: 各列の最大スロットを更新
+            if (s > maxSlotByWeekCol[wi][c]) maxSlotByWeekCol[wi][c] = s;
+          }
           b.slot = s;
           if (s > maxSlotByWeek[wi]) maxSlotByWeek[wi] = s;
           break;
@@ -323,7 +330,8 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
         {weeks.map((week, wi) => {
           const barCount = maxSlotByWeek[wi] + 1;
           const barAreaH = barCount > 0 ? barCount * (BAR_H + BAR_GAP) : 0;
-          const cellPadTop = CELL_PAD_TOP_BASE + barAreaH;
+          // B24: 週全体の barAreaH はオーバーレイ枠のために維持（複数日バーの絶対配置範囲）
+          // 各セルのpaddingTopはその列の最大スロットのみ使う（上詰め）
           return (
             <div key={wi} className="relative">
               <div className="grid grid-cols-7">
@@ -331,6 +339,10 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const dayEvents = singleByDate.get(dateKey) || [];
                   const inMonth = isSameMonth(day, currentMonth);
+                  // B24: この日を通過するバーの最大スロットから個別にpaddingTopを計算
+                  const colMaxSlot = maxSlotByWeekCol[wi][di];
+                  const colBarAreaH = colMaxSlot >= 0 ? (colMaxSlot + 1) * (BAR_H + BAR_GAP) : 0;
+                  const cellPadTop = CELL_PAD_TOP_BASE + colBarAreaH;
                   return (
                     <div
                       key={dateKey}
