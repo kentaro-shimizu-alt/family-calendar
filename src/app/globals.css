@@ -212,13 +212,17 @@ html:has(main.dark) body { background-color: #000000 !important; color: #e2e8f0 
   }
 }
 
-/* ===== B27: スマホで¥アイコン付き予定バーの高さズレを防ぐ =====
+/* ===== B27+: 単日・複数日バー 高さ完全統一 =====
    絵文字アイコン(💼📌等)のline-heightがbutton高さを20pxより押し上げるのを防止。
-   height/max-height を強制し、inline要素のline-heightを1にして絵文字の余白を潰す。 */
+   height/max-height を両方明示し、inline要素のline-heightを1にして絵文字の余白を潰す。
+   PC(sm+)・スマホ問わず全ev-blockを20px固定。 */
 .ev-block {
   box-sizing: border-box !important;
+  height: 20px !important;
   max-height: 20px !important;
+  min-height: 20px !important;
   line-height: 1 !important;
+  overflow: hidden !important;
 }
 .ev-block > span,
 .ev-block .truncate {
