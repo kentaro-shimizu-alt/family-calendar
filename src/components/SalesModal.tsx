@@ -85,18 +85,33 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
   const [rangeOpen, setRangeOpen] = useState(false);
   const draftNoteRef = useRef<HTMLTextAreaElement>(null);
   const memoRef = useRef<HTMLTextAreaElement>(null);
+  const misaMemoRef = useRef<HTMLTextAreaElement>(null);
   const entryNoteRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
+  const modalScrollRef = useRef<HTMLDivElement>(null);
 
   // テキストエリアの高さを内容に合わせて自動調整
+  // height='auto'→scrollHeightの2段階変更はスクロールジャンプを起こすため、
+  // モーダルのscrollTopを保持してから同期・非同期両方で復元する
   const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
     if (!el) return;
+    const container = modalScrollRef.current;
+    const savedScrollTop = container ? container.scrollTop : 0;
     el.style.height = 'auto';
     el.style.height = el.scrollHeight + 'px';
+    if (container) {
+      // 同期復元（即時）
+      container.scrollTop = savedScrollTop;
+      // 非同期復元（ブラウザのレイアウト再計算後にも対応）
+      requestAnimationFrame(() => {
+        container.scrollTop = savedScrollTop;
+      });
+    }
   }, []);
 
-  // ドラフトnote・memoが変わったときに高さ再計算
+  // ドラフトnote・memo・misaMemoが変わったときに高さ再計算
   useEffect(() => { autoResize(draftNoteRef.current); }, [draftNote, autoResize]);
   useEffect(() => { autoResize(memoRef.current); }, [memo, autoResize]);
+  useEffect(() => { autoResize(misaMemoRef.current); }, [misaMemo, autoResize]);
   useEffect(() => {
     entryNoteRefs.current.forEach((el) => autoResize(el));
   }, [entries, autoResize]);
@@ -339,6 +354,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
       onClick={onClose}
     >
       <div
+        ref={modalScrollRef}
         className={`w-full sm:max-w-xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] overflow-y-auto ${
           dragOver ? 'ring-4 ring-sky-300' : ''
         }`}
@@ -445,7 +461,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
               <textarea
                 value={misaMemo}
                 onChange={(e) => setMisaMemo(e.target.value)}
-                ref={(el) => { if (el) { autoResize(el); } }}
+                ref={misaMemoRef}
                 placeholder="自由に書いてください"
                 className="w-full border border-orange-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none overflow-hidden min-h-[120px]"
               />
