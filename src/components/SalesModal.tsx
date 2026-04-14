@@ -96,8 +96,9 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     if (!el) return;
     const container = modalScrollRef.current;
     const savedScrollTop = container ? container.scrollTop : 0;
+    const minH = el.dataset.minHeight ? parseInt(el.dataset.minHeight, 10) : 0;
     el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
+    el.style.height = Math.max(el.scrollHeight, minH) + 'px';
     if (container) {
       // 同期復元（即時）
       container.scrollTop = savedScrollTop;
@@ -583,8 +584,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
               onChange={(e) => setDraftNote(e.target.value)}
               ref={draftNoteRef}
               placeholder="テンプレに沿って記入"
+              data-min-height="300"
               className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 resize-none overflow-hidden`}
-              style={{ minHeight: '300px' }}
             />
 
             {/* Image/PDF strip + upload */}

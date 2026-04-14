@@ -1,3 +1,27 @@
+## B30: 現場売上note textarea min-height 300px 拡大 (2026-04-14)
+
+- 担当: くろさん
+- 対象ファイル: src/components/SalesModal.tsx
+- バグ: 「現場売上追加」モードのnote textareaが2行分しか見えない（空欄時）
+- 修正1: `autoResize()` に `data-min-height` 対応追加 → `Math.max(el.scrollHeight, minH)` でmin保証
+- 修正2: draftNote textareaに `data-min-height="300"` 追加（空欄時も最低300px確保）
+- B25のscrollTop保持（savedScrollTop/requestAnimationFrame）は維持済み
+- テンプレート入力時はauto-growで448px以上に伸びることも確認
+
+---
+
+## B30v2: 材料販売タブ note textarea min-height 300px 拡大 (2026-04-14)
+
+- 担当: くろさん
+- 対象ファイル: src/components/SalesModal.tsx
+- 調査結果: draftNote textarea は現場売上・材料販売タブ共通コンポーネント（activeTab !== 'misa' エリア内の1つのtextarea）
+- W33のB30作業（現場売上タブ拡大）がローカル未コミットの状態で残存していた
+- 追加変更不要。そのままコミット・pushで両タブ同時に300px対応完了
+- 変更内容: style={{ minHeight: '300px' }} 追加（auto-grow / scroll安定化の仕組みは維持）
+- コミット: ddac63c / push: main → origin完了 / Vercel: 自動デプロイ中
+
+---
+
 ## B27-v2: PC・スマホ 単日/複数日バー高さ完全統一 (2026-04-14)
 
 - 担当: くろさん
