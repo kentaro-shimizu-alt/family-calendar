@@ -553,7 +553,8 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         <div className="flex items-center justify-center gap-[2px] flex-nowrap">
                           {dailyEntry?.misaMemo && (
                             <button
-                              className="pointer-events-auto text-[7px] font-bold leading-none px-0.5 py-[2px] rounded bg-orange-100 text-orange-600 hover:bg-orange-200 border border-orange-200"
+                              className="pointer-events-auto text-[7px] font-bold leading-none px-0.5 py-[2px] rounded border"
+                              style={{ backgroundColor: '#fce7f3', color: '#be185d', borderColor: '#be185d' }}
                               title="美砂メモあり（クリックで表示）"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -598,7 +599,8 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           </span>
                           {dailyEntry?.misaMemo && (
                             <button
-                              className="pointer-events-auto text-[9px] font-bold text-orange-500 leading-none hover:text-orange-700 hover:bg-orange-50 rounded px-0.5"
+                              className="pointer-events-auto text-[9px] font-bold leading-none rounded px-0.5"
+                              style={{ color: '#be185d' }}
                               title="美砂メモあり（クリックで表示）"
                               onClick={(e) => {
                                 e.stopPropagation();
