@@ -584,6 +584,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
               ref={draftNoteRef}
               placeholder="テンプレに沿って記入"
               className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 resize-none overflow-hidden`}
+              style={{ minHeight: '300px' }}
             />
 
             {/* Image/PDF strip + upload */}
