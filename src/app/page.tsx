@@ -409,26 +409,6 @@ export default function HomePage() {
           >
             🏷️
           </button>
-          <button
-            onClick={toggleKinenbi}
-            className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
-              showKinenbi ? 'bg-pink-100 text-pink-600' : 'bg-neutral-800 hover:bg-neutral-700 text-slate-300'
-            }`}
-            aria-label="今日は何の日"
-            title={showKinenbi ? '今日は何の日: ON' : '今日は何の日: OFF'}
-          >
-            🎉
-          </button>
-          <button
-            onClick={toggleHanabi}
-            className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
-              showHanabi ? 'bg-orange-100 text-orange-600' : 'bg-neutral-800 hover:bg-neutral-700 text-slate-300'
-            }`}
-            aria-label="花火大会"
-            title={showHanabi ? '花火大会: ON' : '花火大会: OFF'}
-          >
-            🎆
-          </button>
         </div>
 
         {/* Sub-calendar filter chips (hiddenFromBar=trueは表示しない) */}
@@ -451,6 +431,36 @@ export default function HomePage() {
               {c.icon} {c.name}
             </button>
           ))}
+          {/* 今日は何の日チップ */}
+          <button
+            onClick={toggleKinenbi}
+            className={`text-[11px] px-2 py-0.5 rounded-full border transition ${
+              showKinenbi ? 'font-semibold' : 'opacity-40 line-through'
+            }`}
+            style={{
+              backgroundColor: showKinenbi ? '#ec489922' : '#f1f5f9',
+              borderColor: showKinenbi ? '#ec4899' : '#e2e8f0',
+              color: showKinenbi ? '#ec4899' : '#94a3b8',
+            }}
+            title={showKinenbi ? 'クリックで非表示' : 'クリックで表示'}
+          >
+            🎉 今日は何の日
+          </button>
+          {/* 花火大会チップ */}
+          <button
+            onClick={toggleHanabi}
+            className={`text-[11px] px-2 py-0.5 rounded-full border transition ${
+              showHanabi ? 'font-semibold' : 'opacity-40 line-through'
+            }`}
+            style={{
+              backgroundColor: showHanabi ? '#f9731622' : '#f1f5f9',
+              borderColor: showHanabi ? '#f97316' : '#e2e8f0',
+              color: showHanabi ? '#f97316' : '#94a3b8',
+            }}
+            title={showHanabi ? 'クリックで非表示' : 'クリックで表示'}
+          >
+            🎆 花火大会
+          </button>
         </div>
         )} {/* end filterBarVisible */}
 
