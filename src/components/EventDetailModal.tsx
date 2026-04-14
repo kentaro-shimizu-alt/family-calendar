@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CalendarEvent, EventComment, Member, getMember } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -17,6 +17,12 @@ interface Props {
   onCommentAdded: () => void;
 }
 
+// Time-series feed item: comment, image, or pdf, all rendered inline in posting order
+type FeedItem =
+  | { kind: 'comment'; id: string; ts: number; comment: EventComment }
+  | { kind: 'image'; id: string; ts: number; url: string; index: number }
+  | { kind: 'pdf'; id: string; ts: number; url: string; name?: string; index: number };
+
 export default function EventDetailModal({ open, event, members, onClose, onEdit, onTogglePin, onDelete, onCommentAdded }: Props) {
   const [commentText, setCommentText] = useState('');
   const [posting, setPosting] = useState(false);
@@ -25,6 +31,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [copyOpen, setCopyOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
   // #9: 戻るボタンでポップアップだけ閉じる
   useEffect(() => {
@@ -34,6 +41,37 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
   }, [open, onClose]);
+
+  // Build chronological feed items
+  const feedItems = useMemo<FeedItem[]>(() => {
+    if (!event) return [];
+    const items: FeedItem[] = [];
+    const eventDateMs = (() => {
+      try { return parseISO(event.date).getTime(); } catch { return 0; }
+    })();
+
+    (event.comments || []).forEach((c, i) => {
+      const ts = c.createdAt
+        ? new Date(c.createdAt).getTime()
+        : eventDateMs + i; // fallback: keep insertion order anchored to event date
+      items.push({ kind: 'comment', id: `c_${c.id}`, ts, comment: c });
+    });
+
+    (event.images || []).forEach((url, i) => {
+      // Images have no timestamp; place them slightly after event date to render after comments,
+      // but interleave by their index to preserve upload order.
+      const ts = eventDateMs + 1000 * 60 * 60 * (i + 1);
+      items.push({ kind: 'image', id: `i_${url}_${i}`, ts, url, index: i });
+    });
+
+    (event.pdfs || []).forEach((p, i) => {
+      const ts = eventDateMs + 1000 * 60 * 60 * (1000 + i);
+      items.push({ kind: 'pdf', id: `p_${p.url}_${i}`, ts, url: p.url, name: p.name, index: i });
+    });
+
+    items.sort((a, b) => a.ts - b.ts);
+    return items;
+  }, [event]);
 
   if (!open || !event) return null;
   const member = getMember(event.memberId, members);
@@ -167,6 +205,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const siteMargin = event.site && event.site.amount > 0
     ? ((siteProfit / event.site.amount) * 100).toFixed(1)
     : '-';
+
+  const totalFeedCount = feedItems.length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
@@ -308,47 +348,126 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             </div>
           )}
 
-          {/* Images */}
-          {event.images && event.images.length > 0 && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 text-center text-slate-400 mt-0.5">🖼️</div>
-              <div className="flex-1 grid grid-cols-3 gap-2">
-                {event.images.map((url) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={url}
-                    src={url}
-                    alt=""
-                    className="w-full aspect-square object-cover rounded-lg border border-slate-200 cursor-pointer hover:opacity-90"
-                    onClick={() => window.open(url, '_blank')}
-                  />
-                ))}
-              </div>
+          {/* === TIME-SERIES FEED (TimeTree-style: comment → image → comment → image, scrolling vertically) === */}
+          <div className="border-t border-slate-100 pt-4 mt-4">
+            <div className="text-xs font-semibold text-slate-500 mb-3 flex items-center gap-1">
+              📜 タイムライン
+              <span className="text-slate-400 font-normal">({totalFeedCount})</span>
             </div>
-          )}
 
-          {/* PDFs */}
-          {event.pdfs && event.pdfs.length > 0 && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 text-center text-slate-400 mt-0.5">📄</div>
-              <div className="flex-1 flex flex-wrap gap-2">
-                {event.pdfs.map((p) => (
+            <div className="space-y-3">
+              {feedItems.length === 0 && (
+                <div className="text-xs text-slate-400 text-center py-6 border border-dashed border-slate-200 rounded-lg">
+                  まだ投稿がありません
+                </div>
+              )}
+
+              {feedItems.map((item) => {
+                if (item.kind === 'comment') {
+                  const c = item.comment;
+                  const isEditing = editingCommentId === c.id;
+                  const tsLabel = c.createdAt
+                    ? format(parseISO(c.createdAt), 'M/d HH:mm')
+                    : '';
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-slate-50 rounded-lg px-3 py-2 group border border-slate-100"
+                    >
+                      <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                        <span className="font-medium text-slate-500">
+                          💬 {c.author || 'unknown'}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span>
+                            {tsLabel}
+                            {c.updatedAt && c.updatedAt !== c.createdAt ? ' (編集済)' : ''}
+                          </span>
+                          {!isEditing && (
+                            <>
+                              <button
+                                onClick={() => handleStartEditComment(c)}
+                                className="opacity-60 sm:opacity-0 group-hover:opacity-100 text-blue-500 hover:text-blue-700 transition"
+                                title="編集"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => handleDeleteComment(c.id)}
+                                className="opacity-60 sm:opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition"
+                                title="削除"
+                              >
+                                ×
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {isEditing ? (
+                        <div className="flex flex-col gap-2">
+                          <textarea
+                            value={editingCommentText}
+                            onChange={(e) => setEditingCommentText(e.target.value)}
+                            rows={2}
+                            className="w-full border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                            autoFocus
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={handleCancelEditComment}
+                              className="text-xs px-3 py-1 rounded text-slate-500 hover:bg-slate-200"
+                            >
+                              キャンセル
+                            </button>
+                            <button
+                              onClick={handleSaveEditComment}
+                              disabled={!editingCommentText.trim()}
+                              className="text-xs px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-40"
+                            >
+                              保存
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-slate-700 whitespace-pre-wrap">{c.text}</div>
+                      )}
+                    </div>
+                  );
+                }
+
+                if (item.kind === 'image') {
+                  return (
+                    <div key={item.id} className="rounded-lg overflow-hidden border border-slate-100 bg-black/5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.url}
+                        alt={`画像${item.index + 1}`}
+                        loading="lazy"
+                        className="w-full h-auto object-contain max-h-[80vh] cursor-zoom-in"
+                        onClick={() => setLightboxUrl(item.url)}
+                      />
+                    </div>
+                  );
+                }
+
+                // pdf
+                return (
                   <a
-                    key={p.url}
-                    href={p.url}
+                    key={item.id}
+                    href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-100 transition"
                   >
                     <span className="text-lg">📄</span>
-                    <span className="text-xs text-rose-700 font-semibold max-w-[200px] truncate">
-                      {p.name || 'PDF'}
+                    <span className="text-xs text-rose-700 font-semibold flex-1 truncate">
+                      {item.name || 'PDF'}
                     </span>
                   </a>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          )}
+          </div>
 
           {/* Drop zone hint + manual file picker */}
           <div className="flex items-center gap-3">
@@ -365,78 +484,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             </label>
           </div>
 
-          {/* Comments */}
-          <div className="border-t border-slate-100 pt-4 mt-4">
-            <div className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1">
-              💬 コメント
-              <span className="text-slate-400 font-normal">
-                ({event.comments?.length || 0})
-              </span>
-            </div>
-            <div className="space-y-2 mb-3">
-              {(event.comments || []).map((c: EventComment) => (
-                <div key={c.id} className="bg-slate-50 rounded-lg px-3 py-2 group">
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
-                    <span>{c.author || 'unknown'}</span>
-                    <div className="flex items-center gap-2">
-                      <span>
-                        {c.createdAt ? format(parseISO(c.createdAt), 'M/d HH:mm') : ''}
-                        {c.updatedAt && c.updatedAt !== c.createdAt ? ' (編集済)' : ''}
-                      </span>
-                      {editingCommentId !== c.id && (
-                        <>
-                          <button
-                            onClick={() => handleStartEditComment(c)}
-                            className="opacity-60 sm:opacity-0 group-hover:opacity-100 text-blue-500 hover:text-blue-700 transition"
-                            title="編集"
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            onClick={() => handleDeleteComment(c.id)}
-                            className="opacity-60 sm:opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition"
-                            title="削除"
-                          >
-                            ×
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {editingCommentId === c.id ? (
-                    <div className="flex flex-col gap-2">
-                      <textarea
-                        value={editingCommentText}
-                        onChange={(e) => setEditingCommentText(e.target.value)}
-                        rows={2}
-                        className="w-full border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
-                        autoFocus
-                      />
-                      <div className="flex gap-2 justify-end">
-                        <button
-                          onClick={handleCancelEditComment}
-                          className="text-xs px-3 py-1 rounded text-slate-500 hover:bg-slate-200"
-                        >
-                          キャンセル
-                        </button>
-                        <button
-                          onClick={handleSaveEditComment}
-                          disabled={!editingCommentText.trim()}
-                          className="text-xs px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-40"
-                        >
-                          保存
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-slate-700 whitespace-pre-wrap">{c.text}</div>
-                  )}
-                </div>
-              ))}
-              {(!event.comments || event.comments.length === 0) && (
-                <div className="text-xs text-slate-400 text-center py-2">まだコメントはありません</div>
-              )}
-            </div>
+          {/* New comment input (always at bottom) */}
+          <div className="border-t border-slate-100 pt-3">
             <div className="flex gap-2">
               <textarea
                 value={commentText}
@@ -496,6 +545,28 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           onApplied={() => { setCopyOpen(false); onCommentAdded(); }}
         />
       </div>
+
+      {/* Lightbox for fullscreen image view */}
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+          onClick={() => setLightboxUrl(null)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightboxUrl}
+            alt=""
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            className="absolute top-4 right-4 text-white text-4xl leading-none"
+            onClick={() => setLightboxUrl(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }
