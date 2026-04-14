@@ -563,7 +563,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 if (onMisaClick) onMisaClick(day);
                                 else onSalesClick(day);
                               }}
-                            >美</button>
+                            >み</button>
                           )}
                           {hasAnySales ? (
                             chips
@@ -601,15 +601,15 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           </span>
                           {dailyEntry?.misaMemo && (
                             <button
-                              className="pointer-events-auto text-[9px] font-bold leading-none rounded px-0.5"
-                              style={{ color: '#be185d' }}
+                              className="pointer-events-auto text-[9px] font-bold leading-none px-0.5 py-[2px] rounded border"
+                              style={{ backgroundColor: '#fce7f3', color: '#be185d', borderColor: '#be185d' }}
                               title="美砂メモあり（クリックで表示）"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (onMisaClick) onMisaClick(day);
                                 else onSalesClick(day);
                               }}
-                            >美</button>
+                            >み</button>
                           )}
                         </div>
                         <div className="flex gap-[2px] items-center justify-end flex-nowrap min-w-0 overflow-hidden">
