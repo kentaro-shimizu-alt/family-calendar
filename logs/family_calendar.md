@@ -1,3 +1,21 @@
+## B19_bugfix: 画像broken icon調査・根本原因特定 (2026-04-14)
+
+- 担当: くろさん
+- 症状: B19（画像回転機能）追加後、本番(Vercel)ですべての画像がbroken iconで表示される
+- 調査手順:
+  1. `git show 08fdbc6` で実際のコミット内容を確認 → types.ts/EventDetailModal.tsx の変更はB18fix(9ddafcf)に含まれていた
+  2. ローカルdev環境で動作確認 → **broken: 0 / 全画像正常表示** (normalizeImageEntryが正しく機能)
+  3. 本番の画像URLパターンを分析 → 全272枚が `/uploads/timetree_photos/xxx.jpg` 形式
+  4. `.gitignore` を確認 → `public/uploads/timetree_photos/` がgitignoreされている
+  5. ディレクトリサイズ確認 → 2.8GB（git管理・Vercelデプロイ不可能）
+- **根本原因**: コードのバグではなく、`public/uploads/timetree_photos/` (9212枚/2.8GB) がgitignoreのためVercel本番に存在しない
+  - ローカルはNext.jsのpublic staticサーブで表示可能
+  - 本番Vercelは該当パスが404 → broken icon
+  - B19のコード変更（normalizeImageEntry導入）は正しく動作している
+- **コードレベルの問題なし**: `normalizeImageEntry()` がstring→ImageItemに正規化、`<img src={item.url}>` は常にstring
+- 別タスク提起: 画像URLをSupabase Storage等の永続ストレージに移行する必要がある（272枚分のURL更新）
+- ローカル実機確認: preview_screenshot で画像2枚正常表示確認済み（↺↻ボタン含む）
+
 ## B19: 画像回転機能実装 (2026-04-14)
 
 - 担当: くろさん
