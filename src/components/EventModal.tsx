@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { addMonths, eachDayOfInterval, endOfMonth, format, isSameMonth, parseISO, startOfMonth, startOfWeek, endOfWeek, subMonths } from 'date-fns';
+import { ja } from 'date-fns/locale';
 import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, SiteInfo, COLOR_PALETTE } from '@/lib/types';
-import { format } from 'date-fns';
 
 interface Props {
   open: boolean;
@@ -44,6 +45,11 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   const [recUntil, setRecUntil] = useState('');
   // Reminders
   const [reminders, setReminders] = useState<number[]>([]);
+
+  // 複数日に同じ予定を追加
+  const [multiDayOpen, setMultiDayOpen] = useState(false);
+  const [multiDaySelected, setMultiDaySelected] = useState<Set<string>>(new Set());
+  const [multiDayMonth, setMultiDayMonth] = useState<Date>(new Date());
 
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -123,6 +129,9 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setRecUntil('');
       setReminders([]);
       setShowAdvanced(false);
+      setMultiDayOpen(false);
+      setMultiDaySelected(new Set());
+      setMultiDayMonth(initialDate ? parseISO(format(initialDate, 'yyyy-MM-dd')) : new Date());
     }
   }, [open, editing, initialDate, subCalendars]);
 
@@ -200,6 +209,20 @@ export default function EventModal({ open, initialDate, editing, members, subCal
     setExtraRanges((prev) => prev.filter((_, idx) => idx !== i));
   }
 
+  // 複数日選択ヘルパー
+  function toggleMultiDay(d: Date) {
+    const key = format(d, 'yyyy-MM-dd');
+    setMultiDaySelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+  function removeMultiDay(key: string) {
+    setMultiDaySelected((prev) => { const next = new Set(prev); next.delete(key); return next; });
+  }
+
   async function handleSave() {
     if (!title.trim() || !date) {
       alert('タイトルと日付は必須です');
@@ -224,11 +247,8 @@ export default function EventModal({ open, initialDate, editing, members, subCal
             note: siteNote || undefined,
           }
         : undefined;
-      const body = {
+      const baseBody = {
         title: title.trim(),
-        date,
-        endDate: endDate || undefined,
-        dateRanges,
         startTime, endTime,
         memberId, calendarId: calendarId || undefined,
         color: color || undefined,
@@ -238,16 +258,38 @@ export default function EventModal({ open, initialDate, editing, members, subCal
         reminderMinutes: reminders.length > 0 ? reminders : undefined,
         site,
       };
-      const apiUrl = editing ? `/api/events/${editing.id}` : '/api/events';
-      const method = editing ? 'PUT' : 'POST';
-      const res = await fetch(apiUrl, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'failed');
+
+      if (!editing && multiDaySelected.size > 0) {
+        // 複数日モード: メイン日 + 選択日 すべてにPOST
+        const allDates = [date, ...Array.from(multiDaySelected)].filter(Boolean);
+        // 重複除去
+        const uniqueDates = Array.from(new Set(allDates)).sort();
+        for (const d of uniqueDates) {
+          const body = { ...baseBody, date: d, endDate: d === date ? (endDate || undefined) : undefined, dateRanges: d === date ? dateRanges : undefined };
+          const res = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || `failed at ${d}`);
+          }
+        }
+      } else {
+        // 通常モード（1件 or 編集）
+        const body = { ...baseBody, date, endDate: endDate || undefined, dateRanges };
+        const apiUrl = editing ? `/api/events/${editing.id}` : '/api/events';
+        const method = editing ? 'PUT' : 'POST';
+        const res = await fetch(apiUrl, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || 'failed');
+        }
       }
       onSaved();
       onClose();
@@ -402,6 +444,78 @@ export default function EventModal({ open, initialDate, editing, members, subCal
           >
             ＋ 飛び飛び期間を追加（例: 4/11-15, 4/18-21）
           </button>
+
+          {/* 複数日に同じ予定を追加（新規作成時のみ） */}
+          {!editing && (
+            <div className="-mt-1">
+              <button
+                type="button"
+                onClick={() => { setMultiDayOpen((v) => !v); if (!multiDayOpen) setMultiDayMonth(date ? parseISO(date) : new Date()); }}
+                className="text-xs text-emerald-600 hover:text-emerald-800"
+              >
+                ＋ 同じ予定を複数日に追加{multiDaySelected.size > 0 && <span className="ml-1 bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded-full">{multiDaySelected.size}日選択中</span>}
+              </button>
+
+              {multiDayOpen && (
+                <div className="mt-2 bg-emerald-50/60 border border-emerald-200 rounded-xl p-3 space-y-2">
+                  <p className="text-[11px] text-emerald-700 font-semibold">追加したい日をタップして選択（上の「開始日」以外の日を選ぶ）</p>
+
+                  {/* 選択済みチップ */}
+                  {multiDaySelected.size > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {Array.from(multiDaySelected).sort().map((key) => (
+                        <span key={key} className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                          {key.slice(5).replace('-', '/')}
+                          <button onClick={() => removeMultiDay(key)} className="text-emerald-500 hover:text-emerald-700 leading-none">×</button>
+                        </span>
+                      ))}
+                      <button onClick={() => setMultiDaySelected(new Set())} className="text-[10px] text-rose-400 hover:text-rose-600 ml-1">全クリア</button>
+                    </div>
+                  )}
+
+                  {/* ミニカレンダー */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <button onClick={() => setMultiDayMonth((d) => subMonths(d, 1))} className="w-7 h-7 rounded-full bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-100 text-sm">‹</button>
+                      <span className="text-xs font-bold text-emerald-800">{format(multiDayMonth, 'yyyy年 M月', { locale: ja })}</span>
+                      <button onClick={() => setMultiDayMonth((d) => addMonths(d, 1))} className="w-7 h-7 rounded-full bg-white border border-emerald-200 text-emerald-600 hover:bg-emerald-100 text-sm">›</button>
+                    </div>
+                    <div className="grid grid-cols-7 text-center text-[10px] text-slate-400 mb-1">
+                      {['日','月','火','水','木','金','土'].map((l, i) => (
+                        <div key={l} className={i === 0 ? 'text-rose-400' : i === 6 ? 'text-sky-400' : ''}>{l}</div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-0.5">
+                      {eachDayOfInterval({
+                        start: startOfWeek(startOfMonth(multiDayMonth), { weekStartsOn: 0 }),
+                        end: endOfWeek(endOfMonth(multiDayMonth), { weekStartsOn: 0 }),
+                      }).map((d) => {
+                        const key = format(d, 'yyyy-MM-dd');
+                        const isSel = multiDaySelected.has(key);
+                        const inMonth = isSameMonth(d, multiDayMonth);
+                        const isMain = date === key;
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => toggleMultiDay(d)}
+                            disabled={isMain}
+                            className={`aspect-square rounded-md text-xs font-semibold transition flex items-center justify-center
+                              ${isSel ? 'bg-emerald-500 text-white shadow-sm scale-95' : inMonth ? 'bg-white hover:bg-emerald-100 text-slate-700 border border-emerald-100' : 'bg-transparent text-slate-300'}
+                              ${isMain ? 'ring-2 ring-amber-300 opacity-60 cursor-default' : ''}
+                            `}
+                            title={isMain ? 'メイン日（変更不可）' : undefined}
+                          >
+                            {d.getDate()}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Time row */}
           <div className="grid grid-cols-2 gap-3">
@@ -733,7 +847,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
             disabled={saving || uploading}
             className="bg-blue-500 text-white text-sm font-bold px-5 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
           >
-            {saving ? '保存中...' : '保存'}
+            {saving ? '保存中...' : !editing && multiDaySelected.size > 0 ? `${multiDaySelected.size + 1}日に保存` : '保存'}
           </button>
         </div>
       </div>
