@@ -8,7 +8,7 @@ import EventModal from '@/components/EventModal';
 import EventDetailModal from '@/components/EventDetailModal';
 import SalesModal from '@/components/SalesModal';
 import KeepPanel from '@/components/KeepPanel';
-import SettingsModal from '@/components/SettingsModal';
+import SettingsModal, { VirtualCalSettings, VIRTUAL_CAL_KEYS } from '@/components/SettingsModal';
 import DayEventsModal from '@/components/DayEventsModal';
 import TodaySummary from '@/components/TodaySummary';
 import ReminderRunner from '@/components/ReminderRunner';
@@ -61,6 +61,14 @@ export default function HomePage() {
   const [hanabiModalOpen, setHanabiModalOpen] = useState(false);
   const [hanabiModalData, setHanabiModalData] = useState<{ date: Date; items: any[] } | null>(null);
 
+  // 仮想カレンダー設定（色・アイコン・バー非表示）
+  const [kinenbiSettings, setKinenbiSettings] = useState<VirtualCalSettings>({
+    color: '#ec4899', icon: '🎉', hiddenFromBar: false,
+  });
+  const [hanabiSettings, setHanabiSettings] = useState<VirtualCalSettings>({
+    color: '#f97316', icon: '🎆', hiddenFromBar: false,
+  });
+
   // Load theme from localStorage on mount (SSR-safe)
   useEffect(() => {
     const saved = localStorage.getItem('calendar-theme') as 'light' | 'dark' | null;
@@ -73,6 +81,20 @@ export default function HomePage() {
       const ha = localStorage.getItem('cal-show-hanabi');
       if (ha === '0') setShowHanabi(false);
       else if (ha === '1') setShowHanabi(true);
+
+      // 仮想カレンダー設定を localStorage から復元
+      const kiKeys = VIRTUAL_CAL_KEYS.kinenbi;
+      const haKeys = VIRTUAL_CAL_KEYS.hanabi;
+      setKinenbiSettings({
+        color:         localStorage.getItem(kiKeys.color)         ?? '#ec4899',
+        icon:          localStorage.getItem(kiKeys.icon)          ?? '🎉',
+        hiddenFromBar: localStorage.getItem(kiKeys.hiddenFromBar) === '1',
+      });
+      setHanabiSettings({
+        color:         localStorage.getItem(haKeys.color)         ?? '#f97316',
+        icon:          localStorage.getItem(haKeys.icon)          ?? '🎆',
+        hiddenFromBar: localStorage.getItem(haKeys.hiddenFromBar) === '1',
+      });
     } catch {}
   }, []);
 
@@ -436,36 +458,40 @@ export default function HomePage() {
               {c.icon} {c.name}
             </button>
           ))}
-          {/* 今日は何の日チップ */}
+          {/* 今日は何の日チップ（hiddenFromBar時は非表示） */}
+          {!kinenbiSettings.hiddenFromBar && (
           <button
             onClick={toggleKinenbi}
             className={`text-[11px] px-2 py-0.5 rounded-full border transition ${
               showKinenbi ? 'font-semibold' : 'opacity-40 line-through'
             }`}
             style={{
-              backgroundColor: showKinenbi ? '#ec489922' : '#f1f5f9',
-              borderColor: showKinenbi ? '#ec4899' : '#e2e8f0',
-              color: showKinenbi ? '#ec4899' : '#94a3b8',
+              backgroundColor: showKinenbi ? kinenbiSettings.color + '22' : '#f1f5f9',
+              borderColor: showKinenbi ? kinenbiSettings.color : '#e2e8f0',
+              color: showKinenbi ? kinenbiSettings.color : '#94a3b8',
             }}
             title={showKinenbi ? 'クリックで非表示' : 'クリックで表示'}
           >
-            🎉 今日は何の日
+            {kinenbiSettings.icon} 今日は何の日
           </button>
-          {/* 花火大会チップ */}
+          )}
+          {/* 花火大会チップ（hiddenFromBar時は非表示） */}
+          {!hanabiSettings.hiddenFromBar && (
           <button
             onClick={toggleHanabi}
             className={`text-[11px] px-2 py-0.5 rounded-full border transition ${
               showHanabi ? 'font-semibold' : 'opacity-40 line-through'
             }`}
             style={{
-              backgroundColor: showHanabi ? '#f9731622' : '#f1f5f9',
-              borderColor: showHanabi ? '#f97316' : '#e2e8f0',
-              color: showHanabi ? '#f97316' : '#94a3b8',
+              backgroundColor: showHanabi ? hanabiSettings.color + '22' : '#f1f5f9',
+              borderColor: showHanabi ? hanabiSettings.color : '#e2e8f0',
+              color: showHanabi ? hanabiSettings.color : '#94a3b8',
             }}
             title={showHanabi ? 'クリックで非表示' : 'クリックで表示'}
           >
-            🎆 花火大会
+            {hanabiSettings.icon} 花火大会
           </button>
+          )}
         </div>
         )} {/* end filterBarVisible */}
 
@@ -643,6 +669,10 @@ export default function HomePage() {
         showHanabi={showHanabi}
         onToggleKinenbi={toggleKinenbi}
         onToggleHanabi={toggleHanabi}
+        onVirtualCalChange={(key, s) => {
+          if (key === 'kinenbi') setKinenbiSettings(s);
+          else setHanabiSettings(s);
+        }}
       />
     </main>
   );

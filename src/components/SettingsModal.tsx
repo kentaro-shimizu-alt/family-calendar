@@ -2,6 +2,61 @@
 
 import { useEffect, useState } from 'react';
 import { COLOR_PALETTE, Member, SubCalendar, colorVariants } from '@/lib/types';
+import { KINENBI } from '@/lib/kinenbi';
+import { HANABI_2026 } from '@/lib/hanabi';
+
+// 仮想カレンダーのデータ件数
+const KINENBI_COUNT = Object.keys(KINENBI).length; // 366
+const HANABI_COUNT = HANABI_2026.length; // 67
+
+// 仮想カレンダー localStorage キー定義
+export const VIRTUAL_CAL_KEYS = {
+  kinenbi: {
+    color:         'cal-virtual-kinenbi-color',
+    icon:          'cal-virtual-kinenbi-icon',
+    hiddenFromBar: 'cal-virtual-kinenbi-hiddenFromBar',
+  },
+  hanabi: {
+    color:         'cal-virtual-hanabi-color',
+    icon:          'cal-virtual-hanabi-icon',
+    hiddenFromBar: 'cal-virtual-hanabi-hiddenFromBar',
+  },
+} as const;
+
+// デフォルト値
+const VIRTUAL_DEFAULTS = {
+  kinenbi: { color: '#ec4899', icon: '🎉', hiddenFromBar: false },
+  hanabi:  { color: '#f97316', icon: '🎆', hiddenFromBar: false },
+};
+
+export interface VirtualCalSettings {
+  color: string;
+  icon: string;
+  hiddenFromBar: boolean;
+}
+
+function loadVirtualSettings(key: 'kinenbi' | 'hanabi'): VirtualCalSettings {
+  if (typeof window === 'undefined') return VIRTUAL_DEFAULTS[key];
+  try {
+    const k = VIRTUAL_CAL_KEYS[key];
+    return {
+      color:         localStorage.getItem(k.color)         ?? VIRTUAL_DEFAULTS[key].color,
+      icon:          localStorage.getItem(k.icon)          ?? VIRTUAL_DEFAULTS[key].icon,
+      hiddenFromBar: localStorage.getItem(k.hiddenFromBar) === '1',
+    };
+  } catch {
+    return VIRTUAL_DEFAULTS[key];
+  }
+}
+
+function saveVirtualSettings(key: 'kinenbi' | 'hanabi', s: VirtualCalSettings) {
+  try {
+    const k = VIRTUAL_CAL_KEYS[key];
+    localStorage.setItem(k.color,         s.color);
+    localStorage.setItem(k.icon,          s.icon);
+    localStorage.setItem(k.hiddenFromBar, s.hiddenFromBar ? '1' : '0');
+  } catch {}
+}
 
 interface Props {
   open: boolean;
@@ -18,23 +73,32 @@ interface Props {
   showHanabi?: boolean;
   onToggleKinenbi?: () => void;
   onToggleHanabi?: () => void;
+  /** 仮想カレンダー設定変更コールバック（page.tsx側でフィルターバーの色・アイコンを更新するため） */
+  onVirtualCalChange?: (key: 'kinenbi' | 'hanabi', s: VirtualCalSettings) => void;
 }
 
-const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽', '🎸', '🏥', '🛒', '✈️', '🍽️', '🐶', '📅', '🎉', '💪'];
+const ICON_PALETTE = ['🏠', '💼', '🌟', '👨‍👩‍👧', '🎓', '⚽', '🎸', '🏥', '🛒', '✈️', '🍽️', '🐶', '📅', '🎉', '💪', '🎆', '🎇', '🎊', '🌸', '🍁'];
 
 // 💣 削除（カレンダー・メンバー）操作用のPIN。将来変更する時はここだけ書き換える。
 const DELETE_PIN = '0713';
 
-export default function SettingsModal({ open, members, subCalendars, totalEventCount, eventCountByCalendar, eventCountByMember, theme, onThemeChange, onClose, onSaved, showKinenbi, showHanabi, onToggleKinenbi, onToggleHanabi }: Props) {
+export default function SettingsModal({ open, members, subCalendars, totalEventCount, eventCountByCalendar, eventCountByMember, theme, onThemeChange, onClose, onSaved, showKinenbi, showHanabi, onToggleKinenbi, onToggleHanabi, onVirtualCalChange }: Props) {
   const [tab, setTab] = useState<'members' | 'calendars' | 'display' | 'export'>('members');
   const [localMembers, setLocalMembers] = useState<Member[]>(members);
   const [localCals, setLocalCals] = useState<SubCalendar[]>(subCalendars);
   const [saving, setSaving] = useState(false);
 
+  // 仮想カレンダー設定（color/icon/hiddenFromBar）
+  const [kinenbiSettings, setKinenbiSettings] = useState<VirtualCalSettings>(VIRTUAL_DEFAULTS.kinenbi);
+  const [hanabiSettings, setHanabiSettings] = useState<VirtualCalSettings>(VIRTUAL_DEFAULTS.hanabi);
+
   useEffect(() => {
     if (open) {
       setLocalMembers(members);
       setLocalCals(subCalendars);
+      // 仮想カレンダー設定を localStorage から読み込む
+      setKinenbiSettings(loadVirtualSettings('kinenbi'));
+      setHanabiSettings(loadVirtualSettings('hanabi'));
     }
   }, [open, members, subCalendars]);
 
@@ -115,6 +179,25 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
     setLocalCals((prev) => prev.filter((c) => c.id !== id));
   }
 
+  /** 仮想カレンダー設定を更新して localStorage に保存し、親へ通知 */
+  function updateVirtualCal(key: 'kinenbi' | 'hanabi', patch: Partial<VirtualCalSettings>) {
+    const setter = key === 'kinenbi' ? setKinenbiSettings : setHanabiSettings;
+    const current = key === 'kinenbi' ? kinenbiSettings : hanabiSettings;
+    const next = { ...current, ...patch };
+    setter(next);
+    saveVirtualSettings(key, next);
+    onVirtualCalChange?.(key, next);
+  }
+
+  /** 仮想カレンダーの「削除」= visible を OFF にする（表示OFFと同義） */
+  function hideVirtualCal(key: 'kinenbi' | 'hanabi') {
+    if (key === 'kinenbi') {
+      onToggleKinenbi?.();
+    } else {
+      onToggleHanabi?.();
+    }
+  }
+
   async function handleSave() {
     setSaving(true);
     try {
@@ -137,6 +220,93 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
     } finally {
       setSaving(false);
     }
+  }
+
+  /** 仮想カレンダーを通常カレンダーと同じUIでレンダリング */
+  function renderVirtualCalCard(
+    key: 'kinenbi' | 'hanabi',
+    label: string,
+    count: number,
+    isVisible: boolean,
+    settings: VirtualCalSettings
+  ) {
+    return (
+      <div
+        key={`virtual-${key}`}
+        className={`border rounded-lg p-3 space-y-2 ${settings.hiddenFromBar ? 'border-slate-100 bg-slate-50 opacity-70' : 'border-slate-200'}`}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{settings.icon}</span>
+          {/* 名前は静的（編集不可） */}
+          <span className="flex-1 text-sm font-medium text-slate-700">{label}</span>
+          {/* 件数表示 */}
+          <span className="text-[10px] text-slate-400 whitespace-nowrap">{count}件</span>
+          {/* 表示チェック */}
+          <label className="text-xs flex items-center gap-1 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isVisible ?? false}
+              onChange={() => hideVirtualCal(key)}
+              className="w-3.5 h-3.5"
+            />
+            表示
+          </label>
+          {/* バー非表示チェック */}
+          <label className="text-xs flex items-center gap-1 cursor-pointer text-slate-400">
+            <input
+              type="checkbox"
+              checked={!!settings.hiddenFromBar}
+              onChange={(e) => updateVirtualCal(key, { hiddenFromBar: e.target.checked })}
+              className="w-3.5 h-3.5"
+            />
+            バー非表示
+          </label>
+          {/* 削除ボタン = 非表示にする */}
+          <button
+            onClick={() => {
+              if (isVisible) {
+                hideVirtualCal(key);
+              }
+              alert(`「${label}」を非表示にしました。\n（静的データのため実データ削除はできません）`);
+            }}
+            className="text-rose-400 hover:text-rose-600 text-xs px-2 py-1"
+          >削除</button>
+        </div>
+        {/* 色選択パレット */}
+        <div>
+          <div className="text-[10px] text-slate-400 mb-1">色</div>
+          <div className="flex flex-wrap gap-1">
+            {COLOR_PALETTE.map((col) => (
+              <button
+                key={col}
+                onClick={() => updateVirtualCal(key, { color: col })}
+                className={`w-6 h-6 rounded-full border-2 transition ${
+                  settings.color === col ? 'border-slate-800 scale-110' : 'border-transparent'
+                }`}
+                style={{ backgroundColor: col }}
+              />
+            ))}
+          </div>
+        </div>
+        {/* アイコン選択パレット */}
+        <div>
+          <div className="text-[10px] text-slate-400 mb-1">アイコン</div>
+          <div className="flex flex-wrap gap-1">
+            {ICON_PALETTE.map((ic) => (
+              <button
+                key={ic}
+                onClick={() => updateVirtualCal(key, { icon: ic })}
+                className={`w-7 h-7 rounded text-lg transition ${
+                  settings.icon === ic ? 'bg-blue-100 ring-2 ring-blue-400' : 'hover:bg-slate-50'
+                }`}
+              >
+                {ic}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -289,42 +459,13 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
                   </div>
                 </div>
               ))}
-              {/* 仮想エントリ: 今日は何の日（静的データ、DB非登録） */}
-              <div className="border border-pink-200 rounded-lg p-3 bg-pink-50/40 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🎉</span>
-                  <span className="flex-1 text-sm font-medium text-slate-700">今日は何の日</span>
-                  <span className="text-[10px] text-slate-400">静的データ</span>
-                  <label className="text-xs flex items-center gap-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={showKinenbi ?? false}
-                      onChange={() => onToggleKinenbi?.()}
-                      className="w-3.5 h-3.5"
-                    />
-                    表示
-                  </label>
-                </div>
-                <div className="text-[11px] text-slate-500 pl-8">記念日・国民の祝日などを日付に表示します</div>
-              </div>
-              {/* 仮想エントリ: 花火大会（静的データ、DB非登録） */}
-              <div className="border border-orange-200 rounded-lg p-3 bg-orange-50/40 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">🎆</span>
-                  <span className="flex-1 text-sm font-medium text-slate-700">花火大会</span>
-                  <span className="text-[10px] text-slate-400">静的データ</span>
-                  <label className="text-xs flex items-center gap-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={showHanabi ?? false}
-                      onChange={() => onToggleHanabi?.()}
-                      className="w-3.5 h-3.5"
-                    />
-                    表示
-                  </label>
-                </div>
-                <div className="text-[11px] text-slate-500 pl-8">全国の花火大会スケジュールをカレンダーに重ねて表示します</div>
-              </div>
+
+              {/* 仮想カレンダー: 今日は何の日（記念日） */}
+              {renderVirtualCalCard('kinenbi', '今日は何の日', KINENBI_COUNT, showKinenbi ?? false, kinenbiSettings)}
+
+              {/* 仮想カレンダー: 花火大会 */}
+              {renderVirtualCalCard('hanabi', '花火大会', HANABI_COUNT, showHanabi ?? false, hanabiSettings)}
+
               <button
                 onClick={addCal}
                 className="w-full border-2 border-dashed border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-lg py-2 text-sm transition"

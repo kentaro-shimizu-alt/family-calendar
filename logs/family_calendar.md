@@ -1,3 +1,33 @@
+## B22: 管理モーダルの記念日/花火カードを他カレンダーと同じUIに統一 (2026-04-14)
+
+- 担当: くろさん
+- 対象ファイル: src/components/SettingsModal.tsx, src/app/page.tsx
+- 変更内容:
+  1. SettingsModal.tsx に `renderVirtualCalCard()` 関数を追加。記念日・花火を通常カレンダーと同じUI（色パレット/アイコンパレット/表示チェック/バー非表示チェック/削除ボタン/件数表示）でレンダリング
+  2. 件数表示: kinenbi=366件, hanabi=67件 (ファイル実データをカウント)
+  3. 削除ボタン: 実データ削除不可のため visible=OFF 相当の動作（toggleKinenbi/toggleHanabi を呼ぶ）
+  4. 色・アイコン・バー非表示設定を localStorage に永続化
+  5. page.tsx に `kinenbiSettings`/`hanabiSettings` state を追加し、フィルターバーチップの色・アイコン・hiddenFromBar に反映
+  6. `onVirtualCalChange` コールバックで設定変更をリアルタイム反映
+- localStorage キー:
+  - `cal-virtual-kinenbi-color` / `cal-virtual-kinenbi-icon` / `cal-virtual-kinenbi-hiddenFromBar`
+  - `cal-virtual-hanabi-color` / `cal-virtual-hanabi-icon` / `cal-virtual-hanabi-hiddenFromBar`
+- TypeScript型チェック: エラーなし
+
+## B21-v2: 美砂メモ削除が復活するバグ根本原因特定・修正 (2026-04-14)
+
+- 担当: くろさん
+- コミット: a6876ff
+- 症状: 削除ボタン押下→確認→モーダル閉じる→再度開くと美砂メモが復活する
+- ba45d33の何が不足だったか:
+  1. **ISRキャッシュ問題**: `/api/daily/route.ts` に `export const revalidate = 10` があり、削除後10秒以内にデータを再取得すると Vercel CDN から古いデータが返されていた。`loadAll(true)` でcache-busting `_t=...` を付けても Vercel ISR は無効化されない
+  2. **onClose()未呼出し問題**: 削除ボタンは `onSaved()` を呼ぶが `onClose()` を呼ばない → モーダルが閉じないまま親が `loadAll(true)` で再取得 → `initial` プロップが変わる → `useEffect([open, initial, initialTab])` が再実行 → `setMisaMemo(initial?.misaMemo || '')` で古い値が復元
+- 修正内容:
+  - `src/app/api/daily/route.ts`: `revalidate=10` → `revalidate=0` + `dynamic='force-dynamic'` (Vercel ISRキャッシュ完全無効化)
+  - `src/components/SalesModal.tsx`: 削除ボタンのonClick内で `onSaved()` の後に `onClose()` を追加
+- ビルド確認: `/api/daily` が `ƒ (Dynamic)` に変わったことをビルド出力で確認
+- 本番デプロイ: push→Vercel自動デプロイ→HTTP 200確認済み
+
 ## B19_bugfix: 画像broken icon調査・根本原因特定 (2026-04-14)
 
 - 担当: くろさん
