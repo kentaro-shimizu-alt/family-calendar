@@ -1,4 +1,23 @@
-## B33v4: バッジ高さ統一 → ev-block完全揃え (2026-04-14)
+## B35 再修正: 繰り返しイベントが翌月以降に表示されない根本原因を修正 (2026-04-14)
+
+- 担当: くろさん
+- 報告: 「毎月」設定して保存しても別月に表示されない
+- 調査:
+  - EventModal.tsx → `recurrence` state/onChange/onSave OK（API body に含まれている）
+  - /api/events POST → `recurrence: body.recurrence` で受けている OK
+  - Supabase schema.sql → `recurrence jsonb` カラム存在 OK
+  - lib/db.ts listEvents → `expandRecurrence` 実装あり OK
+  - **真因: `supabase-store.ts` の `getEventsByMonth` クエリが `.lte('date', monthEnd)` かつ `.or(date.gte.monthStart, end_date.gte.monthStart)` なので、過去月に作られた繰り返しの base row が月フェッチ時に含まれず、expandRecurrence に渡されていなかった**
+- 修正 (`src/lib/storage/supabase-store.ts` getEventsByMonth):
+  - 2回目のクエリを追加: `recurrence IS NOT NULL AND date <= monthEnd` で過去に作られた繰り返しイベントも拾う
+  - seen Set で重複排除してから `rowToEvent` に流す
+  - until 判定は既存の `expandRecurrence` 側で実施（範囲外なら展開されない）
+- 検証:
+  - `/api/events?month=2026-05` で「おこづかい」（1/1基準の月次繰り返し）が 2026-05-01 に展開されることを確認
+  - withRecur=11件が 2026-04 表示に出現（修正前は 0件想定）
+- コミット: 43de34a / push済 / Vercel auto deploy
+
+
 
 - 担当: くろさん
 - 問題: 日付バッジ（¥マーク/みマーク/今日ハイライト）の高さが不揃いで、チップ行の開始y座標が可変、ev-blockの見た目位置がずれて見える

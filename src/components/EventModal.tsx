@@ -33,11 +33,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   const [images, setImages] = useState<string[]>([]);
   const [pdfs, setPdfs] = useState<Array<{ url: string; name?: string }>>([]);
   const [pinned, setPinned] = useState(false);
-  // Site info
-  const [siteEnabled, setSiteEnabled] = useState(false);
-  const [siteAmount, setSiteAmount] = useState('');
-  const [siteCost, setSiteCost] = useState('');
-  const [siteNote, setSiteNote] = useState('');
   // Recurrence
   const [recEnabled, setRecEnabled] = useState(false);
   const [recFreq, setRecFreq] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('weekly');
@@ -82,17 +77,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setImages((editing.images || []).map((e) => normalizeImageEntry(e).url));
       setPdfs(editing.pdfs || []);
       setPinned(!!editing.pinned);
-      if (editing.site) {
-        setSiteEnabled(true);
-        setSiteAmount(editing.site.amount ? String(editing.site.amount) : '');
-        setSiteCost(editing.site.cost != null ? String(editing.site.cost) : '');
-        setSiteNote(editing.site.note || '');
-      } else {
-        setSiteEnabled(false);
-        setSiteAmount('');
-        setSiteCost('');
-        setSiteNote('');
-      }
       if (editing.recurrence) {
         setRecEnabled(true);
         setRecFreq(editing.recurrence.freq);
@@ -119,10 +103,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setImages([]);
       setPdfs([]);
       setPinned(false);
-      setSiteEnabled(false);
-      setSiteAmount('');
-      setSiteCost('');
-      setSiteNote('');
       setRecEnabled(false);
       setRecFreq('weekly');
       setRecInterval(1);
@@ -240,13 +220,8 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       const dateRanges = hasExtra
         ? [{ start: date, end: endDate || date }, ...extraRanges.filter((r) => r.start && r.end)]
         : undefined;
-      const site: SiteInfo | undefined = siteEnabled
-        ? {
-            amount: Number(siteAmount.replace(/,/g, '')) || 0,
-            cost: siteCost ? Number(siteCost.replace(/,/g, '')) || 0 : undefined,
-            note: siteNote || undefined,
-          }
-        : undefined;
+      // site フィールドは UI 削除済み。編集時は既存値を引き継ぎ、新規は undefined
+      const site: SiteInfo | undefined = editing?.site ?? undefined;
       // editing の既存 rotation を URL をキーにしてマップ化し引き継ぐ
       const existingRotationMap = new Map<string, 0 | 90 | 180 | 270>();
       if (editing?.images) {
@@ -332,11 +307,6 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   // 予定の表示色: 明示指定 > サブカレンダー色 > デフォルト
   const subCalColor = subCalendars.find((c) => c.id === calendarId)?.color;
   const eventColor = color || subCalColor || '#64748b';
-  const siteAmountNum = Number(siteAmount.replace(/,/g, '')) || 0;
-  const siteCostNum = Number(siteCost.replace(/,/g, '')) || 0;
-  const siteProfit = siteAmountNum - siteCostNum;
-  const siteMargin = siteAmountNum > 0 ? ((siteProfit / siteAmountNum) * 100).toFixed(1) : '-';
-
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
       <div
@@ -691,7 +661,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
 
           {/* Recurrence - メインエリアに常時表示 */}
           <div className="border border-indigo-200 rounded-xl bg-indigo-50/40 p-3">
-            <label className="block text-xs font-semibold text-indigo-800 mb-2">🔁 繰り返し</label>
+            <label className="block text-xs font-semibold text-slate-500 mb-2">🔁 繰り返し</label>
             <div className="flex flex-wrap gap-2">
               {[
                 { value: 'none', label: 'なし' },
