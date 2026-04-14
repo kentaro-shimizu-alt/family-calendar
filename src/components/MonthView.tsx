@@ -148,11 +148,8 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
     const startX = touchStart.current.x;
     const dx = e.changedTouches[0].clientX - startX;
     const dy = e.changedTouches[0].clientY - touchStart.current.y;
-    const screenW = window.innerWidth;
-    // #6: スマホは画面端50px以内からのスワイプのみ。デスクトップ(768px+)はスワイプ無効
-    const isEdgeSwipe = startX < 50 || startX > screenW - 50;
-    const isMobile = screenW < 768;
-    if (isMobile && isEdgeSwipe && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    // スマホ: 全画面スワイプOK（ピンチは上で除外済み）
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       if (dx < 0) onSwipeLeft?.();
       else onSwipeRight?.();
     }
