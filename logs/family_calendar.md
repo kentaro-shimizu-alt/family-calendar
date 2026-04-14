@@ -1,3 +1,14 @@
+## B18fix_v2: 今日は何の日・花火大会チップ完全動作修正 (2026-04-14)
+
+- 担当: くろさん (B18継続・完走)
+- 前ワーカーW12が中断していたB18の残バグを修正
+- 修正1: `useState(false)` → `useState(true)` (showKinenbi, showHanabi) — デフォルト表示に
+- 修正2: localStorage読み込み: `'1'`のみtrue→`'0'`でfalse/`'1'`でtrue両対応
+- 修正3: SettingsModal呼び出しに `showKinenbi`, `showHanabi`, `onToggleKinenbi`, `onToggleHanabi` props追加
+- フィルターバー: 🎉🎆チップが表示・ON/OFFトグル・localStorage保存・リロード復元が全て正常動作
+- カレンダー管理モーダル「📅カレンダー」タブ: 仮想エントリのON/OFFチェックボックスが機能
+- commit hash: 9ddafcf → Vercel push済み
+
 ## B20: 新規予定作成時にカラー選択が初回保存で反映されないバグ修正 (2026-04-14)
 
 - 対象: `src/app/api/events/route.ts`
