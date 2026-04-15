@@ -66,6 +66,9 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
   const [misaMemo, setMisaMemo] = useState<string>('');
   const [misaMemoImages, setMisaMemoImages] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<SalesEntryType | 'misa'>('site');
+  // 日付変更: 元の日付と編集後の日付を別管理
+  const [editDateStr, setEditDateStr] = useState<string>('');
+  const [dateEditing, setDateEditing] = useState(false);
 
   // Draft for adding new entry
   const [draftCustomer, setDraftCustomer] = useState<string>('');
@@ -129,6 +132,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     setMemo(initial?.memo || '');
     setMisaMemo(initial?.misaMemo || '');
     setMisaMemoImages(initial?.misaMemoImages || []);
+    setEditDateStr(date ? format(date, 'yyyy-MM-dd') : '');
+    setDateEditing(false);
     const startTab = initialTab ?? 'site';
     setActiveTab(startTab);
     if (startTab !== 'misa') {
@@ -140,8 +145,11 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
 
   if (!open || !date) return null;
 
-  const dateKey = format(date, 'yyyy-MM-dd');
-  const dateLabel = format(date, 'M月d日(E)', { locale: ja });
+  const originalDateKey = format(date, 'yyyy-MM-dd');
+  const dateKey = editDateStr || originalDateKey;
+  const dateChanged = dateKey !== originalDateKey;
+  const editDateObj = dateChanged ? new Date(dateKey + 'T00:00:00') : date;
+  const dateLabel = format(editDateObj, 'M月d日(E)', { locale: ja });
   const total = totalSales({ date: dateKey, salesEntries: entries });
 
   function resetDraft(type: SalesEntryType) {
@@ -309,19 +317,55 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
       if (draftEntry) {
         finalEntries = [...entries, draftEntry];
       }
-      const body = {
-        date: dateKey,
-        salesEntries: finalEntries,
-        memo,
-        misaMemo: misaMemo || null,
-        misaMemoImages: misaMemoImages.length > 0 ? misaMemoImages : null,
-      };
-      const res = await fetch('/api/daily', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error('failed');
+
+      if (dateChanged) {
+        // 日付変更: 新しい日付にデータを移し、元の日付からは売上を除去
+        // 1) 新しい日付に保存
+        const newBody = {
+          date: dateKey,
+          salesEntries: finalEntries,
+          memo,
+          misaMemo: misaMemo || null,
+          misaMemoImages: misaMemoImages.length > 0 ? misaMemoImages : null,
+        };
+        const res1 = await fetch('/api/daily', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBody),
+        });
+        if (!res1.ok) throw new Error('新しい日付への保存に失敗');
+
+        // 2) 元の日付から売上エントリ・メモを削除
+        const clearBody = {
+          date: originalDateKey,
+          salesEntries: [],
+          memo: '',
+          misaMemo: null,
+          misaMemoImages: null,
+        };
+        const res2 = await fetch('/api/daily', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(clearBody),
+        });
+        if (!res2.ok) throw new Error('元の日付のクリアに失敗');
+      } else {
+        // 通常保存（日付変更なし）
+        const body = {
+          date: dateKey,
+          salesEntries: finalEntries,
+          memo,
+          misaMemo: misaMemo || null,
+          misaMemoImages: misaMemoImages.length > 0 ? misaMemoImages : null,
+        };
+        const res = await fetch('/api/daily', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error('failed');
+      }
+
       onSaved();
       onClose();
     } catch (e: any) {
@@ -376,7 +420,30 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
           style={{ borderTop: '4px solid #10b981' }}
         >
           <div>
-            <div className="text-xs text-slate-500">{dateLabel}</div>
+            <div className="flex items-center gap-1.5">
+              {dateEditing ? (
+                <input
+                  type="date"
+                  value={editDateStr}
+                  onChange={(e) => setEditDateStr(e.target.value)}
+                  onBlur={() => setDateEditing(false)}
+                  autoFocus
+                  className="text-xs border border-emerald-300 rounded px-1.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setDateEditing(true)}
+                  className={`text-xs hover:bg-emerald-50 px-1.5 py-0.5 rounded transition ${
+                    dateChanged ? 'text-emerald-600 font-bold bg-emerald-50' : 'text-slate-500'
+                  }`}
+                  title="日付を変更"
+                >
+                  📅 {dateLabel}
+                  {dateChanged && <span className="ml-1 text-[10px]">（変更済）</span>}
+                </button>
+              )}
+            </div>
             <h2 className="font-bold text-base text-emerald-700">💰 売上 / 📓 日記</h2>
           </div>
           <button

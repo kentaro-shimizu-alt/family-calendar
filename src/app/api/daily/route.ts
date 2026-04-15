@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
             .map((e: any) => ({
               id: e.id || Math.random().toString(36).slice(2, 9),
               type: e.type === 'material' ? 'material' : 'normal',
+              customer: e.customer || undefined,
+              deliveryNote: e.deliveryNote || undefined,
               amount: Number(e.amount) || 0,
               cost: e.cost != null && !isNaN(Number(e.cost)) ? Number(e.cost) : undefined,
               label: e.label || undefined,
