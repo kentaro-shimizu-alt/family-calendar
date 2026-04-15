@@ -79,6 +79,7 @@ export default function EventCopyModal({ open, source, onClose, onApplied }: Pro
           note: source.note || undefined,
           url: source.url || undefined,
           location: source.location || undefined,
+          color: source.color || undefined,
           images: source.images || [],
           pdfs: source.pdfs || undefined,
           pinned: false,
