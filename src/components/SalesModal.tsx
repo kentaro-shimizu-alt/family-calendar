@@ -422,14 +422,20 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
           <div>
             <div className="flex items-center gap-1.5">
               {dateEditing ? (
-                <input
-                  type="date"
-                  value={editDateStr}
-                  onChange={(e) => setEditDateStr(e.target.value)}
-                  onBlur={() => setDateEditing(false)}
-                  autoFocus
-                  className="text-xs border border-emerald-300 rounded px-1.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                />
+                <div className="flex items-center gap-1">
+                  <input
+                    type="date"
+                    value={editDateStr}
+                    onChange={(e) => setEditDateStr(e.target.value)}
+                    autoFocus
+                    className="text-xs border border-emerald-300 rounded px-1.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setDateEditing(false)}
+                    className="text-xs bg-emerald-500 text-white px-1.5 py-0.5 rounded"
+                  >✓</button>
+                </div>
               ) : (
                 <button
                   type="button"
