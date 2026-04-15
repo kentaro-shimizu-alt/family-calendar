@@ -107,12 +107,12 @@ interface BarSeg {
 // 日本の祝日（2025-2027）
 const HOLIDAYS: Record<string, string> = {
   '2025-01-01': '元日', '2025-01-13': '成人の日', '2025-02-11': '建国記念の日', '2025-02-23': '天皇誕生日', '2025-02-24': '天皇誕生日 振替',
-  '2025-03-20': '春分の日', '2025-04-29': '昭和の日', '2025-05-03': '憲法記念日', '2025-05-04': 'みどりの日', '2025-05-05': 'こどもの日', '2025-05-06': 'こどもの日 振替',
+  '2025-03-20': '春分の日', '2025-04-29': '昭和の日', '2025-05-03': '憲法記念日', '2025-05-04': 'みどりの日', '2025-05-05': 'こどもの日', '2025-05-06': 'みどりの日 振替',
   '2025-07-21': '海の日', '2025-08-11': '山の日', '2025-09-15': '敬老の日', '2025-09-23': '秋分の日',
   '2025-10-13': 'スポーツの日', '2025-11-03': '文化の日', '2025-11-23': '勤労感謝の日', '2025-11-24': '勤労感謝の日 振替',
   '2026-01-01': '元日', '2026-01-12': '成人の日', '2026-02-11': '建国記念の日', '2026-02-23': '天皇誕生日',
-  '2026-03-20': '春分の日', '2026-04-29': '昭和の日', '2026-05-03': '憲法記念日', '2026-05-04': 'みどりの日', '2026-05-05': 'こどもの日', '2026-05-06': 'こどもの日 振替',
-  '2026-07-20': '海の日', '2026-08-11': '山の日', '2026-09-21': '敬老の日', '2026-09-22': '敬老の日 振替', '2026-09-23': '秋分の日',
+  '2026-03-20': '春分の日', '2026-04-29': '昭和の日', '2026-05-03': '憲法記念日', '2026-05-04': 'みどりの日', '2026-05-05': 'こどもの日', '2026-05-06': '憲法記念日 振替',
+  '2026-07-20': '海の日', '2026-08-11': '山の日', '2026-09-21': '敬老の日', '2026-09-22': '国民の休日', '2026-09-23': '秋分の日',
   '2026-10-12': 'スポーツの日', '2026-11-03': '文化の日', '2026-11-23': '勤労感謝の日',
   '2027-01-01': '元日', '2027-01-11': '成人の日', '2027-02-11': '建国記念の日', '2027-02-23': '天皇誕生日',
   '2027-03-21': '春分の日', '2027-04-29': '昭和の日', '2027-05-03': '憲法記念日', '2027-05-04': 'みどりの日', '2027-05-05': 'こどもの日',
@@ -537,7 +537,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       {/* ===== スマホ: 2行構成（全行固定16px = 合計32px+4px余白）===== */}
                       <div className="sm:hidden flex flex-col items-center h-full">
                         {/* 1行目: 日付数字（固定16px） */}
-                        <div className="flex items-center justify-center h-[16px] w-full">
+                        <div className="flex items-center justify-center gap-0.5 h-[16px] w-full">
                           <span
                             className={`text-[12px] font-semibold leading-none ${
                               today
@@ -552,6 +552,11 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           >
                             {format(day, 'd')}
                           </span>
+                          {isHoliday(day) && (
+                            <span className="text-[7px] leading-none text-rose-500 truncate max-w-[36px]" title={HOLIDAYS[format(day, 'yyyy-MM-dd')]}>
+                              {HOLIDAYS[format(day, 'yyyy-MM-dd')]}
+                            </span>
+                          )}
                         </div>
                         {/* 2行目: 美マーク + ¥チップ（固定16px） */}
                         <div className="flex items-center justify-center gap-[2px] flex-nowrap h-[16px] w-full">
@@ -601,6 +606,11 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           >
                             {format(day, 'd')}
                           </span>
+                          {isHoliday(day) && (
+                            <span className="text-[9px] leading-none text-rose-500 truncate max-w-[80px]" title={HOLIDAYS[format(day, 'yyyy-MM-dd')]}>
+                              {HOLIDAYS[format(day, 'yyyy-MM-dd')]}
+                            </span>
+                          )}
                           {dailyEntry?.misaMemo && (
                             <button
                               className="pointer-events-auto text-[9px] font-bold leading-none px-0.5 rounded border inline-flex items-center justify-center h-[18px] box-border"
