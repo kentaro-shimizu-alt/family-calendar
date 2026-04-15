@@ -66,9 +66,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
   const [misaMemo, setMisaMemo] = useState<string>('');
   const [misaMemoImages, setMisaMemoImages] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<SalesEntryType | 'misa'>('site');
-  // 日付変更: 元の日付と編集後の日付を別管理
+  // 日付変更
   const [editDateStr, setEditDateStr] = useState<string>('');
-  const [dateEditing, setDateEditing] = useState(false);
 
   // Draft for adding new entry
   const [draftCustomer, setDraftCustomer] = useState<string>('');
@@ -133,7 +132,6 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     setMisaMemo(initial?.misaMemo || '');
     setMisaMemoImages(initial?.misaMemoImages || []);
     setEditDateStr(date ? format(date, 'yyyy-MM-dd') : '');
-    setDateEditing(false);
     const startTab = initialTab ?? 'site';
     setActiveTab(startTab);
     if (startTab !== 'misa') {
@@ -421,33 +419,21 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
         >
           <div>
             <div className="flex items-center gap-1.5">
-              {dateEditing ? (
-                <div className="flex items-center gap-1">
-                  <input
-                    type="date"
-                    value={editDateStr}
-                    onChange={(e) => setEditDateStr(e.target.value)}
-                    autoFocus
-                    className="text-xs border border-emerald-300 rounded px-1.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setDateEditing(false)}
-                    className="text-xs bg-emerald-500 text-white px-1.5 py-0.5 rounded"
-                  >✓</button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setDateEditing(true)}
-                  className={`text-xs hover:bg-emerald-50 px-1.5 py-0.5 rounded transition ${
-                    dateChanged ? 'text-emerald-600 font-bold bg-emerald-50' : 'text-slate-500'
-                  }`}
-                  title="日付を変更"
-                >
-                  📅 {dateLabel}
-                  {dateChanged && <span className="ml-1 text-[10px]">（変更済）</span>}
-                </button>
+              <span className="text-xs text-slate-400">📅</span>
+              <input
+                type="date"
+                value={editDateStr}
+                onChange={(e) => setEditDateStr(e.target.value)}
+                className={`text-sm font-semibold border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-300 ${
+                  dateChanged
+                    ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                    : 'border-slate-200 bg-white text-slate-700'
+                }`}
+              />
+              {dateChanged && (
+                <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1 py-0.5 rounded">
+                  変更
+                </span>
               )}
             </div>
             <h2 className="font-bold text-base text-emerald-700">💰 売上 / 📓 日記</h2>
