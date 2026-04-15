@@ -17,10 +17,10 @@ const DRIVE_UPLOAD = 'https://www.googleapis.com/upload/drive/v3';
 let _cachedToken: string | null = null;
 let _tokenExpiresAt = 0; // unix ms
 
-async function getAccessToken(): Promise<string> {
+async function getAccessToken(forceRefresh = false): Promise<string> {
   const now = Date.now();
-  // reuse token if it has more than 60 s left
-  if (_cachedToken && now < _tokenExpiresAt - 60_000) {
+  // reuse token if it has more than 60 s left (skipped when forceRefresh)
+  if (!forceRefresh && _cachedToken && now < _tokenExpiresAt - 60_000) {
     return _cachedToken;
   }
 
@@ -46,6 +46,8 @@ async function getAccessToken(): Promise<string> {
 
   if (!res.ok) {
     const body = await res.text();
+    // refresh_token itself is invalid (400 invalid_grant) — no retry can help
+    console.error(`[gdrive] token refresh failed (${res.status}): ${body}`);
     throw new Error(`Google token refresh failed (${res.status}): ${body}`);
   }
 
@@ -53,6 +55,57 @@ async function getAccessToken(): Promise<string> {
   _cachedToken = json.access_token;
   _tokenExpiresAt = now + json.expires_in * 1000;
   return _cachedToken;
+}
+
+/**
+ * Invalidate the cached access token. Forces the next getAccessToken()
+ * to hit the refresh endpoint. Called automatically on 401 responses.
+ */
+function invalidateTokenCache(): void {
+  _cachedToken = null;
+  _tokenExpiresAt = 0;
+}
+
+/**
+ * fetch() wrapper that auto-retries once on 401 with a fresh access token.
+ * Root-cause fix for the recurring "Google Drive metadata fetch failed (401)":
+ * the in-memory token cache can outlive the actual token validity on Vercel
+ * cold starts / instance reuse; invalidating + retrying recovers without
+ * requiring a manual reauth+redeploy cycle.
+ *
+ * If the second attempt also returns 401, the refresh_token itself is likely
+ * revoked — in that case run `scripts/gdrive_reauth.mjs` to reissue.
+ */
+async function driveFetch(
+  url: string,
+  init: RequestInit = {}
+): Promise<Response> {
+  let token = await getAccessToken();
+  let headers = {
+    ...(init.headers || {}),
+    Authorization: `Bearer ${token}`,
+  };
+  let res = await fetch(url, { ...init, headers });
+
+  if (res.status === 401) {
+    console.warn(
+      `[gdrive] 401 on ${init.method || 'GET'} ${url} — invalidating token cache and retrying once`
+    );
+    invalidateTokenCache();
+    token = await getAccessToken(true);
+    headers = {
+      ...(init.headers || {}),
+      Authorization: `Bearer ${token}`,
+    };
+    res = await fetch(url, { ...init, headers });
+    if (res.status === 401) {
+      console.error(
+        `[gdrive] 401 persists after token refresh — refresh_token may be revoked. Run scripts/gdrive_reauth.mjs.`
+      );
+    }
+  }
+
+  return res;
 }
 
 // ---- public helpers ----
@@ -75,7 +128,6 @@ export async function uploadToGDrive(
   filename: string,
   mimeType: string
 ): Promise<string> {
-  const token = await getAccessToken();
   const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID!;
 
   // Use multipart upload for files < 5 MB; resumable for larger.
@@ -91,15 +143,17 @@ export async function uploadToGDrive(
     Buffer.from(`\r\n--${boundary}--`),
   ]);
 
-  const res = await fetch(`${DRIVE_UPLOAD}/files?uploadType=multipart&fields=id`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': `multipart/related; boundary=${boundary}`,
-      'Content-Length': String(body.length),
-    },
-    body,
-  });
+  const res = await driveFetch(
+    `${DRIVE_UPLOAD}/files?uploadType=multipart&fields=id`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': `multipart/related; boundary=${boundary}`,
+        'Content-Length': String(body.length),
+      },
+      body,
+    }
+  );
 
   if (!res.ok) {
     const err = await res.text();
@@ -117,23 +171,23 @@ export async function uploadToGDrive(
 export async function downloadFromGDrive(
   fileId: string
 ): Promise<{ data: Buffer; mimeType: string }> {
-  const token = await getAccessToken();
-
   // First get metadata to know the mimeType
-  const metaRes = await fetch(`${DRIVE_API}/files/${fileId}?fields=mimeType`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const metaRes = await driveFetch(`${DRIVE_API}/files/${fileId}?fields=mimeType`);
   if (!metaRes.ok) {
-    throw new Error(`Google Drive metadata fetch failed (${metaRes.status})`);
+    const body = await metaRes.text().catch(() => '');
+    throw new Error(
+      `Google Drive metadata fetch failed (${metaRes.status})${body ? `: ${body.slice(0, 200)}` : ''}`
+    );
   }
   const { mimeType } = (await metaRes.json()) as { mimeType: string };
 
   // Then download the actual bytes
-  const dataRes = await fetch(`${DRIVE_API}/files/${fileId}?alt=media`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const dataRes = await driveFetch(`${DRIVE_API}/files/${fileId}?alt=media`);
   if (!dataRes.ok) {
-    throw new Error(`Google Drive download failed (${dataRes.status})`);
+    const body = await dataRes.text().catch(() => '');
+    throw new Error(
+      `Google Drive download failed (${dataRes.status})${body ? `: ${body.slice(0, 200)}` : ''}`
+    );
   }
 
   const arrayBuf = await dataRes.arrayBuffer();
@@ -144,11 +198,8 @@ export async function downloadFromGDrive(
  * Delete a file from Google Drive.
  */
 export async function deleteFromGDrive(fileId: string): Promise<void> {
-  const token = await getAccessToken();
-
-  const res = await fetch(`${DRIVE_API}/files/${fileId}`, {
+  const res = await driveFetch(`${DRIVE_API}/files/${fileId}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
   });
 
   // 204 = success, 404 = already gone — both are acceptable
@@ -162,12 +213,9 @@ export async function deleteFromGDrive(fileId: string): Promise<void> {
  * Useful if you want direct Drive URLs instead of proxying.
  */
 export async function makePublic(fileId: string): Promise<void> {
-  const token = await getAccessToken();
-
-  const res = await fetch(`${DRIVE_API}/files/${fileId}/permissions`, {
+  const res = await driveFetch(`${DRIVE_API}/files/${fileId}/permissions`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ role: 'reader', type: 'anyone' }),
