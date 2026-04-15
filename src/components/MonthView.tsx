@@ -537,7 +537,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       {/* ===== スマホ: 2行構成（全行固定16px = 合計32px+4px余白）===== */}
                       <div className="sm:hidden flex flex-col items-center h-full">
                         {/* 1行目: 日付数字（固定16px） */}
-                        <div className="flex items-center justify-center gap-0.5 h-[16px] w-full">
+                        <div className="flex items-center justify-center h-[16px] w-full">
                           <span
                             className={`text-[12px] font-semibold leading-none ${
                               today
@@ -552,11 +552,6 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           >
                             {format(day, 'd')}
                           </span>
-                          {isHoliday(day) && (
-                            <span className="text-[7px] leading-none text-rose-500 truncate max-w-[36px]" title={HOLIDAYS[format(day, 'yyyy-MM-dd')]}>
-                              {HOLIDAYS[format(day, 'yyyy-MM-dd')]}
-                            </span>
-                          )}
                         </div>
                         {/* 2行目: 美マーク + ¥チップ（固定16px） */}
                         <div className="flex items-center justify-center gap-[2px] flex-nowrap h-[16px] w-full">
@@ -606,11 +601,6 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                           >
                             {format(day, 'd')}
                           </span>
-                          {isHoliday(day) && (
-                            <span className="text-[9px] leading-none text-rose-500 truncate max-w-[80px]" title={HOLIDAYS[format(day, 'yyyy-MM-dd')]}>
-                              {HOLIDAYS[format(day, 'yyyy-MM-dd')]}
-                            </span>
-                          )}
                           {dailyEntry?.misaMemo && (
                             <button
                               className="pointer-events-auto text-[9px] font-bold leading-none px-0.5 rounded border inline-flex items-center justify-center h-[18px] box-border"
