@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CalendarEvent, EventComment, Member, getMember, normalizeImageEntry } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import { linkifyUrls } from '@/lib/text-utils';
 import EventCopyModal from './EventCopyModal';
 
 interface Props {
@@ -342,7 +343,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             <div className="flex items-start gap-3 text-sm">
               <div className="w-8 text-center text-slate-400 mt-0.5">📝</div>
               <div className="flex-1 whitespace-pre-wrap text-slate-700 bg-slate-50 rounded-lg px-4 py-3">
-                {event.note}
+                {linkifyUrls(event.note)}
               </div>
             </div>
           )}
@@ -372,7 +373,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 </div>
                 {event.site.note && (
                   <div className="mt-2 pt-2 border-t border-amber-200 text-xs text-amber-900 whitespace-pre-wrap font-mono">
-                    {event.site.note}
+                    {linkifyUrls(event.site.note)}
                   </div>
                 )}
               </div>
@@ -473,7 +474,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                           </div>
                         </div>
                       ) : (
-                        <div className="text-sm text-slate-700 whitespace-pre-wrap">{c.text}</div>
+                        <div className="text-sm text-slate-700 whitespace-pre-wrap">{linkifyUrls(c.text)}</div>
                       )}
                     </div>
                   );

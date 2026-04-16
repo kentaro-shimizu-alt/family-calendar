@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { format, parseISO, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { DailyData } from '@/lib/types';
+import { linkifyUrls } from '@/lib/text-utils';
 
 interface Props {
   open: boolean;
@@ -135,7 +136,7 @@ export default function MisaMemoRangeModal({ open, onClose }: Props) {
                   <div className="text-xs font-bold text-orange-700 mb-1">
                     {format(parseISO(d.date), 'yyyy年M月d日(E)', { locale: ja })}
                   </div>
-                  <div className="text-sm text-slate-700 whitespace-pre-wrap">{d.misaMemo}</div>
+                  <div className="text-sm text-slate-700 whitespace-pre-wrap">{linkifyUrls(d.misaMemo)}</div>
                   {d.misaMemoImages && d.misaMemoImages.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {d.misaMemoImages.map((url) => (
