@@ -84,6 +84,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   async function handlePostComment() {
     if (!event) return;
     if (!commentText.trim()) return;
+    if (posting) return;
     setPosting(true);
     try {
       const res = await fetch(`/api/events/${event.id}/comments`, {
@@ -567,8 +568,14 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handlePostComment(); } }}
-                placeholder="コメントを追加...（Shift+Enterで改行）"
+                onKeyDown={(e) => {
+                  if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    handlePostComment();
+                  }
+                }}
+                placeholder="コメントを追加...（Enterで改行／送信ボタン or Ctrl+Enterで送信）"
                 rows={2}
                 className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
               />
