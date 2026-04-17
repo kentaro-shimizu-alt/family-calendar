@@ -243,7 +243,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className={`w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] overflow-y-auto transition ${
+        className={`w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] overflow-y-auto transition select-none ${
           dragOver ? 'ring-4 ring-blue-300' : ''
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -474,7 +474,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                           </div>
                         </div>
                       ) : (
-                        <div className="text-sm text-slate-700 whitespace-pre-wrap">{linkifyUrls(c.text)}</div>
+                        <div className="text-sm text-slate-700 whitespace-pre-wrap select-text">{linkifyUrls(c.text)}</div>
                       )}
                     </div>
                   );
