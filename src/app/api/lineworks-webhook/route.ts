@@ -77,5 +77,92 @@ export async function POST(req: NextRequest) {
     raw_event: { platform: 'lineworks', ...ev } as Record<string, unknown>,
   });
 
+  // 既読マーク(ベストエフォート): LINE WORKS 公式未提供だが将来 API 提供時の切替点
+  // 失敗しても受信処理に影響させない(fire-and-forget)
+  // 注: Vercel Edge/Serverless から外部APIを待たず投げっぱなしにするため await しない
+  if (ev.type === 'message' && ev.source?.userId) {
+    tryMarkAsRead(ev.source.userId).catch(() => {
+      // 意図的に握りつぶす。受信処理の正常応答を優先
+    });
+  }
+
   return NextResponse.json({ ok: true });
+}
+
+/**
+ * LINE WORKS 既読マーク(ベストエフォート)
+ *
+ * LINE WORKS Bot API は公式に既読APIを提供していない(2026-04-20時点・フォーラム確認済)。
+ * 将来 API 提供されたときの差替点として用意。複数候補URLを試して全部落ちたら諦める。
+ *
+ * Service Account トークンは LINEWORKS_CLIENT_ID/SECRET/SERVICE_ACCOUNT/PRIVATE_KEY
+ * から JWT で取得する必要があるが、Vercel 環境では鍵ファイルを持てないため、
+ * 環境変数 LINEWORKS_PRIVATE_KEY_PEM (改行は \\n エンコード) から読む。
+ * 未設定なら黙って skip (= no-op)。
+ */
+async function tryMarkAsRead(userId: string): Promise<void> {
+  const clientId = process.env.LINEWORKS_CLIENT_ID;
+  const clientSecret = process.env.LINEWORKS_CLIENT_SECRET;
+  const serviceAccount = process.env.LINEWORKS_SERVICE_ACCOUNT;
+  const botId = process.env.LINEWORKS_BOT_ID;
+  const privateKeyRaw = process.env.LINEWORKS_PRIVATE_KEY_PEM;
+  if (!clientId || !clientSecret || !serviceAccount || !botId || !privateKeyRaw) {
+    return; // 設定不足: 黙って skip
+  }
+  const privateKey = privateKeyRaw.replace(/\\n/g, '\n');
+
+  // Edge でも動くよう jsonwebtoken は避けて最小 JWT 組立
+  // ただし RS256 署名は Web Crypto でないと厳しい → node runtime 前提
+  let token: string;
+  try {
+    const jwt = await import('jsonwebtoken');
+    const nowSec = Math.floor(Date.now() / 1000);
+    const assertion = jwt.default.sign(
+      {
+        iss: clientId,
+        sub: serviceAccount,
+        iat: nowSec,
+        exp: nowSec + 3600,
+      },
+      privateKey,
+      { algorithm: 'RS256' }
+    );
+    const tokenRes = await fetch('https://auth.worksmobile.com/oauth2/v2.0/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        assertion,
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope: 'bot',
+      }).toString(),
+    });
+    if (!tokenRes.ok) return;
+    const tokenData = await tokenRes.json();
+    token = tokenData.access_token;
+  } catch {
+    return;
+  }
+
+  const candidates = [
+    `https://www.worksapis.com/v1.0/bots/${botId}/users/${userId}/read`,
+    `https://www.worksapis.com/v1.0/bots/${botId}/users/${userId}/messages/markAsRead`,
+  ];
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) return; // 1つでも通ったら終わり
+    } catch {
+      // 候補失敗は無視して次へ
+    }
+  }
+  // 全候補失敗 = 公式未提供想定どおり。諦める
 }
