@@ -436,7 +436,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                 </span>
               )}
             </div>
-            <h2 className="font-bold text-base text-emerald-700">💰 売上 / 📓 日記</h2>
+            <h2 className="font-bold text-base text-emerald-700">💰 売上入力 / 📓 日記</h2>
           </div>
           <button
             onClick={onClose}
@@ -815,10 +815,15 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                       value={e.note || ''}
                       onChange={(ev) => updateEntry(e.id, { note: ev.target.value })}
                       ref={(el) => {
-                        if (el) entryNoteRefs.current.set(e.id, el);
-                        else entryNoteRefs.current.delete(e.id);
+                        if (el) {
+                          entryNoteRefs.current.set(e.id, el);
+                          autoResize(el);
+                        } else {
+                          entryNoteRefs.current.delete(e.id);
+                        }
                       }}
                       placeholder={TEMPLATE[t]}
+                      data-min-height="120"
                       className={`mt-2 w-full bg-white border ${c.border} rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 resize-none overflow-hidden`}
                     />
                     {((e.images && e.images.length > 0) || (e.pdfs && e.pdfs.length > 0)) && (
