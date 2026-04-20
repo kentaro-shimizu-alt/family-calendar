@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-04-20",
-  "count": 2701,
+  "count": 2722,
   "price_revision": {
     "3m_date": "2026-06-01",
     "3m_rate": 1.125,
@@ -10633,7 +10633,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "AE-1632EX",
@@ -10647,7 +10647,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "AE-1632NEO",
@@ -10661,7 +10661,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "AE-1632TIL",
@@ -10701,7 +10701,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "AE-1634",
@@ -10728,7 +10728,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "AE-1634EX",
@@ -10742,7 +10742,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "AE-1635",
@@ -10769,7 +10769,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "AE-1636",
@@ -10926,7 +10926,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "AE-1917MT",
@@ -11122,7 +11122,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "AE-2153MT",
@@ -11149,7 +11149,21 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+    },
+    {
+      "pn": "AE-2153WD",
+      "pn_raw": "AE-2153WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 12700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 10370,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
     },
     {
       "pn": "AE-2154",
@@ -11280,7 +11294,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "AE-2163MT",
@@ -11333,7 +11347,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "AE-2167MT",
@@ -11555,7 +11569,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "CA-1170",
@@ -11673,7 +11687,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "CH-1629",
@@ -11700,7 +11714,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "CH-1630",
@@ -11727,7 +11741,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "CH-1631",
@@ -11754,7 +11768,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "CH-1677",
@@ -11807,7 +11821,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "CN-1622",
@@ -11834,7 +11848,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "CN-1623",
@@ -11939,7 +11953,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-1876MT",
@@ -12187,7 +12201,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-1993MT",
@@ -12214,7 +12228,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-2197MT",
@@ -12241,7 +12255,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-2198MT",
@@ -12398,7 +12412,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-2209MT",
@@ -12802,7 +12816,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FA-020TIL",
@@ -12933,7 +12947,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FA-1526NEO",
@@ -12947,7 +12961,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FA-1527AR",
@@ -12961,7 +12975,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FA-1527NEO",
@@ -12975,7 +12989,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FA-1528NEO",
@@ -12989,7 +13003,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FA-1530",
@@ -13016,7 +13030,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FA-1531",
@@ -13056,7 +13070,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FA-1680NEO",
@@ -13070,7 +13084,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FA-1962",
@@ -13136,6 +13150,76 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "FA-3026WD",
+      "pn_raw": "FA-3026WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 12700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 10370,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FA-3030WD",
+      "pn_raw": "FA-3030WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 12700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 10370,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FA-3031WD",
+      "pn_raw": "FA-3031WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 12700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 10370,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FA-3032WD",
+      "pn_raw": "FA-3032WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 12700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 10370,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FA-3033WD",
+      "pn_raw": "FA-3033WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 12700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 10370,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
     },
     {
       "pn": "FA-592",
@@ -13227,7 +13311,7 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 7030,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(床用・発注時確認)"
+      "special_note": "特殊掛率品(床用・発注時確認) — 床用"
     },
     {
       "pn": "FLE-R633",
@@ -13241,7 +13325,7 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 7030,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(床用・発注時確認)"
+      "special_note": "特殊掛率品(床用・発注時確認) — 床用"
     },
     {
       "pn": "FLE-R643",
@@ -13255,7 +13339,7 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 7030,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(床用・発注時確認)"
+      "special_note": "特殊掛率品(床用・発注時確認) — 床用"
     },
     {
       "pn": "FW-1021",
@@ -13295,7 +13379,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-1022EX",
@@ -13309,7 +13393,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1023",
@@ -13336,7 +13420,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1039H",
@@ -13376,7 +13460,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1121H",
@@ -13416,7 +13500,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-1122EX",
@@ -13430,7 +13514,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1123",
@@ -13457,7 +13541,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1124",
@@ -13484,7 +13568,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1125",
@@ -13537,7 +13621,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-1129EX",
@@ -13551,7 +13635,21 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
+    },
+    {
+      "pn": "FW-1129WD",
+      "pn_raw": "FW-1129WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
     },
     {
       "pn": "FW-1130H",
@@ -13578,7 +13676,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FW-1135",
@@ -13631,7 +13729,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-1139HNEO",
@@ -13645,7 +13743,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FW-1207",
@@ -13724,7 +13822,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1215",
@@ -13803,7 +13901,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FW-1256PV",
@@ -13817,7 +13915,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "FW-1257",
@@ -13870,7 +13968,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FW-1261",
@@ -13910,7 +14008,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "FW-1265",
@@ -13937,7 +14035,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FW-1266",
@@ -14016,7 +14114,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-1282",
@@ -14108,7 +14206,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-1294",
@@ -14135,7 +14233,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-1296",
@@ -14240,7 +14338,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FW-1737",
@@ -14436,7 +14534,21 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
+    },
+    {
+      "pn": "FW-1801WD",
+      "pn_raw": "FW-1801WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
     },
     {
       "pn": "FW-1805",
@@ -14463,7 +14575,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-1810",
@@ -14568,7 +14680,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "FW-1978",
@@ -14699,7 +14811,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-233EX",
@@ -14713,7 +14825,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-234",
@@ -14753,7 +14865,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-236EX",
@@ -14767,7 +14879,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-237",
@@ -14900,6 +15012,62 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "FW-3040HWD",
+      "pn_raw": "FW-3040HWD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FW-3042WD",
+      "pn_raw": "FW-3042WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FW-3043HWD",
+      "pn_raw": "FW-3043HWD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FW-3044WD",
+      "pn_raw": "FW-3044WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
       "pn": "FW-324",
       "pn_raw": "FW-324",
       "brand": "ダイノック",
@@ -14924,7 +15092,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-327",
@@ -14964,7 +15132,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-332",
@@ -14978,6 +15146,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4660,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "FW-3330WD",
+      "pn_raw": "FW-3330WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
     },
     {
       "pn": "FW-336",
@@ -15017,7 +15199,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-338",
@@ -15044,7 +15226,63 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
+    },
+    {
+      "pn": "FW-3400HWD",
+      "pn_raw": "FW-3400HWD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FW-3401WD",
+      "pn_raw": "FW-3401WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FW-3627WD",
+      "pn_raw": "FW-3627WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "FW-3889WD",
+      "pn_raw": "FW-3889WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
     },
     {
       "pn": "FW-502",
@@ -15084,7 +15322,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-606H",
@@ -15150,7 +15388,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-609HNEO",
@@ -15164,7 +15402,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "FW-612",
@@ -15204,7 +15442,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-625",
@@ -15231,7 +15469,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-625EX",
@@ -15245,7 +15483,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-627",
@@ -15272,7 +15510,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-640",
@@ -15299,7 +15537,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-641",
@@ -15326,7 +15564,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-650",
@@ -15353,7 +15591,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-651",
@@ -15380,7 +15618,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-655",
@@ -15446,7 +15684,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-7007",
@@ -15486,7 +15724,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-7009",
@@ -15526,7 +15764,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-7011EX",
@@ -15540,7 +15778,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-7015",
@@ -15580,7 +15818,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "FW-788",
@@ -15646,7 +15884,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "FW-888",
@@ -15855,7 +16093,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "LE-2181PV",
@@ -15869,7 +16107,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "LE-2703",
@@ -15909,7 +16147,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "LW-1081",
@@ -15962,7 +16200,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ME-002EX",
@@ -15976,7 +16214,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ME-003EX",
@@ -15990,7 +16228,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ME-004EX",
@@ -16004,7 +16242,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ME-005EX",
@@ -16018,7 +16256,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ME-006EX",
@@ -16032,7 +16270,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ME-007EX",
@@ -16046,7 +16284,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ME-009AR",
@@ -16060,7 +16298,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-1174",
@@ -16191,7 +16429,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-1467",
@@ -16218,7 +16456,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-1469",
@@ -16271,7 +16509,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-1685",
@@ -16337,7 +16575,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-1961",
@@ -16611,7 +16849,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2282AR",
@@ -16625,7 +16863,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2283AR",
@@ -16639,7 +16877,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2284AR",
@@ -16653,7 +16891,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2285AR",
@@ -16667,7 +16905,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2286AR",
@@ -16681,7 +16919,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2287AR",
@@ -16695,7 +16933,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2291AR",
@@ -16709,7 +16947,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2292AR",
@@ -16723,7 +16961,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2293AR",
@@ -16737,7 +16975,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2294AR",
@@ -16751,7 +16989,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2295AR",
@@ -16765,7 +17003,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2296AR",
@@ -16779,7 +17017,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2297AR",
@@ -16793,7 +17031,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2341",
@@ -16924,7 +17162,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2383AR",
@@ -16938,7 +17176,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2384AR",
@@ -16952,7 +17190,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2386AR",
@@ -16966,7 +17204,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-2550",
@@ -17071,7 +17309,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXRシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ME-2557",
@@ -17293,7 +17531,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-431",
@@ -17333,7 +17571,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-432DG",
@@ -17373,7 +17611,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ME-486",
@@ -17413,7 +17651,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "MW-1416",
@@ -17544,7 +17782,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "NU-1789",
@@ -17584,7 +17822,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "NU-1792",
@@ -17611,7 +17849,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "NU-1934MT",
@@ -17924,7 +18162,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PA-039",
@@ -17951,7 +18189,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PA-045",
@@ -17978,7 +18216,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PA-046",
@@ -18044,7 +18282,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PA-180DG",
@@ -18084,7 +18322,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PA-181EX",
@@ -18098,7 +18336,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PA-183",
@@ -18125,7 +18363,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PA-184",
@@ -18165,7 +18403,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PA-187",
@@ -18192,7 +18430,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PA-187EX",
@@ -18206,7 +18444,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PA-320",
@@ -18246,7 +18484,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PA-389EX",
@@ -18260,7 +18498,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PA-390",
@@ -18287,7 +18525,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PA-683",
@@ -18366,7 +18604,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-002AR",
@@ -18380,7 +18618,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-003AR",
@@ -18394,7 +18632,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-004AR",
@@ -18408,7 +18646,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-005AR",
@@ -18422,7 +18660,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-006AR",
@@ -18436,7 +18674,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-007AR",
@@ -18450,7 +18688,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-008AR",
@@ -18464,7 +18702,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-009NEO",
@@ -18478,7 +18716,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 3370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "PS-010NEO",
@@ -18492,7 +18730,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 3370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "PS-010TIL",
@@ -18519,7 +18757,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 3370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "PS-012NEO",
@@ -18533,7 +18771,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 3370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "PS-012TIL",
@@ -18560,7 +18798,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 3370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "PS-014NEO",
@@ -18574,7 +18812,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 3370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "PS-022",
@@ -18653,7 +18891,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-055AR",
@@ -18667,7 +18905,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-057AR",
@@ -18681,7 +18919,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-058AR",
@@ -18695,7 +18933,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 4470,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PS-073",
@@ -18761,7 +18999,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 5640,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PS-091",
@@ -19440,6 +19678,48 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "PS-3035WD",
+      "pn_raw": "PS-3035WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 11600.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 9470,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "PS-3036WD",
+      "pn_raw": "PS-3036WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 11600.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 9470,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
+      "pn": "PS-3037WD",
+      "pn_raw": "PS-3037WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 11600.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 9470,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
+    },
+    {
       "pn": "PS-3091MT",
       "pn_raw": "PS-3091MT",
       "brand": "ダイノック",
@@ -19945,7 +20225,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 5640,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PS-959",
@@ -19972,7 +20252,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 5640,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PS-971",
@@ -20025,7 +20305,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 5640,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "PS-982",
@@ -20052,7 +20332,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 3370,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "PS-982TIL",
@@ -20131,7 +20411,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "PT-346",
@@ -20470,7 +20750,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 8560,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PWFシリーズ・54pt)"
+      "special_note": "特殊掛率品(PWFシリーズ・54pt) — プロジェクター投影対応"
     },
     {
       "pn": "RT-1111",
@@ -20536,7 +20816,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "SE-567AR",
@@ -20550,7 +20830,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "SE-568AR",
@@ -20564,7 +20844,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "SI-1686",
@@ -20591,7 +20871,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "SI-1688",
@@ -20618,7 +20898,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "ST-024TIL",
@@ -20645,7 +20925,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "ST-1195TIL",
@@ -20789,7 +21069,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ST-1914MT",
@@ -20842,7 +21122,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ST-1919MT",
@@ -20908,7 +21188,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ST-2171MT",
@@ -21104,7 +21384,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ST-736AR",
@@ -21118,7 +21398,7 @@
       "hp_kakeritsu_pt": 49,
       "hp_price_m": 6830,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(ARシリーズ・49pt)"
+      "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
       "pn": "ST-736EX",
@@ -21132,7 +21412,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "ST-736NEO",
@@ -21146,7 +21426,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "ST-736TIL",
@@ -21537,7 +21817,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(NEOシリーズ・52pt)"
+      "special_note": "特殊掛率品(NEOシリーズ・52pt) — 水廻り用・抗菌防カビ"
     },
     {
       "pn": "WG-1044",
@@ -21564,7 +21844,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "WG-1046",
@@ -21656,7 +21936,21 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
+    },
+    {
+      "pn": "WG-1140WD",
+      "pn_raw": "WG-1140WD",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "WD",
+      "name": "",
+      "joutai_m2": 13800.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 68,
+      "hp_price_m": 11270,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(WDシリーズ・68pt) — 玄関ドア専用・屋外耐候10年以上"
     },
     {
       "pn": "WG-1141",
@@ -21683,7 +21977,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "WG-1142",
@@ -21723,7 +22017,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "WG-1144",
@@ -21750,7 +22044,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "WG-1146",
@@ -22206,7 +22500,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 6170,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt)"
+      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
     },
     {
       "pn": "WG-1710",
@@ -23091,7 +23385,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "WG-664",
@@ -23144,7 +23438,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "WG-696",
@@ -23223,7 +23517,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "WG-709",
@@ -23497,7 +23791,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 6100,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(EXシリーズ・54pt)"
+      "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候5年(EXRへ移行中)"
     },
     {
       "pn": "WG-964",
@@ -23524,7 +23818,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 7700,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(WHシリーズ・53pt)"
+      "special_note": "特殊掛率品(WHシリーズ・53pt) — 防汚・壁面用"
     },
     {
       "pn": "WH-200",
@@ -23538,7 +23832,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 7700,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(WHシリーズ・53pt)"
+      "special_note": "特殊掛率品(WHシリーズ・53pt) — 防汚・壁面用"
     },
     {
       "pn": "DF-PABLAZE",
