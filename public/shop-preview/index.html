@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>[LOCAL PREVIEW] 材料販売 | 株式会社テクネスト</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="main.css">
+<style>
+body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; max-width: 1024px; margin: 0 auto; background: #f8f9fa; padding: 10px; }
+.preview-banner { background: #ffc107; color: #212529; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.9em; font-weight: bold; text-align: center; }
+.preview-form-note { background: #e9ecef; border-left: 4px solid #adb5bd; padding: 8px 12px; margin: 12px 0; font-size: 0.85em; color: #495057; }
+</style>
+</head>
+<body>
+
+<div class="preview-banner">
+🧪 LOCAL PREVIEW — これは動作確認用。本番WPではLightningテーマCSS+CF7プラグインが適用される。
+</div>
+
+<div id="shop-app">
+  <h2>材料販売 ― 化粧フィルム / ガラスフィルム</h2>
+  <p class="shop-subheader">
+    <strong>化粧フィルム(塩ビ系)</strong>: 3Mダイノックフィルム / サンゲツリアテック / アイカオルティノ<br>
+    <strong>ガラスフィルム</strong>: 3Mファサラ / 3Mスコッチティント
+  </p>
+
+  <div class="shop-notice">
+    <strong>送料:</strong> 合計3m以上で送料無料 / 3m未満 1,500円(税別)<br>
+    <strong>支払:</strong> PayPay銀行振込(前払いのみ・振込手数料はお客様負担)<br>
+    <strong>納期:</strong> 在庫確認→入金確認後3〜5営業日以内に代理店より直送<br>
+    <strong>価格表示:</strong> 税別単価 / 税込合計併記
+  </div>
+
+  <h3>1. 品番・数量の入力</h3>
+  <table id="cart-table">
+    <thead>
+      <tr>
+        <th>品番</th>
+        <th>商品名</th>
+        <th>m単価(税別)</th>
+        <th>数量(m)</th>
+        <th>小計</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="cart-rows"></tbody>
+  </table>
+  <button type="button" id="btn-add-row">＋ 品番を追加する</button>
+  <datalist id="pn-suggest"></datalist>
+  <p class="cart-hint" style="font-size:0.85em;color:#666;margin:4px 0 0;">※ 品番は半角/全角・大文字小文字・ハイフンの種類を問わず自動判定します。2文字以上入力するとサジェストが出ます。</p>
+
+  <div id="totals-box">
+    <div><span>合計m数:</span> <span id="sum-meters">0</span> m</div>
+    <div><span>小計(税別):</span> <span id="sum-subtotal">¥0</span></div>
+    <div><span>送料(税別):</span> <span id="sum-shipping">¥1,500</span></div>
+    <div><span>消費税(10%):</span> <span id="sum-tax">¥0</span></div>
+    <div class="grand"><span>合計(税込):</span> <span id="sum-total">¥0</span></div>
+  </div>
+
+  <h3>2. 注文前のご確認事項</h3>
+  <p class="consent-instruction">下記の注文条件・販売規約・個人情報保護方針・特定商取引法表記を<strong>最後までスクロールしてお読みください</strong>。最下部まで確認すると同意チェックボックスが有効になります。</p>
+
+  <div id="consent-scroll" class="consent-scroll" tabindex="0">
+    <h4>■ 商品について</h4>
+    <p>本ページで販売する商品は、化粧フィルム(塩ビ系)およびガラスフィルムです。取扱ブランドは 3Mダイノックフィルム / サンゲツリアテック / アイカオルティノ / 3Mファサラ / 3Mスコッチティント 等、メーカー品番をご指定のうえご注文ください。</p>
+    <p>色や質感はモニター環境や製造ロットにより実物と異なる場合があります。ご不安な方は事前にサンプル請求をご利用ください。色差・ロット差に関するクレームはお受けできません。</p>
+    <p>品番の入力誤りによる誤発注はお客様のご責任となり、受注後の変更・返品はお受けできません。ご注文前に必ず品番・数量をご確認ください。</p>
+
+    <h4>■ 価格・お支払いについて</h4>
+    <p>表示価格は税抜・m単価・送料別です。消費税(10%)は合計に別途加算されます。</p>
+    <p>お支払いは完全前払い制です。<strong>PayPay銀行への振込でのみ</strong>承ります。クレジットカード・代金引換はご利用いただけません。</p>
+    <p>振込手数料はお客様のご負担となります。お振込先口座は、ご注文受付後・在庫確認完了後に当社よりメールでお知らせいたします。</p>
+
+    <h4>■ 受注の流れ</h4>
+    <p>当店は株式会社新和興業(代理店)からの直送形態(ドロップシップ)で商品をお届けします。</p>
+    <ol>
+      <li>ご注文フォーム送信</li>
+      <li>当社にて在庫確認(新和興業へ照会)</li>
+      <li>在庫ありの場合、お見積書と振込先をメールで返信</li>
+      <li>お客様によるお振込み</li>
+      <li>入金確認後、新和興業より直送(通常3〜5営業日以内に発送)</li>
+    </ol>
+    <p>正式受注は上記「入金確認」後となります。それまではご注文の取消も可能です。</p>
+
+    <h4>■ 在庫切れ時の保証</h4>
+    <p>上記の流れで在庫ありを確認した上で正式受注いたしますが、発送までの物流タイミングにより、万が一商品在庫が切れてしまった場合には以下の保証を行います。</p>
+    <ul>
+      <li>ご入金いただいた金額 <strong>全額返金</strong></li>
+      <li>お客様が負担された振込手数料相当として <strong>500円を上乗せ返金</strong></li>
+    </ul>
+
+    <h4>■ 返品・キャンセルについて</h4>
+    <p>正式受注(ご入金確認)後のお客様都合によるキャンセル・返品はお受けできません。カット済材料のため再販売が困難なためです。</p>
+    <p>商品に瑕疵(初期不良・配送中の破損等)があった場合に限り、商品到着後7日以内のご連絡で返品・交換を承ります。</p>
+
+    <h4>■ 送料</h4>
+    <ul>
+      <li>合計m数 <strong>3m以上 … 送料無料</strong></li>
+      <li>合計m数 3m未満 … 1,500円(税別)</li>
+      <li>離島・沖縄地域は別途ご相談(お断りする場合があります)</li>
+    </ul>
+
+    <h4>■ 2026年 価格改定のお知らせ</h4>
+    <p>メーカー仕入価格改定により、本ページの価格は以下の時期に改定予定です。</p>
+    <ul>
+      <li>3M製品(ダイノック/ファサラ/スコッチティント): <strong>2026年6月1日出荷分から +10〜15%</strong></li>
+      <li>サンゲツ製品(リアテック): <strong>2026年7月1日出荷分から +18〜30%</strong></li>
+    </ul>
+    <p>改定日をまたぐご注文は、出荷日基準で改定後価格が適用されます。</p>
+
+    <h4>■ 個人情報の取扱いについて</h4>
+    <p>お客様からご提供いただく個人情報(氏名・連絡先・住所等)は、以下の目的にのみ利用します。</p>
+    <ul>
+      <li>ご注文の受付・確認・お問い合わせ対応</li>
+      <li>お見積書・請求書の発行</li>
+      <li>商品発送のため、代理店(新和興業)への必要情報の共有</li>
+      <li>税務上必要な記録保存(7年間)</li>
+    </ul>
+    <p>上記以外の第三者への個人情報の提供・販売は一切行いません。個人情報の開示・訂正・削除のご請求は mail@tecnest.biz までご連絡ください。</p>
+
+    <h4>■ 特定商取引法に基づく表記</h4>
+    <dl class="tokushoho-list">
+      <dt>販売業者</dt><dd>株式会社テクネスト</dd>
+      <dt>代表者</dt><dd>清水健太郎</dd>
+      <dt>所在地</dt><dd>〒580-0022 大阪府松原市河合1-1-21</dd>
+      <dt>電話番号</dt><dd>090-5012-8754(平日9:00〜18:00)</dd>
+      <dt>メールアドレス</dt><dd>mail@tecnest.biz</dd>
+      <dt>適格請求書発行事業者登録番号</dt><dd>T4120101054474</dd>
+      <dt>販売価格</dt><dd>各商品の表示価格(税別)</dd>
+      <dt>商品代金以外の必要料金</dt><dd>消費税・送料・振込手数料</dd>
+      <dt>お支払方法</dt><dd>PayPay銀行振込(前払いのみ)</dd>
+      <dt>引渡時期</dt><dd>入金確認後、3〜5営業日以内に代理店から直送</dd>
+      <dt>返品・交換</dt><dd>瑕疵による場合のみ、商品到着後7日以内のご連絡で対応。客都合の返品は不可</dd>
+    </dl>
+
+    <p class="consent-end-mark">― ここまでお読みいただきありがとうございます ―</p>
+  </div>
+
+  <div id="consent-wrap" class="check-disabled">
+    <label>
+      <input type="checkbox" id="consent-all" disabled>
+      <strong>上記すべての内容を確認し、同意します</strong>
+    </label>
+  </div>
+
+  <h3>3. お客様情報</h3>
+  <div class="preview-form-note">
+    ※ 本番ではCF7プラグインで描画。このプレビューでは見た目確認用のダミーフォームを表示しています(送信処理は動きません)。
+  </div>
+  <form id="order-form" onsubmit="event.preventDefault(); alert('[PREVIEW] 本番では新和興業への見積確認メールが送信されます。\\n\\nカートJSON:\\n' + document.getElementById('cart-json-hidden').value.slice(0,200));">
+    <label>お名前(必須)<input type="text" name="customer_name" required placeholder="山田 太郎"></label>
+    <label>会社名(任意)<input type="text" name="company" placeholder="株式会社○○"></label>
+    <label>メールアドレス(必須)<input type="email" name="email" required placeholder="example@example.com"></label>
+    <label>電話番号(必須)<input type="tel" name="tel" required placeholder="090-1234-5678"></label>
+    <label>郵便番号(必須)<input type="text" name="zip" required placeholder="580-0022"></label>
+    <label>配送先住所(必須)<textarea name="address" required placeholder="大阪府松原市河合1-1-21"></textarea></label>
+    <label>備考(任意)<textarea name="note" placeholder="納期のご希望等"></textarea></label>
+
+    <input type="hidden" id="cart-json-hidden" name="cart_json">
+    <input type="hidden" id="totals-json-hidden" name="totals_json">
+    <input type="hidden" id="cart-readable-hidden" name="cart_readable">
+    <input type="hidden" id="totals-readable-hidden" name="totals_readable">
+    <input type="hidden" id="consent-ts-hidden" name="consent_ts">
+    <input type="hidden" id="consent-state-hidden" name="consent_state">
+
+    <button type="submit" id="btn-submit" disabled>ご注文内容を送信する</button>
+    <div id="submit-hint"></div>
+  </form>
+</div>
+
+<script>
+window.__PREVIEW_MODE__ = true;
+(async function loadPreview() {
+  try {
+    const jsRes = await fetch('./main.js');
+    if (!jsRes.ok) throw new Error('main.js取得失敗: ' + jsRes.status);
+    let js = await jsRes.text();
+    js = js.replace(/\/wp-content\/uploads\/shop\//g, './');
+    const script = document.createElement('script');
+    script.textContent = js;
+    document.body.appendChild(script);
+  } catch (e) {
+    document.body.insertAdjacentHTML('beforeend',
+      '<div style="background:#f8d7da;color:#721c24;padding:16px;margin:16px;border-radius:4px">PREVIEWエラー: '
+      + e.message + '<br>_preview.htmlは _shop_build/ 直下 or デスクトップのプレビューフォルダで開いてください</div>');
+  }
+})();
+</script>
+
+</body>
+</html>
