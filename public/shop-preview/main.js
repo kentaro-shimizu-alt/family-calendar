@@ -89,15 +89,11 @@
     },
 
     lookupProduct(input) {
+      // 2026-04-20 変更: 前方一致fallback廃止(ME-001→ME-001EX誤bundle事故対策)
+      // 客の意図は厳密一致のみ扱う。未登録時は findSuggestions で候補提案する。
       const pn = this.normalizePn(input);
       if (!pn || !this.products) return null;
-      let hit = this.products.products.find(p => p.pn === pn);
-      if (hit) return hit;
-      // 前方一致fallbackは入力4文字以上&一意(1件のみヒット)の時のみ許可。
-      // 短すぎる入力や複数ヒット時は誤認を避けるため null を返す(A-6対策)。
-      if (pn.length < 4) return null;
-      const matches = this.products.products.filter(p => p.pn.startsWith(pn));
-      return matches.length === 1 ? matches[0] : null;
+      return this.products.products.find(p => p.pn === pn) || null;
     },
 
     /* ───────────── 価格計算 ───────────── */
