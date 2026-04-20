@@ -54,6 +54,18 @@
   text-align: left;
   vertical-align: middle;
 }
+/* 2026-04-20 行高さ安定化(バリアント/計算式/特殊note出入りで行がガクッと動くのを緩和) */
+#cart-table tbody tr {
+  min-height: 88px;
+}
+#cart-table tbody td {
+  min-height: 72px;
+  vertical-align: top;
+}
+#cart-table .td-name {
+  min-height: 66px;
+  line-height: 1.55;
+}
 #cart-table th {
   background: #f7f8fa;
   font-size: 0.9em;

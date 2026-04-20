@@ -217,7 +217,11 @@
       const unitCell = tr.querySelector('.td-unit');
       if (unitCell) {
         if (unit > 0 && row.product) {
-          unitCell.innerHTML = `¥${unit.toLocaleString()}<div class="unit-formula">上代¥${row.product.joutai_m2.toLocaleString()} × 巾1.2m × ${row.product.hp_kakeritsu_pt}pt ÷ 100 (10円切上)</div>`;
+          const hasJoutai = row.product.joutai_m2 > 0;
+          const formula = hasJoutai
+            ? `上代¥${row.product.joutai_m2.toLocaleString()} × 巾1.2m × ${row.product.hp_kakeritsu_pt}pt ÷ 100 (10円切上)`
+            : '※直接単価管理(上代非公開)';
+          unitCell.innerHTML = `¥${unit.toLocaleString()}<div class="unit-formula">${formula}</div>`;
         } else {
           unitCell.textContent = '-';
         }
@@ -272,9 +276,12 @@
           ? `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`
           : '';
         // m単価セル: 値の下に計算式(上代×1.2×掛率pt÷100)を小さく表示
+        // 上代0は直接単価管理(3Mフィルム等)なので計算式は省略
         let unitText = unit > 0 ? '¥' + unit.toLocaleString() : '-';
-        if (row.product && unit > 0) {
+        if (row.product && unit > 0 && row.product.joutai_m2 > 0) {
           unitText += `<div class="unit-formula">上代¥${row.product.joutai_m2.toLocaleString()} × 巾1.2m × ${row.product.hp_kakeritsu_pt}pt ÷ 100 (10円切上)</div>`;
+        } else if (row.product && unit > 0) {
+          unitText += `<div class="unit-formula">※直接単価管理(上代非公開)</div>`;
         }
         tr.innerHTML = `
           <td data-label="品番"><input class="in-pn" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力"><div class="pn-warn-slot">${pnWarn}</div></td>
