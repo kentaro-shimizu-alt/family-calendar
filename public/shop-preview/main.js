@@ -157,7 +157,7 @@
       if ('meters' in patch) {
         let m = parseInt(patch.meters, 10);
         if (isNaN(m) || m < 1) m = 1;
-        if (m > 500) m = 500; // 2026-04-20 上限100→500(特大注文対応)
+        if (m > 200) m = 200; // 2026-04-20 上限200m(健太郎指示)・超はフォーム備考or問合せ
         row.meters = m;
         // 2026-04-20 バグ修正: clamp後の値をinput.valueにも反映(表示と実値乖離防止)
         const inMcell = document.querySelector(`#cart-rows tr[data-id="${id}"] .in-m`);
@@ -264,7 +264,7 @@
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unit > 0 ? '¥' + unit.toLocaleString() : '-'}</td>
-          <td data-label="数量"><input class="in-m" type="number" min="1" max="500" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
+          <td data-label="数量"><input class="in-m" type="number" min="1" max="200" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
           <td data-label="小計(税別)" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
         tbody.appendChild(tr);
@@ -335,6 +335,8 @@
       btn.disabled = !(hasItems && consent);
       const hint = document.getElementById('submit-hint');
       if (hint) {
+        // 200m到達時の注意喚起(2026-04-20 健太郎指示: 200m超は問合せ)
+        const hasMaxedOut = this.cart.some(r => r.meters >= 200);
         if (!hasItems) {
           const unknown = this.cart.filter(r => r.pn && !r.product).length;
           if (unknown > 0) {
@@ -346,8 +348,12 @@
           hint.textContent = '注文前のご確認事項を最後までスクロールしてお読みください';
         } else if (!consent) {
           hint.textContent = '同意チェックボックスにチェックを入れてください';
+        } else if (hasMaxedOut) {
+          hint.textContent = '※200m超のご注文は備考欄にご記載のうえ、別途お問い合わせください';
+          hint.style.color = '#8b6500';
         } else {
           hint.textContent = '';
+          hint.style.color = '';
         }
       }
       return hasItems && consent;
