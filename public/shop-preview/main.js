@@ -174,22 +174,25 @@
       const unit = row.product ? this.applyRevision(row.product) : 0;
       const sub = unit * row.meters;
       const nameCell = tr.querySelector('.td-name');
+      const pnWarnSlot = tr.querySelector('.pn-warn-slot');
       if (nameCell) {
         nameCell.className = 'td-name';
         if (row.product) {
           const { variants } = this.findSuggestions(row.pn);
-          let html = '';
-          // 特殊掛率品は赤文字で先頭に表示(品番セル直下配置になる)
-          if (row.product.special_note) {
-            html += `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`;
-          }
-          html += `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
+          let html = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
           if (variants.length > 0) {
             const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
             html += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
           }
           nameCell.innerHTML = html;
+          // 特殊掛率品note: 品番セルのinput直下に赤文字表示(2026-04-20 健太郎指定)
+          if (pnWarnSlot) {
+            pnWarnSlot.innerHTML = row.product.special_note
+              ? `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`
+              : '';
+          }
         } else if (row.pn) {
+          if (pnWarnSlot) pnWarnSlot.innerHTML = '';
           const normalized = this.normalizePn(row.pn);
           const { variants, similar } = this.findSuggestions(row.pn);
           const cands = [...variants, ...similar];
@@ -202,6 +205,7 @@
             nameCell.className = 'td-name pn-not-found';
           }
         } else {
+          if (pnWarnSlot) pnWarnSlot.innerHTML = '';
           nameCell.innerHTML = '<span class="muted">品番を入力(例: PS-134)</span>';
         }
       }
@@ -211,7 +215,13 @@
       const pptCell = tr.querySelector('.td-ppt');
       if (pptCell) pptCell.textContent = row.product?.hp_kakeritsu_pt ? row.product.hp_kakeritsu_pt + 'pt' : '-';
       const unitCell = tr.querySelector('.td-unit');
-      if (unitCell) unitCell.textContent = unit > 0 ? '¥' + unit.toLocaleString() : '-';
+      if (unitCell) {
+        if (unit > 0 && row.product) {
+          unitCell.innerHTML = `¥${unit.toLocaleString()}<div class="unit-formula">上代¥${row.product.joutai_m2.toLocaleString()} × 巾1.2m × ${row.product.hp_kakeritsu_pt}pt ÷ 100 (10円切上)</div>`;
+        } else {
+          unitCell.textContent = '-';
+        }
+      }
       const subCell = tr.querySelector('.td-sub');
       if (subCell) subCell.textContent = sub > 0 ? '¥' + sub.toLocaleString() : '-';
     },
@@ -237,11 +247,7 @@
         let nameCellClass = 'td-name';
         if (row.product) {
           const { variants } = this.findSuggestions(row.pn);
-          nameCell = '';
-          if (row.product.special_note) {
-            nameCell += `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`;
-          }
-          nameCell += `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
+          nameCell = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
           if (variants.length > 0) {
             const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
             nameCell += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
@@ -262,12 +268,20 @@
         }
         const joutaiText = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
         const pptText = row.product?.hp_kakeritsu_pt ? row.product.hp_kakeritsu_pt + 'pt' : '-';
+        const pnWarn = row.product?.special_note
+          ? `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`
+          : '';
+        // m単価セル: 値の下に計算式(上代×1.2×掛率pt÷100)を小さく表示
+        let unitText = unit > 0 ? '¥' + unit.toLocaleString() : '-';
+        if (row.product && unit > 0) {
+          unitText += `<div class="unit-formula">上代¥${row.product.joutai_m2.toLocaleString()} × 巾1.2m × ${row.product.hp_kakeritsu_pt}pt ÷ 100 (10円切上)</div>`;
+        }
         tr.innerHTML = `
-          <td data-label="品番"><input class="in-pn" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力"></td>
+          <td data-label="品番"><input class="in-pn" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力"><div class="pn-warn-slot">${pnWarn}</div></td>
           <td data-label="商品名" class="${nameCellClass}">${nameCell}</td>
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
-          <td data-label="m単価(税別)" class="td-unit">${unit > 0 ? '¥' + unit.toLocaleString() : '-'}</td>
+          <td data-label="m単価(税別)" class="td-unit">${unitText}</td>
           <td data-label="数量"><input class="in-m" type="number" min="1" max="200" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
           <td data-label="小計(税別)" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
