@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-04-20",
-  "count": 2700,
+  "count": 2701,
   "price_revision": {
     "3m_date": "2026-06-01",
     "3m_rate": 1.125,
@@ -17058,6 +17058,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "ME-2556EXR",
+      "pn_raw": "ME-2556EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt)"
     },
     {
       "pn": "ME-2557",
