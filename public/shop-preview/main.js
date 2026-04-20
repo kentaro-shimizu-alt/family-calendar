@@ -157,8 +157,11 @@
       if ('meters' in patch) {
         let m = parseInt(patch.meters, 10);
         if (isNaN(m) || m < 1) m = 1;
-        if (m > 100) m = 100;
+        if (m > 500) m = 500; // 2026-04-20 上限100→500(特大注文対応)
         row.meters = m;
+        // 2026-04-20 バグ修正: clamp後の値をinput.valueにも反映(表示と実値乖離防止)
+        const inMcell = document.querySelector(`#cart-rows tr[data-id="${id}"] .in-m`);
+        if (inMcell && String(m) !== inMcell.value) inMcell.value = String(m);
       }
       // 2026-04-20 バグ修正: renderCart全再生成だと1文字打つ毎にinputが置換され
       // iOS Safari でフォーカス外れる問題→ 該当行の商品名/単価/小計セルだけ差分更新
@@ -261,7 +264,7 @@
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unit > 0 ? '¥' + unit.toLocaleString() : '-'}</td>
-          <td data-label="数量"><input class="in-m" type="number" min="1" max="100" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
+          <td data-label="数量"><input class="in-m" type="number" min="1" max="500" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
           <td data-label="小計(税別)" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
         tbody.appendChild(tr);
