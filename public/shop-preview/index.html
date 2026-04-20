@@ -169,24 +169,8 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
   </form>
 </div>
 
-<script>
-window.__PREVIEW_MODE__ = true;
-(async function loadPreview() {
-  try {
-    const jsRes = await fetch('./main.js');
-    if (!jsRes.ok) throw new Error('main.js取得失敗: ' + jsRes.status);
-    let js = await jsRes.text();
-    js = js.replace(/\/wp-content\/uploads\/shop\//g, './');
-    const script = document.createElement('script');
-    script.textContent = js;
-    document.body.appendChild(script);
-  } catch (e) {
-    document.body.insertAdjacentHTML('beforeend',
-      '<div style="background:#f8d7da;color:#721c24;padding:16px;margin:16px;border-radius:4px">PREVIEWエラー: '
-      + e.message + '<br>_preview.htmlは _shop_build/ 直下 or デスクトップのプレビューフォルダで開いてください</div>');
-  }
-})();
-</script>
+<script>window.__PREVIEW_MODE__ = true;</script>
+<script src="./main.js?v=20260420-1305" defer></script>
 
 </body>
 </html>

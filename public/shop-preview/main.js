@@ -20,16 +20,16 @@
     async init() {
       try {
         // BCPくろ提言: 緊急停止チェック(最優先・AI障害時の受注停止用)
-        const modeRes = await fetch('/wp-content/uploads/shop/mode.txt?_=' + Date.now());
+        const modeRes = await fetch('./mode.txt?_=' + Date.now());
         const mode = modeRes.ok ? (await modeRes.text()).trim() : 'live';
         if (mode === 'suspended' || mode === 'maintenance') {
           this.showSuspendedBanner(mode);
           return;
         }
 
-        const verRes = await fetch('/wp-content/uploads/shop/version.txt?_=' + Date.now());
+        const verRes = await fetch('./version.txt?_=' + Date.now());
         const ver = verRes.ok ? (await verRes.text()).trim() : String(Date.now());
-        const res = await fetch(`/wp-content/uploads/shop/products.json?v=${ver}`);
+        const res = await fetch(`./products.json?v=${ver}`);
         if (!res.ok) throw new Error('products.json取得失敗: ' + res.status);
         this.products = await res.json();
         this.restoreCart();
@@ -45,7 +45,7 @@
     },
 
     /* ───────────── 緊急停止表示(BCP対応) ─────────────
-     * 切替方法: Xserverにて /wp-content/uploads/shop/mode.txt を
+     * 切替方法: Xserverにて ./mode.txt を
      *   "suspended" or "maintenance" にアップロード
      *   通常運用時は "live" or ファイル不在でOK
      */
