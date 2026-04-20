@@ -96,8 +96,11 @@
       return this.products.products.find(p => p.pn === pn) || null;
     },
 
-    /* ───────────── 価格計算 ───────────── */
-    applyRevision(product, shipDate = new Date()) {
+    /* ───────────── 価格計算 ─────────────
+     * 2026-04-20 幅対応: unitOverride が指定されたら hp_price_m の代わりに使用
+     *   (SH2CLAR等 width_options から選ばれた幅別価格用)
+     */
+    applyRevision(product, shipDate = new Date(), unitOverride = null) {
       const rev = this.products.price_revision;
       const d3m = new Date(rev['3m_date']);
       const dsg = new Date(rev.sangetsu_date);
@@ -109,14 +112,31 @@
       if (product.maker === 'サンゲツ' || product.brand === 'リアテック') {
         if (shipDate >= dsg) mult = rev.sangetsu_rate;
       }
-      return Math.ceil(product.hp_price_m * mult / 10) * 10;
+      const base = (unitOverride != null ? unitOverride : product.hp_price_m);
+      return Math.ceil(base * mult / 10) * 10;
+    },
+
+    /* row の選択済み幅から単価基準を引く(width_options.hp_price_m または product.hp_price_m) */
+    getRowBaseUnit(row) {
+      if (!row.product) return 0;
+      if (row.width_mm && Array.isArray(row.product.width_options)) {
+        const opt = row.product.width_options.find(w => w.width_mm === row.width_mm);
+        if (opt) return opt.hp_price_m;
+      }
+      return row.product.hp_price_m;
+    },
+
+    /* row の適用単価(価格改定反映済) */
+    getRowUnit(row) {
+      if (!row.product) return 0;
+      return this.applyRevision(row.product, new Date(), this.getRowBaseUnit(row));
     },
 
     calcTotals() {
       let subtotal = 0;
       let totalMeters = 0;
       for (const item of this.cart) {
-        const unit = item.product ? this.applyRevision(item.product) : 0;
+        const unit = item.product ? this.getRowUnit(item) : 0;
         const sub = unit * item.meters;
         item.unit_price = unit;
         item.subtotal = sub;
@@ -138,6 +158,7 @@
       this.cart.push({
         id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random()),
         pn, product, meters,
+        width_mm: product?.width_mm || null,
       });
       this.renderCart();
       this.persistCart();
@@ -146,9 +167,17 @@
     updateRow(id, patch) {
       const row = this.cart.find(r => r.id === id);
       if (!row) return;
+      let pnChanged = false;
       if ('pn' in patch) {
         row.pn = patch.pn;
         row.product = this.lookupProduct(patch.pn);
+        pnChanged = true;
+        // 品番が変わったら width_mm もリセット(product側の代表値 or 単一幅)
+        row.width_mm = row.product?.width_mm || null;
+      }
+      if ('width_mm' in patch) {
+        const w = parseInt(patch.width_mm, 10);
+        if (!isNaN(w) && w > 0) row.width_mm = w;
       }
       if ('meters' in patch) {
         let m = parseInt(patch.meters, 10);
@@ -158,6 +187,12 @@
         // 2026-04-20 バグ修正: clamp後の値をinput.valueにも反映(表示と実値乖離防止)
         const inMcell = document.querySelector(`#cart-rows tr[data-id="${id}"] .in-m`);
         if (inMcell && String(m) !== inMcell.value) inMcell.value = String(m);
+      }
+      // 幅セレクタの再描画は refreshRow では対応しきれない → pn変更時は行丸ごと再生成
+      if (pnChanged) {
+        this.renderCart();
+        this.persistCart();
+        return;
       }
       // 2026-04-20 バグ修正: renderCart全再生成だと1文字打つ毎にinputが置換され
       // iOS Safari でフォーカス外れる問題→ 該当行の商品名/単価/小計セルだけ差分更新
@@ -171,7 +206,7 @@
     refreshRow(row) {
       const tr = document.querySelector(`#cart-rows tr[data-id="${row.id}"]`);
       if (!tr) return;
-      const unit = row.product ? this.applyRevision(row.product) : 0;
+      const unit = row.product ? this.getRowUnit(row) : 0;
       const sub = unit * row.meters;
       // 2026-04-20 変更: 商品名列廃止、品番セル内のbrand+suggest+warn更新
       const pnTd = tr.querySelector('td[data-label="品番"]');
@@ -259,7 +294,7 @@
       for (const row of this.cart) {
         const tr = document.createElement('tr');
         tr.dataset.id = row.id;
-        const unit = row.product ? this.applyRevision(row.product) : 0;
+        const unit = row.product ? this.getRowUnit(row) : 0;
         const sub = unit * row.meters;
         // 2026-04-20 変更: 商品名列廃止、品番セル内に集約(ブランド名 上/ヒント 下)
         let brandTop = '';
@@ -292,6 +327,16 @@
         const pnWarn = row.product?.special_note
           ? `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`
           : '';
+        // 2026-04-20 幅セレクタ: width_options が2件以上ある品番のみ表示 (SH2CLAR等)
+        let widthSelector = '';
+        if (row.product && Array.isArray(row.product.width_options) && row.product.width_options.length > 1) {
+          const selectedW = row.width_mm || row.product.width_mm;
+          const opts = row.product.width_options.map(w => {
+            const sel = w.width_mm === selectedW ? ' selected' : '';
+            return `<option value="${w.width_mm}"${sel}>${w.width_mm}mm (¥${w.hp_price_m.toLocaleString()}/m)</option>`;
+          }).join('');
+          widthSelector = `<div class="width-select-wrap"><label>規格幅:<select class="in-width" aria-label="規格幅選択">${opts}</select></label></div>`;
+        }
         // m単価セル: 値の下に計算式(上代×1.2×掛率pt÷100)を小さく表示
         // 上代0は直接単価管理(3Mフィルム等)なので計算式は省略
         let unitText = unit > 0 ? '¥' + unit.toLocaleString() : '-';
@@ -306,6 +351,7 @@
             <input class="in-pn" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力">
             <div class="pn-warn-slot">${pnWarn}</div>
             <div class="pn-suggest-slot">${pnSuggestSlot}</div>
+            ${widthSelector}
           </td>
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
@@ -373,12 +419,93 @@
       }
     },
 
+    /* ───────────── 入力バリデーション(2026-04-20 追加) ─────────────
+     * 電話: 日本国内固定/携帯 10〜11桁(ハイフン/スペース除去後、先頭0必須)
+     *       +81から始まる国際表記も許容(11-12桁、先頭81で0始まり9-10桁)
+     * 郵便: 7桁 (xxx-xxxx もしくは xxxxxxx)
+     * 住所: 都道府県名を含み、かつ10文字以上
+     * email: type=email のブラウザ検証+ドメイン形式
+     */
+    PREFECTURES: ['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'],
+
+    validateTel(raw) {
+      if (!raw) return { ok: false, msg: '電話番号を入力してください' };
+      const s = String(raw).trim().replace(/[\s\-()（）]/g, '');
+      if (!/^[\d+]+$/.test(s)) return { ok: false, msg: '電話番号は数字とハイフンのみで入力してください' };
+      let digits = s;
+      if (digits.startsWith('+81')) digits = '0' + digits.slice(3);
+      else if (digits.startsWith('81') && digits.length >= 11) digits = '0' + digits.slice(2);
+      if (!/^\d+$/.test(digits)) return { ok: false, msg: '電話番号の形式が正しくありません' };
+      if (digits.length < 10 || digits.length > 11) return { ok: false, msg: '電話番号は10桁または11桁で入力してください(市外局番から)' };
+      if (!digits.startsWith('0')) return { ok: false, msg: '電話番号は市外局番(0)から始めてください' };
+      return { ok: true };
+    },
+
+    validateZip(raw) {
+      if (!raw) return { ok: false, msg: '郵便番号を入力してください' };
+      const s = String(raw).trim().replace(/[\s－ー―]/g, '');
+      const digits = s.replace(/[-]/g, '');
+      if (!/^\d{7}$/.test(digits)) return { ok: false, msg: '郵便番号は7桁の数字で入力してください(例: 580-0022)' };
+      return { ok: true };
+    },
+
+    validateAddress(raw) {
+      if (!raw) return { ok: false, msg: '住所を入力してください' };
+      const s = String(raw).trim();
+      if (s.length < 10) return { ok: false, msg: '住所は番地まで入力してください(10文字以上)' };
+      const hasPref = this.PREFECTURES.some(p => s.includes(p));
+      if (!hasPref) return { ok: false, msg: '住所に都道府県名を含めてください(例: 大阪府松原市…)' };
+      if (!/\d/.test(s)) return { ok: false, msg: '住所に番地(数字)を含めてください' };
+      return { ok: true };
+    },
+
+    validateEmail(raw) {
+      if (!raw) return { ok: false, msg: 'メールアドレスを入力してください' };
+      const s = String(raw).trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s)) return { ok: false, msg: 'メールアドレスの形式が正しくありません' };
+      return { ok: true };
+    },
+
+    showFieldError(fieldName, msg) {
+      const slot = document.getElementById('err-' + fieldName);
+      const input = document.querySelector(`#order-form [name="${fieldName}"]`);
+      const label = input ? input.closest('label') : null;
+      if (slot) {
+        if (msg) { slot.textContent = msg; slot.classList.add('show'); }
+        else { slot.textContent = ''; slot.classList.remove('show'); }
+      }
+      if (label) {
+        if (msg) label.classList.add('is-invalid');
+        else label.classList.remove('is-invalid');
+      }
+    },
+
+    validateContactFields(opts = {}) {
+      const showErr = opts.showErrors !== false;
+      const form = document.getElementById('order-form') || document.querySelector('.wpcf7-form');
+      if (!form) return { ok: true };
+      const get = n => (form.querySelector(`[name="${n}"]`)?.value || '').trim();
+      const checks = {
+        email: this.validateEmail(get('email') || get('your-email')),
+        tel: this.validateTel(get('tel')),
+        zip: this.validateZip(get('zip')),
+        address: this.validateAddress(get('address')),
+      };
+      let allOk = true;
+      for (const [name, r] of Object.entries(checks)) {
+        if (showErr) this.showFieldError(name, r.ok ? '' : r.msg);
+        if (!r.ok) allOk = false;
+      }
+      return { ok: allOk, checks };
+    },
+
     validateSubmit() {
       const btn = document.getElementById('btn-submit');
       if (!btn) return false;
       const hasItems = this.cart.length > 0 && this.cart.every(r => r.product && r.meters > 0);
       const consent = this.allConsented();
-      btn.disabled = !(hasItems && consent);
+      const contact = this.validateContactFields({ showErrors: false });
+      btn.disabled = !(hasItems && consent && contact.ok);
       const hint = document.getElementById('submit-hint');
       if (hint) {
         // 200m到達時の注意喚起(2026-04-20 健太郎指示: 200m超は問合せ)
@@ -394,6 +521,9 @@
           hint.textContent = '注文前のご確認事項を最後までスクロールしてお読みください';
         } else if (!consent) {
           hint.textContent = '同意チェックボックスにチェックを入れてください';
+        } else if (!contact.ok) {
+          hint.textContent = 'お客様情報に不備があります(赤枠の項目をご確認ください)';
+          hint.style.color = '#c00';
         } else if (hasMaxedOut) {
           hint.textContent = '※200m超のご注文は備考欄にご記載のうえ、別途お問い合わせください';
           hint.style.color = '#8b6500';
@@ -402,7 +532,7 @@
           hint.style.color = '';
         }
       }
-      return hasItems && consent;
+      return hasItems && consent && contact.ok;
     },
 
     /* ───────────── 送信 ───────────── */
@@ -414,8 +544,9 @@
           name: r.product.name || '',
           brand: r.product.brand,
           meters: r.meters,
-          unit_price: this.applyRevision(r.product),
-          subtotal: this.applyRevision(r.product) * r.meters,
+          unit_price: this.getRowUnit(r),
+          subtotal: this.getRowUnit(r) * r.meters,
+          width_mm: r.width_mm || r.product.width_mm,
         }));
       const totals = this.calcTotals();
 
@@ -446,7 +577,7 @@
     /* ───────────── 状態保持 ───────────── */
     persistCart() {
       try {
-        const slim = this.cart.map(r => ({ pn: r.pn, meters: r.meters }));
+        const slim = this.cart.map(r => ({ pn: r.pn, meters: r.meters, width_mm: r.width_mm }));
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
           ts: Date.now(),
           items: slim,
@@ -465,12 +596,16 @@
           localStorage.removeItem(this.STORAGE_KEY);
           return;
         }
-        this.cart = items.map(i => ({
-          id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random()),
-          pn: i.pn,
-          product: this.lookupProduct(i.pn),
-          meters: i.meters,
-        }));
+        this.cart = items.map(i => {
+          const product = this.lookupProduct(i.pn);
+          return {
+            id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random()),
+            pn: i.pn,
+            product,
+            meters: i.meters,
+            width_mm: i.width_mm || product?.width_mm || null,
+          };
+        });
       } catch (e) {
         console.warn('[shop] restore失敗', e);
       }
@@ -495,6 +630,23 @@
             this.removeRow(e.target.closest('tr').dataset.id);
           }
         });
+        // 2026-04-20 幅セレクタ change (SH2CLAR等)
+        rows.addEventListener('change', e => {
+          if (!e.target.classList.contains('in-width')) return;
+          const tr = e.target.closest('tr');
+          if (!tr) return;
+          const row = this.cart.find(r => r.id === tr.dataset.id);
+          if (!row) return;
+          const w = parseInt(e.target.value, 10);
+          if (!isNaN(w) && w > 0) {
+            row.width_mm = w;
+            this.refreshRow(row);
+            this.renderTotals();
+            this.syncHiddenFields();
+            this.validateSubmit();
+            this.persistCart();
+          }
+        });
       }
 
       document.addEventListener('change', e => {
@@ -504,16 +656,64 @@
         }
       });
 
-      // 送信時最終検証 (A-1対策: CF7のformはid="order-form"ではなくclass="wpcf7-form")
+      // 入力欄 blur/input でリアルタイムバリデーション
       const form = document.querySelector('.wpcf7-form') || document.getElementById('order-form');
       if (form) {
+        const validateableNames = ['email', 'your-email', 'tel', 'zip', 'address'];
+        form.addEventListener('blur', e => {
+          const name = e.target && e.target.name;
+          if (!name) return;
+          const targetName = name === 'your-email' ? 'email' : name;
+          if (!validateableNames.includes(name)) return;
+          const val = (e.target.value || '').trim();
+          let r;
+          if (targetName === 'email') r = this.validateEmail(val);
+          else if (targetName === 'tel') r = this.validateTel(val);
+          else if (targetName === 'zip') r = this.validateZip(val);
+          else if (targetName === 'address') r = this.validateAddress(val);
+          else return;
+          this.showFieldError(targetName, r.ok ? '' : r.msg);
+          this.validateSubmit();
+        }, true);
+        form.addEventListener('input', e => {
+          const name = e.target && e.target.name;
+          if (!name) return;
+          const targetName = name === 'your-email' ? 'email' : name;
+          if (!validateableNames.includes(name)) return;
+          // 入力中はエラー表示を控えめに(現にエラー表示中の項目のみ再評価)
+          const slot = document.getElementById('err-' + targetName);
+          if (slot && slot.classList.contains('show')) {
+            const val = (e.target.value || '').trim();
+            let r;
+            if (targetName === 'email') r = this.validateEmail(val);
+            else if (targetName === 'tel') r = this.validateTel(val);
+            else if (targetName === 'zip') r = this.validateZip(val);
+            else if (targetName === 'address') r = this.validateAddress(val);
+            else return;
+            if (r.ok) this.showFieldError(targetName, '');
+          }
+          this.validateSubmit();
+        });
+
+        // 送信時最終検証 (A-1対策: CF7のformはid="order-form"ではなくclass="wpcf7-form")
         form.addEventListener('submit', e => {
           // 送信直前に必ずhidden同期(最後の承諾状態を確実に送る)
           this.syncHiddenFields();
-          if (!this.validateSubmit()) {
+          const contact = this.validateContactFields({ showErrors: true });
+          if (!this.validateSubmit() || !contact.ok) {
             e.preventDefault();
             e.stopImmediatePropagation();
-            alert('カート内容または承諾事項に不足があります');
+            if (!contact.ok) {
+              // 最初のエラー項目にフォーカス
+              const firstErr = Object.keys(contact.checks).find(k => !contact.checks[k].ok);
+              if (firstErr) {
+                const el = form.querySelector(`[name="${firstErr}"]`);
+                if (el) { el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+              }
+              alert('お客様情報に不備があります。赤枠の項目をご確認ください。');
+            } else {
+              alert('カート内容または承諾事項に不足があります');
+            }
             return;
           }
         }, true);  // capture=true で他のハンドラより先に走らせる
