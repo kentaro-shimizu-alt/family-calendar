@@ -17,3 +17,8 @@ scripts/migrate_local_images_to_gdrive.mjs
 logs/migrate_images*.json
 logs/migrate_images*.log
 scripts/_snapshots/
+
+# V-9 (監査Worker-K K-9): .bakファイルは絶対にpublic配下に残さない
+public/shop-preview/*.bak_*
+public/shop-preview/**/*.bak_*
+_backups_removed_from_public/
