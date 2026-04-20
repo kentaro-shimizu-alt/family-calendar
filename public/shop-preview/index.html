@@ -150,7 +150,7 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
   <div class="preview-form-note">
     ※ 本番ではCF7プラグインで描画。このプレビューでは見た目確認用のダミーフォームを表示しています(送信処理は動きません)。
   </div>
-  <form id="order-form" onsubmit="event.preventDefault(); alert('[PREVIEW] 本番では新和興業への見積確認メールが送信されます。\\n\\nカートJSON:\\n' + document.getElementById('cart-json-hidden').value.slice(0,200));">
+  <form id="order-form" onsubmit="event.preventDefault(); alert('[PREVIEW] 本番ではテクネスト(order@tecnest.biz)に注文メールが届きます。くろが在庫確認の上、振込先をご案内します。\\n\\nカートJSON:\\n' + document.getElementById('cart-json-hidden').value.slice(0,200));">
     <label>お名前(必須)<input type="text" name="customer_name" required placeholder="山田 太郎"></label>
     <label>会社名(任意)<input type="text" name="company" placeholder="株式会社○○"></label>
     <label>メールアドレス(必須)<input type="email" name="email" required placeholder="example@example.com"></label>
