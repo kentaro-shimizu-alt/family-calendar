@@ -180,22 +180,18 @@
         if (!isNaN(w) && w > 0) row.width_mm = w;
       }
       if ('meters' in patch) {
-        let m = parseInt(patch.meters, 10);
+        // 2026-04-20 修正: 0.1m単位対応(健太郎指示)。1.0〜200.0m
+        let m = parseFloat(patch.meters);
         if (isNaN(m) || m < 1) m = 1;
-        if (m > 200) m = 200; // 2026-04-20 上限200m(健太郎指示)・超はフォーム備考or問合せ
+        if (m > 200) m = 200;
+        // 0.1刻みに丸める(浮動小数誤差回避)
+        m = Math.round(m * 10) / 10;
         row.meters = m;
-        // 2026-04-20 バグ修正: clamp後の値をinput.valueにも反映(表示と実値乖離防止)
         const inMcell = document.querySelector(`#cart-rows tr[data-id="${id}"] .in-m`);
         if (inMcell && String(m) !== inMcell.value) inMcell.value = String(m);
       }
-      // 幅セレクタの再描画は refreshRow では対応しきれない → pn変更時は行丸ごと再生成
-      if (pnChanged) {
-        this.renderCart();
-        this.persistCart();
-        return;
-      }
-      // 2026-04-20 バグ修正: renderCart全再生成だと1文字打つ毎にinputが置換され
-      // iOS Safari でフォーカス外れる問題→ 該当行の商品名/単価/小計セルだけ差分更新
+      // 2026-04-20 修正: pn変更時も renderCart()ではなく refreshRow()で差分更新
+      // (全再描画だと1文字打つ毎にin-pn inputが置換されてフォーカス外れる問題)
       this.refreshRow(row);
       this.renderTotals();
       this.syncHiddenFields();
@@ -277,6 +273,32 @@
       }
       const subCell = tr.querySelector('.td-sub');
       if (subCell) subCell.textContent = sub > 0 ? '¥' + sub.toLocaleString() : '-';
+
+      // 2026-04-20 追加: 幅セレクタの差分更新(pn変更時にフォーカス維持のため renderCart呼ばず)
+      const pnTdForWidth = tr.querySelector('td[data-label="品番"]');
+      let widthWrap = tr.querySelector('.width-select-wrap');
+      const needWidth = row.product && Array.isArray(row.product.width_options) && row.product.width_options.length > 1;
+      if (needWidth && pnTdForWidth) {
+        const selectedW = row.width_mm || row.product.width_mm;
+        const opts = row.product.width_options.map(w => {
+          const sel = w.width_mm === selectedW ? ' selected' : '';
+          return `<option value="${w.width_mm}"${sel}>${w.width_mm}mm (¥${w.hp_price_m.toLocaleString()}/m)</option>`;
+        }).join('');
+        const html = `<label>規格幅:<select class="in-width" aria-label="規格幅選択">${opts}</select></label>`;
+        if (widthWrap) {
+          // 既存selectにfocus当たってる時は壊さない(再描画で選択位置リセット防止)
+          const activeSel = document.activeElement;
+          const isFocusedHere = activeSel && widthWrap.contains(activeSel);
+          if (!isFocusedHere) widthWrap.innerHTML = html;
+        } else {
+          const div = document.createElement('div');
+          div.className = 'width-select-wrap';
+          div.innerHTML = html;
+          pnTdForWidth.appendChild(div);
+        }
+      } else if (widthWrap) {
+        widthWrap.remove();
+      }
     },
 
     removeRow(id) {
@@ -356,7 +378,7 @@
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unitText}</td>
-          <td data-label="数量"><input class="in-m" type="number" min="1" max="200" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
+          <td data-label="数量"><input class="in-m" type="number" min="1" max="200" step="0.1" value="${row.meters}" inputmode="decimal" aria-label="数量(メートル/0.1m単位)">m</td>
           <td data-label="小計(税別)" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
         tbody.appendChild(tr);
