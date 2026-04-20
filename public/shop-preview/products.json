@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-04-20",
-  "count": 2722,
+  "count": 2788,
   "price_revision": {
     "3m_date": "2026-06-01",
     "3m_rate": 1.125,
@@ -10650,6 +10650,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "AE-1632EXR",
+      "pn_raw": "AE-1632EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "AE-1632NEO",
       "pn_raw": "AE-1632NEO",
       "brand": "ダイノック",
@@ -10688,6 +10702,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "AE-1633EXR",
+      "pn_raw": "AE-1633EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "AE-1633NEO",
@@ -10745,6 +10773,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "AE-1634EXR",
+      "pn_raw": "AE-1634EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "AE-1635",
       "pn_raw": "AE-1635",
       "brand": "ダイノック",
@@ -10770,6 +10812,20 @@
       "hp_price_m": 6610,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "AE-1635EXR",
+      "pn_raw": "AE-1635EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "AE-1636",
@@ -10900,6 +10956,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "AE-1913EXR",
+      "pn_raw": "AE-1913EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "AE-1913MT",
@@ -11268,6 +11338,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "AE-2162EXR",
+      "pn_raw": "AE-2162EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "AE-2162MT",
@@ -12086,6 +12170,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "DW-1891EXR",
+      "pn_raw": "DW-1891EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "DW-1891MT",
       "pn_raw": "DW-1891MT",
       "brand": "ダイノック",
@@ -12388,6 +12486,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "DW-2208EXR",
+      "pn_raw": "DW-2208EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "DW-2208MT",
       "pn_raw": "DW-2208MT",
       "brand": "ダイノック",
@@ -12441,6 +12553,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "DW-2211EXR",
+      "pn_raw": "DW-2211EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "DW-2211MT",
       "pn_raw": "DW-2211MT",
       "brand": "ダイノック",
@@ -12478,6 +12604,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 5520,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "DW-2214EXR",
+      "pn_raw": "DW-2214EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "DW-2214MT",
@@ -12545,6 +12685,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "DW-2219EXR",
+      "pn_raw": "DW-2219EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "DW-2219MT",
       "pn_raw": "DW-2219MT",
       "brand": "ダイノック",
@@ -12556,6 +12710,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 5520,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "DW-2221EXR",
+      "pn_raw": "DW-2221EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "DW-2221MT",
@@ -12649,6 +12817,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "DW-2472EXR",
+      "pn_raw": "DW-2472EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "DW-2472MT",
       "pn_raw": "DW-2472MT",
       "brand": "ダイノック",
@@ -12660,6 +12842,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 5520,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "DW-2473EXR",
+      "pn_raw": "DW-2473EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "DW-2473MT",
@@ -13033,6 +13229,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FA-1530EXR",
+      "pn_raw": "FA-1530EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FA-1531",
       "pn_raw": "FA-1531",
       "brand": "ダイノック",
@@ -13396,6 +13606,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-1022EXR",
+      "pn_raw": "FW-1022EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-1023",
       "pn_raw": "FW-1023",
       "brand": "ダイノック",
@@ -13421,6 +13645,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-1023EXR",
+      "pn_raw": "FW-1023EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-1039H",
@@ -13461,6 +13699,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-1113EXR",
+      "pn_raw": "FW-1113EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-1121H",
@@ -13517,6 +13769,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-1122EXR",
+      "pn_raw": "FW-1122EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-1123",
       "pn_raw": "FW-1123",
       "brand": "ダイノック",
@@ -13544,6 +13810,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-1123EXR",
+      "pn_raw": "FW-1123EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-1124",
       "pn_raw": "FW-1124",
       "brand": "ダイノック",
@@ -13569,6 +13849,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-1124EXR",
+      "pn_raw": "FW-1124EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-1125",
@@ -13636,6 +13930,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-1129EXR",
+      "pn_raw": "FW-1129EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-1129WD",
@@ -13823,6 +14131,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-1214EXR",
+      "pn_raw": "FW-1214EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-1215",
@@ -14537,6 +14859,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-1801EXR",
+      "pn_raw": "FW-1801EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-1801WD",
       "pn_raw": "FW-1801WD",
       "brand": "ダイノック",
@@ -14828,6 +15164,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-233EXR",
+      "pn_raw": "FW-233EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-234",
       "pn_raw": "FW-234",
       "brand": "ダイノック",
@@ -14880,6 +15230,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-236EXR",
+      "pn_raw": "FW-236EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-237",
@@ -15095,6 +15459,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-324EXR",
+      "pn_raw": "FW-324EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-327",
       "pn_raw": "FW-327",
       "brand": "ダイノック",
@@ -15133,6 +15511,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-330EXR",
+      "pn_raw": "FW-330EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-332",
@@ -15391,6 +15783,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-609HEXR",
+      "pn_raw": "FW-609HEXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-609HNEO",
       "pn_raw": "FW-609HNEO",
       "brand": "ダイノック",
@@ -15513,6 +15919,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-627EXR",
+      "pn_raw": "FW-627EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-640",
       "pn_raw": "FW-640",
       "brand": "ダイノック",
@@ -15538,6 +15958,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-640EXR",
+      "pn_raw": "FW-640EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-641",
@@ -15594,6 +16028,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-650EXR",
+      "pn_raw": "FW-650EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-651",
       "pn_raw": "FW-651",
       "brand": "ダイノック",
@@ -15619,6 +16067,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-651EXR",
+      "pn_raw": "FW-651EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-655",
@@ -15687,6 +16149,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "FW-7006EXR",
+      "pn_raw": "FW-7006EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "FW-7007",
       "pn_raw": "FW-7007",
       "brand": "ダイノック",
@@ -15725,6 +16201,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-7008EXR",
+      "pn_raw": "FW-7008EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-7009",
@@ -15779,6 +16269,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-7011EXR",
+      "pn_raw": "FW-7011EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-7015",
@@ -15885,6 +16389,20 @@
       "hp_price_m": 7850,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "FW-887EXR",
+      "pn_raw": "FW-887EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "FW-888",
@@ -16148,6 +16666,20 @@
       "hp_price_m": 6100,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "LE-703EXR",
+      "pn_raw": "LE-703EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 9400.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6100,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "LW-1081",
@@ -16721,6 +17253,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "ME-2173EXR",
+      "pn_raw": "ME-2173EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "ME-2174",
       "pn_raw": "ME-2174",
       "brand": "ダイノック",
@@ -16732,6 +17278,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "ME-2174EXR",
+      "pn_raw": "ME-2174EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ME-2261",
@@ -16771,6 +17331,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "ME-2263EXR",
+      "pn_raw": "ME-2263EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ME-2264",
@@ -17259,6 +17833,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "ME-2553EXR",
+      "pn_raw": "ME-2553EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "ME-2554",
       "pn_raw": "ME-2554",
       "brand": "ダイノック",
@@ -17534,6 +18122,34 @@
       "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
     },
     {
+      "pn": "ME-4039EXR",
+      "pn_raw": "ME-4039EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
+      "pn": "ME-4181EXR",
+      "pn_raw": "ME-4181EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "ME-431",
       "pn_raw": "ME-431",
       "brand": "ダイノック",
@@ -17612,6 +18228,48 @@
       "hp_price_m": 6830,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
+    },
+    {
+      "pn": "ME-4389EXR",
+      "pn_raw": "ME-4389EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
+      "pn": "ME-4390EXR",
+      "pn_raw": "ME-4390EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
+      "pn": "ME-4854EXR",
+      "pn_raw": "ME-4854EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 12100.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ME-486",
@@ -19002,6 +19660,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "PS-090EXR",
+      "pn_raw": "PS-090EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 8700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 5640,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "PS-091",
       "pn_raw": "PS-091",
       "brand": "ダイノック",
@@ -19785,6 +20457,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "PS-3096EXR",
+      "pn_raw": "PS-3096EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 8700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 5640,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "PS-3096MT",
       "pn_raw": "PS-3096MT",
       "brand": "ダイノック",
@@ -19902,6 +20588,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "PS-3869EXR",
+      "pn_raw": "PS-3869EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 8700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 5640,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "PS-3869MT",
       "pn_raw": "PS-3869MT",
       "brand": "ダイノック",
@@ -19952,6 +20652,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 4430,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "PS-4007EXR",
+      "pn_raw": "PS-4007EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 8700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 5640,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "PS-503",
@@ -20253,6 +20967,20 @@
       "hp_price_m": 5640,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "PS-959EXR",
+      "pn_raw": "PS-959EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 8700.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 5640,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "PS-971",
@@ -21164,6 +21892,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "ST-2170EXR",
+      "pn_raw": "ST-2170EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "ST-2170MT",
       "pn_raw": "ST-2170MT",
       "brand": "ダイノック",
@@ -21189,6 +21931,20 @@
       "hp_price_m": 6830,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(ARシリーズ・49pt) — 傷に強い(キズ防止加工)"
+    },
+    {
+      "pn": "ST-2171EXR",
+      "pn_raw": "ST-2171EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ST-2171MT",
@@ -21243,6 +21999,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "ST-2533EXR",
+      "pn_raw": "ST-2533EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "ST-2533MT",
       "pn_raw": "ST-2533MT",
       "brand": "ダイノック",
@@ -21254,6 +22024,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 5520,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "ST-2534EXR",
+      "pn_raw": "ST-2534EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ST-2534MT",
@@ -21282,6 +22066,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "ST-2536EXR",
+      "pn_raw": "ST-2536EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "ST-2536MT",
       "pn_raw": "ST-2536MT",
       "brand": "ダイノック",
@@ -21306,6 +22104,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 5520,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "ST-2538EXR",
+      "pn_raw": "ST-2538EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ST-2538MT",
@@ -21347,6 +22159,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "ST-2541EXR",
+      "pn_raw": "ST-2541EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "ST-2541MT",
       "pn_raw": "ST-2541MT",
       "brand": "ダイノック",
@@ -21358,6 +22184,20 @@
       "hp_kakeritsu_pt": 38,
       "hp_price_m": 5520,
       "supplier": "新和興業"
+    },
+    {
+      "pn": "ST-2542EXR",
+      "pn_raw": "ST-2542EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ST-2542MT",
@@ -21385,6 +22225,20 @@
       "hp_price_m": 6610,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "ST-442EXR",
+      "pn_raw": "ST-442EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6610,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "ST-736AR",
@@ -21939,6 +22793,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "WG-1140EXR",
+      "pn_raw": "WG-1140EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 9400.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6100,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "WG-1140WD",
       "pn_raw": "WG-1140WD",
       "brand": "ダイノック",
@@ -22020,6 +22888,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "WG-1143EXR",
+      "pn_raw": "WG-1143EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 9400.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6100,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "WG-1144",
       "pn_raw": "WG-1144",
       "brand": "ダイノック",
@@ -22045,6 +22927,20 @@
       "hp_price_m": 6100,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "WG-1144EXR",
+      "pn_raw": "WG-1144EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 9400.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6100,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "WG-1146",
@@ -23520,6 +24416,20 @@
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
     },
     {
+      "pn": "WG-7024EXR",
+      "pn_raw": "WG-7024EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 9400.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6100,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
+    },
+    {
       "pn": "WG-709",
       "pn_raw": "WG-709",
       "brand": "ダイノック",
@@ -23792,6 +24702,20 @@
       "hp_price_m": 6100,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(EXシリーズ・54pt) — 屋外耐候10年"
+    },
+    {
+      "pn": "WG-960EXR",
+      "pn_raw": "WG-960EXR",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "EXR",
+      "name": "",
+      "joutai_m2": 9400.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 6100,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(EXRシリーズ・54pt) — 屋外耐候10年(EXの後継・2026新)"
     },
     {
       "pn": "WG-964",
