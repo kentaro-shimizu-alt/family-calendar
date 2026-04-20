@@ -110,6 +110,8 @@ function verifyCartIntegrity(
     return { ok: false, issues: ['cart is not an array'], recalcSubtotal: 0 };
   }
   const byPn = new Map(master.products.map((p) => [p.pn, p]));
+  // V-4 (2026-04-20 監査P2): pn別合計m数を集計して200m超を検知
+  const pnMetersSum = new Map<string, number>();
   for (const rawItem of cart) {
     const item = rawItem as Record<string, unknown>;
     const pn = String(item.pn || '').toUpperCase().replace(/\s+/g, '');
@@ -126,6 +128,7 @@ function verifyCartIntegrity(
       issues.push(`invalid_meters:${pn}=${meters}`);
       continue;
     }
+    pnMetersSum.set(pn, (pnMetersSum.get(pn) || 0) + meters);
     // 幅検証
     let unitBase = product.hp_price_m;
     if (Array.isArray(product.width_options) && product.width_options.length > 1) {
@@ -147,7 +150,51 @@ function verifyCartIntegrity(
       issues.push(`subtotal_mismatch:${pn} client=${clientSub} server=${serverSub}`);
     }
   }
+  // V-4 pn別合計超過チェック (同一品番100行分散発注対策)
+  for (const [pn, totalM] of pnMetersSum.entries()) {
+    if (totalM > 200) {
+      issues.push(`pn_total_exceeds_200m:${pn}=${totalM}m`);
+    }
+  }
   return { ok: issues.length === 0, issues, recalcSubtotal };
+}
+
+/**
+ * V-1 配送地域チェック(サーバ側二重検査)
+ * client側 validateAddress をバイパスして送信された場合でも検知する。
+ */
+const NON_SHIPPABLE_PREFECTURES_SRV = ['北海道', '沖縄県'];
+const ISLAND_KEYWORDS_SRV = [
+  '八丈', '三宅村', '御蔵島', '青ヶ島', '小笠原', '伊豆諸島', '大島町', '利島',
+  '新島', '神津島', '渡嘉敷', '座間味', '粟国', '渡名喜', '南大東', '北大東', '伊平屋', '伊是名',
+  '宮古', '石垣', '竹富', '与那国', '多良間',
+  '小豆郡', '小豆島', '直島', '豊島', '男木島', '女木島',
+  '壱岐', '対馬', '五島', '新上五島', '小値賀',
+  '隠岐', '海士町', '西ノ島', '知夫村',
+  '佐渡', '粟島浦',
+  '屋久島', '種子島', '奄美', '徳之島', '沖永良部', '与論',
+];
+function verifyAddressShippable(addr: string): { ok: boolean; issue: string } {
+  const s = (addr || '').trim().normalize('NFKC');
+  if (!s) return { ok: false, issue: 'address_empty' };
+  for (const pref of NON_SHIPPABLE_PREFECTURES_SRV) {
+    if (s.includes(pref)) return { ok: false, issue: `non_shippable_prefecture:${pref}` };
+  }
+  for (const kw of ISLAND_KEYWORDS_SRV) {
+    if (s.includes(kw)) return { ok: false, issue: `island_keyword:${kw}` };
+  }
+  if (/USA|HONG\s*KONG|CHINA|TAIWAN|KOREA|海外|c\/o/i.test(s)) {
+    return { ok: false, issue: 'overseas_indicator' };
+  }
+  return { ok: true, issue: '' };
+}
+
+/**
+ * V-3 メールヘッダ改行除去(サーバ側)
+ * customer_name/email/company 等に \r\n が混入したらストリップしてヘッダインジェクション防止。
+ */
+function sanitizeHeaderValue(v: string): string {
+  return (v || '').replace(/[\r\n]+/g, ' ').trim();
 }
 
 function genOrderId(): string {
@@ -205,6 +252,15 @@ export async function POST(req: NextRequest) {
   let consent: unknown = null;
   try { consent = consentState ? JSON.parse(consentState) : null; } catch { consent = { _raw: consentState }; }
 
+  // V-3 (2026-04-20 監査B-3): メールヘッダ改行除去でインジェクション防止
+  const customerNameSafe = sanitizeHeaderValue(customerName);
+  const emailSafe = sanitizeHeaderValue(email);
+  const companySafe = sanitizeHeaderValue(company);
+  if (customerNameSafe !== customerName || emailSafe !== email || companySafe !== company) {
+    // 改行検出 → サニタイズしてログに残すだけ(弾かない、警告のみ)
+    console.warn(`[cf7-webhook] header injection attempt: order=${orderId}`);
+  }
+
   // 2026-04-20 I-5b/I-5c/I-5m 改竄検知: cart再計算してclient提出値と突合
   let integrity: { ok: boolean; issues: string[]; recalcSubtotal: number } = {
     ok: true,
@@ -216,6 +272,13 @@ export async function POST(req: NextRequest) {
     integrity = verifyCartIntegrity(cart, master);
   } else if (!master) {
     integrity = { ok: true, issues: ['master_unavailable'], recalcSubtotal: 0 };
+  }
+
+  // V-1 (2026-04-20 監査D-1): 配送地域検査
+  const addrCheck = verifyAddressShippable(address);
+  if (!addrCheck.ok) {
+    integrity.issues.push(`address_not_shippable:${addrCheck.issue}`);
+    integrity.ok = false;
   }
 
   const orderStatus = integrity.issues.length === 0 ? 'received' : 'anomaly_flagged';
@@ -233,9 +296,9 @@ export async function POST(req: NextRequest) {
 
   const { error: insErr } = await supabase.from('online_orders').insert({
     order_id: orderId,
-    customer_name: customerName,
-    company: company || null,
-    email,
+    customer_name: customerNameSafe,
+    company: companySafe || null,
+    email: emailSafe,
     tel: tel || null,
     zip: zip || null,
     address: address || null,

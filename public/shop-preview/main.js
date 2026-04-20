@@ -450,6 +450,25 @@
      */
     PREFECTURES: ['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'],
 
+    // 2026-04-20 追加(V-1 脆弱性対策): 配送可能地域限定
+    // 本州・四国・九州の陸路/橋繋がり地域のみ
+    NON_SHIPPABLE_PREFECTURES: ['北海道','沖縄県'],
+
+    // 離島・島嶼部の判定キーワード(市区町村名・島名の一部含有で不可)
+    ISLAND_KEYWORDS: [
+      '八丈','三宅村','御蔵島','青ヶ島','小笠原','伊豆諸島','大島町','利島',
+      '新島','神津島','渡嘉敷','座間味','粟国','渡名喜','南大東','北大東','伊平屋','伊是名',
+      '宮古','石垣','竹富','与那国','多良間',
+      '小豆郡','小豆島','直島','豊島','男木島','女木島',
+      '壱岐','対馬','五島','新上五島','小値賀',
+      '隠岐','海士町','西ノ島','知夫村',
+      '佐渡','粟島浦',
+      '屋久島','種子島','奄美','徳之島','沖永良部','与論',
+      '利尻','礼文','奥尻','天売','焼尻',  // 北海道離島(すでに北海道NGだが念のため)
+      '舳倉島','飛島','大島村','見島','江田島',
+      '答志島','神島'
+    ],
+
     validateTel(raw) {
       if (!raw) return { ok: false, msg: '電話番号を入力してください' };
       const s = String(raw).trim().replace(/[\s\-()（）]/g, '');
@@ -473,11 +492,33 @@
 
     validateAddress(raw) {
       if (!raw) return { ok: false, msg: '住所を入力してください' };
-      const s = String(raw).trim();
+      // NFKC正規化(全角数字→半角・全角英→半角 同一扱い)
+      const s = String(raw).trim().normalize('NFKC');
       if (s.length < 10) return { ok: false, msg: '住所は番地まで入力してください(10文字以上)' };
       const hasPref = this.PREFECTURES.some(p => s.includes(p));
       if (!hasPref) return { ok: false, msg: '住所に都道府県名を含めてください(例: 大阪府松原市…)' };
       if (!/\d/.test(s)) return { ok: false, msg: '住所に番地(数字)を含めてください' };
+      // V-1 配送地域チェック: 北海道・沖縄は不可
+      const nonShippablePref = this.NON_SHIPPABLE_PREFECTURES.find(p => s.includes(p));
+      if (nonShippablePref) {
+        return { ok: false, msg: `誠に恐れ入りますが、${nonShippablePref}への配送は承っておりません(北海道・沖縄・離島・海外不可)` };
+      }
+      // V-1 離島キーワード検査(地域NG)
+      const islandHit = this.ISLAND_KEYWORDS.find(kw => s.includes(kw));
+      if (islandHit) {
+        return { ok: false, msg: `申し訳ございませんが、離島地域(「${islandHit}」)への配送は承っておりません` };
+      }
+      // V-1 海外表記キーワード検査(USA/China/HK/海外/Foreign)
+      const overseasPatterns = [/USA/i, /\bCHINA\b/i, /HONG\s*KONG/i, /TAIWAN/i, /\bKOREA\b/i, /海外/, /c\/o/i];
+      const overseasHit = overseasPatterns.find(p => p.test(s));
+      if (overseasHit) {
+        return { ok: false, msg: '海外への配送は承っておりません。日本国内住所をご記入ください' };
+      }
+      // V-1 「北海道大阪府」等の複数都道府県名検出
+      const prefHits = this.PREFECTURES.filter(p => s.includes(p));
+      if (prefHits.length >= 2) {
+        return { ok: false, msg: `住所に複数の都道府県名が含まれています(${prefHits.join('・')})。正確にご記入ください` };
+      }
       return { ok: true };
     },
 
