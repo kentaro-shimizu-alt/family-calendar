@@ -213,7 +213,12 @@
       const joutaiCell = tr.querySelector('.td-joutai');
       if (joutaiCell) joutaiCell.textContent = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
       const pptCell = tr.querySelector('.td-ppt');
-      if (pptCell) pptCell.textContent = row.product?.hp_kakeritsu_pt ? row.product.hp_kakeritsu_pt + 'pt' : '-';
+      if (pptCell) {
+        // 直接単価管理時は掛率非表示(ガラスフィルム等)
+        pptCell.textContent = (row.product?.hp_kakeritsu_pt && row.product.joutai_m2 > 0)
+          ? row.product.hp_kakeritsu_pt + 'pt'
+          : '-';
+      }
       const unitCell = tr.querySelector('.td-unit');
       if (unitCell) {
         if (unit > 0 && row.product) {
@@ -271,7 +276,10 @@
           nameCell = '<span class="muted">品番を入力(例: PS-134 / 半角/全角どちらでもOK)</span>';
         }
         const joutaiText = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
-        const pptText = row.product?.hp_kakeritsu_pt ? row.product.hp_kakeritsu_pt + 'pt' : '-';
+        // 2026-04-20: 直接単価管理(上代0)の場合は掛率も非表示(ガラスフィルム等)
+        const pptText = (row.product?.hp_kakeritsu_pt && row.product.joutai_m2 > 0)
+          ? row.product.hp_kakeritsu_pt + 'pt'
+          : '-';
         const pnWarn = row.product?.special_note
           ? `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`
           : '';
