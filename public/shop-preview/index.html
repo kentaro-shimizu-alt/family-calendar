@@ -5,9 +5,8 @@
 <title>[LOCAL PREVIEW] 材料販売 | 株式会社テクネスト</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<!-- 末尾スラなしURL(?query付き)でも相対パスが /shop-preview/ 基準に解決されるよう明示 -->
 <base href="/shop-preview/">
-<link rel="stylesheet" href="main.css?v=20260420-1535">
+<link rel="stylesheet" href="main.css?v=20260420-1710">
 <style>
 body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; max-width: 1024px; margin: 0 auto; background: #f8f9fa; padding: 10px; }
 .preview-banner { background: #ffc107; color: #212529; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.9em; font-weight: bold; text-align: center; }
@@ -40,17 +39,18 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
       <tr>
         <th>品番</th>
         <th>商品名</th>
+        <th>上代(円/㎡)</th>
+        <th>掛率</th>
         <th>m単価(税別)</th>
         <th>数量(m)</th>
-        <th>小計</th>
+        <th>小計(税別)</th>
         <th></th>
       </tr>
     </thead>
     <tbody id="cart-rows"></tbody>
   </table>
   <button type="button" id="btn-add-row" aria-label="カートに品番行を追加">＋ 品番を追加する</button>
-  <datalist id="pn-suggest"></datalist>
-  <p class="cart-hint" style="font-size:0.85em;color:#666;margin:4px 0 0;">※ 品番は半角/全角・大文字小文字・ハイフンの種類を問わず自動判定します。2文字以上入力するとサジェストが出ます。</p>
+  <p class="cart-hint" style="font-size:0.85em;color:#666;margin:4px 0 0;">※ 品番は半角/全角・大文字小文字・ハイフンの種類を問わず自動判定します。最後まで入力すると商品名・価格が表示されます。関連品番(AR/NEO等)の提案もあります。</p>
 
   <div id="totals-box">
     <div><span>合計m数:</span> <span id="sum-meters">0</span> m</div>
@@ -172,7 +172,7 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
 </div>
 
 <script>window.__PREVIEW_MODE__ = true;</script>
-<script src="./main.js?v=20260420-1330" defer></script>
+<script src="./main.js?v=20260420-1710" defer></script>
 
 </body>
 </html>

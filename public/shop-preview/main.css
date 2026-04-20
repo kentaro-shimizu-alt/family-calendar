@@ -312,6 +312,25 @@
   color: #8b6500;
   font-size: 0.88em;
 }
+/* 2026-04-20 変更: 登録品番でも関連バリアント(AR/NEO等)提案を表示 */
+#cart-table .td-name .variant-hint {
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: #fff8e6;
+  border-left: 3px solid #f5b800;
+  color: #8b6500;
+  font-size: 0.82em;
+  line-height: 1.45;
+  border-radius: 3px;
+}
+#cart-table .td-joutai,
+#cart-table .td-ppt {
+  font-size: 0.88em;
+  color: #555;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
 .auto-quote-toggle {
   display: inline-flex;
   align-items: center;

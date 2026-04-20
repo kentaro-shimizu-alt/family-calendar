@@ -34,7 +34,6 @@
         this.products = await res.json();
         this.restoreCart();
         this.bindEvents();
-        this.renderDatalist();
         if (this.cart.length === 0) this.addRow();
         this.renderCart();
         this.initConsentScroll();
@@ -179,29 +178,39 @@
       if (nameCell) {
         nameCell.className = 'td-name';
         if (row.product) {
-          nameCell.innerHTML = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
+          // 登録品番: 商品名 + バリアント提案(ある場合)
+          const { variants } = this.findSuggestions(row.pn);
+          let html = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
+          if (variants.length > 0) {
+            const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
+            html += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
+          }
+          nameCell.innerHTML = html;
         } else if (row.pn) {
           const normalized = this.normalizePn(row.pn);
-          const candidates = this.products
-            ? this.products.products.filter(p => p.pn.startsWith(normalized))
-            : [];
-          if (candidates.length > 1) {
-            nameCell.textContent = `候補が${candidates.length}件あります。続けて入力してください`;
-            nameCell.className = 'td-name pn-multi';
+          const { variants, similar } = this.findSuggestions(row.pn);
+          const cands = [...variants, ...similar];
+          if (cands.length > 0) {
+            const list = cands.slice(0, 5).map(p => this.escapeHtml(p.pn)).join(' / ');
+            nameCell.innerHTML = `「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${list}</strong> ですか?`;
+            nameCell.className = 'td-name pn-not-found';
           } else {
-            nameCell.textContent = 'この品番は登録にありません。品番ご確認ください';
+            nameCell.textContent = `「${normalized}」は登録にありません。品番をご確認のうえ、お問い合わせください`;
             nameCell.className = 'td-name pn-not-found';
           }
         } else {
           nameCell.innerHTML = '<span class="muted">品番を入力(例: PS-134)</span>';
         }
       }
+      // 上代・掛率セル
+      const joutaiCell = tr.querySelector('.td-joutai');
+      if (joutaiCell) joutaiCell.textContent = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
+      const pptCell = tr.querySelector('.td-ppt');
+      if (pptCell) pptCell.textContent = row.product?.hp_kakeritsu_pt ? row.product.hp_kakeritsu_pt + 'pt' : '-';
       const unitCell = tr.querySelector('.td-unit');
       if (unitCell) unitCell.textContent = unit > 0 ? '¥' + unit.toLocaleString() : '-';
       const subCell = tr.querySelector('.td-sub');
       if (subCell) subCell.textContent = sub > 0 ? '¥' + sub.toLocaleString() : '-';
-      // datalist動的絞込(2026-04-20追加)
-      this.refreshDatalistFor(row.pn);
     },
 
     removeRow(id) {
@@ -224,29 +233,36 @@
         let nameCell;
         let nameCellClass = 'td-name';
         if (row.product) {
+          const { variants } = this.findSuggestions(row.pn);
           nameCell = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
-        } else if (row.pn) {
-          // 前方一致候補をカウント(未登録 vs 複数候補の区別用)
-          const normalized = this.normalizePn(row.pn);
-          const candidates = this.products
-            ? this.products.products.filter(p => p.pn.startsWith(normalized))
-            : [];
-          if (candidates.length > 1) {
-            nameCell = `候補が${candidates.length}件あります。品番を続けて入力してください`;
-            nameCellClass += ' pn-multi';
-          } else {
-            nameCell = 'この品番は登録にありません。品番をご確認のうえ、必要ならお問い合わせください';
-            nameCellClass += ' pn-not-found';
+          if (variants.length > 0) {
+            const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
+            nameCell += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
           }
+        } else if (row.pn) {
+          const normalized = this.normalizePn(row.pn);
+          const { variants, similar } = this.findSuggestions(row.pn);
+          const cands = [...variants, ...similar];
+          if (cands.length > 0) {
+            const list = cands.slice(0, 5).map(p => this.escapeHtml(p.pn)).join(' / ');
+            nameCell = `「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${list}</strong> ですか?`;
+          } else {
+            nameCell = `「${this.escapeHtml(normalized)}」は登録にありません。品番をご確認のうえ、お問い合わせください`;
+          }
+          nameCellClass += ' pn-not-found';
         } else {
           nameCell = '<span class="muted">品番を入力(例: PS-134 / 半角/全角どちらでもOK)</span>';
         }
+        const joutaiText = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
+        const pptText = row.product?.hp_kakeritsu_pt ? row.product.hp_kakeritsu_pt + 'pt' : '-';
         tr.innerHTML = `
-          <td data-label="品番"><input class="in-pn" list="pn-suggest" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力"></td>
+          <td data-label="品番"><input class="in-pn" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力"></td>
           <td data-label="商品名" class="${nameCellClass}">${nameCell}</td>
+          <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
+          <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unit > 0 ? '¥' + unit.toLocaleString() : '-'}</td>
           <td data-label="数量"><input class="in-m" type="number" min="1" max="100" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
-          <td data-label="小計" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
+          <td data-label="小計(税別)" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
         tbody.appendChild(tr);
       }
@@ -458,31 +474,29 @@
       });
     },
 
-    /* ───────────── datalist サジェスト(動的絞込・最大10件) ─────────────
-     * 2026-04-20改修: 初期は空、入力2文字以上で先頭一致10件に絞る。
-     * iOS Safari の datalist は全件入れると絞り込みされず長大化するため動的更新。
+    /* ───────────── 近似品番/バリアント提案(2026-04-20改修) ─────────────
+     * datalist廃止。代わりに未登録時に品番提案を動的に返す。
+     * - バリアント検出: 「AE-1632」入力時、AE-1632AR/NEO/EX等も提示
+     * - 近似候補: 接頭辞3文字一致で上位3件
      */
-    renderDatalist() {
-      const dl = document.getElementById('pn-suggest');
-      if (!dl) return;
-      dl.innerHTML = ''; // 初期は空
-    },
-
-    refreshDatalistFor(input) {
-      const dl = document.getElementById('pn-suggest');
-      if (!dl || !this.products) return;
+    findSuggestions(input) {
+      if (!this.products) return { variants: [], similar: [] };
       const normalized = this.normalizePn(input || '');
-      dl.innerHTML = '';
-      if (!normalized || normalized.length < 2) return;
-      const matches = this.products.products
-        .filter(p => p.pn.startsWith(normalized))
-        .slice(0, 10);
-      for (const p of matches) {
-        const opt = document.createElement('option');
-        opt.value = p.pn;
-        opt.label = `${p.brand} ${p.name || ''}`.trim();
-        dl.appendChild(opt);
-      }
+      if (!normalized || normalized.length < 2) return { variants: [], similar: [] };
+      const products = this.products.products;
+
+      // バリアント: 入力PNで始まる別品番(入力と完全一致を除く)
+      const variants = products
+        .filter(p => p.pn !== normalized && p.pn.startsWith(normalized))
+        .slice(0, 5);
+
+      // 近似候補: 先頭3-4文字が一致する上位候補(バリアント除く)
+      const prefix = normalized.slice(0, Math.min(normalized.length, 4));
+      const similar = products
+        .filter(p => p.pn !== normalized && p.pn.startsWith(prefix) && !variants.includes(p))
+        .slice(0, 3);
+
+      return { variants, similar };
     },
 
     /* ───────────── ユーティリティ ───────────── */
