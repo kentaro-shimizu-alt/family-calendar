@@ -181,9 +181,13 @@
       if (nameCell) {
         nameCell.className = 'td-name';
         if (row.product) {
-          // 登録品番: 商品名 + バリアント提案(ある場合)
           const { variants } = this.findSuggestions(row.pn);
-          let html = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
+          let html = '';
+          // 特殊掛率品は赤文字で先頭に表示(品番セル直下配置になる)
+          if (row.product.special_note) {
+            html += `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`;
+          }
+          html += `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
           if (variants.length > 0) {
             const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
             html += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
@@ -237,7 +241,11 @@
         let nameCellClass = 'td-name';
         if (row.product) {
           const { variants } = this.findSuggestions(row.pn);
-          nameCell = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
+          nameCell = '';
+          if (row.product.special_note) {
+            nameCell += `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`;
+          }
+          nameCell += `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
           if (variants.length > 0) {
             const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
             nameCell += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
