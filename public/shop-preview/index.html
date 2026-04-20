@@ -5,7 +5,9 @@
 <title>[LOCAL PREVIEW] 材料販売 | 株式会社テクネスト</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<link rel="stylesheet" href="main.css">
+<!-- 末尾スラなしURL(?query付き)でも相対パスが /shop-preview/ 基準に解決されるよう明示 -->
+<base href="/shop-preview/">
+<link rel="stylesheet" href="main.css?v=20260420-1535">
 <style>
 body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; max-width: 1024px; margin: 0 auto; background: #f8f9fa; padding: 10px; }
 .preview-banner { background: #ffc107; color: #212529; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.9em; font-weight: bold; text-align: center; }
