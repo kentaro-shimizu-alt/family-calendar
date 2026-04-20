@@ -476,7 +476,7 @@
   cursor: pointer;
 }
 
-/* モバイル最適化 */
+/* モバイル最適化(2026-04-20改修: cart-table を縦積みレイアウトに) */
 @media (max-width: 640px) {
   #shop-app {
     padding: 12px;
@@ -488,22 +488,85 @@
   #shop-app h3 {
     font-size: 1.05em;
   }
-  #cart-table {
-    font-size: 0.9em;
-  }
-  #cart-table th,
-  #cart-table td {
-    padding: 6px 4px;
-  }
-  #cart-table .in-pn {
-    min-width: 100px;
-  }
   .consent-box label {
     font-size: 0.9em;
   }
   #btn-submit {
     font-size: 1.05em;
     padding: 14px;
+  }
+
+  /* cart-table を1行=1カード形式に変換 */
+  #cart-table,
+  #cart-table thead,
+  #cart-table tbody,
+  #cart-table tr {
+    display: block;
+    width: 100%;
+  }
+  #cart-table thead {
+    display: none; /* 列見出しは非表示にしてラベルをtdに持たせる */
+  }
+  #cart-table tr {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: #fff;
+    position: relative;
+  }
+  #cart-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: none;
+    gap: 8px;
+  }
+  #cart-table td::before {
+    content: attr(data-label);
+    font-size: 0.82em;
+    color: #666;
+    font-weight: bold;
+    min-width: 5.5em;
+    flex-shrink: 0;
+  }
+  #cart-table .td-name {
+    display: block;
+    padding: 6px 0 2px;
+    font-size: 0.95em;
+    line-height: 1.5;
+  }
+  #cart-table .td-name::before {
+    display: none; /* 商品名セルはラベル不要・全幅で表示 */
+  }
+  #cart-table .in-pn {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+  }
+  #cart-table .in-m {
+    width: 70px;
+    text-align: right;
+  }
+  #cart-table .td-unit,
+  #cart-table .td-sub {
+    text-align: right;
+  }
+  #cart-table .btn-del {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    #cart-table tr {
+      background: #1f2937;
+      border-color: #374151;
+    }
+    #cart-table td::before {
+      color: #9ca3af;
+    }
   }
 }
 

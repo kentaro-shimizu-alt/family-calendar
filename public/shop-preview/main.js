@@ -80,6 +80,12 @@
       s = s.normalize('NFKC').toUpperCase().trim();
       s = s.replace(/\s+/g, '');
       s = s.replace(/[\u2010-\u2015\u2212\uFF0D\u30FC\u2212]/g, '-');
+      // 2026-04-20 Round1 QA対応: ハイフン欠落補完
+      // 「AE1632」→「AE-1632」/「ME2281AR」→「ME-2281AR」等に自動補完
+      if (!s.includes('-')) {
+        const m = s.match(/^([A-Z]{2,4})(\d{3,5})([A-Z]{0,4})$/);
+        if (m) s = `${m[1]}-${m[2]}${m[3]}`;
+      }
       return s;
     },
 
@@ -155,8 +161,47 @@
         if (m > 100) m = 100;
         row.meters = m;
       }
-      this.renderCart();
+      // 2026-04-20 バグ修正: renderCart全再生成だと1文字打つ毎にinputが置換され
+      // iOS Safari でフォーカス外れる問題→ 該当行の商品名/単価/小計セルだけ差分更新
+      this.refreshRow(row);
+      this.renderTotals();
+      this.syncHiddenFields();
+      this.validateSubmit();
       this.persistCart();
+    },
+
+    refreshRow(row) {
+      const tr = document.querySelector(`#cart-rows tr[data-id="${row.id}"]`);
+      if (!tr) return;
+      const unit = row.product ? this.applyRevision(row.product) : 0;
+      const sub = unit * row.meters;
+      const nameCell = tr.querySelector('.td-name');
+      if (nameCell) {
+        nameCell.className = 'td-name';
+        if (row.product) {
+          nameCell.innerHTML = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
+        } else if (row.pn) {
+          const normalized = this.normalizePn(row.pn);
+          const candidates = this.products
+            ? this.products.products.filter(p => p.pn.startsWith(normalized))
+            : [];
+          if (candidates.length > 1) {
+            nameCell.textContent = `候補が${candidates.length}件あります。続けて入力してください`;
+            nameCell.className = 'td-name pn-multi';
+          } else {
+            nameCell.textContent = 'この品番は登録にありません。品番ご確認ください';
+            nameCell.className = 'td-name pn-not-found';
+          }
+        } else {
+          nameCell.innerHTML = '<span class="muted">品番を入力(例: PS-134)</span>';
+        }
+      }
+      const unitCell = tr.querySelector('.td-unit');
+      if (unitCell) unitCell.textContent = unit > 0 ? '¥' + unit.toLocaleString() : '-';
+      const subCell = tr.querySelector('.td-sub');
+      if (subCell) subCell.textContent = sub > 0 ? '¥' + sub.toLocaleString() : '-';
+      // datalist動的絞込(2026-04-20追加)
+      this.refreshDatalistFor(row.pn);
     },
 
     removeRow(id) {
@@ -197,11 +242,11 @@
           nameCell = '<span class="muted">品番を入力(例: PS-134 / 半角/全角どちらでもOK)</span>';
         }
         tr.innerHTML = `
-          <td><input class="in-pn" list="pn-suggest" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off"></td>
-          <td class="${nameCellClass}">${nameCell}</td>
-          <td class="td-unit">${unit > 0 ? '¥' + unit.toLocaleString() : '-'}</td>
-          <td><input class="in-m" type="number" min="1" max="100" value="${row.meters}">m</td>
-          <td class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
+          <td data-label="品番"><input class="in-pn" list="pn-suggest" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力"></td>
+          <td data-label="商品名" class="${nameCellClass}">${nameCell}</td>
+          <td data-label="m単価(税別)" class="td-unit">${unit > 0 ? '¥' + unit.toLocaleString() : '-'}</td>
+          <td data-label="数量"><input class="in-m" type="number" min="1" max="100" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)">m</td>
+          <td data-label="小計" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
         tbody.appendChild(tr);
       }
@@ -413,16 +458,26 @@
       });
     },
 
-    /* ───────────── datalist サジェスト(先頭一致・最大10件) ─────────────
-     * 2026-04-20 追加: 客が入力補助で品番候補を見られるように。
-     * shop-page.html に <datalist id="pn-suggest"></datalist> を配置する前提。
+    /* ───────────── datalist サジェスト(動的絞込・最大10件) ─────────────
+     * 2026-04-20改修: 初期は空、入力2文字以上で先頭一致10件に絞る。
+     * iOS Safari の datalist は全件入れると絞り込みされず長大化するため動的更新。
      */
     renderDatalist() {
       const dl = document.getElementById('pn-suggest');
+      if (!dl) return;
+      dl.innerHTML = ''; // 初期は空
+    },
+
+    refreshDatalistFor(input) {
+      const dl = document.getElementById('pn-suggest');
       if (!dl || !this.products) return;
+      const normalized = this.normalizePn(input || '');
       dl.innerHTML = '';
-      // 全100品番をdatalistに投入(ブラウザ側がユーザー入力でフィルタ+表示件数制限する)
-      for (const p of this.products.products) {
+      if (!normalized || normalized.length < 2) return;
+      const matches = this.products.products
+        .filter(p => p.pn.startsWith(normalized))
+        .slice(0, 10);
+      for (const p of matches) {
         const opt = document.createElement('option');
         opt.value = p.pn;
         opt.label = `${p.brand} ${p.name || ''}`.trim();
