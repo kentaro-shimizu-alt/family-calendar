@@ -173,40 +173,49 @@
       if (!tr) return;
       const unit = row.product ? this.applyRevision(row.product) : 0;
       const sub = unit * row.meters;
-      const nameCell = tr.querySelector('.td-name');
+      // 2026-04-20 変更: 商品名列廃止、品番セル内のbrand+suggest+warn更新
+      const pnTd = tr.querySelector('td[data-label="品番"]');
       const pnWarnSlot = tr.querySelector('.pn-warn-slot');
-      if (nameCell) {
-        nameCell.className = 'td-name';
+      const pnSuggestSlot = tr.querySelector('.pn-suggest-slot');
+      const pnBrand = tr.querySelector('.pn-brand');
+      if (pnTd) {
         if (row.product) {
-          const { variants } = this.findSuggestions(row.pn);
-          let html = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
-          if (variants.length > 0) {
-            const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
-            html += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
+          const brandText = `${row.product.brand}${row.product.name ? ' ' + row.product.name : ''}`;
+          if (pnBrand) {
+            pnBrand.textContent = brandText;
+          } else {
+            const input = tr.querySelector('.in-pn');
+            const div = document.createElement('div');
+            div.className = 'pn-brand';
+            div.textContent = brandText;
+            input.parentNode.insertBefore(div, input);
           }
-          nameCell.innerHTML = html;
-          // 特殊掛率品note: 品番セルのinput直下に赤文字表示(2026-04-20 健太郎指定)
+          const { variants } = this.findSuggestions(row.pn);
+          if (pnSuggestSlot) {
+            pnSuggestSlot.innerHTML = variants.length > 0
+              ? `<div class="variant-hint">💡 関連品番: ${variants.map(v => this.escapeHtml(v.pn)).join(' / ')}</div>`
+              : '';
+          }
           if (pnWarnSlot) {
             pnWarnSlot.innerHTML = row.product.special_note
               ? `<div class="special-warn">⚠️ ${this.escapeHtml(row.product.special_note)}</div>`
               : '';
           }
-        } else if (row.pn) {
-          if (pnWarnSlot) pnWarnSlot.innerHTML = '';
-          const normalized = this.normalizePn(row.pn);
-          const { variants, similar } = this.findSuggestions(row.pn);
-          const cands = [...variants, ...similar];
-          if (cands.length > 0) {
-            const list = cands.slice(0, 5).map(p => this.escapeHtml(p.pn)).join(' / ');
-            nameCell.innerHTML = `「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${list}</strong> ですか?`;
-            nameCell.className = 'td-name pn-not-found';
-          } else {
-            nameCell.textContent = `「${normalized}」は登録にありません。品番をご確認のうえ、お問い合わせください`;
-            nameCell.className = 'td-name pn-not-found';
-          }
         } else {
+          if (pnBrand) pnBrand.remove();
           if (pnWarnSlot) pnWarnSlot.innerHTML = '';
-          nameCell.innerHTML = '<span class="muted">品番を入力(例: PS-134)</span>';
+          if (pnSuggestSlot) {
+            if (row.pn) {
+              const normalized = this.normalizePn(row.pn);
+              const { variants, similar } = this.findSuggestions(row.pn);
+              const cands = [...variants, ...similar];
+              pnSuggestSlot.innerHTML = cands.length > 0
+                ? `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${cands.slice(0,5).map(p => this.escapeHtml(p.pn)).join(' / ')}</strong> ですか?</div>`
+                : `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。品番ご確認のうえお問い合わせください</div>`;
+            } else {
+              pnSuggestSlot.innerHTML = '<div class="pn-suggest muted">品番を入力(例: PS-134)</div>';
+            }
+          }
         }
       }
       // 上代・掛率セル
@@ -252,14 +261,15 @@
         tr.dataset.id = row.id;
         const unit = row.product ? this.applyRevision(row.product) : 0;
         const sub = unit * row.meters;
-        let nameCell;
-        let nameCellClass = 'td-name';
+        // 2026-04-20 変更: 商品名列廃止、品番セル内に集約(ブランド名 上/ヒント 下)
+        let brandTop = '';
+        let pnSuggestSlot = '';
         if (row.product) {
+          brandTop = `<div class="pn-brand">${this.escapeHtml(row.product.brand)}${row.product.name ? ' ' + this.escapeHtml(row.product.name) : ''}</div>`;
           const { variants } = this.findSuggestions(row.pn);
-          nameCell = `<strong>${this.escapeHtml(row.product.brand)}</strong> ${this.escapeHtml(row.product.name || '')}`;
           if (variants.length > 0) {
             const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
-            nameCell += `<div class="variant-hint">💡 関連品番も選べます: ${list} (このままでOKなら続行)</div>`;
+            pnSuggestSlot = `<div class="variant-hint">💡 関連品番: ${list}</div>`;
           }
         } else if (row.pn) {
           const normalized = this.normalizePn(row.pn);
@@ -267,13 +277,12 @@
           const cands = [...variants, ...similar];
           if (cands.length > 0) {
             const list = cands.slice(0, 5).map(p => this.escapeHtml(p.pn)).join(' / ');
-            nameCell = `「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${list}</strong> ですか?`;
+            pnSuggestSlot = `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${list}</strong> ですか?</div>`;
           } else {
-            nameCell = `「${this.escapeHtml(normalized)}」は登録にありません。品番をご確認のうえ、お問い合わせください`;
+            pnSuggestSlot = `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。品番ご確認のうえお問い合わせください</div>`;
           }
-          nameCellClass += ' pn-not-found';
         } else {
-          nameCell = '<span class="muted">品番を入力(例: PS-134 / 半角/全角どちらでもOK)</span>';
+          pnSuggestSlot = '<div class="pn-suggest muted">品番を入力(例: PS-134 半角/全角どちらでもOK)</div>';
         }
         const joutaiText = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
         // 2026-04-20: 直接単価管理(上代0)の場合は掛率も非表示(ガラスフィルム等)
@@ -292,8 +301,12 @@
           unitText += `<div class="unit-formula">※直接単価管理(上代非公開)</div>`;
         }
         tr.innerHTML = `
-          <td data-label="品番"><input class="in-pn" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力"><div class="pn-warn-slot">${pnWarn}</div></td>
-          <td data-label="商品名" class="${nameCellClass}">${nameCell}</td>
+          <td data-label="品番">
+            ${brandTop}
+            <input class="in-pn" value="${this.escapeHtml(row.pn)}" placeholder="例: PS-134" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" aria-label="品番入力">
+            <div class="pn-warn-slot">${pnWarn}</div>
+            <div class="pn-suggest-slot">${pnSuggestSlot}</div>
+          </td>
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unitText}</td>

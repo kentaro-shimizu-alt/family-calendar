@@ -362,6 +362,26 @@
   font-weight: normal;
   line-height: 1.3;
 }
+/* 2026-04-20 商品名列廃止→品番セル内に集約 */
+#cart-table .pn-brand {
+  font-size: 0.98em;
+  font-weight: bold;
+  color: #1a3a5c;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+#cart-table .pn-suggest-slot .pn-suggest {
+  margin-top: 4px;
+  font-size: 0.82em;
+  line-height: 1.35;
+}
+#cart-table .pn-suggest-slot .pn-suggest.muted {
+  color: #999;
+}
+#cart-table .pn-suggest-slot .pn-suggest.not-found {
+  color: #c53030;
+}
+
 /* 2026-04-20: 品番セルinput下の特殊掛率品note(赤文字) */
 #cart-table .pn-warn-slot {
   margin-top: 4px;
