@@ -624,14 +624,38 @@
   #cart-table .td-name::before {
     display: none; /* 商品名セルはラベル不要・全幅で表示 */
   }
+  /* 品番セルだけ block にして input をフル幅化(スマホ対応 2026-04-20) */
+  #cart-table td[data-label="品番"] {
+    display: block;
+    padding: 10px 0 8px;
+  }
+  #cart-table td[data-label="品番"]::before {
+    display: block;
+    margin-bottom: 6px;
+  }
   #cart-table .in-pn {
-    flex: 1;
-    min-width: 0;
+    display: block;
     width: 100%;
+    min-width: 0;
+    font-size: 16px; /* iOS Safari でズーム暴走防止 */
+    padding: 10px 12px;
+    min-height: 44px; /* タッチ操作 */
+    box-sizing: border-box;
+    margin-top: 2px;
+  }
+  #cart-table .pn-warn-slot,
+  #cart-table .pn-suggest-slot {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
   }
   #cart-table .in-m {
-    width: 70px;
+    width: 90px;
+    min-height: 40px;
+    font-size: 16px;
+    padding: 8px 10px;
     text-align: right;
+    box-sizing: border-box;
   }
   #cart-table .td-unit,
   #cart-table .td-sub {
