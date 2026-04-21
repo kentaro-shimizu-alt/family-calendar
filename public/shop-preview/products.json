@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-20",
+  "generated_at": "2026-04-21",
   "count": 2788,
   "price_revision": {
     "3m_date": "2026-06-01",
@@ -10686,9 +10686,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "AE-1633",
@@ -10993,10 +10994,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "AE-1917MT",
@@ -11216,10 +11217,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "AE-2153WD",
@@ -11902,10 +11903,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "CN-1622",
@@ -11929,10 +11930,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "CN-1623",
@@ -12034,10 +12035,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-1876MT",
@@ -12296,10 +12297,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-1993MT",
@@ -12323,10 +12324,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-2197MT",
@@ -12350,10 +12351,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-2198MT",
@@ -12521,10 +12522,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "DW-2209MT",
@@ -13023,9 +13024,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "FA-021TIL",
@@ -13036,9 +13038,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "FA-1153",
@@ -13518,8 +13521,8 @@
       "name": "",
       "joutai_m2": 15400.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7030,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 9610,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(床用・発注時確認) — 床用"
     },
@@ -13532,8 +13535,8 @@
       "name": "",
       "joutai_m2": 15400.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7030,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 9610,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(床用・発注時確認) — 床用"
     },
@@ -13546,8 +13549,8 @@
       "name": "",
       "joutai_m2": 15400.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7030,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 9610,
       "supplier": "新和興業",
       "special_note": "特殊掛率品(床用・発注時確認) — 床用"
     },
@@ -14234,10 +14237,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "FW-1257",
@@ -14327,10 +14330,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "FW-1265",
@@ -15013,10 +15016,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "FW-1978",
@@ -16608,10 +16611,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "LE-2181PV",
@@ -16622,10 +16625,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "LE-2703",
@@ -18477,10 +18480,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "NU-1792",
@@ -18504,10 +18507,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "NU-1934MT",
@@ -19399,9 +19402,10 @@
       "name": "",
       "joutai_m2": 12100.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5520,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 7560,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "PS-011NEO",
@@ -19440,9 +19444,10 @@
       "name": "",
       "joutai_m2": 12100.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5520,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 7560,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "PS-013NEO",
@@ -21071,9 +21076,10 @@
       "name": "",
       "joutai_m2": 12100.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5520,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 7560,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "PS-992",
@@ -21163,9 +21169,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "PT-735",
@@ -21596,10 +21603,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "SI-1688",
@@ -21637,9 +21644,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "ST-1195NEO",
@@ -21664,9 +21672,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "ST-1586",
@@ -22291,9 +22300,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "ST-737TIL",
@@ -22304,9 +22314,10 @@
       "name": "",
       "joutai_m2": 13200.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6020,
-      "supplier": "新和興業"
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 8240,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
     },
     {
       "pn": "SU-2231MT",
@@ -22842,10 +22853,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "WG-1142",
@@ -23393,10 +23404,10 @@
       "name": "",
       "joutai_m2": 9700.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 6170,
+      "hp_kakeritsu_pt": 52,
+      "hp_price_m": 6060,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PVシリーズ・53pt) — 抗ウイルス加工"
+      "special_note": "特殊掛率品(PVシリーズ・52pt) — 抗ウイルス加工"
     },
     {
       "pn": "WG-1710",
@@ -24753,10 +24764,10 @@
       "name": "",
       "joutai_m2": 12100.0,
       "width_mm": 1220,
-      "hp_kakeritsu_pt": 53,
-      "hp_price_m": 7700,
+      "hp_kakeritsu_pt": 54,
+      "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(WHシリーズ・53pt) — 防汚・壁面用"
+      "special_note": "特殊掛率品(WHシリーズ・54pt) — 防汚・壁面用"
     },
     {
       "pn": "DF-PABLAZE",
