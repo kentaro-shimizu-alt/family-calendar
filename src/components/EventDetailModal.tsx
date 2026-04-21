@@ -232,6 +232,44 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     }
   }
 
+  // 画像の削除: 指定インデックスを images配列から除外して保存
+  async function handleDeleteImage(index: number) {
+    if (!event) return;
+    if (!confirm('この画像を削除しますか？元には戻せません。')) return;
+    try {
+      const currentImages = (event.images || []).map((entry) => normalizeImageEntry(entry));
+      const updatedImages = currentImages.filter((_, i) => i !== index);
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ images: updatedImages }),
+      });
+      if (!res.ok) throw new Error('delete image failed');
+      onCommentAdded(); // reload event
+    } catch (e: any) {
+      alert('画像削除に失敗しました: ' + e.message);
+    }
+  }
+
+  // PDFの削除: 指定インデックスを pdfs配列から除外して保存
+  async function handleDeletePdf(index: number) {
+    if (!event) return;
+    if (!confirm('このPDFを削除しますか？元には戻せません。')) return;
+    try {
+      const currentPdfs = event.pdfs || [];
+      const updatedPdfs = currentPdfs.filter((_, i) => i !== index);
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pdfs: updatedPdfs }),
+      });
+      if (!res.ok) throw new Error('delete pdf failed');
+      onCommentAdded(); // reload event
+    } catch (e: any) {
+      alert('PDF削除に失敗しました: ' + e.message);
+    }
+  }
+
   const siteProfit = event.site
     ? (event.site.amount || 0) - (event.site.cost || 0)
     : 0;
@@ -504,6 +542,14 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                         >
                           ↻
                         </button>
+                        <button
+                          onClick={() => handleDeleteImage(item.index)}
+                          disabled={isRotating}
+                          className="text-rose-400 hover:text-rose-600 disabled:opacity-40 text-lg px-1 leading-none ml-1"
+                          title="画像を削除"
+                        >
+                          ×
+                        </button>
                       </div>
                       {/* 画像本体 */}
                       <div
@@ -530,18 +576,29 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
 
                 // pdf
                 return (
-                  <a
+                  <div
                     key={item.id}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-100 transition"
+                    className="flex items-center gap-2 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-100 transition group"
                   >
-                    <span className="text-lg">📄</span>
-                    <span className="text-xs text-rose-700 font-semibold flex-1 truncate">
-                      {item.name || 'PDF'}
-                    </span>
-                  </a>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 flex-1 min-w-0"
+                    >
+                      <span className="text-lg">📄</span>
+                      <span className="text-xs text-rose-700 font-semibold flex-1 truncate">
+                        {item.name || 'PDF'}
+                      </span>
+                    </a>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeletePdf(item.index); }}
+                      className="text-rose-400 hover:text-rose-600 text-lg px-1 leading-none"
+                      title="PDFを削除"
+                    >
+                      ×
+                    </button>
+                  </div>
                 );
               })}
             </div>
