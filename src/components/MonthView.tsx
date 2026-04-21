@@ -146,6 +146,34 @@ const BAR_GAP = 2;        // px between bars
 const CELL_PAD_TOP_BASE = DATE_HEADER_H;
 
 export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight, showKinenbi = false, showHanabi = false, onHanabiClick }: Props) {
+  // ===== T202 本日マーカー前日残バグ修正(2026-04-22) =====
+  // 開きっぱなしで日付を跨ぐと isToday() が更新されず前日に色が残る。
+  // todayKey を state で保持し、(1)マウント時 (2)次の深夜0時過ぎ (3)visibilitychange で再計算。
+  const [todayKey, setTodayKey] = useState<string>(() => format(new Date(), 'yyyy-MM-dd'));
+  useEffect(() => {
+    const recalc = () => {
+      const k = format(new Date(), 'yyyy-MM-dd');
+      setTodayKey((prev) => (prev !== k ? k : prev));
+    };
+    // タブ復帰時に再計算(スリープ明け対策)
+    const onVis = () => { if (!document.hidden) recalc(); };
+    document.addEventListener('visibilitychange', onVis);
+    // 次の深夜0時直後にrecalc、その後24時間毎にrecalc
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const now = new Date();
+    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5); // 5秒マージン
+    const msUntil = Math.max(1000, nextMidnight.getTime() - now.getTime());
+    const timeout = setTimeout(() => {
+      recalc();
+      interval = setInterval(recalc, 24 * 60 * 60 * 1000);
+    }, msUntil);
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      clearTimeout(timeout);
+      if (interval) clearInterval(interval);
+    };
+  }, []);
+
   // ===== B6: Smooth month-transition animation =====
   // Track previous month to determine slide direction
   const prevMonthRef = useRef<Date>(currentMonth);
@@ -442,7 +470,8 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                 {week.map((day, di) => {
                   const dateKey = format(day, 'yyyy-MM-dd');
                   const inMonth = isSameMonth(day, currentMonth);
-                  const today = isToday(day);
+                  // T202: isToday()は再レンダリングされないと更新されないため、state保持の todayKey と比較
+                  const today = dateKey === todayKey;
                   const dailyEntry = dailyData[dateKey];
                   const allEntries: SalesEntry[] = dailyEntry?.salesEntries || [];
                   const siteEntries = allEntries.filter(

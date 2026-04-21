@@ -570,11 +570,14 @@ export default function EventModal({ open, initialDate, editing, members, subCal
           {/* Note */}
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-1">メモ</label>
+            <div className="mb-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-800 leading-relaxed">
+              ⚠️ <strong>売上・金額・原価はここに書かない</strong>。日付右の <strong>円マーク(¥)</strong> 欄から入力してください(現場売上/材料販売タブ)。
+            </div>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={5}
-              placeholder="自由メモ・連絡先など何でも"
+              placeholder="自由メモ・連絡先など(売上金額の記入はNG)"
               className="w-full border border-slate-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-300 resize-y min-h-[100px]"
             />
           </div>

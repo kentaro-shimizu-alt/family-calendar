@@ -312,11 +312,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                   🔁 繰り返し
                 </span>
               )}
-              {event.site && (
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                  💼 現場案件
-                </span>
-              )}
+              {/* 💼 現場案件バッジは廃止(2026-04-22 T204): 売上はSalesModal(円マーク)に一本化 */}
             </div>
             <h2 className="text-2xl font-bold text-slate-800 leading-tight">{event.title}</h2>
           </div>
@@ -387,34 +383,14 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             </div>
           )}
 
-          {/* Site section */}
+          {/* 💼 現場案件(event.site)表示セクションは廃止(2026-04-22 T204)
+              売上は SalesModal(円マーク欄・daily_data.sales_entries) に一本化。
+              既存の event.site データはDB上に残るが、UIでは非表示(データ整合は後日整理)。 */}
           {event.site && (
             <div className="flex items-start gap-3">
-              <div className="w-8 text-center text-slate-400 mt-0.5">💼</div>
-              <div className="flex-1 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-                <div className="flex items-center gap-3 flex-wrap text-sm">
-                  <div>
-                    <span className="text-[10px] text-amber-600">売値</span>
-                    <div className="font-bold text-amber-800">¥{(event.site.amount || 0).toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-amber-600">原価</span>
-                    <div className="font-bold text-amber-800">
-                      {event.site.cost != null ? `¥${event.site.cost.toLocaleString()}` : '—'}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-amber-600">粗利</span>
-                    <div className="font-bold text-amber-800">
-                      ¥{siteProfit.toLocaleString()} <span className="text-[10px] font-normal">({siteMargin}%)</span>
-                    </div>
-                  </div>
-                </div>
-                {event.site.note && (
-                  <div className="mt-2 pt-2 border-t border-amber-200 text-xs text-amber-900 whitespace-pre-wrap font-mono">
-                    {linkifyUrls(event.site.note)}
-                  </div>
-                )}
+              <div className="w-8 text-center text-slate-400 mt-0.5">ℹ️</div>
+              <div className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-xs text-slate-500">
+                このイベントには旧形式の現場売上データが残っています。現在の売上記録は日付右の <strong>¥マーク</strong> 欄(現場売上タブ)で確認してください。
               </div>
             </div>
           )}
