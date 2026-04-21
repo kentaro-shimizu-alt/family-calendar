@@ -73,20 +73,31 @@ function formatYen(n?: number): string {
   return `${n.toLocaleString()}`;
 }
 
-interface Range { start: string; end: string; }
+interface Range { start: string; end: string; explicit?: boolean }
 
+// 2026-04-22 健太郎LW「4/29森河が下にぽこっとある→根本から直して」
+// 根本原因: end_date=date(同日)のイベントが single扱いされ bar slot から外れて下に描画される
+// 修正: ev.endDate が明示的に入っている(null/undefined以外)なら explicit=true とし
+//       isMultiDayRange で multi-day 扱い→bar slot配置→上詰め可能に
 function getRanges(ev: CalendarEvent): Range[] {
   if (ev.dateRanges && ev.dateRanges.length > 0) {
-    return ev.dateRanges.map((r) => ({ start: r.start, end: r.end || r.start }));
+    return ev.dateRanges.map((r) => ({
+      start: r.start,
+      end: r.end || r.start,
+      // date_ranges 由来 & end/start同日 なら明示扱い(多レンジeventの同日レンジを bar描画)
+      explicit: !!r.end,
+    }));
   }
-  if (ev.endDate && ev.endDate > ev.date) {
-    return [{ start: ev.date, end: ev.endDate }];
+  if (ev.endDate && ev.endDate >= ev.date) {
+    // endDate 明示あり(end_date=date でも multi扱い→上詰め)
+    return [{ start: ev.date, end: ev.endDate, explicit: true }];
   }
   return [{ start: ev.date, end: ev.date }];
 }
 
 function isMultiDayRange(r: Range): boolean {
-  return r.end > r.start;
+  // explicit フラグ(end_date明示)があれば同日でも multi扱い
+  return r.end > r.start || r.explicit === true;
 }
 
 function isMultiDay(ev: CalendarEvent): boolean {
@@ -167,10 +178,15 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
       recalc();
       interval = setInterval(recalc, 24 * 60 * 60 * 1000);
     }, msUntil);
+    // 2026-04-22 健太郎LW「4/21に青●が残ってる→根本修正」
+    // 上のsetTimeoutはスマホバックグラウンドで消失することがあるため、
+    // 毎分 setInterval で軽量に本日キー比較+更新(diff時のみsetState→再render最小)
+    const minuteInterval = setInterval(recalc, 60 * 1000);
     return () => {
       document.removeEventListener('visibilitychange', onVis);
       clearTimeout(timeout);
       if (interval) clearInterval(interval);
+      clearInterval(minuteInterval);
     };
   }, []);
 
