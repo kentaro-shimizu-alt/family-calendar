@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-04-21",
-  "count": 2788,
+  "count": 2789,
   "price_revision": {
     "3m_date": "2026-06-01",
     "3m_rate": 1.125,
@@ -10689,7 +10689,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "AE-1633",
@@ -11975,6 +11975,20 @@
       "supplier": "新和興業"
     },
     {
+      "pn": "DPF-100",
+      "pn_raw": "DPF-100",
+      "brand": "ダイノック",
+      "maker": "3M",
+      "series": "DPF",
+      "name": "",
+      "joutai_m2": 10200.0,
+      "width_mm": 1220,
+      "hp_kakeritsu_pt": 50,
+      "hp_price_m": 6120,
+      "supplier": "新和興業",
+      "special_note": "特殊掛率品(DPFシリーズ・50pt) — フロアボード下貼り"
+    },
+    {
       "pn": "DW-1871MT",
       "pn_raw": "DW-1871MT",
       "brand": "ダイノック",
@@ -13027,7 +13041,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "FA-021TIL",
@@ -13041,7 +13055,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "FA-1153",
@@ -13524,7 +13538,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 9610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(床用・発注時確認) — 床用"
+      "special_note": "特殊掛率品(床用・発注時確認) — フェルト質感(NEO2クアFLE系)"
     },
     {
       "pn": "FLE-R633",
@@ -13538,7 +13552,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 9610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(床用・発注時確認) — 床用"
+      "special_note": "特殊掛率品(床用・発注時確認) — フェルト質感(NEO2クアFLE系)"
     },
     {
       "pn": "FLE-R643",
@@ -13552,7 +13566,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 9610,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(床用・発注時確認) — 床用"
+      "special_note": "特殊掛率品(床用・発注時確認) — フェルト質感(NEO2クアFLE系)"
     },
     {
       "pn": "FW-1021",
@@ -19405,7 +19419,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 7560,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "PS-011NEO",
@@ -19447,7 +19461,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 7560,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "PS-013NEO",
@@ -21079,7 +21093,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 7560,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "PS-992",
@@ -21172,7 +21186,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "PT-735",
@@ -21485,7 +21499,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 8560,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(PWFシリーズ・54pt) — プロジェクター投影対応"
+      "special_note": "特殊掛率品(PWFシリーズ・54pt) — スクリーン&ホワイトボード下貼"
     },
     {
       "pn": "RT-1111",
@@ -21647,7 +21661,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "ST-1195NEO",
@@ -21675,7 +21689,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "ST-1586",
@@ -22303,7 +22317,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "ST-737TIL",
@@ -22317,7 +22331,7 @@
       "hp_kakeritsu_pt": 52,
       "hp_price_m": 8240,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(TILシリーズ・52pt) — (仕様確認中)"
+      "special_note": "特殊掛率品(TILシリーズ・52pt) — タイル質感(NEO2クアTIL系)"
     },
     {
       "pn": "SU-2231MT",
@@ -24753,7 +24767,7 @@
       "hp_kakeritsu_pt": 53,
       "hp_price_m": 7700,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(WHシリーズ・53pt) — 防汚・壁面用"
+      "special_note": "特殊掛率品(WHシリーズ・53pt) — ホワイトボード下貼り"
     },
     {
       "pn": "WH-200",
@@ -24767,7 +24781,7 @@
       "hp_kakeritsu_pt": 54,
       "hp_price_m": 7850,
       "supplier": "新和興業",
-      "special_note": "特殊掛率品(WHシリーズ・54pt) — 防汚・壁面用"
+      "special_note": "特殊掛率品(WHシリーズ・54pt) — ホワイトボード下貼り"
     },
     {
       "pn": "DF-PABLAZE",
