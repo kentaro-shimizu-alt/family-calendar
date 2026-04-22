@@ -19,17 +19,24 @@
     /* ───────────── 初期化 ───────────── */
     async init() {
       try {
+        // 2026-04-22 HPI-Vercel対応: basePath自動判定
+        // 本番(tecnest.biz/shop/) = /wp-content/uploads/shop/
+        // Vercel preview(/shop-preview/) = /shop-preview
+        const basePath = window.location.pathname.startsWith('/shop-preview')
+          ? '/shop-preview'
+          : '/wp-content/uploads/shop';
+
         // BCPくろ提言: 緊急停止チェック(最優先・AI障害時の受注停止用)
-        const modeRes = await fetch('/wp-content/uploads/shop/mode.txt?_=' + Date.now());
+        const modeRes = await fetch(`${basePath}/mode.txt?_=` + Date.now());
         const mode = modeRes.ok ? (await modeRes.text()).trim() : 'live';
         if (mode === 'suspended' || mode === 'maintenance') {
           this.showSuspendedBanner(mode);
           return;
         }
 
-        const verRes = await fetch('/wp-content/uploads/shop/version.txt?_=' + Date.now());
+        const verRes = await fetch(`${basePath}/version.txt?_=` + Date.now());
         const ver = verRes.ok ? (await verRes.text()).trim() : String(Date.now());
-        const res = await fetch(`/wp-content/uploads/shop/products.json?v=${ver}`);
+        const res = await fetch(`${basePath}/products.json?v=${ver}`);
         if (!res.ok) throw new Error('products.json取得失敗: ' + res.status);
         this.products = await res.json();
         this.restoreCart();
