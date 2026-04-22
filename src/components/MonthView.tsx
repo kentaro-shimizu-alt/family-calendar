@@ -166,6 +166,10 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
       const k = format(new Date(), 'yyyy-MM-dd');
       setTodayKey((prev) => (prev !== k ? k : prev));
     };
+    // 2026-04-22 健太郎指摘「シークレットでも21日のまま」
+    // 原因: SSR時刻(サーバーUTC)で初期state生成 → hydration後 recalc が走らないと補正されない
+    // 修正: マウント直後に必ず即recalc(クライアントのlocal時刻で再計算)
+    recalc();
     // タブ復帰時に再計算(スリープ明け対策)
     const onVis = () => { if (!document.hidden) recalc(); };
     document.addEventListener('visibilitychange', onVis);
