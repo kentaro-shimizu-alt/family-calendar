@@ -411,9 +411,22 @@
           }
         }
       }
-      // 上代・掛率セル
+      // 上代・掛率セル + 幅ドロップダウン維持
+      // 2026-04-23 バグfix: 従来textContent上書きでwidth-select消失→幅変更不可
       const joutaiCell = tr.querySelector('.td-joutai');
-      if (joutaiCell) joutaiCell.textContent = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
+      if (joutaiCell) {
+        const joutaiText = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
+        let widthSelectHtml = '';
+        if (row.product && Array.isArray(row.product.width_options) && row.product.width_options.length > 0) {
+          const opts = row.product.width_options.map(o =>
+            `<option value="${o.width_mm}"${o.width_mm === row.width_mm ? ' selected' : ''}>${o.width_mm}mm</option>`
+          ).join('');
+          widthSelectHtml = `<div class="width-select">規格幅: <select class="in-width" aria-label="規格幅選択">${opts}</select></div>`;
+        } else if (row.product && row.product.width_mm) {
+          widthSelectHtml = `<div class="width-static">規格幅: ${row.product.width_mm}mm</div>`;
+        }
+        joutaiCell.innerHTML = joutaiText + widthSelectHtml;
+      }
       const pptCell = tr.querySelector('.td-ppt');
       if (pptCell) {
         // 直接単価管理時は掛率非表示(ガラスフィルム等)
