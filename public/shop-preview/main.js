@@ -906,13 +906,26 @@
     },
 
     // 2026-04-23 HPI-13: brand表示ブロックのHTML生成(公式リンク付)
+    // 2026-04-23 追加改修: ソース明確品番(オルティノ/ファサラ/3Mフィルム/スコッチカル)は
+    //   商品名を上段に大きく、ブランドを下段に小さく表示(柄イメージ喚起のため)
+    //   ダイノック/リアテック(name=品番)は従来通り 1行表示(情報信頼性低いため)
     makeBrandBlockHtml(product) {
       if (!product) return '';
-      const brandText = `${product.brand}${product.name ? ' ' + product.name : ''}`;
+      const brand = product.brand || '';
+      const name = product.name || '';
       const url = this.getOfficialUrl(product);
       const linkHtml = url
         ? ` <a href="${url}" target="_blank" rel="noopener noreferrer" class="official-link" title="メーカー公式サイトで柄を確認">柄を見る →</a>`
         : '';
+      // ソース明確かつname=品番以外の信頼できる情報を持つブランド
+      // オルティノ = アイカ公式カタログ由来で最も信頼性高い
+      const nameIsProductCode = !name || name === product.pn || name.replace(/[\s-]/g, '') === product.pn.replace(/[\s-]/g, '');
+      const reliable = (brand === 'オルティノ') && !nameIsProductCode;
+      if (reliable) {
+        return `<div class="pn-product-name">${this.escapeHtml(name)}</div><div class="pn-brand-sub">${this.escapeHtml(brand)}${linkHtml}</div>`;
+      }
+      // 従来表示(ダイノック/リアテック/その他・name=品番の場合はブランドのみ表示)
+      const brandText = nameIsProductCode ? brand : `${brand} ${name}`;
       return `${this.escapeHtml(brandText)}${linkHtml}`;
     },
 
