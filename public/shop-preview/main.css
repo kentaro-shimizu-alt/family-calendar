@@ -53,9 +53,21 @@
   border-color: #d8c7a8;
 }
 /* 2026-04-23 同化解消: 送料注記等の小さい注釈テキスト(インラインstyle廃止) */
-.shop-notice .sub-note {
+.shop-notice .sub-note,
+.sub-note {
   font-size: 0.9em;
   color: #111;  /* ライトモード標準 */
+}
+/* cart-hint 品番入力下の注釈 */
+.cart-hint {
+  font-size: 0.85em;
+  color: #111;
+  margin: 4px 0 0;
+}
+/* 特商法ページ 電話番号セル */
+.tel-cell {
+  font-size: 0.9em;
+  color: #111;
 }
 
 /* カートテーブル */

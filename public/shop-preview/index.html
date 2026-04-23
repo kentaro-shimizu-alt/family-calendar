@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <base href="/shop-preview/">
 <meta name="color-scheme" content="light">
-<link rel="stylesheet" href="main.css?v=20260423-2345-textcolor-altyno-name">
+<link rel="stylesheet" href="main.css?v=20260423-2355-inline-style-purge">
 <style>
 body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; max-width: 1024px; margin: 0 auto; background: #f8f9fa; padding: 10px; }
 .preview-banner { background: #ffc107; color: #212529; padding: 8px 12px; border-radius: 4px; margin-bottom: 10px; font-size: 0.9em; font-weight: bold; text-align: center; }
@@ -29,7 +29,7 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
 
   <div class="shop-notice">
     <strong>送料:</strong> ブランドごとに3m以上で送料無料 / 3m未満 1,500円(税別)<br>
-    <span style="font-size:0.9em; color:#444;">※同じ3Mメーカー内でも種類(ダイノック/ファサラ/スコッチティント)が異なる場合は別梱包・別送料となります。またメーカーが異なる場合(3M/サンゲツ/アイカ)も別梱包となります</span><br>
+    <span class="sub-note">※同じ3Mメーカー内でも種類(ダイノック/ファサラ/スコッチティント)が異なる場合は別梱包・別送料となります。またメーカーが異なる場合(3M/サンゲツ/アイカ)も別梱包となります</span><br>
     <strong>支払:</strong> PayPay銀行振込(前払いのみ・振込手数料はお客様負担)<br>
     <strong>納期:</strong> 在庫確認→入金確認後2〜5営業日以内に発送<br>
     <strong>価格表示:</strong> 税別単価 / 税込合計併記
@@ -62,7 +62,7 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
     <tbody id="cart-rows"></tbody>
   </table>
   <button type="button" id="btn-add-row" aria-label="カートに品番行を追加">＋ 品番を追加する</button>
-  <p class="cart-hint" style="font-size:0.85em;color:#666;margin:4px 0 0;">※ 品番は半角/全角・大文字小文字・ハイフンの種類を問わず自動判定します。最後まで入力すると商品名・価格が表示されます。関連品番(AR/NEO等)の提案もあります。</p>
+  <p class="cart-hint">※ 品番は半角/全角・大文字小文字・ハイフンの種類を問わず自動判定します。最後まで入力すると商品名・価格が表示されます。関連品番(AR/NEO等)の提案もあります。</p>
 
   <div id="totals-box">
     <div><span>合計m数:</span> <span id="sum-meters">0</span> m</div>
@@ -202,8 +202,8 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
       <dt>販売業者</dt><dd>株式会社テクネスト</dd>
       <dt>代表者</dt><dd>清水健太郎</dd>
       <dt>所在地</dt><dd>〒580-0022 大阪府松原市河合1-1-21</dd>
-      <dt>メールアドレス</dt><dd><strong><a href="mailto:mail@tecnest.biz" style="color:#0066cc; font-weight:bold;">mail@tecnest.biz</a></strong> / <a href="mailto:order@tecnest.biz" style="color:#0066cc;">order@tecnest.biz</a><br><span style="font-size:0.9em; color:#333;">お問い合わせは原則メールにてお願いいたします(記録保持のため)</span></dd>
-      <dt>電話番号</dt><dd style="font-size:0.9em; color:#888;">090-5012-8754<br><span style="font-size:0.85em;">※受注後の個別連絡用のみ・平日10:00〜17:00</span></dd>
+      <dt>メールアドレス</dt><dd><strong><a href="mailto:mail@tecnest.biz" style="color:#0066cc; font-weight:bold;">mail@tecnest.biz</a></strong> / <a href="mailto:order@tecnest.biz" style="color:#0066cc;">order@tecnest.biz</a><br><span class="sub-note">お問い合わせは原則メールにてお願いいたします(記録保持のため)</span></dd>
+      <dt>電話番号</dt><dd class="tel-cell">090-5012-8754<br><span class="sub-note">※受注後の個別連絡用のみ・平日10:00〜17:00</span></dd>
       <dt>適格請求書発行事業者登録番号</dt><dd>T4120101054474</dd>
       <dt>販売価格</dt><dd>各商品の表示価格(税別)。消費税・送料・振込手数料は別途</dd>
       <dt>商品代金以外の必要料金</dt><dd>消費税(10%)・送料(ブランドごとに3m未満の場合 1,500円税別が加算)・振込手数料(お客様負担)</dd>
@@ -222,7 +222,7 @@ body { font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; 
 </div>
 
 <script>window.__PREVIEW_MODE__ = true;</script>
-<script src="./main.js?v=20260423-2345-textcolor-altyno-name" defer></script>
+<script src="./main.js?v=20260423-2355-inline-style-purge" defer></script>
 
 </body>
 </html>
