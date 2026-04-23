@@ -225,9 +225,17 @@
     lookupProduct(input) {
       // 2026-04-20 変更: 前方一致fallback廃止(ME-001→ME-001EX誤bundle事故対策)
       // 客の意図は厳密一致のみ扱う。未登録時は findSuggestions で候補提案する。
+      // 2026-04-23 HPI-23 致命バグFIX: ハイフン除去版fallback追加
+      //   normalizePnが NANO40S → NANO-40S に勝手にハイフン挿入するが、
+      //   products.jsonの実品番はNANO40S(ハイフンなし)。検索ヒットせず全NANO系11品番が死んでいた。
+      //   ハイフンあり版でヒットしなければハイフン除去版でも探す。
       const pn = this.normalizePn(input);
       if (!pn || !this.products) return null;
-      return this.products.products.find(p => p.pn === pn) || null;
+      const hit = this.products.products.find(p => p.pn === pn);
+      if (hit) return hit;
+      // NANO系/GF系 等ハイフンなし品番の救済
+      const pnNoHyphen = pn.replace(/-/g, '');
+      return this.products.products.find(p => p.pn === pnNoHyphen) || null;
     },
 
     /* ───────────── 価格計算 ───────────── */
