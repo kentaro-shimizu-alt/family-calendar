@@ -173,9 +173,12 @@
         row.product = this.lookupProduct(patch.pn);
       }
       if ('meters' in patch) {
-        let m = parseInt(patch.meters, 10);
-        if (isNaN(m) || m < 1) m = 1;
+        // 2026-04-23 HPI-12: 小数点(0.5m刻み等)対応・parseFloatに変更
+        let m = parseFloat(patch.meters);
+        if (isNaN(m) || m < 0.1) m = 1;
         if (m > 200) m = 200; // 2026-04-20 上限200m(健太郎指示)・超はフォーム備考or問合せ
+        // 0.1刻みに丸める(浮動小数誤差対策)
+        m = Math.round(m * 10) / 10;
         row.meters = m;
         // 2026-04-20 バグ修正: clamp後の値をinput.valueにも反映(表示と実値乖離防止)
         const inMcell = document.querySelector(`#cart-rows tr[data-id="${id}"] .in-m`);
@@ -202,14 +205,14 @@
       const pnBrand = tr.querySelector('.pn-brand');
       if (pnTd) {
         if (row.product) {
-          const brandText = `${row.product.brand}${row.product.name ? ' ' + row.product.name : ''}`;
+          const brandHtml = this.makeBrandBlockHtml(row.product);
           if (pnBrand) {
-            pnBrand.textContent = brandText;
+            pnBrand.innerHTML = brandHtml;
           } else {
             const input = tr.querySelector('.in-pn');
             const div = document.createElement('div');
             div.className = 'pn-brand';
-            div.textContent = brandText;
+            div.innerHTML = brandHtml;
             input.parentNode.insertBefore(div, input);
           }
           const { variants } = this.findSuggestions(row.pn);
@@ -287,7 +290,7 @@
         let brandTop = '';
         let pnSuggestSlot = '';
         if (row.product) {
-          brandTop = `<div class="pn-brand">${this.escapeHtml(row.product.brand)}${row.product.name ? ' ' + this.escapeHtml(row.product.name) : ''}</div>`;
+          brandTop = `<div class="pn-brand">${this.makeBrandBlockHtml(row.product)}</div>`;
           const { variants } = this.findSuggestions(row.pn);
           if (variants.length > 0) {
             const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
@@ -332,7 +335,7 @@
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unitText}</td>
-          <td data-label="数量"><input class="in-m" type="number" min="1" max="200" value="${row.meters}" inputmode="numeric" aria-label="数量(メートル)" onfocus="this.select()">m</td>
+          <td data-label="数量"><input class="in-m" type="number" min="0.1" max="200" step="0.1" value="${row.meters}" inputmode="decimal" aria-label="数量(メートル)" onfocus="this.select()">m</td>
           <td data-label="小計(税別)" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
         tbody.appendChild(tr);
@@ -581,23 +584,70 @@
      * - 近似候補: 接頭辞3文字一致で上位3件
      */
     findSuggestions(input) {
+      // 2026-04-23 HPI-11: 部分一致対応・raw/normalized 両方で検索
       if (!this.products) return { variants: [], similar: [] };
+      const raw = (input || '').normalize('NFKC').toUpperCase().trim().replace(/\s+/g, '');
       const normalized = this.normalizePn(input || '');
-      if (!normalized || normalized.length < 2) return { variants: [], similar: [] };
+      if (raw.length < 2) return { variants: [], similar: [] };
       const products = this.products.products;
+      const matchKeys = [normalized, raw].filter(k => k && k.length >= 2);
 
-      // バリアント: 入力PNで始まる別品番(入力と完全一致を除く)
+      // バリアント: 入力PNで始まる別品番(raw/normalized両対応で完全一致を除く)
       const variants = products
-        .filter(p => p.pn !== normalized && p.pn.startsWith(normalized))
-        .slice(0, 5);
+        .filter(p => {
+          if (matchKeys.includes(p.pn)) return false;
+          return matchKeys.some(k => p.pn.startsWith(k));
+        })
+        .slice(0, 10);
 
-      // 近似候補: 先頭3-4文字が一致する上位候補(バリアント除く)
-      const prefix = normalized.slice(0, Math.min(normalized.length, 4));
-      const similar = products
-        .filter(p => p.pn !== normalized && p.pn.startsWith(prefix) && !variants.includes(p))
-        .slice(0, 3);
-
+      // 近似候補: 部分一致(includes)+ prefix 3-4文字一致(3文字以上のみ発火)
+      const similar = [];
+      const seen = new Set(variants.map(v => v.pn));
+      for (const p of products) {
+        if (seen.has(p.pn) || matchKeys.includes(p.pn)) continue;
+        const hit = matchKeys.some(k => {
+          if (k.length < 3) return false;
+          return p.pn.includes(k);
+        });
+        if (hit) {
+          similar.push(p);
+          seen.add(p.pn);
+          if (similar.length >= 10) break;
+        }
+      }
       return { variants, similar };
+    },
+
+    // 2026-04-23 HPI-13: メーカー公式サイトURL(品番別の画像URL提供は不可のため、メーカーTOPへ)
+    getOfficialUrl(product) {
+      if (!product) return '';
+      const brand = (product.brand || '').toString();
+      // 3M系
+      if (brand.includes('ダイノック')) return 'https://www.mmm.co.jp/dinoc/';
+      if (brand.includes('ファサラ')) return 'https://www.mmm.co.jp/ggf/fasara/';
+      if (brand.includes('スコッチティント')) return 'https://www.mmm.co.jp/ggf/';
+      if (brand.includes('3Mフィルム') || brand.includes('3M')) return 'https://www.mmm.co.jp/ggf/';
+      // サンゲツ
+      if (brand.includes('リアテック')) return 'https://www.sangetsu.co.jp/';
+      // アイカ
+      if (brand.includes('オルティノ') || brand.includes('アイカ')) return 'https://www.aica.co.jp/products/film/altyno/';
+      // シーアイ化成
+      if (brand.includes('ベルビアン')) return 'https://www.c-i.co.jp/belbien/';
+      // 岡本化成
+      if (brand.includes('クレアス')) return 'https://www.okamoto-g.com/kress/';
+      if (brand.includes('パロア')) return 'https://www.okamoto-g.com/paroa/';
+      return '';
+    },
+
+    // 2026-04-23 HPI-13: brand表示ブロックのHTML生成(公式リンク付)
+    makeBrandBlockHtml(product) {
+      if (!product) return '';
+      const brandText = `${product.brand}${product.name ? ' ' + product.name : ''}`;
+      const url = this.getOfficialUrl(product);
+      const linkHtml = url
+        ? ` <a href="${url}" target="_blank" rel="noopener noreferrer" class="official-link" title="メーカー公式サイトで柄を確認">柄を見る →</a>`
+        : '';
+      return `${this.escapeHtml(brandText)}${linkHtml}`;
     },
 
     /* ───────────── ユーティリティ ───────────── */
