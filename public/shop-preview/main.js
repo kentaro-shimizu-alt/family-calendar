@@ -173,16 +173,24 @@
         row.product = this.lookupProduct(patch.pn);
       }
       if ('meters' in patch) {
-        // 2026-04-23 HPI-12: 小数点(0.5m刻み等)対応・parseFloatに変更
-        let m = parseFloat(patch.meters);
-        if (isNaN(m) || m < 0.1) m = 1;
-        if (m > 200) m = 200; // 2026-04-20 上限200m(健太郎指示)・超はフォーム備考or問合せ
-        // 0.1刻みに丸める(浮動小数誤差対策)
-        m = Math.round(m * 10) / 10;
-        row.meters = m;
-        // 2026-04-20 バグ修正: clamp後の値をinput.valueにも反映(表示と実値乖離防止)
+        // 2026-04-23 HPI-12+HPI-7b: 小数点対応・parseFloatに変更+入力中の空文字尊重(美砂さん指摘)
+        const raw = String(patch.meters).trim();
         const inMcell = document.querySelector(`#cart-rows tr[data-id="${id}"] .in-m`);
-        if (inMcell && String(m) !== inMcell.value) inMcell.value = String(m);
+        if (raw === '') {
+          // 入力中の空文字は上書きしない(消してから再入力する時に「1」に戻される問題対策)
+          row.meters = 1;
+          // input.valueは空のまま維持
+        } else {
+          let m = parseFloat(raw);
+          if (isNaN(m) || m < 0.1) m = 1;
+          if (m > 200) m = 200; // 2026-04-20 上限200m(健太郎指示)
+          m = Math.round(m * 10) / 10; // 0.1刻みに丸め
+          row.meters = m;
+          // clamp発生(200超過等)でrawと異なる時のみinput.value上書き(入力カーソル位置維持)
+          if (inMcell && parseFloat(inMcell.value) !== m && inMcell.value !== String(m)) {
+            inMcell.value = String(m);
+          }
+        }
       }
       // 2026-04-20 バグ修正: renderCart全再生成だと1文字打つ毎にinputが置換され
       // iOS Safari でフォーカス外れる問題→ 該当行の商品名/単価/小計セルだけ差分更新
@@ -333,7 +341,7 @@
           <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unitText}</td>
-          <td data-label="数量"><input class="in-m" type="number" min="0.1" max="200" step="0.1" value="${row.meters}" inputmode="decimal" aria-label="数量(メートル)" onfocus="this.select()">m</td>
+          <td data-label="数量"><input class="in-m" type="text" value="${row.meters}" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" aria-label="数量(メートル)" onfocus="this.select()" onclick="this.select()" ontouchend="this.select()">m</td>
           <td data-label="小計(税別)" class="td-sub">${sub > 0 ? '¥' + sub.toLocaleString() : '-'}</td>
           <td><button type="button" class="btn-del" aria-label="この行を削除">×</button></td>`;
         tbody.appendChild(tr);
@@ -627,25 +635,29 @@
       return { variants, similar };
     },
 
-    // 2026-04-23 HPI-13: メーカー公式サイトURL(品番別の画像URL提供は不可のため、メーカーTOPへ)
+    // 2026-04-23 HPI-13 修正版: メーカー公式が404/ドメイン死亡が多いため、
+    // Google画像検索URLで「メーカー名+ブランド+品番」検索→公式/EC混じった柄写真一覧が出る
+    // 美砂さん指摘2026-04-23:「柄を見る→押したら404」対応
     getOfficialUrl(product) {
       if (!product) return '';
       const brand = (product.brand || '').toString();
+      const pn = product.pn || '';
+      const q = (kw) => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(kw + ' ' + pn)}`;
       // 3M系
-      if (brand.includes('ダイノック')) return 'https://www.mmm.co.jp/dinoc/';
-      if (brand.includes('ファサラ')) return 'https://www.mmm.co.jp/ggf/fasara/';
-      if (brand.includes('スコッチティント')) return 'https://www.mmm.co.jp/ggf/';
-      if (brand.includes('3Mフィルム') || brand.includes('3M')) return 'https://www.mmm.co.jp/ggf/';
+      if (brand.includes('ダイノック')) return q('3M ダイノック');
+      if (brand.includes('ファサラ')) return q('3M ファサラ');
+      if (brand.includes('スコッチティント')) return q('3M スコッチティント');
+      if (brand.includes('3Mフィルム') || brand.includes('3M')) return q('3M');
       // サンゲツ
-      if (brand.includes('リアテック')) return 'https://www.sangetsu.co.jp/';
+      if (brand.includes('リアテック')) return q('サンゲツ リアテック');
       // アイカ
-      if (brand.includes('オルティノ') || brand.includes('アイカ')) return 'https://www.aica.co.jp/products/film/altyno/';
+      if (brand.includes('オルティノ') || brand.includes('アイカ')) return q('アイカ オルティノ');
       // シーアイ化成
-      if (brand.includes('ベルビアン')) return 'https://www.c-i.co.jp/belbien/';
+      if (brand.includes('ベルビアン')) return q('ベルビアン');
       // 岡本化成
-      if (brand.includes('クレアス')) return 'https://www.okamoto-g.com/kress/';
-      if (brand.includes('パロア')) return 'https://www.okamoto-g.com/paroa/';
-      return '';
+      if (brand.includes('クレアス')) return q('クレアス');
+      if (brand.includes('パロア')) return q('パロア');
+      return q(brand);
     },
 
     // 2026-04-23 HPI-11b: サジェスト候補をクリッカブルなボタン化(美砂さん指摘・タップで選択できるように)
