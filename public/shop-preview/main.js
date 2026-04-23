@@ -218,7 +218,7 @@
           const { variants } = this.findSuggestions(row.pn);
           if (pnSuggestSlot) {
             pnSuggestSlot.innerHTML = variants.length > 0
-              ? `<div class="variant-hint">💡 関連品番: ${variants.map(v => this.escapeHtml(v.pn)).join(' / ')}</div>`
+              ? `<div class="variant-hint">💡 関連品番(タップで選択): ${this.makeSuggestBtns(variants, 10)}</div>`
               : '';
           }
           if (pnWarnSlot) {
@@ -235,7 +235,7 @@
               const { variants, similar } = this.findSuggestions(row.pn);
               const cands = [...variants, ...similar];
               pnSuggestSlot.innerHTML = cands.length > 0
-                ? `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${cands.slice(0,5).map(p => this.escapeHtml(p.pn)).join(' / ')}</strong> ですか?</div>`
+                ? `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。<br>もしかして(タップで選択): ${this.makeSuggestBtns(cands, 10)}</div>`
                 : `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。品番ご確認のうえお問い合わせください</div>`;
             } else {
               pnSuggestSlot.innerHTML = '<div class="pn-suggest muted">品番を入力(例: PS-134)</div>';
@@ -293,16 +293,14 @@
           brandTop = `<div class="pn-brand">${this.makeBrandBlockHtml(row.product)}</div>`;
           const { variants } = this.findSuggestions(row.pn);
           if (variants.length > 0) {
-            const list = variants.map(v => this.escapeHtml(v.pn)).join(' / ');
-            pnSuggestSlot = `<div class="variant-hint">💡 関連品番: ${list}</div>`;
+            pnSuggestSlot = `<div class="variant-hint">💡 関連品番(タップで選択): ${this.makeSuggestBtns(variants, 10)}</div>`;
           }
         } else if (row.pn) {
           const normalized = this.normalizePn(row.pn);
           const { variants, similar } = this.findSuggestions(row.pn);
           const cands = [...variants, ...similar];
           if (cands.length > 0) {
-            const list = cands.slice(0, 5).map(p => this.escapeHtml(p.pn)).join(' / ');
-            pnSuggestSlot = `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。もしかして: <strong>${list}</strong> ですか?</div>`;
+            pnSuggestSlot = `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。<br>もしかして(タップで選択): ${this.makeSuggestBtns(cands, 10)}</div>`;
           } else {
             pnSuggestSlot = `<div class="pn-suggest not-found">「${this.escapeHtml(normalized)}」は登録にありません。品番ご確認のうえお問い合わせください</div>`;
           }
@@ -540,6 +538,17 @@
           if (e.target.classList.contains('in-m')) this.updateRow(id, { meters: e.target.value });
         });
         rows.addEventListener('click', e => {
+          // 2026-04-23 HPI-11b: サジェスト候補タップで品番自動入力(美砂さん案)
+          if (e.target.classList.contains('pn-suggest-btn')) {
+            e.preventDefault();
+            const pn = e.target.dataset.pn;
+            const tr = e.target.closest('tr');
+            if (!tr || !pn) return;
+            const inPn = tr.querySelector('.in-pn');
+            if (inPn) inPn.value = pn;
+            this.updateRow(tr.dataset.id, { pn });
+            return;
+          }
           if (e.target.classList.contains('btn-del')) {
             this.removeRow(e.target.closest('tr').dataset.id);
           }
@@ -637,6 +646,14 @@
       if (brand.includes('クレアス')) return 'https://www.okamoto-g.com/kress/';
       if (brand.includes('パロア')) return 'https://www.okamoto-g.com/paroa/';
       return '';
+    },
+
+    // 2026-04-23 HPI-11b: サジェスト候補をクリッカブルなボタン化(美砂さん指摘・タップで選択できるように)
+    makeSuggestBtns(list, maxCount = 8) {
+      if (!list || list.length === 0) return '';
+      return list.slice(0, maxCount).map(p =>
+        `<button type="button" class="pn-suggest-btn" data-pn="${this.escapeHtml(p.pn)}">${this.escapeHtml(p.pn)}</button>`
+      ).join(' ');
     },
 
     // 2026-04-23 HPI-13: brand表示ブロックのHTML生成(公式リンク付)

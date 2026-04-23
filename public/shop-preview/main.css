@@ -346,6 +346,33 @@
   line-height: 1.45;
   border-radius: 3px;
 }
+/* 2026-04-23 HPI-11b: サジェスト候補を選択可能ボタン化(美砂さん指摘・タップで入力切替) */
+#cart-table .pn-suggest-btn {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 5px 10px;
+  font-size: 0.92em;
+  color: #0d2b52;
+  background: #f0f4fa;
+  border: 1px solid #b5c5dd;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.2;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+#cart-table .pn-suggest-btn:hover,
+#cart-table .pn-suggest-btn:active {
+  background: #0d2b52;
+  color: #fff;
+  border-color: #0d2b52;
+}
+#cart-table .variant-hint {
+  /* ボタンの改行対応 */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 #cart-table .td-joutai,
 #cart-table .td-ppt {
   font-size: 0.88em;
@@ -398,7 +425,21 @@
 #cart-table .pn-suggest-slot .pn-suggest {
   margin-top: 4px;
   font-size: 0.82em;
-  line-height: 1.35;
+  line-height: 1.45;
+  /* 2026-04-23 HPI-11修正: サジェスト候補がスマホ幅にはみ出す問題対応(美砂さん指摘) */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  max-width: 100%;
+}
+#cart-table .pn-suggest-slot {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+#cart-table .pn-suggest-slot .pn-suggest strong {
+  display: inline;
+  word-break: break-word;
 }
 #cart-table .pn-suggest-slot .pn-suggest.muted {
   color: #999;
