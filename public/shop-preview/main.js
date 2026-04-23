@@ -105,7 +105,8 @@
     },
 
     /* ───────────── 価格計算 ───────────── */
-    applyRevision(product, shipDate = new Date()) {
+    // 2026-04-23 HPI-23: 幅選択時の価格を優先使用(width_options持ち品番対応)
+    applyRevision(product, shipDate = new Date(), selectedWidth = null) {
       const rev = this.products.price_revision;
       const d3m = new Date(rev['3m_date']);
       const dsg = new Date(rev.sangetsu_date);
@@ -117,7 +118,13 @@
       if (product.maker === 'サンゲツ' || product.brand === 'リアテック') {
         if (shipDate >= dsg) mult = rev.sangetsu_rate;
       }
-      return Math.ceil(product.hp_price_m * mult / 10) * 10;
+      // 選択幅がwidth_optionsに該当すればその価格を使用、そうでなければ代表hp_price_m
+      let basePrice = product.hp_price_m;
+      if (selectedWidth && Array.isArray(product.width_options)) {
+        const opt = product.width_options.find(w => w.width_mm === selectedWidth);
+        if (opt && opt.hp_price_m) basePrice = opt.hp_price_m;
+      }
+      return Math.ceil(basePrice * mult / 10) * 10;
     },
 
     calcTotals() {
@@ -125,7 +132,7 @@
       let totalMeters = 0;
       const brandMeters = {};  // 2026-04-22 HPI-8: ブランド別m数集計
       for (const item of this.cart) {
-        const unit = item.product ? this.applyRevision(item.product) : 0;
+        const unit = item.product ? this.applyRevision(item.product, new Date(), item.width_mm) : 0;
         const sub = unit * item.meters;
         item.unit_price = unit;
         item.subtotal = sub;
@@ -156,11 +163,16 @@
     },
 
     /* ───────────── カート操作 ───────────── */
-    addRow(pn = '', meters = 1) {
+    // 2026-04-23 HPI-23: width_mm を row に保持(複数幅品番対応)
+    addRow(pn = '', meters = 1, width_mm = null) {
       const product = pn ? this.lookupProduct(pn) : null;
+      const defaultWidth = (product && Array.isArray(product.width_options) && product.width_options.length > 0)
+        ? product.width_options[0].width_mm
+        : (product?.width_mm || null);
       this.cart.push({
         id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random()),
         pn, product, meters,
+        width_mm: width_mm || defaultWidth,
       });
       this.renderCart();
       this.persistCart();
@@ -172,6 +184,18 @@
       if ('pn' in patch) {
         row.pn = patch.pn;
         row.product = this.lookupProduct(patch.pn);
+        // 品番変更時は幅も再設定(widthsオプションあれば先頭・なければ代表値)
+        row.width_mm = (row.product && Array.isArray(row.product.width_options) && row.product.width_options.length > 0)
+          ? row.product.width_options[0].width_mm
+          : (row.product?.width_mm || null);
+      }
+      // 2026-04-23 HPI-23: 幅切替対応
+      if ('width_mm' in patch) {
+        const w = parseInt(patch.width_mm, 10);
+        if (w && row.product && Array.isArray(row.product.width_options) &&
+            row.product.width_options.some(o => o.width_mm === w)) {
+          row.width_mm = w;
+        }
       }
       if ('meters' in patch) {
         // 2026-04-23 HPI-12+HPI-7b: 小数点対応・parseFloatに変更+入力中の空文字尊重(美砂さん指摘)
@@ -205,7 +229,8 @@
     refreshRow(row) {
       const tr = document.querySelector(`#cart-rows tr[data-id="${row.id}"]`);
       if (!tr) return;
-      const unit = row.product ? this.applyRevision(row.product) : 0;
+      // 2026-04-23 HPI-23: 選択幅考慮の価格再計算
+      const unit = row.product ? this.applyRevision(row.product, new Date(), row.width_mm) : 0;
       const sub = unit * row.meters;
       // 2026-04-20 変更: 商品名列廃止、品番セル内のbrand+suggest+warn更新
       const pnTd = tr.querySelector('td[data-label="品番"]');
@@ -293,7 +318,8 @@
       for (const row of this.cart) {
         const tr = document.createElement('tr');
         tr.dataset.id = row.id;
-        const unit = row.product ? this.applyRevision(row.product) : 0;
+        // 2026-04-23 HPI-23: 選択幅を考慮した価格算出
+        const unit = row.product ? this.applyRevision(row.product, new Date(), row.width_mm) : 0;
         const sub = unit * row.meters;
         // 2026-04-20 変更: 商品名列廃止、品番セル内に集約(ブランド名 上/ヒント 下)
         let brandTop = '';
@@ -317,6 +343,16 @@
           pnSuggestSlot = '<div class="pn-suggest muted">品番を入力(例: PS-134 半角/全角どちらでもOK)</div>';
         }
         const joutaiText = row.product?.joutai_m2 ? '¥' + row.product.joutai_m2.toLocaleString() + '/㎡' : '-';
+        // 2026-04-23 HPI-23: width_options持ち品番は幅ドロップダウン併記(td-joutai内)
+        let widthSelectHtml = '';
+        if (row.product && Array.isArray(row.product.width_options) && row.product.width_options.length > 0) {
+          const opts = row.product.width_options.map(o =>
+            `<option value="${o.width_mm}"${o.width_mm === row.width_mm ? ' selected' : ''}>${o.width_mm}mm</option>`
+          ).join('');
+          widthSelectHtml = `<div class="width-select">規格幅: <select class="in-width" aria-label="規格幅選択">${opts}</select></div>`;
+        } else if (row.product && row.product.width_mm) {
+          widthSelectHtml = `<div class="width-static">規格幅: ${row.product.width_mm}mm</div>`;
+        }
         // 2026-04-20: 直接単価管理(上代0)の場合は掛率も非表示(ガラスフィルム等)
         const pptText = (row.product?.hp_kakeritsu_pt && row.product.joutai_m2 > 0)
           ? row.product.hp_kakeritsu_pt + 'pt'
@@ -339,7 +375,7 @@
             <div class="pn-warn-slot">${pnWarn}</div>
             <div class="pn-suggest-slot">${pnSuggestSlot}</div>
           </td>
-          <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}</td>
+          <td data-label="上代(円/㎡)" class="td-joutai">${joutaiText}${widthSelectHtml}</td>
           <td data-label="掛率" class="td-ppt">${pptText}</td>
           <td data-label="m単価(税別)" class="td-unit">${unitText}</td>
           <td data-label="数量"><input class="in-m" type="text" value="${row.meters}" inputmode="decimal" pattern="[0-9.]*" autocomplete="off" aria-label="数量(メートル)" onfocus="this.select()" onclick="this.select()" ontouchend="this.select()">m</td>
@@ -451,16 +487,21 @@
 
     /* ───────────── 送信 ───────────── */
     syncHiddenFields() {
+      // 2026-04-23 HPI-23: 選択幅情報+幅別単価を含めて送信
       const cartSlim = this.cart
         .filter(r => r.product)
-        .map(r => ({
-          pn: r.product.pn,
-          name: r.product.name || '',
-          brand: r.product.brand,
-          meters: r.meters,
-          unit_price: this.applyRevision(r.product),
-          subtotal: this.applyRevision(r.product) * r.meters,
-        }));
+        .map(r => {
+          const unit = this.applyRevision(r.product, new Date(), r.width_mm);
+          return {
+            pn: r.product.pn,
+            name: r.product.name || '',
+            brand: r.product.brand,
+            width_mm: r.width_mm || r.product.width_mm || null,
+            meters: r.meters,
+            unit_price: unit,
+            subtotal: unit * r.meters,
+          };
+        });
       const totals = this.calcTotals();
 
       // 人間可読版(CF7メールで顧客/管理者が直接読む形式、批判A-3対応)
@@ -468,7 +509,8 @@
         ? '(品番未指定)'
         : cartSlim.map(it => {
             const nm = it.name ? ' ' + it.name : '';
-            return `[${it.brand}] ${it.pn}${nm}\n`
+            const w = it.width_mm ? ` 幅${it.width_mm}mm` : '';
+            return `[${it.brand}] ${it.pn}${nm}${w}\n`
               + `  m単価: ¥${it.unit_price.toLocaleString()} × ${it.meters}m = ¥${it.subtotal.toLocaleString()}`;
           }).join('\n');
       // 2026-04-22 HPI-8: 送料内訳をメーカー別で明記
@@ -502,7 +544,8 @@
     /* ───────────── 状態保持 ───────────── */
     persistCart() {
       try {
-        const slim = this.cart.map(r => ({ pn: r.pn, meters: r.meters }));
+        // 2026-04-23 HPI-23: width_mm も復元時に使う
+        const slim = this.cart.map(r => ({ pn: r.pn, meters: r.meters, width_mm: r.width_mm || null }));
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
           ts: Date.now(),
           items: slim,
@@ -521,12 +564,24 @@
           localStorage.removeItem(this.STORAGE_KEY);
           return;
         }
-        this.cart = items.map(i => ({
-          id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random()),
-          pn: i.pn,
-          product: this.lookupProduct(i.pn),
-          meters: i.meters,
-        }));
+        this.cart = items.map(i => {
+          const product = this.lookupProduct(i.pn);
+          // 2026-04-23 HPI-23: width_mm復元・不正なら代表値にフォールバック
+          let width_mm = i.width_mm || null;
+          if (product && Array.isArray(product.width_options) && product.width_options.length > 0) {
+            const valid = product.width_options.some(o => o.width_mm === width_mm);
+            if (!valid) width_mm = product.width_options[0].width_mm;
+          } else if (product && !width_mm) {
+            width_mm = product.width_mm || null;
+          }
+          return {
+            id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now() + Math.random()),
+            pn: i.pn,
+            product,
+            meters: i.meters,
+            width_mm,
+          };
+        });
       } catch (e) {
         console.warn('[shop] restore失敗', e);
       }
@@ -545,6 +600,14 @@
           const id = tr.dataset.id;
           if (e.target.classList.contains('in-pn')) this.updateRow(id, { pn: e.target.value });
           if (e.target.classList.contains('in-m')) this.updateRow(id, { meters: e.target.value });
+        });
+        // 2026-04-23 HPI-23: 幅セレクタ変更で単価再計算
+        rows.addEventListener('change', e => {
+          if (e.target.classList.contains('in-width')) {
+            const tr = e.target.closest('tr');
+            if (!tr) return;
+            this.updateRow(tr.dataset.id, { width_mm: parseInt(e.target.value, 10) });
+          }
         });
         rows.addEventListener('click', e => {
           // 2026-04-23 HPI-11b: サジェスト候補タップで品番自動入力(美砂さん案)

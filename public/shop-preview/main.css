@@ -381,6 +381,28 @@
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
+/* 2026-04-23 HPI-23: 規格幅ドロップダウン(ガラスフィルム複数幅対応) */
+#cart-table .td-joutai .width-select,
+#cart-table .td-joutai .width-static {
+  margin-top: 4px;
+  font-size: 0.82em;
+  color: #333;
+  white-space: nowrap;
+}
+#cart-table .in-width {
+  padding: 4px 6px;
+  border: 1px solid #b5c5dd;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.95em;
+  color: #0d2b52;
+  cursor: pointer;
+  font-family: inherit;
+}
+#cart-table .in-width:focus {
+  outline: 2px solid #0d2b52;
+  outline-offset: 1px;
+}
 /* 2026-04-23 HPI-10: m単価セル(td-unit) スマホ/狭幅でのはみ出し対策 */
 #cart-table .td-unit {
   word-break: break-word;
