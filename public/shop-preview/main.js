@@ -641,29 +641,33 @@
       return { variants, similar };
     },
 
-    // 2026-04-23 HPI-13 修正版: メーカー公式が404/ドメイン死亡が多いため、
-    // Google画像検索URLで「メーカー名+ブランド+品番」検索→公式/EC混じった柄写真一覧が出る
-    // 美砂さん指摘2026-04-23:「柄を見る→押したら404」対応
+    // 2026-04-23 HPI-22 案ε(ディープリンク化): メーカー公式の品番検索/商品ページへ直リンク
+    // 健太郎承認 2026-04-23「ディープリンクこれ最高やん」+ サンゲツ規約で画像転載NG確定
+    // - 3Mダイノック: 公式品番検索 dinoc.3mcompany.jp (200確認済)
+    // - サンゲツリアテック: 品番パス直 sangetsu.co.jp/product/list/part/{pn} (200確認済)
+    // - アイカオルティノ: 公式TOP (品番検索機能なし)
+    // - 他(ファサラ/スコッチティント/ベルビアン/クレアス/パロア): Google画像検索で代替
     getOfficialUrl(product) {
       if (!product) return '';
       const brand = (product.brand || '').toString();
       const pn = product.pn || '';
-      const q = (kw) => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(kw + ' ' + pn)}`;
-      // 3M系
-      if (brand.includes('ダイノック')) return q('3M ダイノック');
-      if (brand.includes('ファサラ')) return q('3M ファサラ');
-      if (brand.includes('スコッチティント')) return q('3M スコッチティント');
-      if (brand.includes('3Mフィルム') || brand.includes('3M')) return q('3M');
-      // サンゲツ
-      if (brand.includes('リアテック')) return q('サンゲツ リアテック');
-      // アイカ
-      if (brand.includes('オルティノ') || brand.includes('アイカ')) return q('アイカ オルティノ');
-      // シーアイ化成
-      if (brand.includes('ベルビアン')) return q('ベルビアン');
-      // 岡本化成
-      if (brand.includes('クレアス')) return q('クレアス');
-      if (brand.includes('パロア')) return q('パロア');
-      return q(brand);
+      const encPn = encodeURIComponent(pn);
+      const g = (kw) => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(kw + ' ' + pn)}`;
+      // 3Mダイノック → 公式品番検索(dinoc.3mcompany.jp)
+      if (brand.includes('ダイノック')) return `https://dinoc.3mcompany.jp/search/?q=${encPn}`;
+      // サンゲツリアテック → 公式品番パス
+      if (brand.includes('リアテック')) return `https://www.sangetsu.co.jp/product/list/part/${encPn}`;
+      // アイカオルティノ → 公式TOP(品番検索機能なし・NEWコレクションあり)
+      if (brand.includes('オルティノ') || brand.includes('アイカ')) return 'https://www.aica.co.jp/products/film/altyno/';
+      // 3M ファサラ/スコッチティント/その他3Mフィルム → Google画像検索(dinoc検索対象外)
+      if (brand.includes('ファサラ')) return g('3M ファサラ');
+      if (brand.includes('スコッチティント')) return g('3M スコッチティント');
+      if (brand.includes('3Mフィルム') || brand.includes('3M')) return g('3M');
+      // その他(ベルビアン/クレアス/パロア) → Google画像検索
+      if (brand.includes('ベルビアン')) return g('ベルビアン');
+      if (brand.includes('クレアス')) return g('クレアス');
+      if (brand.includes('パロア')) return g('パロア');
+      return g(brand);
     },
 
     // 2026-04-23 HPI-11b: サジェスト候補をクリッカブルなボタン化(美砂さん指摘・タップで選択できるように)
