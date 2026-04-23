@@ -40,6 +40,11 @@
 .shop-notice strong {
   color: #0d2b52;
 }
+/* 商品画像について ブロック(ベージュ基調・ライトモード) */
+.shop-notice.image-note {
+  background: #f7f3ee;
+  border-color: #d8c7a8;
+}
 
 /* カートテーブル */
 #cart-table {
@@ -802,6 +807,29 @@
   /* 2026-04-23 同化解消: ダークモード下で .shop-notice strong が#0d2b52=ほぼ背景同色だった */
   .shop-notice strong {
     color: #ffd54f;  /* 黄色アクセント・視認性最大 */
+  }
+  /* 2026-04-23 追加同化解消: 商品画像ブロック(ベージュインラインstyle廃止→image-noteクラス) */
+  .shop-notice.image-note {
+    background: #2d2419;
+    border-color: #8b6500;
+    color: #fbbf24;
+  }
+  .shop-notice.image-note strong {
+    color: #fcd34d;
+  }
+  .shop-notice.image-note a {
+    color: #60a5fa;
+  }
+  /* shop-subheader(化粧フィルム/ガラスフィルムの紹介ブロック) */
+  .shop-subheader strong {
+    color: #ffd54f;  /* ダークモード下で#0d2b52→黄色に */
+  }
+  /* consent-scroll 内の見出し/強調 */
+  .consent-scroll h4 {
+    color: #ffd54f;
+  }
+  .consent-scroll strong {
+    color: #ffd54f;
   }
   .consent-box {
     background: #2d2419;

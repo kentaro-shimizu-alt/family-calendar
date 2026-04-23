@@ -1,0 +1,298 @@
+<!-- === WordPress固定ページ設定項目 =======================================
+タイトル: 材料販売 | 株式会社テクネスト
+スラッグ: shop
+パーマリンク: https://tecnest.biz/shop/
+
+【SEO / メタ情報】All in One SEO Pack 等のプラグイン設定で以下を登録:
+  meta description: 塩ビシート・化粧フィルム販売。ダイノック・リアテック・オルティノ・ファサラをフォーム1つで即お見積。仕入先より直送。
+  meta keywords (参考): 塩ビシート,化粧フィルム,ダイノック,リアテック,オルティノ,ファサラ,ベルビアン,材料販売,テクネスト
+
+【OGP / SNSシェア】
+  OGP title: 塩ビシート・化粧フィルム材料販売 | テクネスト
+  OGP description: 塩ビシート・化粧フィルム販売。ダイノック・リアテック・オルティノ・ファサラをフォーム1つで即お見積。仕入先より直送。
+  OGP image: https://tecnest.biz/wp-content/uploads/shop/ogp.png
+  OGP type: website
+  OGP url: https://tecnest.biz/shop/
+  OGP site_name: 株式会社テクネスト
+
+【Twitter Card】
+  twitter:card: summary_large_image
+  twitter:title: 塩ビシート・化粧フィルム材料販売 | テクネスト
+  twitter:description: 塩ビシート・化粧フィルム販売。ダイノック・リアテック・オルティノ・ファサラをフォーム1つで即お見積。仕入先より直送。
+  twitter:image: https://tecnest.biz/wp-content/uploads/shop/ogp.png
+
+【favicon / Apple Touch Icon】
+  既存tecnest.biz (Lightning 11.0.5) のカスタマイザー → サイト基本情報 で
+  サイトアイコンとして既登録のものを流用(WordPressが自動で favicon / apple-touch-icon を出力)。
+  未登録の場合のみ、カスタマイザーに /wp-content/uploads/2020/08/5469865464.jpg を設定する。
+  (shop固有のfaviconは設ける必要なし = サイト全体で統一)
+
+【本文(下記HTML)貼り付け手順】
+  WordPress管理画面 → 固定ページ新規作成 → タイトル「材料販売」
+  下記HTMLを本文に貼り付け(ビジュアルエディタではなくテキストエディタで)
+
+【配置ファイル】
+    /wp-content/uploads/shop/products.json
+    /wp-content/uploads/shop/main.js
+    /wp-content/uploads/shop/main.css
+    /wp-content/uploads/shop/version.txt
+    /wp-content/uploads/shop/ogp.png
+
+【Contact Form 7】 ショートコードは<div id="cf7-mount">内に別途仕込む。
+======================================================================= -->
+
+<link rel="stylesheet" href="/wp-content/uploads/shop/main.css">
+
+<div id="shop-app">
+  <!--
+    ▼既存テーマ(Lightning)との親和性を高めたい場合のオプション装飾▼
+    tecnest.biz には既に下記カスタムCSSクラスが存在(D-5調査済):
+      .tn-section-header  … セクション見出しの装飾
+      .tn-content-box     … 情報ボックスの装飾
+      .tn-info-table      … 注意事項テーブルの装飾
+      .tn-cta-box         … CTA(行動喚起)ボックスの装飾
+    親和性重視なら、以下のように class を追加する(main.css側の変更は不要):
+      例: <h2 class="tn-section-header">材料販売 ― 塩ビシート/ガラスフィルム</h2>
+      例: <div class="shop-notice tn-content-box">...</div>
+      例: <h3 class="tn-section-header">1. 品番と数量を入力</h3>
+      例: <div class="consent-box tn-info-table">...</div>
+    ※既存テーマCSSとshop独自main.cssの二重適用になるため、見た目崩れが出たら個別に class 削除。
+    ※本体ロジックには影響なし(JSは class 参照していない)。
+  -->
+  <h2>材料販売 ― 化粧フィルム / ガラスフィルム</h2>
+  <p class="shop-subheader">
+    <strong>化粧フィルム(塩ビ系)</strong>: 3Mダイノックフィルム / サンゲツリアテック / アイカオルティノ<br>
+    <strong>ガラスフィルム</strong>: 3Mファサラ / 3Mスコッチティント
+  </p>
+
+  <div class="shop-notice">
+    <strong>送料:</strong> ブランドごとに3m以上で送料無料 / 3m未満 1,500円(税別)<br>
+    <span style="font-size:0.9em; color:#444;">※同じ3Mメーカー内でも種類(ダイノック/ファサラ/スコッチティント)が異なる場合は別梱包・別送料です。またメーカーが異なる場合(3M/サンゲツ/アイカ)も別梱包となります</span><br>
+    <strong>支払:</strong> PayPay銀行振込(前払いのみ・振込手数料はお客様負担)<br>
+    <strong>納期:</strong> 在庫確認→入金確認後2〜5営業日以内に発送<br>
+    <strong>価格表示:</strong> 税別単価 / 税込合計併記
+  </div>
+
+  <div class="shop-notice image-note">
+    <strong>商品画像について:</strong> 当サイトでは商品画像を掲載しておりません。柄・色・質感の詳細は各メーカー公式サイト/カタログにてご確認ください。<br>
+    <span style="font-size:0.9em;">
+      ・3Mダイノック: <a href="https://www.mmm.co.jp/dinoc/" target="_blank" rel="noopener">https://www.mmm.co.jp/dinoc/</a><br>
+      ・サンゲツ リアテック: <a href="https://www.sangetsu.co.jp/" target="_blank" rel="noopener">https://www.sangetsu.co.jp/</a><br>
+      ・アイカ オルティノ: <a href="https://www.aica.co.jp/products/film/altyno/" target="_blank" rel="noopener">https://www.aica.co.jp/products/film/altyno/</a><br>
+      ・3M ファサラ/スコッチティント: <a href="https://www.mmm.co.jp/ggf/" target="_blank" rel="noopener">https://www.mmm.co.jp/ggf/</a>
+    </span><br>
+    <strong>サンプルについて:</strong> 色・質感のご確認は各メーカー公式サイトでのサンプル請求をご利用ください(当店ではサンプル発送対応は行っておりません)。
+  </div>
+
+  <h3>1. 品番・数量の入力</h3>
+  <table id="cart-table">
+    <thead>
+      <tr>
+        <th>品番</th>
+        <th>上代(円/㎡)</th>
+        <th>掛率</th>
+        <th>m単価(税別)</th>
+        <th>数量(m)</th>
+        <th>小計(税別)</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="cart-rows"></tbody>
+  </table>
+  <button type="button" id="btn-add-row" aria-label="カートに品番行を追加">＋ 品番を追加する</button>
+  <p class="cart-hint" style="font-size:0.85em;color:#666;margin:4px 0 0;">※ 品番は半角/全角・大文字小文字・ハイフンの種類を問わず自動判定します。最後まで入力すると商品名・価格が表示されます。関連品番(AR/NEO等)の提案もあります。</p>
+
+  <div id="totals-box">
+    <div><span>合計m数:</span> <span id="sum-meters">0</span> m</div>
+    <div><span>小計(税別):</span> <span id="sum-subtotal">¥0</span></div>
+    <div><span>送料(税別):</span> <span id="sum-shipping">¥1,500</span></div>
+    <div><span>消費税(10%):</span> <span id="sum-tax">¥0</span></div>
+    <div class="grand"><span>合計(税込):</span> <span id="sum-total">¥0</span></div>
+  </div>
+
+  <h3>2. 注文前のご確認事項</h3>
+  <p class="consent-instruction">下記の注文条件・販売規約・個人情報保護方針・特定商取引法表記を<strong>最後までスクロールしてお読みください</strong>。最下部まで確認すると同意チェックボックスが有効になります。</p>
+
+  <div id="consent-scroll" class="consent-scroll" tabindex="0">
+    <h4>■ 商品について</h4>
+    <p>本ページで販売する商品は、化粧フィルム(塩ビ系)およびガラスフィルムです。取扱ブランドは 3Mダイノックフィルム / サンゲツリアテック / アイカオルティノ / 3Mファサラ / 3Mスコッチティント 等、メーカー品番をご指定のうえご注文ください。</p>
+    <p>色や質感はモニター環境や製造ロットにより実物と異なる場合があります。色・質感のご確認は各メーカー公式サイトでのサンプル請求をご利用ください(当店ではサンプル発送対応は行っておりません)。色差・ロット差に関するクレームはお受けできません。</p>
+    <p>品番の入力誤りによる誤発注はお客様のご責任となり、受注後の変更・返品はお受けできません。ご注文前に必ず品番・数量をご確認ください。</p>
+
+    <h4>■ 価格・お支払いについて</h4>
+    <p>表示価格は税抜・m単価・送料別です。消費税(10%)は合計に別途加算されます。</p>
+    <p>お支払いは完全前払い制です。<strong>PayPay銀行への振込でのみ</strong>承ります。クレジットカード・代金引換はご利用いただけません。</p>
+    <p>振込手数料はお客様のご負担となります。お振込先口座は、ご注文受付後・在庫確認完了後に当社よりメールでお知らせいたします。</p>
+
+    <h4>■ 受注の流れ</h4>
+    <p>当店は仕入先倉庫から直送する形式で商品をお届けします。</p>
+    <ol>
+      <li>ご注文フォーム送信</li>
+      <li>当社にて在庫確認</li>
+      <li>在庫ありの場合、お見積書と振込先をメールで返信</li>
+      <li>お客様によるお振込み</li>
+      <li>入金確認後、商品を発送(通常2〜5営業日以内)</li>
+    </ol>
+    <p>ご注文フォーム送信の時点では正式受注は成立しません。当社からの在庫確認連絡および見積書送付後、お客様によるご入金確認をもって正式受注成立といたします。それまではご注文の取消も可能です。</p>
+
+    <h4>■ 在庫について</h4>
+    <p>ご注文をいただきましたら在庫確認を行い、在庫がある場合のみ見積書と振込先をご案内いたします。</p>
+    <p><strong>ただし、お振込みいただくまでの間に他のご注文で在庫が売り切れる可能性があります。</strong>当店では「在庫を確保する」「仮受注として抑える」といった対応は行っておりません。</p>
+    <p>お振込み後に在庫切れが判明した場合は、以下の返金対応を行います:</p>
+    <ul>
+      <li>ご入金いただいた金額 <strong>全額返金</strong></li>
+      <li>振込手数料相当として <strong>500円を上乗せ返金</strong></li>
+    </ul>
+    <p><small>※「在庫を抑える」「仮受注として確保」等の表現は当店では使用しておりません。</small></p>
+
+    <h4>■ 返品・キャンセルについて</h4>
+    <p>本取引は通信販売に該当するため、特定商取引法上のクーリングオフ制度の適用対象外です。返品・交換は本欄の条件に従います。</p>
+    <p>正式受注(ご入金確認)後のお客様都合によるキャンセル・返品はお受けできません。カット済材料のため再販売が困難なためです。</p>
+    <p>商品に瑕疵(初期不良・配送中の破損等)があった場合に限り、商品到着後7日以内のご連絡で返品・交換を承ります。</p>
+    <p>不良品・誤品の場合の返送送料は当社負担(着払い対応)とします。お客様都合によるキャンセル・返品の送料はお客様負担です(ただし当社はお客様都合返品を原則お受けしません)。</p>
+
+    <h4>■ 送料</h4>
+    <ul>
+      <li><strong>ブランドごとに3m以上 … 送料無料</strong></li>
+      <li>ブランドごとに3m未満 … 1,500円(税別)が加算されます</li>
+    </ul>
+    <p><strong>同じメーカーでも種類が異なる場合は別梱包・別送料となります。</strong>例えば 3M製品でも ダイノック / ファサラ / スコッチティント はそれぞれ異なるブランドとして別梱包・別発送扱いとなります。</p>
+    <p>例) ダイノック 2m + ガラスフィルム(ファサラ) 2m = 同じ3Mメーカーですが別梱包のため 送料¥3,000(¥1,500×2)</p>
+    <p>離島・沖縄地域は別途ご相談(お断りする場合があります)</p>
+
+    <h4>■ 2026年 価格改定のお知らせ</h4>
+    <p>メーカー仕入価格改定により、本ページの価格は以下の時期に改定予定です。</p>
+    <ul>
+      <li>3M製品(ダイノック/ファサラ/スコッチティント): <strong>2026年6月1日出荷分から +10〜15%</strong></li>
+      <li>サンゲツ製品(リアテック): <strong>2026年7月1日出荷分から +18〜30%</strong></li>
+    </ul>
+    <p>改定日をまたぐご注文は、出荷日基準で改定後価格が適用されます。</p>
+
+    <h4>■ 個人情報の取扱いについて</h4>
+    <p>お客様からご提供いただく個人情報(氏名・連絡先・住所等)は、以下の目的にのみ利用します。</p>
+    <ul>
+      <li>ご注文の受付・確認・お問い合わせ対応</li>
+      <li>お見積書・請求書の発行</li>
+      <li>商品発送のため、仕入先・運送会社への必要情報の共有</li>
+      <li>税務上必要な記録保存(7年間)</li>
+    </ul>
+    <p>上記以外の第三者への個人情報の提供・販売は一切行いません。個人情報の開示・訂正・削除のご請求は mail@tecnest.biz までご連絡ください。</p>
+
+    <h4>■ 特定商取引法に基づく表記</h4>
+    <dl class="tokushoho-list">
+      <dt>販売業者</dt><dd>株式会社テクネスト</dd>
+      <dt>代表者</dt><dd>清水健太郎</dd>
+      <dt>所在地</dt><dd>〒580-0022 大阪府松原市河合1-1-21</dd>
+      <dt>メールアドレス</dt><dd><strong><a href="mailto:mail@tecnest.biz" style="color:#0066cc; font-weight:bold;">mail@tecnest.biz</a></strong> / <a href="mailto:order@tecnest.biz" style="color:#0066cc;">order@tecnest.biz</a><br><span style="font-size:0.9em; color:#333;">お問い合わせは原則メールにてお願いいたします(記録保持のため)</span></dd>
+      <dt>電話番号</dt><dd style="font-size:0.9em; color:#888;">090-5012-8754<br><span style="font-size:0.85em;">※受注後の個別連絡用のみ・平日10:00〜17:00</span></dd>
+      <dt>適格請求書発行事業者登録番号</dt><dd>T4120101054474</dd>
+      <dt>販売価格</dt><dd>各商品の表示価格(税別)</dd>
+      <dt>商品代金以外の必要料金</dt><dd>消費税・送料・振込手数料</dd>
+      <dt>お支払方法</dt><dd>PayPay銀行振込(前払いのみ)</dd>
+      <dt>引渡時期</dt><dd>入金確認後、2〜5営業日以内に発送</dd>
+      <dt>正式受注成立時期</dt><dd>ご注文フォーム送信時点では成立せず、当社からの在庫確認連絡および見積書送付後、お客様によるご入金確認をもって正式受注成立</dd>
+      <dt>返品・交換</dt><dd>瑕疵による場合のみ、商品到着後7日以内のご連絡で対応。客都合の返品は不可。不良品・誤品の返送送料は当社負担(着払い対応)・お客様都合の場合はお客様負担</dd>
+      <dt>クーリングオフ</dt><dd>本取引は通信販売に該当するため、特定商取引法上のクーリングオフ制度の適用対象外</dd>
+      <dt>領収書の発行</dt><dd>領収書の発行は行っておりません。銀行振込時の振込明細書をもって代えさせていただきます。</dd>
+      <dt>お届け日時の指定</dt><dd>仕入先からの直送のため、お届け日時のご指定は原則お受けできません。運送会社の標準配送スケジュールでのお届けとなります。</dd>
+    </dl>
+
+    <p class="consent-end-mark">― ここまでお読みいただきありがとうございます ―</p>
+  </div>
+
+  <div id="consent-wrap" class="check-disabled">
+    <label>
+      <input type="checkbox" id="consent-all" disabled>
+      <strong>上記すべての内容を確認し、同意します</strong>
+    </label>
+  </div>
+
+  <h3>3. お客様情報</h3>
+  <div id="cf7-mount">
+    [contact-form-7 id="3506" title="shop-order"]
+  </div>
+</div>
+
+<script>
+// version.txtをキャッシュバスティングのクエリに使うため、scriptタグは動的に生成
+(function() {
+  fetch('/wp-content/uploads/shop/version.txt?_=' + Date.now())
+    .then(r => r.ok ? r.text() : String(Date.now()))
+    .then(ver => {
+      var s = document.createElement('script');
+      s.src = '/wp-content/uploads/shop/main.js?v=' + (ver || '').trim();
+      document.body.appendChild(s);
+    });
+})();
+</script>
+
+<!-- === JSON-LD 構造化データ (Organization スキーマ) ==========================
+     Google / Bing 等の検索エンジンに会社情報を機械可読形式で提供。
+     ナレッジパネル表示・検索結果リッチ化に寄与。
+========================================================================= -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "株式会社テクネスト",
+  "alternateName": "テクネスト",
+  "url": "https://tecnest.biz/",
+  "logo": "https://tecnest.biz/wp-content/uploads/2020/08/5469865464.jpg",
+  "image": "https://tecnest.biz/wp-content/uploads/2020/08/5469865464.jpg",
+  "description": "塩ビシート・化粧フィルム販売。ダイノック・リアテック・オルティノ・ファサラをフォーム1つで即お見積。仕入先より直送。",
+  "telephone": "+819050128754",
+  "faxNumber": "+815037379906",
+  "email": "mail@tecnest.biz",
+  "vatID": "T4120101054474",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "河合1-1-21",
+    "addressLocality": "松原市",
+    "addressRegion": "大阪府",
+    "postalCode": "580-0022",
+    "addressCountry": "JP"
+  },
+  "founder": {
+    "@type": "Person",
+    "name": "清水健太郎"
+  },
+  "sameAs": [
+    "https://tecnest.biz/"
+  ]
+}
+</script>
+
+<!-- === JSON-LD 構造化データ (WebPage / Breadcrumb) ===========================
+     /shop/ ページ自体のメタ情報とパンくず階層を Google に伝える。
+========================================================================= -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "材料販売 | 株式会社テクネスト",
+  "description": "塩ビシート・化粧フィルム販売。ダイノック・リアテック・オルティノ・ファサラをフォーム1つで即お見積。仕入先より直送。",
+  "url": "https://tecnest.biz/shop/",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "株式会社テクネスト",
+    "url": "https://tecnest.biz/"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "ホーム",
+        "item": "https://tecnest.biz/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "材料販売",
+        "item": "https://tecnest.biz/shop/"
+      }
+    ]
+  }
+}
+</script>
