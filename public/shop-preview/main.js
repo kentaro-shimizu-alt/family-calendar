@@ -88,8 +88,9 @@
       s = s.replace(/[\u2010-\u2015\u2212\uFF0D\u30FC\u2212]/g, '-');
       // 2026-04-20 Round1 QA対応: ハイフン欠落補完
       // 「AE1632」→「AE-1632」/「ME2281AR」→「ME-2281AR」等に自動補完
+      // 2026-04-23 HPI-11c(健太郎指摘): 数字1桁〜もサジェスト対象化(「PS00」「PS0」で候補消える問題)
       if (!s.includes('-')) {
-        const m = s.match(/^([A-Z]{2,4})(\d{3,5})([A-Z]{0,4})$/);
+        const m = s.match(/^([A-Z]{2,4})(\d{1,5})([A-Z]{0,4})$/);
         if (m) s = `${m[1]}-${m[2]}${m[3]}`;
       }
       return s;
@@ -601,30 +602,35 @@
      * - 近似候補: 接頭辞3文字一致で上位3件
      */
     findSuggestions(input) {
-      // 2026-04-23 HPI-11: 部分一致対応・raw/normalized 両方で検索
+      // 2026-04-23 HPI-11/11c: raw/normalized + ハイフン無視版 もマッチ対象(健太郎指摘「PS00」で候補消える)
       if (!this.products) return { variants: [], similar: [] };
       const raw = (input || '').normalize('NFKC').toUpperCase().trim().replace(/\s+/g, '');
       const normalized = this.normalizePn(input || '');
       if (raw.length < 2) return { variants: [], similar: [] };
       const products = this.products.products;
-      const matchKeys = [normalized, raw].filter(k => k && k.length >= 2);
+      // ハイフン除去版も比較対象に(ユーザー入力「PS00」で品番「PS-001AR」をヒットさせる)
+      const normalizedNH = normalized.replace(/-/g, '');
+      const rawNH = raw.replace(/-/g, '');
+      const matchKeys = [...new Set([normalized, raw, normalizedNH, rawNH])].filter(k => k && k.length >= 2);
 
-      // バリアント: 入力PNで始まる別品番(raw/normalized両対応で完全一致を除く)
+      // バリアント: 入力PNで始まる別品番(raw/normalized/ハイフン無視版 全対応)
       const variants = products
         .filter(p => {
           if (matchKeys.includes(p.pn)) return false;
-          return matchKeys.some(k => p.pn.startsWith(k));
+          const pnNH = p.pn.replace(/-/g, '');
+          return matchKeys.some(k => p.pn.startsWith(k) || pnNH.startsWith(k));
         })
         .slice(0, 10);
 
-      // 近似候補: 部分一致(includes)+ prefix 3-4文字一致(3文字以上のみ発火)
+      // 近似候補: 部分一致(includes)+ ハイフン無視版比較(3文字以上のキーのみ発火)
       const similar = [];
       const seen = new Set(variants.map(v => v.pn));
       for (const p of products) {
         if (seen.has(p.pn) || matchKeys.includes(p.pn)) continue;
+        const pnNH = p.pn.replace(/-/g, '');
         const hit = matchKeys.some(k => {
           if (k.length < 3) return false;
-          return p.pn.includes(k);
+          return p.pn.includes(k) || pnNH.includes(k);
         });
         if (hit) {
           similar.push(p);
