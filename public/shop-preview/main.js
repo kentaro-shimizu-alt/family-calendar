@@ -16,6 +16,12 @@
     CONSENT_KEYS: ['all'],
     _consentScrollRead: false,  // スクロール最下部到達フラグ
 
+    // 2026-04-23 T220 HPI-3 テスト注文モード
+    // 備考欄に合言葉 or URLに ?test=合言葉 を入れると件名に [TEST] prefix付与→管理者側で実注文と判別可能
+    TEST_PASSPHRASE: 'TECNEST-TEST-0423',
+    _testMode: false,
+    _testReason: '',  // 'url' | 'note' | 'both'
+
     /* ───────────── 初期化 ───────────── */
     async init() {
       try {
@@ -27,11 +33,43 @@
           : '/wp-content/uploads/shop';
 
         // BCPくろ提言: 緊急停止チェック(最優先・AI障害時の受注停止用)
-        const modeRes = await fetch(`${basePath}/mode.txt?_=` + Date.now());
-        const mode = modeRes.ok ? (await modeRes.text()).trim() : 'live';
+        // 2026-04-23 T221: mode.json(拡張版)を優先→無ければ mode.txt(後方互換)
+        let modeData = null;
+        try {
+          const jsonRes = await fetch(`${basePath}/mode.json?_=` + Date.now());
+          if (jsonRes.ok) modeData = await jsonRes.json();
+        } catch (_e) {}
+        if (!modeData) {
+          try {
+            const txtRes = await fetch(`${basePath}/mode.txt?_=` + Date.now());
+            const txt = txtRes.ok ? (await txtRes.text()).trim() : 'live';
+            modeData = { mode: txt };
+          } catch (_e) {
+            modeData = { mode: 'live' };
+          }
+        }
+        const mode = modeData.mode || 'live';
         if (mode === 'suspended' || mode === 'maintenance') {
           this.showSuspendedBanner(mode);
           return;
+        }
+        // T221: scheduled モードは 時刻により 予告 or 停止 or 通常
+        if (mode === 'scheduled' && modeData.scheduled) {
+          const sch = modeData.scheduled;
+          const now = Date.now();
+          const bannerFrom = sch.banner_from ? new Date(sch.banner_from).getTime() : null;
+          const start = sch.start ? new Date(sch.start).getTime() : null;
+          const end = sch.end ? new Date(sch.end).getTime() : null;
+          if (start && end && now >= start && now < end) {
+            // メンテ中: 受注停止画面(既存流用)
+            this.showSuspendedBanner('maintenance');
+            return;
+          }
+          if (start && (!bannerFrom || now >= bannerFrom) && now < start) {
+            // 予告中: 通常ページ継続+黄色バナー
+            this.showScheduledBanner(sch);
+          }
+          // それ以外(end以降 or banner_from前) → 通常
         }
 
         const verRes = await fetch(`${basePath}/version.txt?_=` + Date.now());
@@ -39,6 +77,15 @@
         const res = await fetch(`${basePath}/products.json?v=${ver}`);
         if (!res.ok) throw new Error('products.json取得失敗: ' + res.status);
         this.products = await res.json();
+        // 2026-04-23 T220: URLパラメータ ?test=TECNEST-TEST-0423 検知
+        try {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get('test') === this.TEST_PASSPHRASE) {
+            this._testMode = true;
+            this._testReason = 'url';
+            this.showTestBanner();
+          }
+        } catch (_e) {}
         this.restoreCart();
         this.bindEvents();
         if (this.cart.length === 0) this.addRow();
@@ -47,6 +94,85 @@
       } catch (e) {
         console.error('[shop] init失敗', e);
         this.showFatalError('商品データの読み込みに失敗しました。ページを再読み込みしてください。');
+      }
+    },
+
+    /* ───────────── T221 スケジュール予告バナー(2026-04-23) ───────────── */
+    showScheduledBanner(sch) {
+      if (document.getElementById('scheduled-banner')) return;
+      const body = document.body;
+      if (!body) return;
+      const banner = document.createElement('div');
+      banner.id = 'scheduled-banner';
+      banner.className = 'scheduled-banner';
+      banner.setAttribute('role', 'alert');
+      const fmt = (iso) => {
+        try {
+          return new Date(iso).toLocaleString('ja-JP', {
+            timeZone: 'Asia/Tokyo',
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          });
+        } catch (_e) { return iso; }
+      };
+      const reason = sch.reason ? `(${this.escapeHtml(sch.reason)})` : '';
+      banner.innerHTML = `⚠️ <span class="time">${fmt(sch.start)}</span> 〜 <span class="time">${fmt(sch.end)}</span> まで メンテナンスのため受注停止予定です ${reason}`;
+      body.insertBefore(banner, body.firstChild);
+    },
+
+    /* ───────────── T220 テスト注文モード(2026-04-23) ───────────── */
+    showTestBanner() {
+      if (document.getElementById('test-mode-banner')) {
+        this.updateTestBanner();
+        return;
+      }
+      const app = document.getElementById('shop-app');
+      if (!app) return;
+      const banner = document.createElement('div');
+      banner.id = 'test-mode-banner';
+      banner.setAttribute('role', 'alert');
+      banner.style.cssText = 'background:#fff4b8;border:2px solid #d4a017;color:#664d03;padding:10px 14px;border-radius:6px;margin-bottom:14px;font-weight:bold;font-size:0.95em;text-align:center;';
+      banner.innerHTML = this.makeTestBannerText();
+      app.insertBefore(banner, app.firstChild);
+    },
+    updateTestBanner() {
+      const banner = document.getElementById('test-mode-banner');
+      if (!banner) return;
+      if (this._testMode) {
+        banner.innerHTML = this.makeTestBannerText();
+        banner.style.display = '';
+      } else {
+        banner.remove();
+      }
+    },
+    makeTestBannerText() {
+      const reasonMap = { url: 'URLパラメータ', note: '備考欄の合言葉', both: 'URL+備考' };
+      const why = reasonMap[this._testReason] || '';
+      return `⚠️ テストモード中 - 実注文にはなりません(${why}検知) / 送信時 件名に [TEST] 付与`;
+    },
+    detectTestModeFromNote() {
+      // 備考欄に合言葉含まれていればテストモード ON (URL検知と合体する場合は both)
+      const noteEl = document.querySelector('#order-form textarea[name="note"], .wpcf7-form textarea[name="note"]');
+      const text = noteEl ? String(noteEl.value || '') : '';
+      const hasPhrase = text.includes(this.TEST_PASSPHRASE);
+      const wasUrlTest = this._testReason === 'url' || this._testReason === 'both';
+      if (hasPhrase && wasUrlTest) {
+        this._testMode = true;
+        this._testReason = 'both';
+      } else if (hasPhrase) {
+        this._testMode = true;
+        this._testReason = 'note';
+      } else if (wasUrlTest) {
+        // 備考は合言葉なくてもURL検知済ならモード維持
+        this._testMode = true;
+        this._testReason = 'url';
+      } else {
+        this._testMode = false;
+        this._testReason = '';
+      }
+      this.updateTestBanner();
+      if (this._testMode && !document.getElementById('test-mode-banner')) {
+        this.showTestBanner();
       }
     },
 
@@ -487,6 +613,8 @@
 
     /* ───────────── 送信 ───────────── */
     syncHiddenFields() {
+      // 2026-04-23 T220: 備考欄から都度テストモード判定
+      this.detectTestModeFromNote();
       // 2026-04-23 HPI-23: 選択幅情報+幅別単価を含めて送信
       const cartSlim = this.cart
         .filter(r => r.product)
@@ -539,6 +667,11 @@
       set('totals-readable-hidden', totalsReadable);
       set('consent-ts-hidden', new Date().toISOString());
       set('consent-state-hidden', JSON.stringify(this.getConsentState()));
+      // 2026-04-23 T220: テストモード情報をhiddenに送信(CF7メール件名で参照)
+      // test_mode_tag は '[TEST] ' or '' で件名テンプレ `[TECNEST-ORDER] [test_mode_tag]...` に流用可能
+      set('test-mode-hidden', this._testMode ? '1' : '0');
+      set('test-reason-hidden', this._testReason || '');
+      set('test-mode-tag-hidden', this._testMode ? '[TEST] ' : '');
     },
 
     /* ───────────── 状態保持 ───────────── */
@@ -631,6 +764,13 @@
         if (e.target.id === 'consent-all') {
           this.syncHiddenFields();  // 同意状態変化時もhidden同期
           this.validateSubmit();
+        }
+      });
+      // 2026-04-23 T220: 備考欄変更で即テストモード判定
+      document.addEventListener('input', e => {
+        if (e.target && e.target.name === 'note') {
+          this.detectTestModeFromNote();
+          this.syncHiddenFields();
         }
       });
 
