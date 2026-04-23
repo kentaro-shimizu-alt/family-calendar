@@ -852,32 +852,35 @@
       return { variants, similar };
     },
 
-    // 2026-04-23 HPI-22 案ε(ディープリンク化): メーカー公式の品番検索/商品ページへ直リンク
-    // 健太郎承認 2026-04-23「ディープリンクこれ最高やん」+ サンゲツ規約で画像転載NG確定
-    // - 3Mダイノック: 公式品番検索 dinoc.3mcompany.jp (200確認済)
-    // - サンゲツリアテック: 品番パス直 sangetsu.co.jp/product/list/part/{pn} (200確認済)
-    // - アイカオルティノ: 公式TOP (品番検索機能なし)
-    // - 他(ファサラ/スコッチティント/ベルビアン/クレアス/パロア): Google画像検索で代替
+    // 2026-04-23 HPI-22 再改修: ディープリンク案破棄・Google画像検索統一(アイカのみ現行維持)
+    // 理由(健太郎実機検証 2026-04-23): 3Mダイノックサイトは品番検索機能なし(TOP着地)・
+    //   サンゲツも品番特定できず検索結果一覧/トップ相当になる。
+    //   柄確認=ユーザー目的に対しGoogle画像検索が最も実用的(日本語UI+サムネ一覧)。
+    //   他社EC規約: 画像直接掲載NGだがGoogle検索リンクは問題なし(Googleサービス経由)。
+    // - 3Mダイノック/ファサラ/スコッチ系: Google画像検索
+    // - サンゲツリアテック: Google画像検索(品番特定可能)
+    // - アイカオルティノ: 現行公式TOP維持(日本語+柄ギャラリー優秀・品番検索不要)
+    // - 他(ベルビアン/クレアス/パロア/タキロン等): Google画像検索
     getOfficialUrl(product) {
       if (!product) return '';
       const brand = (product.brand || '').toString();
       const pn = product.pn || '';
-      const encPn = encodeURIComponent(pn);
       const g = (kw) => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(kw + ' ' + pn)}`;
-      // 3Mダイノック → 公式品番検索(dinoc.3mcompany.jp)
-      if (brand.includes('ダイノック')) return `https://dinoc.3mcompany.jp/search/?q=${encPn}`;
-      // サンゲツリアテック → 公式品番パス
-      if (brand.includes('リアテック')) return `https://www.sangetsu.co.jp/product/list/part/${encPn}`;
-      // アイカオルティノ → 公式TOP(品番検索機能なし・NEWコレクションあり)
+      // アイカオルティノ → 現行公式TOP(日本語+柄ギャラリーあり・健太郎実機OK確認)
       if (brand.includes('オルティノ') || brand.includes('アイカ')) return 'https://www.aica.co.jp/products/film/altyno/';
-      // 3M ファサラ/スコッチティント/その他3Mフィルム → Google画像検索(dinoc検索対象外)
+      // 3Mダイノック → Google画像検索(公式は品番検索機能なし)
+      if (brand.includes('ダイノック')) return g('3Mダイノック');
+      // サンゲツリアテック → Google画像検索(公式は品番特定できず)
+      if (brand.includes('リアテック')) return g('サンゲツリアテック');
+      // 3M ファサラ/スコッチティント/その他3Mフィルム
       if (brand.includes('ファサラ')) return g('3M ファサラ');
       if (brand.includes('スコッチティント')) return g('3M スコッチティント');
       if (brand.includes('3Mフィルム') || brand.includes('3M')) return g('3M');
-      // その他(ベルビアン/クレアス/パロア) → Google画像検索
+      // その他(ベルビアン/クレアス/パロア/タキロン)
       if (brand.includes('ベルビアン')) return g('ベルビアン');
-      if (brand.includes('クレアス')) return g('クレアス');
-      if (brand.includes('パロア')) return g('パロア');
+      if (brand.includes('クレアス')) return g('サンゲツ クレアス');
+      if (brand.includes('パロア')) return g('サンゲツ パロア');
+      if (brand.includes('タキロン')) return g('タキロン ベルビアン');
       return g(brand);
     },
 

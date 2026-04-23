@@ -376,7 +376,7 @@
 #cart-table .td-joutai,
 #cart-table .td-ppt {
   font-size: 0.88em;
-  color: #333;  /* HPI-14: #555→#333 でコントラスト上げ */
+  color: #333;  /* ライトモード標準・ダークモード対応は下部メディアクエリで上書き */
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -799,6 +799,10 @@
     background: #1e293b;
     border-color: #334155;
   }
+  /* 2026-04-23 同化解消: ダークモード下で .shop-notice strong が#0d2b52=ほぼ背景同色だった */
+  .shop-notice strong {
+    color: #ffd54f;  /* 黄色アクセント・視認性最大 */
+  }
   .consent-box {
     background: #2d2419;
     border-color: #8b6500;
@@ -810,5 +814,32 @@
     background: #1f2937;
     color: #e5e7eb;
     border-color: #4b5563;
+  }
+  /* 2026-04-23 同化解消: cart-tableテキストセル全般を明色化(濃紺背景下) */
+  #cart-table .td-joutai,
+  #cart-table .td-ppt {
+    color: #e5e7eb;
+  }
+  #cart-table .td-joutai .width-select,
+  #cart-table .td-joutai .width-static {
+    color: #e5e7eb;
+  }
+  #cart-table .td-unit .unit-formula {
+    color: #b0bec5;
+  }
+  /* バリアントヒント/注釈系 */
+  #cart-table .variant-hint,
+  #cart-table .pn-suggest-slot .pn-suggest {
+    color: #e5e7eb;
+  }
+  #cart-table .pn-suggest-slot .pn-suggest.muted {
+    color: #9ca3af;
+  }
+  /* 「柄を見る→」リンク */
+  #cart-table .pn-brand .official-link {
+    color: #60a5fa;
+  }
+  #cart-table .pn-brand .official-link:hover {
+    color: #93c5fd;
   }
 }
