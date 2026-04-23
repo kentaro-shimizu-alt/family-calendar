@@ -45,6 +45,11 @@
   background: #f7f3ee;
   border-color: #d8c7a8;
 }
+/* 2026-04-23 同化解消: 送料注記等の小さい注釈テキスト(インラインstyle廃止) */
+.shop-notice .sub-note {
+  font-size: 0.9em;
+  color: #444;  /* ライトモード標準 */
+}
 
 /* カートテーブル */
 #cart-table {
@@ -807,6 +812,10 @@
   /* 2026-04-23 同化解消: ダークモード下で .shop-notice strong が#0d2b52=ほぼ背景同色だった */
   .shop-notice strong {
     color: #ffd54f;  /* 黄色アクセント・視認性最大 */
+  }
+  /* 送料注記・小さい注釈もダークモード可読色へ */
+  .shop-notice .sub-note {
+    color: #cbd5e1;  /* 薄明グレー・濃紺背景で可読 */
   }
   /* 2026-04-23 追加同化解消: 商品画像ブロック(ベージュインラインstyle廃止→image-noteクラス) */
   .shop-notice.image-note {
