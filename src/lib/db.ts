@@ -108,13 +108,21 @@ export async function searchEvents(query: string): Promise<CalendarEvent[]> {
   const store = getStore();
   const all = await store.getAllEventsRaw();
   const q = query.toLowerCase();
+  // 2026-04-25 健太郎: 検索結果は新→古の降順(最近のイベントを上に)
+  // pinned優先は維持。日付/時刻は降順
   return all
     .filter((e) =>
       e.title.toLowerCase().includes(q) ||
       (e.note || '').toLowerCase().includes(q) ||
       (e.location || '').toLowerCase().includes(q)
     )
-    .sort(sortByDateTime);
+    .sort((a, b) => {
+      if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+      if (a.date !== b.date) return b.date.localeCompare(a.date);
+      const ta = a.startTime || '00:00';
+      const tb = b.startTime || '00:00';
+      return tb.localeCompare(ta);
+    });
 }
 
 export async function createEvent(
