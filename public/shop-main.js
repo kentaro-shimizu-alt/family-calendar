@@ -856,6 +856,60 @@
         addressEl.addEventListener('blur', checkAddress);
       }
 
+      // 2026-04-26: 顧客情報リアルタイムvalidation(入力時に赤枠+エラー表示)
+      const fieldValidators = {
+        email: {
+          test: v => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+          msg: 'メールアドレスの形式が正しくありません(例: example@example.com)'
+        },
+        tel: {
+          test: v => !v || /^\d{10,13}$/.test(v.replace(/[-\s　]/g, '')),
+          msg: '電話番号は数字10〜13桁(ハイフンなし・例: 09012345678)'
+        },
+        zip: {
+          test: v => !v || /^\d{7}$/.test(v.replace(/[-\s　]/g, '')),
+          msg: '郵便番号は数字7桁(ハイフンなし・例: 5800022)'
+        },
+        address: {
+          test: v => {
+            if (!v) return true;
+            const ngs = [/北海道/, /沖縄県?/, /(離島|佐渡|奄美|宮古島|石垣島|久米島|与那国|小笠原|伊豆諸島|大東島|父島|母島|青ヶ島|八丈島|三宅島|御蔵島|神津島|新島|式根島|利尻|礼文|焼尻|天売|渡嘉敷|座間味|粟国|渡名喜|南大東|北大東|多良間|来間|池間|伊良部|下地島|与論|沖永良部|徳之島|喜界|請島|加計呂麻|与路|硫黄|口永良部|屋久島|種子島|甑島)/];
+            return !ngs.some(re => re.test(v));
+          },
+          msg: '配送不可エリア(北海道・沖縄・離島)です。本州・四国・九州本土の住所のみ承っております'
+        }
+      };
+      const validateField = (name, el) => {
+        const val = (el.value || '').trim();
+        const v = fieldValidators[name];
+        if (!v) return;
+        const ok = v.test(val);
+        let errEl = el.parentElement.querySelector('.shop-field-err');
+        if (!ok) {
+          el.style.borderColor = '#c00';
+          el.style.background = '#fff8f8';
+          el.style.boxShadow = '0 0 0 2px #f8d7da';
+          if (!errEl) {
+            errEl = document.createElement('div');
+            errEl.className = 'shop-field-err';
+            errEl.style.cssText = 'color:#c00; font-size:0.85em; margin-top:4px; font-weight:bold;';
+            el.parentElement.appendChild(errEl);
+          }
+          errEl.textContent = '※ ' + v.msg;
+        } else {
+          el.style.borderColor = '';
+          el.style.background = '';
+          el.style.boxShadow = '';
+          if (errEl) errEl.remove();
+        }
+      };
+      ['email','tel','zip','address'].forEach(name => {
+        const el = document.querySelector('input[name="'+name+'"], textarea[name="'+name+'"]');
+        if (!el) return;
+        el.addEventListener('input', () => validateField(name, el));
+        el.addEventListener('blur', () => validateField(name, el));
+      });
+
       // 送信時最終検証 (A-1対策: CF7のformはid="order-form"ではなくclass="wpcf7-form")
       const form = document.querySelector('.wpcf7-form') || document.getElementById('order-form');
       if (form) {
