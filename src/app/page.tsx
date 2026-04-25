@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { addMonths, format, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import MonthView from '@/components/MonthView';
@@ -355,18 +355,31 @@ export default function HomePage() {
     }).catch((e) => console.error(e));
   }
 
+  // 2026-04-25 健太郎: 検索が一瞬出て消える問題修正
+  // 原因: 連続入力時に古いクエリのレスポンスが後着で新クエリの結果を上書き(race condition)
+  // 対策: AbortControllerで前回fetch中断+lastQRefで遅延レスポンス無視
+  const searchAbortRef = useRef<AbortController | null>(null);
+  const searchLastQRef = useRef<string>('');
   async function handleSearch(q: string) {
     setSearchQuery(q);
+    searchLastQRef.current = q;
     if (!q.trim()) {
       setSearchResults([]);
+      searchAbortRef.current?.abort();
       return;
     }
+    // 直前のリクエストを中断
+    searchAbortRef.current?.abort();
+    const ac = new AbortController();
+    searchAbortRef.current = ac;
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: ac.signal });
       const data = await res.json();
+      // 既に新しいクエリが来ていたら今のレスポンスは無視
+      if (searchLastQRef.current !== q) return;
       setSearchResults(data.events || []);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      if (e?.name !== 'AbortError') console.error(e);
     }
   }
 
