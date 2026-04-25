@@ -156,14 +156,33 @@ export async function updateEvent(
   };
   const result = await store.updateEventById(baseId, updated);
 
-  // 2026-04-25 関連予定の双方向同期
-  // patch に relatedEventIds が含まれる時、追加/削除された相手側にも反映する
+  // 2026-04-25 関連予定の同期
+  // patch に relatedEventIds が含まれる時:
+  //   1) 削除分: 相手側からも自分のIDを除去(双方向unlink)
+  //   2) 追加分: 双方向linkした上で「推移的クロージャ」を計算
+  //      → A↔B / A↔C なら B↔C も自動リンク(全員が全員と相互リンク=完全グラフ)
+  //      → BFSで連結成分を求めて全メンバの relatedEventIds を「グループ-自身」にそろえる
   if (patch.relatedEventIds !== undefined) {
     const oldIds = new Set((existing.relatedEventIds || []).filter((x) => x && x !== baseId));
     const newIds = new Set((patch.relatedEventIds || []).filter((x) => x && x !== baseId));
     const added = [...newIds].filter((x) => !oldIds.has(x));
     const removed = [...oldIds].filter((x) => !newIds.has(x));
     const now = new Date().toISOString();
+
+    // 1) 削除側: 相手の relatedEventIds から baseId を除去
+    for (const otherId of removed) {
+      const other = await store.getEventById(otherId);
+      if (!other) continue;
+      const otherList = new Set(other.relatedEventIds || []);
+      otherList.delete(baseId);
+      await store.updateEventById(otherId, {
+        ...other,
+        relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
+        updatedAt: now,
+      });
+    }
+
+    // 2) 追加側: まず双方向link、その後BFSで連結成分の全員を相互リンクに
     for (const otherId of added) {
       const other = await store.getEventById(otherId);
       if (!other) continue;
@@ -175,16 +194,40 @@ export async function updateEvent(
         updatedAt: now,
       });
     }
-    for (const otherId of removed) {
-      const other = await store.getEventById(otherId);
-      if (!other) continue;
-      const otherList = new Set(other.relatedEventIds || []);
-      otherList.delete(baseId);
-      await store.updateEventById(otherId, {
-        ...other,
-        relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
-        updatedAt: now,
-      });
+
+    // 推移的クロージャ: 追加があった時のみ、baseIdから連結ノードをBFSで全部集めて
+    // 全員が全員と相互リンクするように更新
+    if (added.length > 0) {
+      const visited = new Set<string>([baseId]);
+      const queue: string[] = [baseId];
+      while (queue.length > 0) {
+        const cur = queue.shift()!;
+        const ev = await store.getEventById(cur);
+        if (!ev) continue;
+        for (const r of ev.relatedEventIds || []) {
+          if (r && !visited.has(r)) {
+            visited.add(r);
+            queue.push(r);
+          }
+        }
+      }
+      const group = [...visited];
+      for (const memberId of group) {
+        const ev = await store.getEventById(memberId);
+        if (!ev) continue;
+        const others = group.filter((x) => x !== memberId).sort();
+        const current = [...(ev.relatedEventIds || [])].sort();
+        // 変更不要ならスキップ(無駄なwriteを避ける)
+        if (others.length === current.length && others.every((v, i) => v === current[i])) continue;
+        await store.updateEventById(memberId, {
+          ...ev,
+          relatedEventIds: others,
+          updatedAt: now,
+        });
+      }
+      // baseId 自身のresultも最新状態で返したいので再取得
+      const refreshed = await store.getEventById(baseId);
+      if (refreshed) return refreshed;
     }
   }
 

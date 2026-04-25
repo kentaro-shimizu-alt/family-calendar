@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarEvent, EventComment, Member, getMember, normalizeImageEntry } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -44,6 +44,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [relationSearchResults, setRelationSearchResults] = useState<CalendarEvent[]>([]);
   const [relationSearching, setRelationSearching] = useState(false);
   const [relationSaving, setRelationSaving] = useState(false);
+  const relationLastQRef = useRef<string>('');
 
   // 関連先イベントを fetch して表示用に保持
   useEffect(() => {
@@ -69,18 +70,25 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   }, [event]);
 
   // 関連付け検索(全期間API)
+  // 注: event ref が親で頻繁に再生成されるため、useEffect が連発しがち。
+  // relationLastQRef でレース防止: 古いリクエストの finally では searching を false にしない
   useEffect(() => {
     if (!relationPickerOpen) return;
-    if (!relationQuery.trim()) {
+    const q = relationQuery;
+    if (!q.trim()) {
       setRelationSearchResults([]);
+      setRelationSearching(false);
+      relationLastQRef.current = '';
       return;
     }
+    relationLastQRef.current = q;
     const ac = new AbortController();
     setRelationSearching(true);
     (async () => {
       try {
-        const r = await fetch(`/api/search?q=${encodeURIComponent(relationQuery)}`, { signal: ac.signal });
+        const r = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: ac.signal });
         const data = await r.json();
+        if (relationLastQRef.current !== q) return;
         const list: CalendarEvent[] = data.events || [];
         // 自分自身と既に関連付け済みは除外
         const excluded = new Set<string>([
@@ -91,7 +99,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       } catch (e: any) {
         if (e?.name !== 'AbortError') console.error(e);
       } finally {
-        setRelationSearching(false);
+        // 古いリクエストの finally は無視(最新クエリと一致した時のみ false)
+        if (relationLastQRef.current === q) setRelationSearching(false);
       }
     })();
     return () => ac.abort();
