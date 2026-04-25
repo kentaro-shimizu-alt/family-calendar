@@ -606,6 +606,7 @@
       const addr = (document.querySelector('[name="address"]')?.value || '').trim();
       const email = (document.querySelector('input[name="email"]')?.value || '').trim();
       const name = (document.querySelector('input[name="customer_name"]')?.value || '').trim();
+      const note = (document.querySelector('[name="note"]')?.value || '').trim();
       const errs = [];
       if (!name) errs.push('お名前を入力してください');
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.push('メールアドレスの形式が正しくありません');
@@ -621,6 +622,43 @@
       for (const p of ngPatterns) {
         if (p.re.test(addr)) {
           errs.push('配送不可エリア(' + p.label + ')です。本州・四国・九州本土の住所のみ承っております');
+          break;
+        }
+      }
+      // 備考欄: 文字数制限 + 不正パターン検知 (prompt injection / XSS 防御)
+      if (note.length > 500) {
+        errs.push('備考欄は500字以内でご入力ください(現在' + note.length + '字)');
+      }
+      const newlines = (note.match(/\n/g) || []).length;
+      if (newlines > 10) {
+        errs.push('備考欄の改行は10行までです(現在' + newlines + '行)');
+      }
+      // HTML/script タグ・JSスキーム検知
+      const htmlInjectPatterns = [
+        /<\s*script/i, /<\s*iframe/i, /<\s*object/i, /<\s*embed/i,
+        /<\s*style/i, /javascript\s*:/i, /on\w+\s*=/i, /data\s*:\s*text\/html/i
+      ];
+      for (const p of htmlInjectPatterns) {
+        if (p.test(note) || p.test(name) || p.test(addr)) {
+          errs.push('使用できない文字列が含まれています(HTML/スクリプトタグ等)。内容をご確認ください');
+          break;
+        }
+      }
+      // プロンプトインジェクション風文言検知(注意喚起のみ・block)
+      const allText = name + ' ' + addr + ' ' + note;
+      const promptInjectPatterns = [
+        /ignore\s+(previous|above|all)/i,
+        /system\s*[:：]/i,
+        /\[\s*(system|admin|override)\s*\]/i,
+        /override\s+(previous|safety|rules)/i,
+        /無視して\s*(以下|前|これまで)/,
+        /これまでの(指示|命令|ルール)を(無視|忘れ)/,
+        /パスワードを(全部|すべて|送)/,
+        /(機密|秘密)情報を(送|教え)/
+      ];
+      for (const p of promptInjectPatterns) {
+        if (p.test(allText)) {
+          errs.push('お問い合わせの内容に不適切な記述が含まれている可能性があります。一般的な日本語でご記入ください');
           break;
         }
       }

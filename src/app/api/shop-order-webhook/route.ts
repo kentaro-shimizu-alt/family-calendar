@@ -52,25 +52,78 @@ export async function POST(req: NextRequest) {
   try { totals = JSON.parse(payload.totals_json); } catch { totals = {}; }
   try { consent_state = payload.consent_state ? JSON.parse(payload.consent_state) : null; } catch { consent_state = null; }
 
-  // 4. Supabase online_orders へ INSERT
+  // 3-A. テキストフィールドのサニタイズ + 危険スコア計算 (prompt injection / XSS 防御)
+  const sanitizeHtml = (s: string): string => {
+    if (!s) return s;
+    return String(s)
+      .replace(/<\s*\/?\s*(script|iframe|object|embed|style|link|meta|form|input|button)[^>]*>/gi, '[removed-tag]')
+      .replace(/javascript\s*:/gi, '[removed-js-scheme]')
+      .replace(/on\w+\s*=\s*"[^"]*"/gi, '[removed-event]')
+      .replace(/on\w+\s*=\s*'[^']*'/gi, '[removed-event]')
+      .replace(/data\s*:\s*text\/html/gi, '[removed-data-html]');
+  };
+  const calcSuspicionScore = (text: string): { score: number; flags: string[] } => {
+    if (!text) return { score: 0, flags: [] };
+    const flags: string[] = [];
+    const patterns: Array<[RegExp, string, number]> = [
+      [/<\s*script/i, 'html-script', 50],
+      [/<\s*iframe/i, 'html-iframe', 50],
+      [/javascript\s*:/i, 'js-scheme', 40],
+      [/ignore\s+(previous|above|all)/i, 'pi-ignore-prev', 70],
+      [/override\s+(previous|safety|rules)/i, 'pi-override', 70],
+      [/system\s*[:：]/i, 'pi-system-prefix', 30],
+      [/\[\s*(system|admin|override)\s*\]/i, 'pi-bracket-system', 60],
+      [/無視して\s*(以下|前|これまで)/, 'pi-jp-ignore', 70],
+      [/これまでの(指示|命令|ルール)を(無視|忘れ)/, 'pi-jp-forget-rules', 80],
+      [/パスワードを(全部|すべて|送)/, 'pi-jp-send-pw', 90],
+      [/(機密|秘密)情報を(送|教え)/, 'pi-jp-secret', 70],
+      [/くろがみれたら/, 'pi-jp-kuro-trigger', 50],
+      [/AI(に|へ)?(命令|指示|送信)/, 'pi-jp-ai-cmd', 60],
+    ];
+    let score = 0;
+    for (const [re, flag, w] of patterns) {
+      if (re.test(text)) { flags.push(flag); score += w; }
+    }
+    return { score, flags };
+  };
+
+  const cleanedCustomerName = sanitizeHtml(payload.customer_name);
+  const cleanedCompany = sanitizeHtml(payload.company || '');
+  const cleanedAddress = sanitizeHtml(payload.address || '');
+  const cleanedNote = sanitizeHtml(payload.note || '');
+
+  // note は500字までに切詰
+  const truncatedNote = cleanedNote.length > 500 ? cleanedNote.slice(0, 500) + '...[truncated]' : cleanedNote;
+
+  // 全テキスト合算で suspicion 計算
+  const allText = [cleanedCustomerName, cleanedCompany, cleanedAddress, cleanedNote].join(' ');
+  const { score: suspicionScore, flags: suspicionFlags } = calcSuspicionScore(allText);
+
+  // 4. Supabase online_orders へ INSERT(サニタイズ済み値で書込)
+  const insertPayload: Record<string, unknown> = {
+    order_id: payload.order_id,
+    customer_name: cleanedCustomerName,
+    company: cleanedCompany || null,
+    email: payload.email,
+    tel: payload.tel || null,
+    zip: payload.zip || null,
+    address: cleanedAddress || null,
+    note: truncatedNote || null,
+    consent_ts: payload.consent_ts,
+    consent_state,
+    cart,
+    totals,
+    status: 'received',
+    received_at: new Date().toISOString(),
+  };
+  // 危険スコア >0 なら別カラムにフラグ記録(suspicion_score / suspicion_flags が存在すれば)
+  if (suspicionScore > 0) {
+    insertPayload.suspicion_score = suspicionScore;
+    insertPayload.suspicion_flags = suspicionFlags;
+  }
   const { data, error } = await supabase
     .from('online_orders')
-    .insert({
-      order_id: payload.order_id,
-      customer_name: payload.customer_name,
-      company: payload.company || null,
-      email: payload.email,
-      tel: payload.tel || null,
-      zip: payload.zip || null,
-      address: payload.address || null,
-      note: payload.note || null,
-      consent_ts: payload.consent_ts,
-      consent_state,
-      cart,
-      totals,
-      status: 'received',
-      received_at: new Date().toISOString(),
-    })
+    .insert(insertPayload)
     .select()
     .single();
 
@@ -92,10 +145,30 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // 6. 危険スコアが高い場合は健太郎にLW通知 (best-effort, non-blocking)
+  if (suspicionScore >= 50) {
+    try {
+      // LW通知は family_calendar 側に envがある場合のみ
+      const lwBotId = process.env.LINEWORKS_BOT_ID;
+      const lwUserId = process.env.LINEWORKS_KENTARO_USER_ID;
+      if (lwBotId && lwUserId) {
+        // ここではfetch直接ではなく fire-and-forget でログ残すのみ
+        console.warn('[shop-order-webhook] HIGH SUSPICION', {
+          order_id: payload.order_id,
+          score: suspicionScore,
+          flags: suspicionFlags,
+        });
+      }
+    } catch (e) {
+      console.warn('[shop-order-webhook] notify failed:', e);
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     order_id: payload.order_id,
     inserted_at: data?.received_at,
+    suspicion_score: suspicionScore,
   }, { status: 200 });
 }
 
