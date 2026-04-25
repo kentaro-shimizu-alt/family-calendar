@@ -147,12 +147,17 @@ export async function POST(req: NextRequest) {
 
   // 6. 危険スコアが高い場合は健太郎にLW通知 (best-effort, non-blocking)
   if (suspicionScore >= 50) {
+    notifySuspicion({
+      order_id: payload.order_id,
+      customer_name: cleanedCustomerName,
+      score: suspicionScore,
+      flags: suspicionFlags,
+      noteSnippet: (truncatedNote || '').slice(0, 100),
+    }).catch((e) => console.error('[shop-order-webhook] LW suspicion notify failed', e));
     try {
-      // LW通知は family_calendar 側に envがある場合のみ
       const lwBotId = process.env.LINEWORKS_BOT_ID;
       const lwUserId = process.env.LINEWORKS_KENTARO_USER_ID;
       if (lwBotId && lwUserId) {
-        // ここではfetch直接ではなく fire-and-forget でログ残すのみ
         console.warn('[shop-order-webhook] HIGH SUSPICION', {
           order_id: payload.order_id,
           score: suspicionScore,
@@ -175,4 +180,69 @@ export async function POST(req: NextRequest) {
 // 念のため: GETは405
 export async function GET() {
   return NextResponse.json({ error: 'method not allowed' }, { status: 405 });
+}
+
+// =============================================================
+// LW通知関数: 危険スコア>=50 の注文を健太郎に即通知
+// (cf7-webhook の notifyKentaro と同じ JWT→token→Bot API パターン)
+// =============================================================
+async function notifySuspicion(opts: {
+  order_id: string;
+  customer_name: string;
+  score: number;
+  flags: string[];
+  noteSnippet: string;
+}): Promise<void> {
+  const clientId = process.env.LINEWORKS_CLIENT_ID;
+  const clientSecret = process.env.LINEWORKS_CLIENT_SECRET;
+  const serviceAccount = process.env.LINEWORKS_SERVICE_ACCOUNT;
+  const botId = process.env.LINEWORKS_BOT_ID;
+  const kentaroId = process.env.LINEWORKS_KENTARO_USER_ID;
+  const privateKeyRaw = process.env.LINEWORKS_PRIVATE_KEY_PEM;
+  if (!clientId || !clientSecret || !serviceAccount || !botId || !kentaroId || !privateKeyRaw) {
+    console.warn('[shop-order-webhook] LW env未設定でnotifySuspicion skip');
+    return;
+  }
+  const privateKey = privateKeyRaw.replace(/\\n/g, '\n');
+
+  const jwtMod = await import('jsonwebtoken');
+  const nowSec = Math.floor(Date.now() / 1000);
+  const assertion = jwtMod.default.sign(
+    { iss: clientId, sub: serviceAccount, iat: nowSec, exp: nowSec + 3600 },
+    privateKey,
+    { algorithm: 'RS256' }
+  );
+  const tokRes = await fetch('https://auth.worksmobile.com/oauth2/v2.0/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      assertion,
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: 'bot',
+    }).toString(),
+  });
+  if (!tokRes.ok) return;
+  const tok = (await tokRes.json()) as { access_token?: string };
+  const token = tok.access_token;
+  if (!token) return;
+
+  // K009 2段組: 1行目58字以内 + 改行 + 詳細
+  const text =
+    `🚨 注文に不審な内容(score=${opts.score})・要確認\n\n` +
+    `注文No: ${opts.order_id}\n` +
+    `客: ${opts.customer_name}\n` +
+    `flags: ${opts.flags.slice(0, 5).join(',')}\n` +
+    `note抜粋: ${opts.noteSnippet}\n` +
+    `→ Supabase online_orders で確認・処理判断`;
+
+  await fetch(`https://www.worksapis.com/v1.0/bots/${botId}/users/${kentaroId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: { type: 'text', text } }),
+  });
 }
