@@ -154,12 +154,63 @@ export async function updateEvent(
     createdAt: existing.createdAt,
     updatedAt: new Date().toISOString(),
   };
-  return store.updateEventById(baseId, updated);
+  const result = await store.updateEventById(baseId, updated);
+
+  // 2026-04-25 関連予定の双方向同期
+  // patch に relatedEventIds が含まれる時、追加/削除された相手側にも反映する
+  if (patch.relatedEventIds !== undefined) {
+    const oldIds = new Set((existing.relatedEventIds || []).filter((x) => x && x !== baseId));
+    const newIds = new Set((patch.relatedEventIds || []).filter((x) => x && x !== baseId));
+    const added = [...newIds].filter((x) => !oldIds.has(x));
+    const removed = [...oldIds].filter((x) => !newIds.has(x));
+    const now = new Date().toISOString();
+    for (const otherId of added) {
+      const other = await store.getEventById(otherId);
+      if (!other) continue;
+      const otherList = new Set(other.relatedEventIds || []);
+      otherList.add(baseId);
+      await store.updateEventById(otherId, {
+        ...other,
+        relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
+        updatedAt: now,
+      });
+    }
+    for (const otherId of removed) {
+      const other = await store.getEventById(otherId);
+      if (!other) continue;
+      const otherList = new Set(other.relatedEventIds || []);
+      otherList.delete(baseId);
+      await store.updateEventById(otherId, {
+        ...other,
+        relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
+        updatedAt: now,
+      });
+    }
+  }
+
+  return result;
 }
 
 export async function deleteEvent(id: string): Promise<boolean> {
   const store = getStore();
   const baseId = id.split('__')[0];
+  // 2026-04-25 削除時: 自分を関連付けてる相手の relatedEventIds から自身IDを除去
+  const existing = await store.getEventById(baseId);
+  if (existing && Array.isArray(existing.relatedEventIds) && existing.relatedEventIds.length > 0) {
+    const now = new Date().toISOString();
+    for (const otherId of existing.relatedEventIds) {
+      if (!otherId || otherId === baseId) continue;
+      const other = await store.getEventById(otherId);
+      if (!other) continue;
+      const otherList = new Set(other.relatedEventIds || []);
+      otherList.delete(baseId);
+      await store.updateEventById(otherId, {
+        ...other,
+        relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
+        updatedAt: now,
+      });
+    }
+  }
   return store.deleteEventById(baseId);
 }
 

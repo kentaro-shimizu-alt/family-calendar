@@ -36,9 +36,13 @@ create table if not exists public.events (
   recurrence jsonb,             -- {freq, interval, until, count, byweekday}
   reminder_minutes jsonb,       -- number[]
   site jsonb,                   -- {amount, cost, note}
+  related_event_ids jsonb,      -- string[]  関連予定IDリスト(健太郎手動・双方向同期)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- 既存テーブルへの列追加(再実行安全)
+alter table public.events add column if not exists related_event_ids jsonb;
 
 create index if not exists events_date_idx on public.events (date);
 create index if not exists events_end_date_idx on public.events (end_date);

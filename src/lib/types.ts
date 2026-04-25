@@ -75,6 +75,7 @@ export interface CalendarEvent {
   recurrence?: RecurrenceRule;
   reminderMinutes?: number[]; // 何分前に通知
   site?: SiteInfo; // 現場案件情報（売値・原価）
+  relatedEventIds?: string[]; // 関連予定ID（双方向）— 2026-04-25 追加
   createdAt: string;
   updatedAt: string;
 }

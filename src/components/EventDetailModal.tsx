@@ -16,6 +16,8 @@ interface Props {
   onTogglePin: () => void;
   onDelete: () => void;
   onCommentAdded: () => void;
+  // 2026-04-25 関連予定機能
+  onJumpToEvent?: (ev: CalendarEvent) => void;
 }
 
 // Time-series feed item: comment, image, or pdf, all rendered inline in posting order
@@ -24,7 +26,7 @@ type FeedItem =
   | { kind: 'image'; id: string; ts: number; url: string; rotation: 0 | 90 | 180 | 270; index: number }
   | { kind: 'pdf'; id: string; ts: number; url: string; name?: string; index: number };
 
-export default function EventDetailModal({ open, event, members, onClose, onEdit, onTogglePin, onDelete, onCommentAdded }: Props) {
+export default function EventDetailModal({ open, event, members, onClose, onEdit, onTogglePin, onDelete, onCommentAdded, onJumpToEvent }: Props) {
   const [commentText, setCommentText] = useState('');
   const [posting, setPosting] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -34,6 +36,107 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [dragOver, setDragOver] = useState(false);
   const [lightbox, setLightbox] = useState<{ url: string; rotation: 0 | 90 | 180 | 270 } | null>(null);
   const [rotatingIndex, setRotatingIndex] = useState<number | null>(null); // 回転中の画像インデックス
+
+  // 2026-04-25 関連予定機能
+  const [relatedEvents, setRelatedEvents] = useState<CalendarEvent[]>([]);
+  const [relationPickerOpen, setRelationPickerOpen] = useState(false);
+  const [relationQuery, setRelationQuery] = useState('');
+  const [relationSearchResults, setRelationSearchResults] = useState<CalendarEvent[]>([]);
+  const [relationSearching, setRelationSearching] = useState(false);
+  const [relationSaving, setRelationSaving] = useState(false);
+
+  // 関連先イベントを fetch して表示用に保持
+  useEffect(() => {
+    if (!event || !Array.isArray(event.relatedEventIds) || event.relatedEventIds.length === 0) {
+      setRelatedEvents([]);
+      return;
+    }
+    let aborted = false;
+    (async () => {
+      const fetched: CalendarEvent[] = [];
+      for (const rid of event.relatedEventIds || []) {
+        if (!rid) continue;
+        try {
+          const r = await fetch(`/api/events/${rid}`);
+          if (!r.ok) continue;
+          const data = await r.json();
+          if (data.event) fetched.push(data.event);
+        } catch {}
+      }
+      if (!aborted) setRelatedEvents(fetched);
+    })();
+    return () => { aborted = true; };
+  }, [event]);
+
+  // 関連付け検索(全期間API)
+  useEffect(() => {
+    if (!relationPickerOpen) return;
+    if (!relationQuery.trim()) {
+      setRelationSearchResults([]);
+      return;
+    }
+    const ac = new AbortController();
+    setRelationSearching(true);
+    (async () => {
+      try {
+        const r = await fetch(`/api/search?q=${encodeURIComponent(relationQuery)}`, { signal: ac.signal });
+        const data = await r.json();
+        const list: CalendarEvent[] = data.events || [];
+        // 自分自身と既に関連付け済みは除外
+        const excluded = new Set<string>([
+          event?.id || '',
+          ...(event?.relatedEventIds || []),
+        ]);
+        setRelationSearchResults(list.filter((e) => !excluded.has(e.id)));
+      } catch (e: any) {
+        if (e?.name !== 'AbortError') console.error(e);
+      } finally {
+        setRelationSearching(false);
+      }
+    })();
+    return () => ac.abort();
+  }, [relationQuery, relationPickerOpen, event]);
+
+  async function handleAddRelation(target: CalendarEvent) {
+    if (!event || relationSaving) return;
+    setRelationSaving(true);
+    try {
+      const newIds = Array.from(new Set([...(event.relatedEventIds || []), target.id])).filter((x) => x && x !== event.id);
+      const r = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ relatedEventIds: newIds }),
+      });
+      if (!r.ok) throw new Error('関連付け失敗');
+      setRelationQuery('');
+      setRelationPickerOpen(false);
+      onCommentAdded(); // 親にreload依頼
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setRelationSaving(false);
+    }
+  }
+
+  async function handleRemoveRelation(targetId: string) {
+    if (!event || relationSaving) return;
+    if (!confirm('この関連付けを解除しますか？(双方向で解除されます)')) return;
+    setRelationSaving(true);
+    try {
+      const newIds = (event.relatedEventIds || []).filter((x) => x && x !== targetId);
+      const r = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ relatedEventIds: newIds }),
+      });
+      if (!r.ok) throw new Error('解除失敗');
+      onCommentAdded();
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setRelationSaving(false);
+    }
+  }
 
   // #9: 戻るボタンでポップアップだけ閉じる
   useEffect(() => {
@@ -315,9 +418,105 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               {/* 💼 現場案件バッジは廃止(2026-04-22 T204): 売上はSalesModal(円マーク)に一本化 */}
             </div>
             <h2 className="text-2xl font-bold text-slate-800 leading-tight">{event.title}</h2>
+            {/* 2026-04-25 関連予定 — タイトル直下にインライン表示 */}
+            <div className="flex items-center gap-1.5 flex-wrap mt-2">
+              {relatedEvents.length > 0 && (
+                <span className="text-[11px] text-slate-500 font-semibold mr-0.5">🔗 関連:</span>
+              )}
+              {relatedEvents.map((re) => {
+                const reLabel = (() => {
+                  try { return format(parseISO(re.date), 'M/d', { locale: ja }); } catch { return re.date; }
+                })();
+                return (
+                  <span
+                    key={re.id}
+                    className="inline-flex items-center gap-1 bg-indigo-50 border border-indigo-200 rounded-full pl-2 pr-1 py-0.5 text-[11px] text-indigo-700"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => onJumpToEvent && onJumpToEvent(re)}
+                      className="hover:underline truncate max-w-[140px]"
+                      title={`${reLabel} ${re.title}`}
+                    >
+                      {reLabel} {re.title}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveRelation(re.id)}
+                      disabled={relationSaving}
+                      className="text-indigo-400 hover:text-rose-500 disabled:opacity-40 leading-none px-1"
+                      title="関連解除(双方向)"
+                    >
+                      ×
+                    </button>
+                  </span>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => setRelationPickerOpen(true)}
+                disabled={relationSaving}
+                className="inline-flex items-center gap-1 border border-dashed border-slate-300 rounded-full px-2 py-0.5 text-[11px] text-slate-500 hover:border-indigo-300 hover:text-indigo-600 disabled:opacity-40"
+                title="関連予定を追加"
+              >
+                {relatedEvents.length === 0 ? '🔗 関連付け' : '＋'}
+              </button>
+            </div>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-3xl leading-none">×</button>
         </div>
+
+        {/* 関連付けピッカー(検索) */}
+        {relationPickerOpen && (
+          <div className="px-5 py-3 bg-indigo-50 border-y border-indigo-100">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold text-indigo-700">🔗 関連予定を選ぶ</span>
+              <div className="flex-1" />
+              <button
+                type="button"
+                onClick={() => { setRelationPickerOpen(false); setRelationQuery(''); }}
+                className="text-xs text-slate-500 hover:text-slate-700"
+              >
+                閉じる
+              </button>
+            </div>
+            <input
+              type="text"
+              value={relationQuery}
+              onChange={(e) => setRelationQuery(e.target.value)}
+              placeholder="タイトル・メモ・場所で検索..."
+              className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              autoFocus
+            />
+            {relationQuery && (
+              <div className="mt-2 max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-lg">
+                {relationSearching && (
+                  <div className="text-xs text-indigo-500 text-center py-3">検索中…</div>
+                )}
+                {!relationSearching && relationSearchResults.length === 0 && (
+                  <div className="text-xs text-slate-400 text-center py-3">該当する予定はありません</div>
+                )}
+                {relationSearchResults.map((re) => {
+                  const reLabel = (() => {
+                    try { return format(parseISO(re.date), 'yyyy/M/d', { locale: ja }); } catch { return re.date; }
+                  })();
+                  return (
+                    <button
+                      key={re.id}
+                      type="button"
+                      onClick={() => handleAddRelation(re)}
+                      disabled={relationSaving}
+                      className="w-full text-left px-3 py-2 text-sm border-b border-slate-100 hover:bg-indigo-50 disabled:opacity-40 flex items-center gap-2"
+                    >
+                      <span className="text-xs text-slate-400 w-24 flex-shrink-0">{reLabel}</span>
+                      <span className="font-semibold text-slate-700 truncate flex-1">{re.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="px-5 py-3 space-y-4">
           {/* Date / Time */}

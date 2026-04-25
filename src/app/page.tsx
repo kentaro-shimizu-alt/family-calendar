@@ -50,6 +50,20 @@ export default function HomePage() {
   const searchAbortRef = useRef<AbortController | null>(null);
   const searchLastQRef = useRef<string>('');
 
+  // 2026-04-25 健太郎指示: 「2回目の検索が動かない」バグ修正
+  // 検索パネルを閉じた時に検索関連stateを一括クリア
+  // (jumpToEvent / トグルボタン閉 / 任意の閉路すべてに効く)
+  useEffect(() => {
+    if (!searchOpen) {
+      setSearchQuery('');
+      setRawSearchResults([]);
+      setIsSearching(false);
+      searchAbortRef.current?.abort();
+      searchAbortRef.current = null;
+      searchLastQRef.current = '';
+    }
+  }, [searchOpen]);
+
   // Day events list
   const [dayEventsOpen, setDayEventsOpen] = useState(false);
   const [dayEventsDate, setDayEventsDate] = useState<Date | null>(null);
@@ -410,6 +424,15 @@ export default function HomePage() {
       {/* Header */}
       <header className="bg-neutral-900 border-b border-neutral-800 px-3 py-2 sticky top-0 z-20">
         <div className="flex items-center justify-center gap-1">
+          {/* 2026-04-25 「今日に戻る」ボタン */}
+          <button
+            onClick={() => setCurrentMonth(new Date())}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xl active:scale-95 transition shadow-sm"
+            aria-label="今日に戻る"
+            title="今日の月に戻る"
+          >
+            🏠
+          </button>
           <button
             onClick={() => setCurrentMonth((d) => subMonths(d, 1))}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 text-2xl font-bold active:scale-95 transition shadow-sm"
@@ -683,6 +706,7 @@ export default function HomePage() {
         onTogglePin={handleTogglePin}
         onDelete={handleDetailDelete}
         onCommentAdded={handleCommentAdded}
+        onJumpToEvent={jumpToEvent}
       />
 
       <EventModal

@@ -38,6 +38,7 @@ function rowToEvent(r: any): CalendarEvent {
     recurrence: r.recurrence || undefined,
     reminderMinutes: r.reminder_minutes || undefined,
     site: r.site || undefined,
+    relatedEventIds: Array.isArray(r.related_event_ids) ? r.related_event_ids : undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
@@ -65,6 +66,7 @@ function eventToRow(e: CalendarEvent): any {
     recurrence: e.recurrence ?? null,
     reminder_minutes: e.reminderMinutes ?? null,
     site: e.site ?? null,
+    related_event_ids: Array.isArray(e.relatedEventIds) && e.relatedEventIds.length > 0 ? e.relatedEventIds : null,
     created_at: e.createdAt,
     updated_at: e.updatedAt,
   };
