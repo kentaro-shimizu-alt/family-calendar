@@ -600,6 +600,37 @@
       }
     },
 
+    validateCustomerInfo() {
+      const tel = (document.querySelector('input[name="tel"]')?.value || '').trim().replace(/[-\s　]/g,'');
+      const zip = (document.querySelector('input[name="zip"]')?.value || '').trim().replace(/[-\s　]/g,'');
+      const addr = (document.querySelector('textarea[name="address"]')?.value || '').trim();
+      const email = (document.querySelector('input[name="email"]')?.value || '').trim();
+      const name = (document.querySelector('input[name="customer_name"]')?.value || '').trim();
+      const errs = [];
+      if (!name) errs.push('お名前を入力してください');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.push('メールアドレスの形式が正しくありません');
+      if (!/^\d{10,13}$/.test(tel)) errs.push('電話番号は数字10〜13桁で入力してください(ハイフンなし)');
+      if (!/^\d{7}$/.test(zip)) errs.push('郵便番号は数字7桁で入力してください(例: 5800022)');
+      if (!addr) errs.push('住所を入力してください');
+      // 配送不可エリア
+      const ngPatterns = [
+        { re: /北海道/, label: '北海道' },
+        { re: /沖縄県?/, label: '沖縄県' },
+        { re: /(離島|佐渡|奄美|宮古島|石垣島|久米島|与那国|小笠原|伊豆諸島|大東島|父島|母島|青ヶ島|八丈島|三宅島|御蔵島|神津島|新島|式根島|利尻|礼文|焼尻|天売|渡嘉敷|座間味|粟国|渡名喜|南大東|北大東|多良間|来間|池間|伊良部|下地島|与論|沖永良部|徳之島|喜界|請島|加計呂麻|与路|硫黄|口永良部|屋久島|種子島|甑島)/, label: '離島' }
+      ];
+      for (const p of ngPatterns) {
+        if (p.re.test(addr)) {
+          errs.push('配送不可エリア(' + p.label + ')です。本州・四国・九州本土の住所のみ承っております');
+          break;
+        }
+      }
+      if (errs.length > 0) {
+        alert('入力内容にエラーがあります:\n\n・' + errs.join('\n・'));
+        return false;
+      }
+      return true;
+    },
+
     validateSubmit() {
       const btn = document.getElementById('btn-submit');
       if (!btn) return false;
@@ -835,6 +866,12 @@
             e.preventDefault();
             e.stopImmediatePropagation();
             alert('カート内容または承諾事項に不足があります');
+            return;
+          }
+          // 顧客情報validation(電話/郵便/住所/メール/北海道沖縄離島ブロック)
+          if (!this.validateCustomerInfo()) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
             return;
           }
         }, true);  // capture=true で他のハンドラより先に走らせる
