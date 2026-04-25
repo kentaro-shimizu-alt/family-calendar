@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-23",
+  "generated_at": "2026-04-25",
   "count": 2805,
   "price_revision": {
     "3m_date": "2026-06-01",
@@ -30,7 +30,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 2010,
+      "hp_price_m": 2090,
       "supplier": "新和興業"
     },
     {
@@ -43,7 +43,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 1580,
+      "hp_price_m": 1640,
       "supplier": "新和興業"
     },
     {
@@ -56,7 +56,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 2190,
+      "hp_price_m": 2280,
       "supplier": "新和興業"
     },
     {
@@ -69,7 +69,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 1720,
+      "hp_price_m": 1790,
       "supplier": "新和興業"
     },
     {
@@ -82,7 +82,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3800,
+      "hp_price_m": 3950,
       "supplier": "新和興業"
     },
     {
@@ -95,7 +95,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5420,
+      "hp_price_m": 5640,
       "supplier": "新和興業"
     },
     {
@@ -108,7 +108,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 1840,
+      "hp_price_m": 1920,
       "supplier": "新和興業"
     },
     {
@@ -121,7 +121,7 @@
       "joutai_m2": 0,
       "width_mm": 1180,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7890,
+      "hp_price_m": 8220,
       "supplier": "新和興業"
     },
     {
@@ -134,7 +134,7 @@
       "joutai_m2": 0,
       "width_mm": 1180,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7890,
+      "hp_price_m": 8220,
       "supplier": "新和興業"
     },
     {
@@ -147,7 +147,7 @@
       "joutai_m2": 0,
       "width_mm": 1180,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7890,
+      "hp_price_m": 8220,
       "supplier": "新和興業"
     },
     {
@@ -160,7 +160,7 @@
       "joutai_m2": 0,
       "width_mm": 1250,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 10260,
+      "hp_price_m": 10690,
       "supplier": "新和興業"
     },
     {
@@ -173,16 +173,16 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3630,
+      "hp_price_m": 3780,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 3630
+          "hp_price_m": 3780
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 4550
+          "hp_price_m": 4740
         }
       ]
     },
@@ -196,16 +196,16 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 10460,
+      "hp_price_m": 10890,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1270,
-          "hp_price_m": 10460
+          "hp_price_m": 10890
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 12530
+          "hp_price_m": 13050
         }
       ]
     },
@@ -219,20 +219,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 4840,
+      "hp_price_m": 5040,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 4840
+          "hp_price_m": 5040
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 6080
+          "hp_price_m": 6330
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 7260
+          "hp_price_m": 7570
         }
       ]
     },
@@ -246,7 +246,7 @@
       "joutai_m2": 0,
       "width_mm": 1450,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 11840,
+      "hp_price_m": 12330,
       "supplier": "新和興業"
     },
     {
@@ -259,20 +259,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 8090,
+      "hp_price_m": 8430,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 8090
+          "hp_price_m": 8430
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 10120
+          "hp_price_m": 10540
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 12140
+          "hp_price_m": 12640
         }
       ]
     },
@@ -286,7 +286,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 10120,
+      "hp_price_m": 10540,
       "supplier": "新和興業"
     },
     {
@@ -299,16 +299,16 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 11090,
+      "hp_price_m": 11550,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 11090
+          "hp_price_m": 11550
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 13860
+          "hp_price_m": 14440
         }
       ]
     },
@@ -322,16 +322,16 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 12520,
+      "hp_price_m": 13040,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 12520
+          "hp_price_m": 13040
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 15660
+          "hp_price_m": 16320
         }
       ]
     },
@@ -345,7 +345,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 10120,
+      "hp_price_m": 10540,
       "supplier": "新和興業"
     },
     {
@@ -358,7 +358,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 13860,
+      "hp_price_m": 14440,
       "supplier": "新和興業"
     },
     {
@@ -371,7 +371,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 12140,
+      "hp_price_m": 12640,
       "supplier": "新和興業"
     },
     {
@@ -384,7 +384,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 12830,
+      "hp_price_m": 13370,
       "supplier": "新和興業"
     },
     {
@@ -397,7 +397,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 11640,
+      "hp_price_m": 12130,
       "supplier": "新和興業"
     },
     {
@@ -410,7 +410,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 11570,
+      "hp_price_m": 12050,
       "supplier": "新和興業"
     },
     {
@@ -423,20 +423,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 9300,
+      "hp_price_m": 9690,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 9300
+          "hp_price_m": 9690
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 11640
+          "hp_price_m": 12130
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 13940
+          "hp_price_m": 14520
         }
       ]
     },
@@ -450,20 +450,20 @@
       "joutai_m2": 0,
       "width_mm": 914,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 4060,
+      "hp_price_m": 4230,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 914,
-          "hp_price_m": 4060
+          "hp_price_m": 4230
         },
         {
           "width_mm": 1219,
-          "hp_price_m": 5370
+          "hp_price_m": 5590
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 6750
+          "hp_price_m": 7030
         }
       ]
     },
@@ -477,20 +477,20 @@
       "joutai_m2": 0,
       "width_mm": 914,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 4060,
+      "hp_price_m": 4230,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 914,
-          "hp_price_m": 4060
+          "hp_price_m": 4230
         },
         {
           "width_mm": 1219,
-          "hp_price_m": 5370
+          "hp_price_m": 5590
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 6750
+          "hp_price_m": 7030
         }
       ]
     },
@@ -504,20 +504,20 @@
       "joutai_m2": 0,
       "width_mm": 914,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 4060,
+      "hp_price_m": 4230,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 914,
-          "hp_price_m": 4060
+          "hp_price_m": 4230
         },
         {
           "width_mm": 1219,
-          "hp_price_m": 5370
+          "hp_price_m": 5590
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 6750
+          "hp_price_m": 7030
         }
       ]
     },
@@ -531,7 +531,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 23500,
+      "hp_price_m": 24480,
       "supplier": "新和興業"
     },
     {
@@ -544,7 +544,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 23500,
+      "hp_price_m": 24480,
       "supplier": "新和興業"
     },
     {
@@ -557,20 +557,20 @@
       "joutai_m2": 0,
       "width_mm": 914,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3740,
+      "hp_price_m": 3890,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 914,
-          "hp_price_m": 3740
+          "hp_price_m": 3890
         },
         {
           "width_mm": 1219,
-          "hp_price_m": 4970
+          "hp_price_m": 5180
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 6230
+          "hp_price_m": 6490
         }
       ]
     },
@@ -584,20 +584,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3360,
+      "hp_price_m": 3500,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 3360
+          "hp_price_m": 3500
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 4180
+          "hp_price_m": 4350
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 5010
+          "hp_price_m": 5220
         }
       ]
     },
@@ -611,7 +611,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6750,
+      "hp_price_m": 7030,
       "supplier": "新和興業"
     },
     {
@@ -624,7 +624,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6620,
+      "hp_price_m": 6890,
       "supplier": "新和興業"
     },
     {
@@ -637,7 +637,7 @@
       "joutai_m2": 0,
       "width_mm": 1130,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5980,
+      "hp_price_m": 6230,
       "supplier": "新和興業"
     },
     {
@@ -650,16 +650,16 @@
       "joutai_m2": 0,
       "width_mm": 914,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 4380,
+      "hp_price_m": 4570,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 914,
-          "hp_price_m": 4380
+          "hp_price_m": 4570
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 7260
+          "hp_price_m": 7570
         }
       ]
     },
@@ -673,7 +673,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6750,
+      "hp_price_m": 7030,
       "supplier": "新和興業"
     },
     {
@@ -686,7 +686,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6830,
+      "hp_price_m": 7120,
       "supplier": "新和興業"
     },
     {
@@ -699,20 +699,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3360,
+      "hp_price_m": 3500,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 3360
+          "hp_price_m": 3500
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 4180
+          "hp_price_m": 4350
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 5010
+          "hp_price_m": 5220
         }
       ]
     },
@@ -726,7 +726,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6830,
+      "hp_price_m": 7120,
       "supplier": "新和興業"
     },
     {
@@ -739,7 +739,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6620,
+      "hp_price_m": 6890,
       "supplier": "新和興業"
     },
     {
@@ -752,7 +752,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6750,
+      "hp_price_m": 7030,
       "supplier": "新和興業"
     },
     {
@@ -765,7 +765,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6600,
+      "hp_price_m": 6880,
       "supplier": "新和興業"
     },
     {
@@ -778,7 +778,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6620,
+      "hp_price_m": 6890,
       "supplier": "新和興業"
     },
     {
@@ -791,7 +791,7 @@
       "joutai_m2": 0,
       "width_mm": 1130,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5980,
+      "hp_price_m": 6230,
       "supplier": "新和興業"
     },
     {
@@ -804,7 +804,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6750,
+      "hp_price_m": 7030,
       "supplier": "新和興業"
     },
     {
@@ -817,16 +817,16 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5340,
+      "hp_price_m": 5570,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 5340
+          "hp_price_m": 5570
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 6690
+          "hp_price_m": 6970
         }
       ]
     },
@@ -840,20 +840,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5340,
+      "hp_price_m": 5570,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 5340
+          "hp_price_m": 5570
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 6680
+          "hp_price_m": 6950
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 8060
+          "hp_price_m": 8390
         }
       ]
     },
@@ -867,7 +867,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6690,
+      "hp_price_m": 6970,
       "supplier": "新和興業"
     },
     {
@@ -880,20 +880,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 1580,
+      "hp_price_m": 1640,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 1580
+          "hp_price_m": 1640
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 1960
+          "hp_price_m": 2040
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 2360
+          "hp_price_m": 2450
         }
       ]
     },
@@ -907,20 +907,20 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 2330,
+      "hp_price_m": 2430,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 2330
+          "hp_price_m": 2430
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 2910
+          "hp_price_m": 3030
         },
         {
           "width_mm": 1524,
-          "hp_price_m": 3520
+          "hp_price_m": 3670
         }
       ]
     },
@@ -934,7 +934,7 @@
       "joutai_m2": 0,
       "width_mm": 1150,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7700,
+      "hp_price_m": 8020,
       "supplier": "新和興業"
     },
     {
@@ -947,7 +947,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7610,
+      "hp_price_m": 7930,
       "supplier": "新和興業"
     },
     {
@@ -960,7 +960,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7610,
+      "hp_price_m": 7930,
       "supplier": "新和興業"
     },
     {
@@ -973,7 +973,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7610,
+      "hp_price_m": 7930,
       "supplier": "新和興業"
     },
     {
@@ -986,7 +986,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7610,
+      "hp_price_m": 7930,
       "supplier": "新和興業"
     },
     {
@@ -999,7 +999,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5730,
+      "hp_price_m": 5970,
       "supplier": "新和興業"
     },
     {
@@ -1012,7 +1012,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 2700,
+      "hp_price_m": 2820,
       "supplier": "新和興業"
     },
     {
@@ -1025,16 +1025,16 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 10100,
+      "hp_price_m": 10520,
       "supplier": "新和興業",
       "width_options": [
         {
           "width_mm": 1016,
-          "hp_price_m": 10100
+          "hp_price_m": 10520
         },
         {
           "width_mm": 1270,
-          "hp_price_m": 12630
+          "hp_price_m": 13150
         }
       ]
     },
@@ -1048,7 +1048,7 @@
       "joutai_m2": 0,
       "width_mm": 1250,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5200,
+      "hp_price_m": 5420,
       "supplier": "新和興業"
     },
     {
@@ -1061,7 +1061,7 @@
       "joutai_m2": 0,
       "width_mm": 1250,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5840,
+      "hp_price_m": 6080,
       "supplier": "新和興業"
     },
     {
@@ -1074,7 +1074,7 @@
       "joutai_m2": 0,
       "width_mm": 1000,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6240,
+      "hp_price_m": 6500,
       "supplier": "新和興業"
     },
     {
@@ -25001,7 +25001,7 @@
       "joutai_m2": 0,
       "width_mm": 1220,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 22230,
+      "hp_price_m": 23150,
       "supplier": "新和興業"
     },
     {
@@ -25014,7 +25014,7 @@
       "joutai_m2": 0,
       "width_mm": 1220,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 22230,
+      "hp_price_m": 23150,
       "supplier": "新和興業"
     },
     {
@@ -25027,7 +25027,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25040,7 +25040,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6820,
+      "hp_price_m": 7100,
       "supplier": "新和興業"
     },
     {
@@ -25053,7 +25053,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25066,7 +25066,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25079,7 +25079,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 4180,
+      "hp_price_m": 4350,
       "supplier": "新和興業"
     },
     {
@@ -25092,7 +25092,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5700,
+      "hp_price_m": 5940,
       "supplier": "新和興業"
     },
     {
@@ -25105,7 +25105,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5700,
+      "hp_price_m": 5940,
       "supplier": "新和興業"
     },
     {
@@ -25118,7 +25118,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3240,
+      "hp_price_m": 3380,
       "supplier": "新和興業"
     },
     {
@@ -25131,7 +25131,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3300,
+      "hp_price_m": 3440,
       "supplier": "新和興業"
     },
     {
@@ -25144,7 +25144,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6800,
+      "hp_price_m": 7080,
       "supplier": "新和興業"
     },
     {
@@ -25157,7 +25157,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25170,7 +25170,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25183,7 +25183,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25196,7 +25196,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25209,7 +25209,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25222,7 +25222,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25235,7 +25235,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6820,
+      "hp_price_m": 7100,
       "supplier": "新和興業"
     },
     {
@@ -25248,7 +25248,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6820,
+      "hp_price_m": 7100,
       "supplier": "新和興業"
     },
     {
@@ -25261,7 +25261,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6820,
+      "hp_price_m": 7100,
       "supplier": "新和興業"
     },
     {
@@ -25274,7 +25274,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25287,7 +25287,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3390,
+      "hp_price_m": 3530,
       "supplier": "新和興業"
     },
     {
@@ -25300,7 +25300,7 @@
       "joutai_m2": 0,
       "width_mm": 1016,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 2330,
+      "hp_price_m": 2430,
       "supplier": "新和興業"
     },
     {
@@ -25313,7 +25313,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 2920,
+      "hp_price_m": 3040,
       "supplier": "新和興業"
     },
     {
@@ -25326,7 +25326,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25339,7 +25339,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25352,7 +25352,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25365,7 +25365,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25378,7 +25378,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25391,7 +25391,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25404,7 +25404,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25417,7 +25417,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25430,7 +25430,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6560,
+      "hp_price_m": 6830,
       "supplier": "新和興業"
     },
     {
@@ -25443,7 +25443,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25456,7 +25456,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25469,7 +25469,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25482,7 +25482,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5130,
+      "hp_price_m": 5340,
       "supplier": "新和興業"
     },
     {
@@ -25495,7 +25495,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5130,
+      "hp_price_m": 5340,
       "supplier": "新和興業"
     },
     {
@@ -25508,7 +25508,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25521,7 +25521,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6920,
+      "hp_price_m": 7200,
       "supplier": "新和興業"
     },
     {
@@ -25534,7 +25534,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25547,7 +25547,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6920,
+      "hp_price_m": 7200,
       "supplier": "新和興業"
     },
     {
@@ -25560,7 +25560,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25573,7 +25573,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25586,7 +25586,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25599,7 +25599,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25612,7 +25612,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5700,
+      "hp_price_m": 5940,
       "supplier": "新和興業"
     },
     {
@@ -25625,7 +25625,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5700,
+      "hp_price_m": 5940,
       "supplier": "新和興業"
     },
     {
@@ -25638,7 +25638,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25651,7 +25651,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25664,7 +25664,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25677,7 +25677,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 3270,
+      "hp_price_m": 3400,
       "supplier": "新和興業"
     },
     {
@@ -25690,7 +25690,7 @@
       "joutai_m2": 0,
       "width_mm": 1219,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5700,
+      "hp_price_m": 5940,
       "supplier": "新和興業"
     },
     {
@@ -25703,7 +25703,7 @@
       "joutai_m2": 0,
       "width_mm": 1219,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5700,
+      "hp_price_m": 5940,
       "supplier": "新和興業"
     },
     {
@@ -25716,7 +25716,7 @@
       "joutai_m2": 0,
       "width_mm": 1219,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5700,
+      "hp_price_m": 5940,
       "supplier": "新和興業"
     },
     {
@@ -25729,7 +25729,7 @@
       "joutai_m2": 0,
       "width_mm": 1250,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 4120,
+      "hp_price_m": 4290,
       "supplier": "新和興業"
     },
     {
@@ -25742,7 +25742,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25755,7 +25755,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25768,7 +25768,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25781,7 +25781,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7850,
+      "hp_price_m": 8180,
       "supplier": "新和興業"
     },
     {
@@ -25794,7 +25794,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7850,
+      "hp_price_m": 8180,
       "supplier": "新和興業"
     },
     {
@@ -25807,7 +25807,7 @@
       "joutai_m2": 0,
       "width_mm": 1524,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7850,
+      "hp_price_m": 8180,
       "supplier": "新和興業"
     },
     {
@@ -25820,7 +25820,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 5760,
+      "hp_price_m": 6000,
       "supplier": "新和興業"
     },
     {
@@ -25833,7 +25833,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7550,
+      "hp_price_m": 7870,
       "supplier": "新和興業"
     },
     {
@@ -25846,7 +25846,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7550,
+      "hp_price_m": 7870,
       "supplier": "新和興業"
     },
     {
@@ -25859,7 +25859,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7550,
+      "hp_price_m": 7870,
       "supplier": "新和興業"
     },
     {
@@ -25872,7 +25872,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 6820,
+      "hp_price_m": 7100,
       "supplier": "新和興業"
     },
     {
@@ -25885,7 +25885,7 @@
       "joutai_m2": 0,
       "width_mm": 1270,
       "hp_kakeritsu_pt": 38,
-      "hp_price_m": 7820,
+      "hp_price_m": 8140,
       "supplier": "新和興業"
     },
     {
