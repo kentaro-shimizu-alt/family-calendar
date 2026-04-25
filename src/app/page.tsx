@@ -45,6 +45,10 @@ export default function HomePage() {
   // Search
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
+  const [rawSearchResults, setRawSearchResults] = useState<CalendarEvent[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchAbortRef = useRef<AbortController | null>(null);
+  const searchLastQRef = useRef<string>('');
 
   // Day events list
   const [dayEventsOpen, setDayEventsOpen] = useState(false);
@@ -249,23 +253,11 @@ export default function HomePage() {
     });
   }, [events, subCalendars]);
 
-  // 検索結果(表示中カレンダーのみ・降順ソート・クライアント計算で即時表示)
-  // 2026-04-25 健太郎指示: ①高速化(サーバーfetch廃止) ②表示中カレンダーのみ ③ソート新→古
+  // 検索結果: API取得結果を表示中カレンダーで絞込(クライアント側filter・即時)
   const searchResults = useMemo<CalendarEvent[]>(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [];
-    return visibleEvents
-      .filter((e) =>
-        e.title.toLowerCase().includes(q) ||
-        (e.note || '').toLowerCase().includes(q) ||
-        (e.location || '').toLowerCase().includes(q)
-      )
-      .sort((a, b) => {
-        if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
-        if (a.date !== b.date) return b.date.localeCompare(a.date);
-        return (b.startTime || '00:00').localeCompare(a.startTime || '00:00');
-      });
-  }, [searchQuery, visibleEvents]);
+    const visibleIds = new Set(subCalendars.filter((c) => c.visible).map((c) => c.id));
+    return rawSearchResults.filter((e) => !e.calendarId || visibleIds.has(e.calendarId));
+  }, [rawSearchResults, subCalendars]);
 
   // Count events per calendar / member (全期間、APIから取得)
   const [eventCountByCalendar, setEventCountByCalendar] = useState<Record<string, number>>({});
@@ -372,12 +364,34 @@ export default function HomePage() {
     }).catch((e) => console.error(e));
   }
 
-  // 2026-04-25 健太郎: 検索高速化+表示中カレンダー絞込
-  // - サーバーfetch廃止→ロード済eventsをクライアント側でフィルタ(即時表示)
-  // - 表示中カレンダーのみ検索結果に出す(subCalendars.visible)
-  // - searchResults state は廃止し useMemo で派生計算化
-  function handleSearch(q: string) {
+  // 2026-04-25 健太郎指示3点修正:
+  // 1)高速化: AbortControllerで前回中断+「検索中…」表示で体感改善
+  // 2)表示中カレンダーのみ: subCalendars.visibleで派生フィルタ
+  // 3)新→古ソート: /api/search側の searchEvents() で対応済(b/a localeCompare)
+  // 注: events stateは現在月周辺のみのため全期間検索は API経由必須
+  async function handleSearch(q: string) {
     setSearchQuery(q);
+    searchLastQRef.current = q;
+    if (!q.trim()) {
+      setRawSearchResults([]);
+      setIsSearching(false);
+      searchAbortRef.current?.abort();
+      return;
+    }
+    searchAbortRef.current?.abort();
+    const ac = new AbortController();
+    searchAbortRef.current = ac;
+    setIsSearching(true);
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: ac.signal });
+      const data = await res.json();
+      if (searchLastQRef.current !== q) return;
+      setRawSearchResults(data.events || []);
+    } catch (e: any) {
+      if (e?.name !== 'AbortError') console.error(e);
+    } finally {
+      if (searchLastQRef.current === q) setIsSearching(false);
+    }
   }
 
   function jumpToEvent(ev: CalendarEvent) {
@@ -527,7 +541,13 @@ export default function HomePage() {
             />
             {searchQuery && (
               <div className="mt-2 max-h-64 overflow-y-auto bg-neutral-900 border border-neutral-700 rounded-lg shadow-sm">
-                {searchResults.length === 0 && (
+                {isSearching && (
+                  <div className="text-xs text-blue-300 text-center py-3 flex items-center justify-center gap-2">
+                    <span className="inline-block w-3 h-3 border-2 border-blue-300 border-t-transparent rounded-full animate-spin"></span>
+                    検索中…
+                  </div>
+                )}
+                {!isSearching && searchResults.length === 0 && (
                   <div className="text-xs text-slate-400 text-center py-3">
                     該当する予定はありません
                   </div>
