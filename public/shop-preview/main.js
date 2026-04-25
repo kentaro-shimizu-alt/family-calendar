@@ -795,6 +795,36 @@
         }
       });
 
+      // 2026-04-25: 北海道・離島の住所検出→「お届け不可」警告
+      const addressEl = document.querySelector('textarea[name="address"]');
+      const addressErrEl = document.getElementById('err-address');
+      if (addressEl && addressErrEl) {
+        const checkAddress = () => {
+          const v = (addressEl.value || '').trim();
+          // 北海道・沖縄・離島キーワード検出
+          const ngPatterns = [
+            { re: /北海道/, label: '北海道' },
+            { re: /沖縄県?/, label: '沖縄県' },
+            { re: /(離島|佐渡|奄美|宮古島|石垣島|久米島|与那国|小笠原|伊豆諸島|大東島|父島|母島|青ヶ島|八丈島|三宅島|御蔵島|神津島|新島|式根島|利尻|礼文|焼尻|天売|渡嘉敷|座間味|粟国|渡名喜|南大東|北大東|多良間|来間|池間|伊良部|下地島|与論|沖永良部|徳之島|喜界|請島|加計呂麻|与路|硫黄|口永良部|屋久島|種子島|甑島|平戸|的山大島|宇久|小値賀|生月|福江|奈留|久賀|若松|中通島|頭ヶ島|久賀島|崎戸|池島|大島|江島|平島|度島|高島|軍艦島|端島|香焼|伊王島|沖島|沖の島|見島|蓋井島|青島|出島|玉浦|地島|相島|玄界島|大珠島|姫島|二神島|怒和島|津和地|中島|興居島|睦月|野忽那|怒和|二神|青島|岡村|大下|生名|岩城|赤穂|男木|女木|本島|広島|手島|小手島|高見島|佐柳島|粟島|志々島|伊吹島|豊島|直島|向島|因島|生口島|大三島|伯方島|大島|愛媛|安居島|魚島|高井神島)/, label: '離島' }
+          ];
+          const hits = [];
+          for (const p of ngPatterns) {
+            if (p.re.test(v)) hits.push(p.label);
+          }
+          if (hits.length > 0) {
+            addressErrEl.textContent = '※ ' + hits.join('・') + ' は配送不可エリアです。お手数ですが本州・四国・九州本土の住所のみ承っております。';
+            addressErrEl.style.color = '#c00';
+            addressErrEl.style.fontWeight = 'bold';
+          } else {
+            addressErrEl.textContent = '';
+            addressErrEl.style.color = '';
+            addressErrEl.style.fontWeight = '';
+          }
+        };
+        addressEl.addEventListener('input', checkAddress);
+        addressEl.addEventListener('blur', checkAddress);
+      }
+
       // 送信時最終検証 (A-1対策: CF7のformはid="order-form"ではなくclass="wpcf7-form")
       const form = document.querySelector('.wpcf7-form') || document.getElementById('order-form');
       if (form) {
