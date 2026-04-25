@@ -483,7 +483,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             <input
               type="text"
               value={relationQuery}
-              onChange={(e) => setRelationQuery(e.target.value)}
+              onChange={(e) => {
+                setRelationQuery(e.target.value);
+                // 入力時に即時loading表示(useEffect発火前のチラつき防止)
+                if (e.target.value.trim()) setRelationSearching(true);
+                else setRelationSearching(false);
+              }}
               placeholder="タイトル・メモ・場所で検索..."
               className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
               autoFocus
@@ -491,7 +496,10 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             {relationQuery && (
               <div className="mt-2 max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-lg">
                 {relationSearching && (
-                  <div className="text-xs text-indigo-500 text-center py-3">検索中…</div>
+                  <div className="text-xs text-indigo-500 text-center py-3 flex items-center justify-center gap-2">
+                    <span className="inline-block w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></span>
+                    検索中…
+                  </div>
                 )}
                 {!relationSearching && relationSearchResults.length === 0 && (
                   <div className="text-xs text-slate-400 text-center py-3">該当する予定はありません</div>
