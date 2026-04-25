@@ -603,7 +603,7 @@
     validateCustomerInfo() {
       const tel = (document.querySelector('input[name="tel"]')?.value || '').trim().replace(/[-\s　]/g,'');
       const zip = (document.querySelector('input[name="zip"]')?.value || '').trim().replace(/[-\s　]/g,'');
-      const addr = (document.querySelector('textarea[name="address"]')?.value || '').trim();
+      const addr = (document.querySelector('[name="address"]')?.value || '').trim();
       const email = (document.querySelector('input[name="email"]')?.value || '').trim();
       const name = (document.querySelector('input[name="customer_name"]')?.value || '').trim();
       const errs = [];
