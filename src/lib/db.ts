@@ -156,12 +156,16 @@ export async function updateEvent(
   };
   const result = await store.updateEventById(baseId, updated);
 
-  // 2026-04-25 関連予定の同期
-  // patch に relatedEventIds が含まれる時:
-  //   1) 削除分: 相手側からも自分のIDを除去(双方向unlink)
-  //   2) 追加分: 双方向linkした上で「推移的クロージャ」を計算
-  //      → A↔B / A↔C なら B↔C も自動リンク(全員が全員と相互リンク=完全グラフ)
-  //      → BFSで連結成分を求めて全メンバの relatedEventIds を「グループ-自身」にそろえる
+  // 2026-04-25 関連予定の同期(クリーク不変の維持)
+  // 設計:
+  //   ・グループは常に「完全グラフ(全員が全員と相互リンク)」状態で保つ
+  //   ・追加: 連結成分をBFSで集めて全員相互リンク化(推移的クロージャ)
+  //   ・削除: 削除メンバはグループから完全離脱(related=[]) + 残りメンバの参照からも除去
+  //   ・実装フロー:
+  //     1) 削除メンバの related を空に
+  //     2) 旧グループの残りメンバから削除メンバへの参照を除去
+  //     3) 追加メンバに baseId を双方向追加
+  //     4) baseId からBFSで現在の連結成分を求めて全員クリーク化
   if (patch.relatedEventIds !== undefined) {
     const oldIds = new Set((existing.relatedEventIds || []).filter((x) => x && x !== baseId));
     const newIds = new Set((patch.relatedEventIds || []).filter((x) => x && x !== baseId));
@@ -169,35 +173,65 @@ export async function updateEvent(
     const removed = [...oldIds].filter((x) => !newIds.has(x));
     const now = new Date().toISOString();
 
-    // 1) 削除側: 相手の relatedEventIds から baseId を除去
-    for (const otherId of removed) {
-      const other = await store.getEventById(otherId);
-      if (!other) continue;
-      const otherList = new Set(other.relatedEventIds || []);
-      otherList.delete(baseId);
-      await store.updateEventById(otherId, {
-        ...other,
-        relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
-        updatedAt: now,
-      });
-    }
+    if (added.length > 0 || removed.length > 0) {
+      // 旧グループ計算(削除前のBFS・existingの古い状態を起点)
+      const oldGroup = new Set<string>([baseId]);
+      const oldQueue: string[] = [baseId];
+      while (oldQueue.length > 0) {
+        const cur = oldQueue.shift()!;
+        const ev = cur === baseId ? existing : await store.getEventById(cur);
+        if (!ev) continue;
+        for (const r of ev.relatedEventIds || []) {
+          if (r && !oldGroup.has(r)) {
+            oldGroup.add(r);
+            oldQueue.push(r);
+          }
+        }
+      }
 
-    // 2) 追加側: まず双方向link、その後BFSで連結成分の全員を相互リンクに
-    for (const otherId of added) {
-      const other = await store.getEventById(otherId);
-      if (!other) continue;
-      const otherList = new Set(other.relatedEventIds || []);
-      otherList.add(baseId);
-      await store.updateEventById(otherId, {
-        ...other,
-        relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
-        updatedAt: now,
-      });
-    }
+      // 1) 削除メンバ: グループから完全離脱
+      for (const otherId of removed) {
+        const other = await store.getEventById(otherId);
+        if (!other) continue;
+        await store.updateEventById(otherId, {
+          ...other,
+          relatedEventIds: [],
+          updatedAt: now,
+        });
+      }
 
-    // 推移的クロージャ: 追加があった時のみ、baseIdから連結ノードをBFSで全部集めて
-    // 全員が全員と相互リンクするように更新
-    if (added.length > 0) {
+      // 2) 旧グループの残りメンバ: 削除メンバへの参照を除去
+      //    (baseId は self-update 済みなのでスキップ)
+      if (removed.length > 0) {
+        for (const memberId of oldGroup) {
+          if (memberId === baseId) continue;
+          if (removed.includes(memberId)) continue;
+          const ev = await store.getEventById(memberId);
+          if (!ev) continue;
+          const cleaned = (ev.relatedEventIds || []).filter((x) => x && !removed.includes(x));
+          if (cleaned.length === (ev.relatedEventIds || []).length) continue;
+          await store.updateEventById(memberId, {
+            ...ev,
+            relatedEventIds: cleaned,
+            updatedAt: now,
+          });
+        }
+      }
+
+      // 3) 追加メンバ: baseId を双方向追加
+      for (const otherId of added) {
+        const other = await store.getEventById(otherId);
+        if (!other) continue;
+        const otherList = new Set(other.relatedEventIds || []);
+        otherList.add(baseId);
+        await store.updateEventById(otherId, {
+          ...other,
+          relatedEventIds: [...otherList].filter((x) => x && x !== otherId),
+          updatedAt: now,
+        });
+      }
+
+      // 4) baseId からBFSで現連結成分を求めてクリーク化
       const visited = new Set<string>([baseId]);
       const queue: string[] = [baseId];
       while (queue.length > 0) {
@@ -217,7 +251,6 @@ export async function updateEvent(
         if (!ev) continue;
         const others = group.filter((x) => x !== memberId).sort();
         const current = [...(ev.relatedEventIds || [])].sort();
-        // 変更不要ならスキップ(無駄なwriteを避ける)
         if (others.length === current.length && others.every((v, i) => v === current[i])) continue;
         await store.updateEventById(memberId, {
           ...ev,
@@ -225,7 +258,8 @@ export async function updateEvent(
           updatedAt: now,
         });
       }
-      // baseId 自身のresultも最新状態で返したいので再取得
+
+      // baseId 自身を最新状態で返す
       const refreshed = await store.getEventById(baseId);
       if (refreshed) return refreshed;
     }
