@@ -695,7 +695,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                   const leftPct = (b.startCol / 7) * 100;
                   const widthPct = (b.span / 7) * 100;
                   const top = b.slot * (BAR_H + BAR_GAP);
-                  const showTitle = !b.continuesLeft;
+                  // 2026-04-25 健太郎: 週またぎイベントは各週セグメント全部にタイトル表示(識別性向上)
+                  // ピン/💼/時刻アイコンは開始週のみ表示(本来の意味を保つ)
+                  const showFirstWeekOnly = !b.continuesLeft;
                   return (
                     <button
                       key={`${b.event.id}__${b.weekIdx}__${b.startCol}`}
@@ -726,12 +728,12 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       title={b.event.title}
                     >
                       {b.continuesLeft && <span className="text-[8px] opacity-60">◂</span>}
-                      {showTitle && b.event.pinned && <span className="text-[8px]">📌</span>}
-                      {showTitle && b.event.site && <span className="text-[8px]">💼</span>}
-                      {showTitle && b.event.startTime && (
+                      {showFirstWeekOnly && b.event.pinned && <span className="text-[8px]">📌</span>}
+                      {showFirstWeekOnly && b.event.site && <span className="text-[8px]">💼</span>}
+                      {showFirstWeekOnly && b.event.startTime && (
                         <span className="font-semibold">{b.event.startTime}</span>
                       )}
-                      <span className="truncate">{showTitle ? b.event.title : ''}</span>
+                      <span className="truncate">{b.event.title}</span>
                       {b.continuesRight && <span className="text-[9px] opacity-60 ml-auto">▸</span>}
                     </button>
                   );
