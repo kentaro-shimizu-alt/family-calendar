@@ -57,6 +57,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid body' }, { status: 400 });
   }
 
+  // メインchannelフィルタ (2026-04-26 健太郎指示・案A実装):
+  //   - 受信処理は健太郎+くろBot 2人ルーム(LINEWORKS_MAIN_CHANNEL_ID)のみ
+  //   - 3人ルーム / 個別DM / その他 channel 等からの受信は即200で破棄
+  //   - Supabase line_messages 未書込 → Realtime通知発火せず → くろ完全無認識
+  //   - env未設定時は従来通り全件受信(セーフフォールバック)
+  const MAIN_CHANNEL_ID = process.env.LINEWORKS_MAIN_CHANNEL_ID || '';
+  if (MAIN_CHANNEL_ID && ev.source?.channelId !== MAIN_CHANNEL_ID) {
+    return NextResponse.json({
+      ok: true,
+      filtered: 'non-main-channel',
+      received_channel: ev.source?.channelId || 'no-channel',
+    });
+  }
+
   const supabase = getSupabase();
 
   // event_id: LINE WORKSにはwebhookEventIdがないため、timestamp+userIdで合成
