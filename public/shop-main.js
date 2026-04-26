@@ -1072,7 +1072,7 @@
       const name = product.name || '';
       const url = this.getOfficialUrl(product);
       const linkHtml = url
-        ? ` <a href="${url}" target="_blank" rel="noopener noreferrer" class="official-link" title="メーカー公式サイトで柄を確認">柄を見る →</a>`
+        ? ` <a href="${url}" target="_blank" rel="noopener noreferrer" class="official-link" title="WEB検索で柄を確認">柄を確認する（WEB検索）</a>`
         : '';
       // ソース明確かつname=品番以外の信頼できる情報を持つブランド
       // オルティノ = アイカ公式カタログ由来で最も信頼性高い
