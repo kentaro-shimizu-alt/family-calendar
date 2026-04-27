@@ -121,8 +121,29 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     entryNoteRefs.current.forEach((el) => autoResize(el));
   }, [entries, autoResize]);
 
+  // 日付キー(YYYY-MM-DD)を依存配列に含めるため事前計算
+  // → モーダル開いたまま別日付セルへ切替 + 両日とも初期データ無し(initial=undefined)
+  //   の場合、initial 参照が undefined→undefined で不変となり useEffect が発火しない
+  //   → draft/entries が前日のまま残置するバグを防ぐ
+  const dateKeyForEffect = date ? format(date, 'yyyy-MM-dd') : '';
+
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      // モーダルが閉じた瞬間に draft/entries を確実にクリア
+      // (次回開いたとき、initial が undefined→undefined でも残置しないよう保険)
+      setEntries([]);
+      setMemo('');
+      setMisaMemo('');
+      setMisaMemoImages([]);
+      setDraftCustomer('');
+      setDraftDeliveryNote(false);
+      setDraftAmount('');
+      setDraftCost('');
+      setDraftNote('');
+      setDraftImages([]);
+      setDraftPdfs([]);
+      return;
+    }
     let initialEntries: SalesEntry[] = [];
     if (initial?.salesEntries && initial.salesEntries.length > 0) {
       initialEntries = initial.salesEntries.map((e) => ({ ...e, type: normalizeType(e.type) }));
@@ -141,7 +162,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
       setTimeout(() => customerRef.current?.focus(), 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initial, initialTab]);
+  }, [open, initial, initialTab, dateKeyForEffect]);
 
   if (!open || !date) return null;
 
