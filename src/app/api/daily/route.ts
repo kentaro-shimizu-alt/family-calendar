@@ -53,7 +53,8 @@ export async function POST(req: NextRequest) {
             .filter((e: any) => e && (e.amount || e.label || e.note || (Array.isArray(e.images) && e.images.length > 0) || (Array.isArray(e.pdfs) && e.pdfs.length > 0)))
             .map((e: any) => ({
               id: e.id || Math.random().toString(36).slice(2, 9),
-              type: e.type === 'material' ? 'material' : 'normal',
+              // type: 'site' | 'material' を保存（旧 'normal' は互換）
+              type: e.type === 'material' ? 'material' : 'site',
               customer: e.customer || undefined,
               deliveryNote: e.deliveryNote || undefined,
               amount: Number(e.amount) || 0,

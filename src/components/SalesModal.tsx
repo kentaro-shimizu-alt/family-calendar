@@ -13,6 +13,7 @@ import {
   totalSales,
 } from '@/lib/types';
 import MisaMemoRangeModal from './MisaMemoRangeModal';
+import MisaMemoCopyModal from './MisaMemoCopyModal';
 
 interface Props {
   open: boolean;
@@ -85,6 +86,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
   const fileRef = useRef<HTMLInputElement>(null);
   const misaFileRef = useRef<HTMLInputElement>(null);
   const [rangeOpen, setRangeOpen] = useState(false);
+  const [copyOpen, setCopyOpen] = useState(false);
   const draftNoteRef = useRef<HTMLTextAreaElement>(null);
   const memoRef = useRef<HTMLTextAreaElement>(null);
   const misaMemoRef = useRef<HTMLTextAreaElement>(null);
@@ -491,6 +493,14 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                     className="text-[10px] text-orange-600 px-2 py-0.5 rounded border border-orange-300 hover:bg-orange-100"
                     title="期間を指定してまとめて表示"
                   >📋 期間集計</button>
+                  {(misaMemo || misaMemoImages.length > 0) && (
+                    <button
+                      type="button"
+                      onClick={() => setCopyOpen(true)}
+                      className="text-[10px] text-orange-700 px-2 py-0.5 rounded border border-orange-400 bg-orange-100 hover:bg-orange-200"
+                      title="この美砂メモを複数日にコピー"
+                    >📋 複数日にコピー</button>
+                  )}
                   {(misaMemo || misaMemoImages.length > 0) && (
                     <button
                       type="button"
@@ -930,6 +940,14 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
         </div>
       </div>
       <MisaMemoRangeModal open={rangeOpen} onClose={() => setRangeOpen(false)} />
+      <MisaMemoCopyModal
+        open={copyOpen}
+        sourceDate={dateKey}
+        sourceMemo={misaMemo}
+        sourceImages={misaMemoImages}
+        onClose={() => setCopyOpen(false)}
+        onApplied={() => { onSaved(); }}
+      />
     </div>
   );
 }
