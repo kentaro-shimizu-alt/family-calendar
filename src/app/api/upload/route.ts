@@ -15,6 +15,30 @@ const ACCEPTED_PDF = ['application/pdf'];
 const COMPRESS_MAX_LONG_EDGE = 1280;
 const COMPRESS_JPEG_QUALITY = 80;
 
+// 再圧縮防止マーカー（健太郎LW指摘 2026-04-28 23:21・EXIF Softwareフィールドに埋込）
+// 一度圧縮した画像をDL→再アップした際に再エンコードされないようガードする。
+// 値の prefix `tecnest-compressed-` で判定（バージョンアップ時も互換維持）
+const COMPRESS_MARKER_TAG = 'tecnest-compressed-v1';
+const COMPRESS_MARKER_PREFIX = 'tecnest-compressed-';
+
+/**
+ * 画像bufferのEXIF Softwareフィールドに既圧縮マーカーがあるか判定。
+ * - true → 既に当システムで圧縮済 → 再圧縮スキップ
+ * - false → 通常通り圧縮
+ * - 失敗時(EXIF読取失敗等)は false を返す（安全側＝通常圧縮）
+ */
+async function isAlreadyCompressedByUs(buf: Buffer): Promise<boolean> {
+  try {
+    const meta = await sharp(buf, { failOn: 'none' }).metadata();
+    if (!meta.exif) return false;
+    // sharp の meta.exif は Buffer。Software タグは TIFF 文字列として埋込まれているので
+    // latin1 で文字列化して prefix 検索すれば充分（高精度パース不要）
+    return meta.exif.toString('latin1').includes(COMPRESS_MARKER_PREFIX);
+  } catch (_) {
+    return false;
+  }
+}
+
 export interface UploadedFile {
   url: string;
   kind: 'image' | 'pdf';
@@ -32,7 +56,7 @@ async function compressImageIfNeeded(
   buf: Buffer,
   mime: string,
   origExt: string
-): Promise<{ buf: Buffer; mime: string; ext: string; compressed: boolean; origSize: number; newSize: number }> {
+): Promise<{ buf: Buffer; mime: string; ext: string; compressed: boolean; origSize: number; newSize: number; skippedAlreadyCompressed?: boolean }> {
   const origSize = buf.length;
   const m = (mime || '').toLowerCase();
   const e = (origExt || '').toLowerCase();
@@ -44,8 +68,23 @@ async function compressImageIfNeeded(
     return { buf, mime, ext: origExt, compressed: false, origSize, newSize: origSize };
   }
 
+  // 既圧縮マーカー(EXIF Software=tecnest-compressed-*)があれば再圧縮スキップ
+  // → DL → 再アップによる多重圧縮で画質が劣化するのを防ぐ
+  if (await isAlreadyCompressedByUs(buf)) {
+    return {
+      buf,
+      mime: 'image/jpeg', // 当システム圧縮後はJPEG固定なので mime も合わせる
+      ext: '.jpg',
+      compressed: false,
+      origSize,
+      newSize: origSize,
+      skippedAlreadyCompressed: true,
+    };
+  }
+
   try {
     // sharp は heic/heif 入力対応。出力は JPEG 統一(容量最小)
+    // EXIF Software に再圧縮防止マーカーを埋込(withExifMerge は既存EXIFに上書き)
     const pipeline = sharp(buf, { failOn: 'none' })
       .rotate() // EXIF orientation を画素にベイク
       .resize({
@@ -54,6 +93,7 @@ async function compressImageIfNeeded(
         fit: 'inside',
         withoutEnlargement: true,
       })
+      .withExifMerge({ IFD0: { Software: COMPRESS_MARKER_TAG } })
       .jpeg({ quality: COMPRESS_JPEG_QUALITY, mozjpeg: true });
 
     const out = await pipeline.toBuffer();
@@ -109,6 +149,8 @@ export async function POST(req: NextRequest) {
           buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
           if (r.compressed) {
             console.log(`[upload/gdrive] compressed ${file.name}: ${r.origSize} → ${r.newSize} bytes`);
+          } else if (r.skippedAlreadyCompressed) {
+            console.log(`[upload/gdrive] re-compress skipped (EXIF marker found) ${file.name}: ${r.origSize} bytes`);
           }
         }
         const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -137,6 +179,8 @@ export async function POST(req: NextRequest) {
           buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
           if (r.compressed) {
             console.log(`[upload/supabase] compressed ${file.name}: ${r.origSize} → ${r.newSize} bytes`);
+          } else if (r.skippedAlreadyCompressed) {
+            console.log(`[upload/supabase] re-compress skipped (EXIF marker found) ${file.name}: ${r.origSize} bytes`);
           }
         }
         const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -173,6 +217,8 @@ export async function POST(req: NextRequest) {
         buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
         if (r.compressed) {
           console.log(`[upload/json] compressed ${file.name}: ${r.origSize} → ${r.newSize} bytes`);
+        } else if (r.skippedAlreadyCompressed) {
+          console.log(`[upload/json] re-compress skipped (EXIF marker found) ${file.name}: ${r.origSize} bytes`);
         }
       }
       const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
