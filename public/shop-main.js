@@ -238,6 +238,66 @@
       return this.products.products.find(p => p.pn === pnNoHyphen) || null;
     },
 
+    /* ───────────── 数量割引(2026-04-28) ─────────────
+     * 健太郎指示 2026-04-28 23:20: 5m以上=2%OFF / 10m以上=3%OFF / 5m未満=なし
+     * 安全装置: 既存顧客の通常価格を下回らないように品番ごと上限率を設定
+     * 通常価格基準は 掛率マスター.md の出し値「通常」列
+     *
+     * 判定キー: brand + series 単位で getMaxDiscountRate(product) -> 0|2|3
+     * 通常HPの差が小さい(=値下げ余地が小さい)品番は上限を下げる
+     *   <2.5% → 0% (割引対象外)
+     *   2.5%〜<4% → 2%上限
+     *   ≥4% → 3%上限(=数量ルール通り)
+     */
+    QTY_DISCOUNT_RULE: {
+      threshold_5m: 0.02,    // 5m以上で2%
+      threshold_10m: 0.03,   // 10m以上で3%
+      min_meters_for_discount: 5,
+    },
+
+    // brand + series → 割引上限%(0/2/3)
+    // 掛率マスター.md 2026-04-08版に基づく
+    // ダイノック AR(値下げ余地2.04%)/リアテック(値下げ余地2.38%) → 2%まで
+    // 3Mフィルム/ファサラ は粗利20%固定運用 → 値下げ余地ゼロ → 0%(対象外)
+    getMaxDiscountRate(product) {
+      if (!product) return 0;
+      const brand = product.brand || '';
+      const series = (product.series || '').toUpperCase();
+
+      // 3Mフィルム/ファサラ系: 粗利20%固定運用 → 値下げ余地なし → 割引対象外
+      if (brand === '3Mフィルム' || brand === 'ファサラ') return 0;
+
+      // ダイノック: シリーズ別判定
+      if (brand === 'ダイノック') {
+        // AR シリーズ = 値下げ余地2.04% → 2%上限
+        if (series === 'AR') return 2;
+        // それ以外(通常品/EX/EXR/NEO/WD/WG等)= 値下げ余地5%以上 → 3%
+        return 3;
+      }
+
+      // リアテック: 値下げ余地2.38% → 2%上限
+      if (brand === 'リアテック') return 2;
+
+      // オルティノ: 通常HP vs 通常価格 = 値下げ余地5%以上 → 3%
+      // VEX屋外も値下げ余地6%以上 → 3%
+      if (brand === 'オルティノ') return 3;
+
+      // その他(ベルビアン/クレアス/パロア/ネオックス/WB系/タキロン等が将来加わる場合)
+      // 安全側で2%固定。万一値下げ余地が小さい品番が混じってもセーフ。
+      return 2;
+    },
+
+    // 数量と品番から実適用割引率(%)を返す。
+    // 数量ベースルール と 品番上限 の小さい方。
+    getEffectiveDiscountRate(product, meters) {
+      if (!product || meters < this.QTY_DISCOUNT_RULE.min_meters_for_discount) return 0;
+      const baseRatePct = meters >= 10
+        ? Math.round(this.QTY_DISCOUNT_RULE.threshold_10m * 100)
+        : Math.round(this.QTY_DISCOUNT_RULE.threshold_5m * 100);
+      const maxRatePct = this.getMaxDiscountRate(product);
+      return Math.min(baseRatePct, maxRatePct);
+    },
+
     /* ───────────── 価格計算 ───────────── */
     // 2026-04-23 HPI-23: 幅選択時の価格を優先使用(width_options持ち品番対応)
     applyRevision(product, shipDate = new Date(), selectedWidth = null) {
@@ -264,14 +324,31 @@
     calcTotals() {
       let subtotal = 0;
       let totalMeters = 0;
+      let discount = 0;  // 2026-04-28: 数量割引合計
       const brandMeters = {};  // 2026-04-22 HPI-8: ブランド別m数集計
+      const discountBreakdown = [];  // 2026-04-28: 品番別割引内訳
       for (const item of this.cart) {
         const unit = item.product ? this.applyRevision(item.product, new Date(), item.width_mm) : 0;
         const sub = unit * item.meters;
+        // 2026-04-28: 数量割引(品番ごと判定・端数切捨で計算)
+        const ratePct = item.product ? this.getEffectiveDiscountRate(item.product, item.meters) : 0;
+        const itemDiscount = Math.floor(sub * ratePct / 100);
         item.unit_price = unit;
         item.subtotal = sub;
+        item.discount_rate_pct = ratePct;
+        item.discount_amount = itemDiscount;
         subtotal += sub;
+        discount += itemDiscount;
         totalMeters += item.meters;
+        if (ratePct > 0 && item.product) {
+          discountBreakdown.push({
+            pn: item.product.pn,
+            brand: item.product.brand,
+            meters: item.meters,
+            rate_pct: ratePct,
+            amount: itemDiscount,
+          });
+        }
         if (item.product && item.product.brand) {
           const b = item.product.brand;
           brandMeters[b] = (brandMeters[b] || 0) + item.meters;
@@ -290,10 +367,16 @@
           shippingBreakdown.push({ brand, meters: m, fee: 0 });
         }
       }
-      const taxable = subtotal + shipping;
+      // 2026-04-28: 割引適用後の小計 → 課税対象 → 税
+      const subtotalAfterDiscount = subtotal - discount;
+      const taxable = subtotalAfterDiscount + shipping;
       const tax = Math.floor(taxable * this.TAX_RATE);
       const total = taxable + tax;
-      return { subtotal, shipping, tax, total, totalMeters, brandMeters, shippingBreakdown };
+      return {
+        subtotal, discount, subtotalAfterDiscount,
+        shipping, tax, total, totalMeters,
+        brandMeters, shippingBreakdown, discountBreakdown,
+      };
     },
 
     /* ───────────── カート操作 ───────────── */
@@ -540,6 +623,37 @@
       const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
       set('sum-meters', t.totalMeters);
       set('sum-subtotal', '¥' + t.subtotal.toLocaleString());
+      // 2026-04-28: 数量割引行(割引額>0の時のみ表示)
+      const discountRow = document.getElementById('row-qty-discount');
+      const discountBadge = document.getElementById('qty-discount-badge');
+      if (discountRow) {
+        if (t.discount > 0) {
+          discountRow.style.display = '';
+          // 内訳の最大率をラベルに(複数品番混在時の主たる適用率)
+          const maxRate = t.discountBreakdown.reduce((m, x) => Math.max(m, x.rate_pct), 0);
+          const labelEl = document.getElementById('qty-discount-label');
+          if (labelEl) labelEl.textContent = `量割引(${maxRate}%):`;
+          set('sum-discount', '-¥' + t.discount.toLocaleString());
+          if (discountBadge) {
+            discountBadge.style.display = '';
+            discountBadge.textContent = `${maxRate}% OFF適用中`;
+          }
+        } else {
+          discountRow.style.display = 'none';
+          set('sum-discount', '¥0');
+          if (discountBadge) discountBadge.style.display = 'none';
+        }
+      }
+      // 2026-04-28: 割引後小計(割引額>0時のみ別行で表示・割引なし時は非表示)
+      const subAfterRow = document.getElementById('row-subtotal-after');
+      if (subAfterRow) {
+        if (t.discount > 0) {
+          subAfterRow.style.display = '';
+          set('sum-subtotal-after', '¥' + t.subtotalAfterDiscount.toLocaleString());
+        } else {
+          subAfterRow.style.display = 'none';
+        }
+      }
       // 2026-04-22 HPI-8: ブランド別送料内訳表示
       let shippingText;
       if (t.shipping === 0) {
@@ -722,14 +836,27 @@
       const totals = this.calcTotals();
 
       // 人間可読版(CF7メールで顧客/管理者が直接読む形式、批判A-3対応)
+      // 2026-04-28: 割引情報も併記(品番ごとの量割引率/額)
       const cartReadable = cartSlim.length === 0
         ? '(品番未指定)'
-        : cartSlim.map(it => {
-            const nm = it.name ? ' ' + it.name : '';
-            const w = it.width_mm ? ` 幅${it.width_mm}mm` : '';
-            return `[${it.brand}] ${it.pn}${nm}${w}\n`
-              + `  m単価: ¥${it.unit_price.toLocaleString()} × ${it.meters}m = ¥${it.subtotal.toLocaleString()}`;
-          }).join('\n');
+        : this.cart
+            .filter(r => r.product)
+            .map(r => {
+              const it = {
+                pn: r.product.pn, name: r.product.name || '', brand: r.product.brand,
+                width_mm: r.width_mm || r.product.width_mm || null,
+                meters: r.meters, unit_price: r.unit_price || 0, subtotal: r.subtotal || 0,
+                discount_rate_pct: r.discount_rate_pct || 0, discount_amount: r.discount_amount || 0,
+              };
+              const nm = it.name ? ' ' + it.name : '';
+              const w = it.width_mm ? ` 幅${it.width_mm}mm` : '';
+              const baseLine = `[${it.brand}] ${it.pn}${nm}${w}\n`
+                + `  m単価: ¥${it.unit_price.toLocaleString()} × ${it.meters}m = ¥${it.subtotal.toLocaleString()}`;
+              if (it.discount_rate_pct > 0) {
+                return baseLine + `\n  量割引(${it.discount_rate_pct}%): -¥${it.discount_amount.toLocaleString()}`;
+              }
+              return baseLine;
+            }).join('\n');
       // 2026-04-22 HPI-8: 送料内訳をメーカー別で明記
       let shipLine;
       if (totals.shipping === 0) {
@@ -742,9 +869,17 @@
       } else {
         shipLine = `送料(税別): ¥${totals.shipping.toLocaleString()}`;
       }
+      // 2026-04-28: 割引行を含む可読版
+      let discountLine = '';
+      if (totals.discount > 0) {
+        const maxRate = (totals.discountBreakdown || []).reduce((m, x) => Math.max(m, x.rate_pct), 0);
+        discountLine = `量割引(${maxRate}%): -¥${totals.discount.toLocaleString()}\n`
+          + `税別合計: ¥${totals.subtotalAfterDiscount.toLocaleString()}\n`;
+      }
       const totalsReadable =
         `合計m数: ${totals.totalMeters}m\n`
         + `小計(税別): ¥${totals.subtotal.toLocaleString()}\n`
+        + discountLine
         + shipLine + '\n'
         + `消費税(10%): ¥${totals.tax.toLocaleString()}\n`
         + `合計(税込): ¥${totals.total.toLocaleString()}`;
