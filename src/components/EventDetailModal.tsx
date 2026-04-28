@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarEvent, EventComment, Member, getMember, normalizeImageEntry } from '@/lib/types';
+import { downscaleFiles } from '@/lib/imageDownscale';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { linkifyUrls } from '@/lib/text-utils';
@@ -259,8 +260,9 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     if (!event || files.length === 0) return;
     setUploading(true);
     try {
+      const downscaled = await downscaleFiles(files);
       const fd = new FormData();
-      for (const f of files) fd.append('files', f);
+      for (const f of downscaled) fd.append('files', f);
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       if (!res.ok) {
         const errText = await res.text();

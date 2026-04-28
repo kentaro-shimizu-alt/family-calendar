@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, isSameMonth, parseISO, startOfMonth, startOfWeek, endOfWeek, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, COLOR_PALETTE, normalizeImageEntry } from '@/lib/types';
+import { downscaleFiles } from '@/lib/imageDownscale';
 
 interface Props {
   open: boolean;
@@ -121,8 +122,9 @@ export default function EventModal({ open, initialDate, editing, members, subCal
     if (files.length === 0) return;
     setUploading(true);
     try {
+      const downscaled = await downscaleFiles(files);
       const fd = new FormData();
-      for (const f of files) fd.append('files', f);
+      for (const f of downscaled) fd.append('files', f);
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       const data = await res.json();
       if (Array.isArray(data.items)) {

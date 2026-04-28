@@ -14,6 +14,7 @@ import {
 } from '@/lib/types';
 import MisaMemoRangeModal from './MisaMemoRangeModal';
 import MisaMemoCopyModal from './MisaMemoCopyModal';
+import { downscaleFiles } from '@/lib/imageDownscale';
 
 interface Props {
   open: boolean;
@@ -201,8 +202,9 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     if (accepted.length === 0) return;
     setUploading(true);
     try {
+      const downscaled = await downscaleFiles(accepted);
       const fd = new FormData();
-      for (const f of accepted) fd.append('files', f);
+      for (const f of downscaled) fd.append('files', f);
       const res = await fetch('/api/upload', { method: 'POST', body: fd });
       const data = await res.json();
       if (Array.isArray(data.items)) {
@@ -591,8 +593,9 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                     if (!files.length) return;
                     setUploading(true);
                     try {
+                      const downscaled = await downscaleFiles(files);
                       const fd = new FormData();
-                      for (const f of files) fd.append('files', f);
+                      for (const f of downscaled) fd.append('files', f);
                       const res = await fetch('/api/upload', { method: 'POST', body: fd });
                       const data = await res.json();
                       const urls = (data.items || []).filter((it: any) => it.kind === 'image').map((it: any) => it.url);
