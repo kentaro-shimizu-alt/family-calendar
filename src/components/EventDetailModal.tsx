@@ -35,8 +35,13 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [copyOpen, setCopyOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [lightbox, setLightbox] = useState<{ url: string; rotation: 0 | 90 | 180 | 270 } | null>(null);
+  // lightbox: index は 画像配列(event.images 由来) における位置。null=非表示
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [rotatingIndex, setRotatingIndex] = useState<number | null>(null); // 回転中の画像インデックス
+  // swipe gesture state (touch)
+  const swipeStartXRef = useRef<number | null>(null);
+  const swipeStartYRef = useRef<number | null>(null);
+  const swipeDxRef = useRef<number>(0);
 
   // 2026-04-25 関連予定機能
   const [relatedEvents, setRelatedEvents] = useState<CalendarEvent[]>([]);
@@ -188,6 +193,34 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     items.sort((a, b) => a.ts - b.ts);
     return items;
   }, [event]);
+
+  // lightbox 用画像リスト(event.images の順序ベース・index は item.index と一致)
+  const lightboxImages = useMemo<Array<{ url: string; rotation: 0 | 90 | 180 | 270 }>>(() => {
+    if (!event) return [];
+    return (event.images || []).map((entry) => {
+      const img = normalizeImageEntry(entry);
+      return { url: img.url, rotation: (img.rotation ?? 0) as 0 | 90 | 180 | 270 };
+    });
+  }, [event]);
+
+  const lightboxCurrent = lightboxIndex !== null ? lightboxImages[lightboxIndex] : null;
+  const lightboxTotal = lightboxImages.length;
+
+  // PC キーボード操作: ← / → / Esc
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        setLightboxIndex((cur) => (cur === null ? null : Math.max(0, cur - 1)));
+      } else if (e.key === 'ArrowRight') {
+        setLightboxIndex((cur) => (cur === null ? null : Math.min(lightboxImages.length - 1, cur + 1)));
+      } else if (e.key === 'Escape') {
+        setLightboxIndex(null);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxIndex, lightboxImages.length]);
 
   if (!open || !event) return null;
   const member = getMember(event.memberId, members);
@@ -761,7 +794,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                           loading="lazy"
                           className="max-w-full max-h-[70vh] object-contain cursor-zoom-in transition-transform duration-300"
                           style={{ transform: `rotate(${item.rotation}deg)` }}
-                          onClick={() => setLightbox({ url: item.url, rotation: item.rotation })}
+                          onClick={() => setLightboxIndex(item.index)}
                         />
                       </div>
                     </div>
@@ -881,26 +914,86 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
         />
       </div>
 
-      {/* Lightbox for fullscreen image view */}
-      {lightbox && (
+      {/* Lightbox for fullscreen image view (swipe / arrow keys で前後切替) */}
+      {lightboxCurrent && lightboxIndex !== null && (
         <div
-          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
-          onClick={() => setLightbox(null)}
+          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out select-none"
+          onClick={() => setLightboxIndex(null)}
+          onTouchStart={(e) => {
+            if (e.touches.length !== 1) return;
+            swipeStartXRef.current = e.touches[0].clientX;
+            swipeStartYRef.current = e.touches[0].clientY;
+            swipeDxRef.current = 0;
+          }}
+          onTouchMove={(e) => {
+            if (swipeStartXRef.current === null || swipeStartYRef.current === null) return;
+            if (e.touches.length !== 1) return;
+            swipeDxRef.current = e.touches[0].clientX - swipeStartXRef.current;
+          }}
+          onTouchEnd={() => {
+            const dx = swipeDxRef.current;
+            const startX = swipeStartXRef.current;
+            swipeStartXRef.current = null;
+            swipeStartYRef.current = null;
+            swipeDxRef.current = 0;
+            if (startX === null) return;
+            const THRESHOLD = 50; // px
+            if (lightboxTotal <= 1) return;
+            if (dx <= -THRESHOLD) {
+              // 左スワイプ → 次の画像 (端で停止)
+              setLightboxIndex((cur) => (cur === null ? null : Math.min(lightboxTotal - 1, cur + 1)));
+            } else if (dx >= THRESHOLD) {
+              // 右スワイプ → 前の画像 (端で停止)
+              setLightboxIndex((cur) => (cur === null ? null : Math.max(0, cur - 1)));
+            }
+          }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={lightbox.url}
+            key={lightboxIndex}
+            src={lightboxCurrent.url}
             alt=""
             className="max-w-full max-h-full object-contain transition-transform duration-300"
-            style={{ transform: `rotate(${lightbox.rotation}deg)` }}
+            style={{ transform: `rotate(${lightboxCurrent.rotation}deg)` }}
             onClick={(e) => e.stopPropagation()}
+            draggable={false}
           />
+          {/* 閉じるボタン */}
           <button
             className="absolute top-4 right-4 text-white text-4xl leading-none"
-            onClick={() => setLightbox(null)}
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
+            aria-label="閉じる"
           >
             ×
           </button>
+          {/* PC用 前/次 矢印ボタン (スマホでは非表示) */}
+          {lightboxTotal > 1 && lightboxIndex > 0 && (
+            <button
+              className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white text-3xl leading-none"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((cur) => (cur === null ? null : Math.max(0, cur - 1))); }}
+              aria-label="前の画像"
+            >
+              ‹
+            </button>
+          )}
+          {lightboxTotal > 1 && lightboxIndex < lightboxTotal - 1 && (
+            <button
+              className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white text-3xl leading-none"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((cur) => (cur === null ? null : Math.min(lightboxTotal - 1, cur + 1))); }}
+              aria-label="次の画像"
+            >
+              ›
+            </button>
+          )}
+          {/* 現在/全枚数 インジケータ (2枚以上のときのみ) */}
+          {lightboxTotal > 1 && (
+            <div
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 text-white text-sm tracking-wider"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {lightboxIndex + 1} / {lightboxTotal}
+            </div>
+          )}
         </div>
       )}
     </div>
