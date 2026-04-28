@@ -37,6 +37,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [dragOver, setDragOver] = useState(false);
   // lightbox: index は 画像配列(event.images 由来) における位置。null=非表示
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  // 切替方向: 'next'=右→左にスライドイン (左スワイプ/→キー), 'prev'=左→右 (右スワイプ/←キー)
+  const [slideDirection, setSlideDirection] = useState<'next' | 'prev'>('next');
   const [rotatingIndex, setRotatingIndex] = useState<number | null>(null); // 回転中の画像インデックス
   // swipe gesture state (touch)
   const swipeStartXRef = useRef<number | null>(null);
@@ -211,8 +213,10 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     if (lightboxIndex === null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
+        setSlideDirection('prev');
         setLightboxIndex((cur) => (cur === null ? null : Math.max(0, cur - 1)));
       } else if (e.key === 'ArrowRight') {
+        setSlideDirection('next');
         setLightboxIndex((cur) => (cur === null ? null : Math.min(lightboxImages.length - 1, cur + 1)));
       } else if (e.key === 'Escape') {
         setLightboxIndex(null);
@@ -940,24 +944,35 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             const THRESHOLD = 50; // px
             if (lightboxTotal <= 1) return;
             if (dx <= -THRESHOLD) {
-              // 左スワイプ → 次の画像 (端で停止)
+              // 左スワイプ → 次の画像 (端で停止) → 右からスライドイン
+              setSlideDirection('next');
               setLightboxIndex((cur) => (cur === null ? null : Math.min(lightboxTotal - 1, cur + 1)));
             } else if (dx >= THRESHOLD) {
-              // 右スワイプ → 前の画像 (端で停止)
+              // 右スワイプ → 前の画像 (端で停止) → 左からスライドイン
+              setSlideDirection('prev');
               setLightboxIndex((cur) => (cur === null ? null : Math.max(0, cur - 1)));
             }
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          {/* スライドアニメーション用ラッパー: key={lightboxIndex} で再マウント・animation class で
+              次=右からスライドイン / 前=左からスライドイン
+              img の rotation transform と衝突しないようラッパー側でアニメーション、img で rotate */}
+          <div
             key={lightboxIndex}
-            src={lightboxCurrent.url}
-            alt=""
-            className="max-w-full max-h-full object-contain transition-transform duration-300"
-            style={{ transform: `rotate(${lightboxCurrent.rotation}deg)` }}
+            className={`max-w-full max-h-full flex items-center justify-center ${
+              slideDirection === 'next' ? 'animate-slide-from-right' : 'animate-slide-from-left'
+            }`}
             onClick={(e) => e.stopPropagation()}
-            draggable={false}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lightboxCurrent.url}
+              alt=""
+              className="max-w-full max-h-full object-contain transition-transform duration-300"
+              style={{ transform: `rotate(${lightboxCurrent.rotation}deg)` }}
+              draggable={false}
+            />
+          </div>
           {/* 閉じるボタン */}
           <button
             className="absolute top-4 right-4 text-white text-4xl leading-none"
@@ -970,7 +985,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           {lightboxTotal > 1 && lightboxIndex > 0 && (
             <button
               className="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white text-3xl leading-none"
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((cur) => (cur === null ? null : Math.max(0, cur - 1))); }}
+              onClick={(e) => { e.stopPropagation(); setSlideDirection('prev'); setLightboxIndex((cur) => (cur === null ? null : Math.max(0, cur - 1))); }}
               aria-label="前の画像"
             >
               ‹
@@ -979,7 +994,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           {lightboxTotal > 1 && lightboxIndex < lightboxTotal - 1 && (
             <button
               className="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white text-3xl leading-none"
-              onClick={(e) => { e.stopPropagation(); setLightboxIndex((cur) => (cur === null ? null : Math.min(lightboxTotal - 1, cur + 1))); }}
+              onClick={(e) => { e.stopPropagation(); setSlideDirection('next'); setLightboxIndex((cur) => (cur === null ? null : Math.min(lightboxTotal - 1, cur + 1))); }}
               aria-label="次の画像"
             >
               ›

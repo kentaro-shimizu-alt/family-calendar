@@ -13,6 +13,20 @@ const config: Config = {
         'family-child2': '#f59e0b',
         'family-all': '#a855f7',
       },
+      keyframes: {
+        slideFromRight: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        slideFromLeft: {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+      },
+      animation: {
+        'slide-from-right': 'slideFromRight 0.25s ease-out',
+        'slide-from-left': 'slideFromLeft 0.25s ease-out',
+      },
     },
   },
   plugins: [],
