@@ -240,7 +240,8 @@ async function getLwBotToken(): Promise<{ token: string; botId: string } | null>
 // - 通常受注(score<50): 通常通知ヘッダー
 // - 不審スコア>=50: [緊] タグ付きで主くろメインルームへ警告
 // 既存 notifySuspicion(健太郎DM)は維持・本関数はメインルーム用
-// MAIN_CHANNEL_ID = ea13926f-fc61-b8e8-8d52-031da4e00b38
+// MAIN_CHANNEL_ID (K023 2026-04-29切替): 新②0b149853 (健太郎+美砂+くろBot 3人ルーム)
+// 旧①ea13926f-fc61-b8e8-8d52-031da4e00b38 は廃止(健太郎指示で沈黙化・送信禁止)
 // =============================================================
 async function notifyMainRoom(opts: {
   order_id: string;
@@ -252,7 +253,7 @@ async function notifyMainRoom(opts: {
 }): Promise<void> {
   const channelId =
     process.env.LINEWORKS_MAIN_CHANNEL_ID ||
-    'ea13926f-fc61-b8e8-8d52-031da4e00b38';
+    '0b149853-18a9-51ef-c0b4-6b07894a7182';
   if (!channelId) {
     console.warn('[shop-order-webhook] MAIN_CHANNEL_ID 未設定でskip');
     return;
@@ -262,14 +263,41 @@ async function notifyMainRoom(opts: {
   const { token, botId } = auth;
 
   // cart/totals から表示用情報を抽出 (best-effort)
+  // 2026-04-29 修正(N151): shop-main.js の syncHiddenFields() は cartSlim を
+  //   フラットな配列として cart_json に詰める(items ラッパー無し)。
+  //   実キー名は pn / meters(sku/quantity_m ではない)。
+  //   旧コード `opts.cart?.items` は常に undefined → list=[] → 「(品番不明)」確定。
+  //   後方互換のため旧キー(sku/code/product_code/quantity_m 等)も保持して fallback。
   let firstSku = '';
   let totalQtyM = 0;
   try {
-    const list = Array.isArray(opts.cart?.items) ? opts.cart.items : [];
+    const rawCart: any = opts.cart;
+    const list: any[] = Array.isArray(rawCart)
+      ? rawCart
+      : (Array.isArray(rawCart?.items) ? rawCart.items : []);
     if (list && list.length > 0) {
-      firstSku = String(list[0]?.sku || list[0]?.code || list[0]?.product_code || '');
+      const head = list[0] || {};
+      firstSku = String(
+        head.pn               // shop-main.js 実キー名(2026-04-29確認)
+        || head.sku
+        || head.code
+        || head.product_code
+        || head.productCode
+        || head.partNumber
+        || head.product_name
+        || head['品番']
+        || head.name
+        || ''
+      );
       for (const it of list) {
-        const q = Number(it?.quantity_m ?? it?.qty_m ?? it?.qty ?? it?.quantity ?? 0);
+        const q = Number(
+          it?.meters          // shop-main.js 実キー名(2026-04-29確認)
+          ?? it?.quantity_m
+          ?? it?.qty_m
+          ?? it?.qty
+          ?? it?.quantity
+          ?? 0
+        );
         if (Number.isFinite(q)) totalQtyM += q;
       }
     }
@@ -277,7 +305,11 @@ async function notifyMainRoom(opts: {
     // ignore parse errors
   }
   const grandTotal = Number(
-    opts.totals?.grand_total ?? opts.totals?.total ?? opts.totals?.tax_included ?? 0
+    opts.totals?.total                // shop-main.js calcTotals() 実キー名(2026-04-29確認)
+    ?? opts.totals?.grand_total
+    ?? opts.totals?.tax_included
+    ?? opts.totals?.['合計']
+    ?? 0
   );
 
   const isSuspicious = opts.suspicionScore >= 50;
