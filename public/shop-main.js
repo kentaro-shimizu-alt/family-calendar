@@ -831,6 +831,190 @@
       return hasItems && consent;
     },
 
+    /* ───────────── 確認モーダル(2026-04-29 美砂さん指示・2ステップ化) ─────────────
+     * 入力内容を確認する → モーダル全項目表示 → 「修正に戻る」or「この内容で注文を確定する」
+     */
+    showConfirmModal() {
+      // 既存モーダル除去(再表示時)
+      const old = document.getElementById('shop-confirm-modal');
+      if (old) old.remove();
+
+      const totals = this.calcTotals();
+      const items = this.cart.filter(r => r.product);
+
+      // 顧客情報取得
+      const v = (sel) => (document.querySelector(sel)?.value || '').trim();
+      const name = v('input[name="customer_name"]');
+      const company = v('input[name="company"]');
+      const email = v('input[name="email"]');
+      const tel = v('input[name="tel"]');
+      const zip = v('input[name="zip"]');
+      const addr = v('input[name="address"]') || v('textarea[name="address"]');
+      const note = v('input[name="note"]') || v('textarea[name="note"]');
+      const consent = this.getConsentState();
+      const eh = (s) => this.escapeHtml(s);
+
+      // 商品行
+      const itemRows = items.length === 0
+        ? '<tr><td colspan="4" style="text-align:center;color:#fbbf24;padding:14px;">(品番未指定)</td></tr>'
+        : items.map(r => {
+            const w = r.width_mm ? `<br><span style="color:#bfdbfe;font-size:0.85em;">幅 ${r.width_mm}mm</span>` : '';
+            const nm = r.product.name && r.product.name !== r.product.pn ? `<br><span style="color:#bfdbfe;font-size:0.85em;">${eh(r.product.name)}</span>` : '';
+            let priceCell = `¥${(r.unit_price || 0).toLocaleString()} / m`;
+            if (r.discount_rate_pct > 0) {
+              priceCell += `<br><span style="color:#fbbf24;font-size:0.85em;">量割引 ${r.discount_rate_pct}% OFF (-¥${(r.discount_amount || 0).toLocaleString()})</span>`;
+            }
+            return `<tr>
+              <td style="padding:8px 10px;border-bottom:1px solid #1e3a5f;">[${eh(r.product.brand)}]<br><strong>${eh(r.product.pn)}</strong>${nm}${w}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #1e3a5f;text-align:right;">${r.meters} m</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #1e3a5f;text-align:right;">${priceCell}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #1e3a5f;text-align:right;font-weight:bold;">¥${(r.subtotal || 0).toLocaleString()}</td>
+            </tr>`;
+          }).join('');
+
+      // 送料内訳
+      let shipText;
+      if (totals.shipping === 0) {
+        shipText = '無料 (各メーカー3m以上)';
+      } else if (totals.shippingBreakdown && totals.shippingBreakdown.length > 0) {
+        const parts = totals.shippingBreakdown.map(x => `${eh(x.brand)} ${x.meters}m → ${x.fee === 0 ? '無料' : '¥' + x.fee.toLocaleString()}`);
+        shipText = `¥${totals.shipping.toLocaleString()}<br><span style="color:#bfdbfe;font-size:0.85em;">${parts.join(' / ')}</span>`;
+      } else {
+        shipText = `¥${totals.shipping.toLocaleString()}`;
+      }
+
+      // 量割引行(あれば)
+      let discountRow = '';
+      if (totals.discount > 0) {
+        const maxRate = (totals.discountBreakdown || []).reduce((m, x) => Math.max(m, x.rate_pct), 0);
+        discountRow = `
+          <tr><td style="padding:6px 10px;color:#fbbf24;">量割引 (${maxRate}%)</td><td style="padding:6px 10px;text-align:right;color:#fbbf24;font-weight:bold;">-¥${totals.discount.toLocaleString()}</td></tr>
+          <tr><td style="padding:6px 10px;">税別合計 (割引後)</td><td style="padding:6px 10px;text-align:right;font-weight:bold;">¥${totals.subtotalAfterDiscount.toLocaleString()}</td></tr>`;
+      }
+
+      // モーダルHTML(ダーク青背景・既存shopページ調)
+      const consentText = (consent.all && consent.scroll_read)
+        ? '<span style="color:#86efac;font-weight:bold;">✓ 同意済</span>'
+        : '<span style="color:#fca5a5;font-weight:bold;">未同意</span>';
+
+      const html = `
+        <div id="shop-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" style="
+          position:fixed;inset:0;z-index:99999;
+          background:rgba(0,0,0,0.78);
+          display:flex;align-items:flex-start;justify-content:center;
+          padding:20px 12px;overflow-y:auto;
+          font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;
+        ">
+          <div style="
+            width:100%;max-width:720px;
+            background:#0a2545;color:#fff;
+            border:1px solid #1e3a5f;border-radius:10px;
+            box-shadow:0 10px 40px rgba(0,0,0,0.5);
+            margin:auto 0;
+          ">
+            <div style="padding:18px 22px;border-bottom:1px solid #1e3a5f;">
+              <h2 id="confirm-title" style="margin:0;font-size:1.25em;color:#fff;">ご注文内容のご確認</h2>
+              <p style="margin:6px 0 0;font-size:0.9em;color:#bfdbfe;">下記内容でよろしければ「この内容で注文を確定する」を押してください。</p>
+            </div>
+
+            <div style="padding:18px 22px;">
+              <h3 style="margin:0 0 8px;font-size:1.05em;color:#fbbf24;border-left:3px solid #fbbf24;padding-left:8px;">注文内容</h3>
+              <table style="width:100%;border-collapse:collapse;color:#fff;font-size:0.92em;margin-bottom:14px;">
+                <thead>
+                  <tr style="background:#1e3a5f;">
+                    <th style="padding:8px 10px;text-align:left;border-bottom:1px solid #2563eb;">品番</th>
+                    <th style="padding:8px 10px;text-align:right;border-bottom:1px solid #2563eb;">数量</th>
+                    <th style="padding:8px 10px;text-align:right;border-bottom:1px solid #2563eb;">単価</th>
+                    <th style="padding:8px 10px;text-align:right;border-bottom:1px solid #2563eb;">小計</th>
+                  </tr>
+                </thead>
+                <tbody>${itemRows}</tbody>
+              </table>
+
+              <table style="width:100%;border-collapse:collapse;color:#fff;font-size:0.95em;margin-bottom:18px;background:#0d2c52;border-radius:6px;overflow:hidden;">
+                <tbody>
+                  <tr><td style="padding:6px 10px;">合計m数</td><td style="padding:6px 10px;text-align:right;">${totals.totalMeters} m</td></tr>
+                  <tr><td style="padding:6px 10px;">小計 (税別)</td><td style="padding:6px 10px;text-align:right;">¥${totals.subtotal.toLocaleString()}</td></tr>
+                  ${discountRow}
+                  <tr><td style="padding:6px 10px;">送料 (税別)</td><td style="padding:6px 10px;text-align:right;">${shipText}</td></tr>
+                  <tr><td style="padding:6px 10px;">消費税 (10%)</td><td style="padding:6px 10px;text-align:right;">¥${totals.tax.toLocaleString()}</td></tr>
+                  <tr style="background:#1e3a5f;"><td style="padding:10px;font-weight:bold;font-size:1.05em;">合計 (税込)</td><td style="padding:10px;text-align:right;font-weight:bold;font-size:1.15em;color:#fbbf24;">¥${totals.total.toLocaleString()}</td></tr>
+                </tbody>
+              </table>
+
+              <h3 style="margin:0 0 8px;font-size:1.05em;color:#fbbf24;border-left:3px solid #fbbf24;padding-left:8px;">お客様情報</h3>
+              <table style="width:100%;border-collapse:collapse;color:#fff;font-size:0.92em;margin-bottom:14px;">
+                <tbody>
+                  <tr><th style="padding:6px 10px;text-align:left;width:32%;color:#bfdbfe;font-weight:normal;border-bottom:1px solid #1e3a5f;">お名前</th><td style="padding:6px 10px;border-bottom:1px solid #1e3a5f;">${eh(name) || '<span style="color:#fca5a5;">未入力</span>'}</td></tr>
+                  <tr><th style="padding:6px 10px;text-align:left;color:#bfdbfe;font-weight:normal;border-bottom:1px solid #1e3a5f;">会社名・屋号</th><td style="padding:6px 10px;border-bottom:1px solid #1e3a5f;">${eh(company) || '<span style="color:#9ca3af;">(任意・未入力)</span>'}</td></tr>
+                  <tr><th style="padding:6px 10px;text-align:left;color:#bfdbfe;font-weight:normal;border-bottom:1px solid #1e3a5f;">メールアドレス</th><td style="padding:6px 10px;border-bottom:1px solid #1e3a5f;">${eh(email) || '<span style="color:#fca5a5;">未入力</span>'}</td></tr>
+                  <tr><th style="padding:6px 10px;text-align:left;color:#bfdbfe;font-weight:normal;border-bottom:1px solid #1e3a5f;">電話番号</th><td style="padding:6px 10px;border-bottom:1px solid #1e3a5f;">${eh(tel) || '<span style="color:#fca5a5;">未入力</span>'}</td></tr>
+                  <tr><th style="padding:6px 10px;text-align:left;color:#bfdbfe;font-weight:normal;border-bottom:1px solid #1e3a5f;">郵便番号</th><td style="padding:6px 10px;border-bottom:1px solid #1e3a5f;">${eh(zip) || '<span style="color:#fca5a5;">未入力</span>'}</td></tr>
+                  <tr><th style="padding:6px 10px;text-align:left;color:#bfdbfe;font-weight:normal;border-bottom:1px solid #1e3a5f;">配送先住所</th><td style="padding:6px 10px;border-bottom:1px solid #1e3a5f;">${eh(addr) || '<span style="color:#fca5a5;">未入力</span>'}</td></tr>
+                  <tr><th style="padding:6px 10px;text-align:left;color:#bfdbfe;font-weight:normal;border-bottom:1px solid #1e3a5f;">備考</th><td style="padding:6px 10px;border-bottom:1px solid #1e3a5f;white-space:pre-wrap;">${eh(note) || '<span style="color:#9ca3af;">(なし)</span>'}</td></tr>
+                  <tr><th style="padding:6px 10px;text-align:left;color:#bfdbfe;font-weight:normal;">ご確認事項への同意</th><td style="padding:6px 10px;">${consentText}</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="padding:14px 22px 20px;border-top:1px solid #1e3a5f;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;">
+              <button type="button" id="confirm-back-btn" style="
+                flex:1 1 200px;min-height:48px;
+                background:#374151;color:#fff;border:1px solid #6b7280;border-radius:6px;
+                font-size:1em;font-weight:bold;cursor:pointer;padding:10px 18px;
+              ">修正に戻る</button>
+              <button type="button" id="confirm-submit-btn" style="
+                flex:1 1 240px;min-height:48px;
+                background:#f08300;color:#fff;border:none;border-radius:6px;
+                font-size:1.05em;font-weight:bold;cursor:pointer;padding:10px 18px;
+                box-shadow:0 2px 6px rgba(240,131,0,0.4);
+              ">この内容で注文を確定する</button>
+            </div>
+          </div>
+        </div>`;
+
+      const wrap = document.createElement('div');
+      wrap.innerHTML = html;
+      const modal = wrap.firstElementChild;
+      document.body.appendChild(modal);
+      // bodyスクロールロック
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const closeModal = () => {
+        modal.remove();
+        document.body.style.overflow = prevOverflow;
+      };
+      modal.querySelector('#confirm-back-btn').addEventListener('click', () => {
+        closeModal();
+      });
+      modal.querySelector('#confirm-submit-btn').addEventListener('click', () => {
+        // フラグセット → 確認画面閉じて → 実送信
+        this._confirmedSubmit = true;
+        closeModal();
+        // CF7本来のsubmit経路を再起動: btn-submitクリック相当
+        const btn = document.getElementById('btn-submit');
+        const form = document.querySelector('.wpcf7-form') || document.getElementById('order-form');
+        if (btn) {
+          btn.click();
+        } else if (form) {
+          form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
+      });
+      // ESCで「修正に戻る」
+      const onKey = (ev) => {
+        if (ev.key === 'Escape') {
+          closeModal();
+          document.removeEventListener('keydown', onKey);
+        }
+      };
+      document.addEventListener('keydown', onKey);
+      // 背景クリックで閉じる
+      modal.addEventListener('click', (ev) => {
+        if (ev.target === modal) closeModal();
+      });
+    },
+
     /* ───────────── 送信 ───────────── */
     syncHiddenFields() {
       // 2026-04-23 T220: 備考欄から都度テストモード判定
@@ -1103,6 +1287,9 @@
       this.initZipcodeAutocomplete();
 
       // 送信時最終検証 (A-1対策: CF7のformはid="order-form"ではなくclass="wpcf7-form")
+      // 2026-04-29 美砂さん指示: 2ステップ化(入力→確認モーダル→確定)
+      //   1段階目: validation通過 → 確認モーダル表示 → submit抑止
+      //   2段階目: モーダル「この内容で注文を確定する」 → _confirmedSubmit=true → form再submit
       const form = document.querySelector('.wpcf7-form') || document.getElementById('order-form');
       if (form) {
         form.addEventListener('submit', e => {
@@ -1120,7 +1307,32 @@
             e.stopImmediatePropagation();
             return;
           }
+          // 2026-04-29 2ステップ確認: 確認モーダル経由でなければ抑止して表示
+          if (!this._confirmedSubmit) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            this.showConfirmModal();
+            return;
+          }
+          // 確認済(2回目通過)→ フラグリセット・CF7本来の送信処理へ流す
+          this._confirmedSubmit = false;
         }, true);  // capture=true で他のハンドラより先に走らせる
+      }
+
+      // 送信ボタン文言を「入力内容を確認する」に上書き
+      // (CF7のformはWP管理画面でしか書き換え不能なので、レンダ後にJS側でvalue上書き)
+      const overrideBtnLabel = () => {
+        const btn = document.getElementById('btn-submit');
+        if (btn && btn.value !== '入力内容を確認する') {
+          btn.value = '入力内容を確認する';
+        }
+      };
+      overrideBtnLabel();
+      // CF7再描画後も文言を維持するため定期チェック(失敗時のCF7リセット対応)
+      const btnObserver = new MutationObserver(overrideBtnLabel);
+      const btnTarget = document.querySelector('.wpcf7-form') || document.body;
+      if (btnTarget) {
+        btnObserver.observe(btnTarget, { subtree: true, attributes: true, childList: true, attributeFilter: ['value'] });
       }
 
       // 離脱防止(入力あり時のみ)
