@@ -55,6 +55,21 @@ export default function HomePage() {
     top: number;
     left: number;
   } | null>(null);
+  // 2026-04-29 健太郎LW指摘「スマホで検索バーに被る」
+  // モバイル時は中央モーダル表示に切替・PC時はホバー位置のまま
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
+  useEffect(() => {
+    const detect = () => {
+      try {
+        const mq = window.matchMedia('(max-width: 768px)').matches;
+        const touch = 'ontouchstart' in window || (navigator as any).maxTouchPoints > 0;
+        setIsMobilePreview(mq || touch);
+      } catch { setIsMobilePreview(false); }
+    };
+    detect();
+    window.addEventListener('resize', detect);
+    return () => window.removeEventListener('resize', detect);
+  }, []);
 
   // 2026-04-25 健太郎指示: 「2回目の検索が動かない」バグ修正
   // 検索パネルを閉じた時に検索関連stateを一括クリア
@@ -584,8 +599,20 @@ export default function HomePage() {
                 {searchResults.map((ev) => (
                   <button
                     key={ev.id}
-                    onClick={() => { setHoverPreview(null); jumpToEvent(ev); }}
+                    onClick={(e) => {
+                      // モバイルはタップ1回目=プレビュー表示・2回目(プレビュー上の見るボタン)=ジャンプ
+                      // PCはホバー時に既に出てるのでクリックでジャンプ
+                      if (isMobilePreview) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setHoverPreview({ event: ev, top: 0, left: 0 });
+                      } else {
+                        setHoverPreview(null);
+                        jumpToEvent(ev);
+                      }
+                    }}
                     onMouseEnter={(e) => {
+                      if (isMobilePreview) return; // モバイルはホバーしない
                       const r = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
                       // ボタン右隣に表示・はみ出すなら左側
                       const previewW = 240;
@@ -596,7 +623,7 @@ export default function HomePage() {
                       const top = Math.min(r.top, window.innerHeight - 220);
                       setHoverPreview({ event: ev, top, left });
                     }}
-                    onMouseLeave={() => setHoverPreview(null)}
+                    onMouseLeave={() => { if (!isMobilePreview) setHoverPreview(null); }}
                     className="w-full text-left px-3 py-2 text-sm border-b border-neutral-800 hover:bg-neutral-800 flex items-center gap-2"
                   >
                     <span className="text-xs text-slate-400 w-20 flex-shrink-0">{ev.date}</span>
@@ -611,7 +638,8 @@ export default function HomePage() {
       </header>
 
       {/* 2026-04-29 検索結果ホバー時のサムネイルプレビュー */}
-      {hoverPreview && (
+      {/* モバイル: 中央モーダル+背景オーバーレイ / PC: ホバー位置追従(従来仕様) */}
+      {hoverPreview && !isMobilePreview && (
         <div
           className="pointer-events-none fixed z-[60] w-60 bg-white border border-slate-200 rounded-lg shadow-xl p-3 text-xs"
           style={{ top: hoverPreview.top, left: hoverPreview.left }}
@@ -643,6 +671,66 @@ export default function HomePage() {
               💬 {hoverPreview.event.comments.length}件
             </div>
           )}
+        </div>
+      )}
+      {/* モバイル中央モーダル(2026-04-29 健太郎LW指摘・検索バー被り解消) */}
+      {hoverPreview && isMobilePreview && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4"
+          onClick={() => setHoverPreview(null)}
+        >
+          <div
+            className="relative w-full max-w-sm bg-white border border-slate-200 rounded-lg shadow-2xl p-4 text-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setHoverPreview(null); }}
+              aria-label="閉じる"
+              className="absolute top-1 right-2 text-slate-400 hover:text-slate-600 text-2xl leading-none px-2 py-1"
+            >
+              ×
+            </button>
+            <div className="font-semibold text-slate-800 truncate mb-1 pr-8">
+              {hoverPreview.event.title}
+            </div>
+            <div className="text-slate-500 mb-1 text-xs">
+              {hoverPreview.event.date}
+              {hoverPreview.event.startTime ? ` ${hoverPreview.event.startTime}` : ''}
+              {hoverPreview.event.endTime ? `〜${hoverPreview.event.endTime}` : ''}
+            </div>
+            {hoverPreview.event.location && (
+              <div className="text-slate-500 truncate mb-2 text-xs">📍 {hoverPreview.event.location}</div>
+            )}
+            {Array.isArray(hoverPreview.event.images) && hoverPreview.event.images.length > 0 && (
+              <img
+                src={
+                  typeof hoverPreview.event.images[0] === 'string'
+                    ? (hoverPreview.event.images[0] as string)
+                    : (hoverPreview.event.images[0] as { url: string }).url
+                }
+                alt=""
+                className="w-full max-h-64 object-contain rounded mt-1 bg-slate-100"
+              />
+            )}
+            {Array.isArray(hoverPreview.event.comments) && hoverPreview.event.comments.length > 0 && (
+              <div className="text-slate-400 mt-2 text-[11px]">
+                💬 {hoverPreview.event.comments.length}件
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const ev = hoverPreview.event;
+                setHoverPreview(null);
+                jumpToEvent(ev);
+              }}
+              className="mt-3 w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold"
+            >
+              この日へジャンプ
+            </button>
+          </div>
         </div>
       )}
 
