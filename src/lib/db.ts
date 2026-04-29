@@ -104,18 +104,39 @@ export async function getEvent(id: string): Promise<CalendarEvent | null> {
   return store.getEventById(baseId);
 }
 
+// 2026-04-29 検索クエリ/対象テキストを NFKC 正規化 + 小文字化
+// → 全角/半角(英数・カタカナ)・大文字/小文字の差を吸収してヒットさせる
+function normalizeForSearch(s: string | undefined | null): string {
+  if (!s) return '';
+  try {
+    return s.normalize('NFKC').toLowerCase();
+  } catch {
+    return s.toLowerCase();
+  }
+}
+
 export async function searchEvents(query: string): Promise<CalendarEvent[]> {
   const store = getStore();
   const all = await store.getAllEventsRaw();
-  const q = query.toLowerCase();
+  // 2026-04-29 健太郎指示:
+  //   - 半角/全角どちらでもヒット(NFKC正規化)
+  //   - コメント本文も検索対象
+  //   - note は検索対象外を維持(金額情報を含む可能性 = プライバシー/業務情報保護)
+  const q = normalizeForSearch(query);
+  if (!q) return [];
   // 2026-04-25 健太郎: 検索結果は新→古の降順(最近のイベントを上に)
   // pinned優先は維持。日付/時刻は降順
   return all
-    .filter((e) =>
-      e.title.toLowerCase().includes(q) ||
-      (e.note || '').toLowerCase().includes(q) ||
-      (e.location || '').toLowerCase().includes(q)
-    )
+    .filter((e) => {
+      if (normalizeForSearch(e.title).includes(q)) return true;
+      if (normalizeForSearch(e.location).includes(q)) return true;
+      if (Array.isArray(e.comments)) {
+        for (const c of e.comments) {
+          if (c && normalizeForSearch(c.text).includes(q)) return true;
+        }
+      }
+      return false;
+    })
     .sort((a, b) => {
       if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
       if (a.date !== b.date) return b.date.localeCompare(a.date);

@@ -49,6 +49,12 @@ export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false);
   const searchAbortRef = useRef<AbortController | null>(null);
   const searchLastQRef = useRef<string>('');
+  // 2026-04-29 検索結果ホバー時のサムネイルプレビュー
+  const [hoverPreview, setHoverPreview] = useState<{
+    event: CalendarEvent;
+    top: number;
+    left: number;
+  } | null>(null);
 
   // 2026-04-25 健太郎指示: 「2回目の検索が動かない」バグ修正
   // 検索パネルを閉じた時に検索関連stateを一括クリア
@@ -578,7 +584,19 @@ export default function HomePage() {
                 {searchResults.map((ev) => (
                   <button
                     key={ev.id}
-                    onClick={() => jumpToEvent(ev)}
+                    onClick={() => { setHoverPreview(null); jumpToEvent(ev); }}
+                    onMouseEnter={(e) => {
+                      const r = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
+                      // ボタン右隣に表示・はみ出すなら左側
+                      const previewW = 240;
+                      const margin = 8;
+                      const left = r.right + margin + previewW > window.innerWidth
+                        ? Math.max(margin, r.left - previewW - margin)
+                        : r.right + margin;
+                      const top = Math.min(r.top, window.innerHeight - 220);
+                      setHoverPreview({ event: ev, top, left });
+                    }}
+                    onMouseLeave={() => setHoverPreview(null)}
                     className="w-full text-left px-3 py-2 text-sm border-b border-neutral-800 hover:bg-neutral-800 flex items-center gap-2"
                   >
                     <span className="text-xs text-slate-400 w-20 flex-shrink-0">{ev.date}</span>
@@ -591,6 +609,42 @@ export default function HomePage() {
           </div>
         )}
       </header>
+
+      {/* 2026-04-29 検索結果ホバー時のサムネイルプレビュー */}
+      {hoverPreview && (
+        <div
+          className="pointer-events-none fixed z-[60] w-60 bg-white border border-slate-200 rounded-lg shadow-xl p-3 text-xs"
+          style={{ top: hoverPreview.top, left: hoverPreview.left }}
+        >
+          <div className="font-semibold text-slate-800 truncate mb-1">
+            {hoverPreview.event.title}
+          </div>
+          <div className="text-slate-500 mb-1">
+            {hoverPreview.event.date}
+            {hoverPreview.event.startTime ? ` ${hoverPreview.event.startTime}` : ''}
+            {hoverPreview.event.endTime ? `〜${hoverPreview.event.endTime}` : ''}
+          </div>
+          {hoverPreview.event.location && (
+            <div className="text-slate-500 truncate mb-1">📍 {hoverPreview.event.location}</div>
+          )}
+          {Array.isArray(hoverPreview.event.images) && hoverPreview.event.images.length > 0 && (
+            <img
+              src={
+                typeof hoverPreview.event.images[0] === 'string'
+                  ? (hoverPreview.event.images[0] as string)
+                  : (hoverPreview.event.images[0] as { url: string }).url
+              }
+              alt=""
+              className="w-full h-32 object-cover rounded mt-1 bg-slate-100"
+            />
+          )}
+          {Array.isArray(hoverPreview.event.comments) && hoverPreview.event.comments.length > 0 && (
+            <div className="text-slate-400 mt-1 text-[11px]">
+              💬 {hoverPreview.event.comments.length}件
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Year/Month picker modal */}
       {pickerOpen && (
