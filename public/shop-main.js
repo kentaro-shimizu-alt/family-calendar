@@ -259,19 +259,35 @@
     // brand + series → 割引上限%(0/2/5)
     // 掛率マスター.md 2026-04-08版に基づく
     // ダイノック AR(値下げ余地2.04%)/リアテック(値下げ余地2.38%) → 2%まで
-    // 3Mフィルム/ファサラ は粗利20%固定運用 → 値下げ余地ゼロ → 0%(対象外)
+    // 3Mフィルムのスコッチカル系(化粧フィルム)は粗利20%固定運用 → 0%
+    // ガラスフィルム(ファサラ全体・3Mフィルムのスコッチティント系) → 5%
+    //   (健太郎指示 2026-04-29: 粗利15%下限まで値下げOK・5%引き=粗利15.79%確保)
     getMaxDiscountRate(product) {
       if (!product) return 0;
       const brand = product.brand || '';
-      const series = (product.series || '').toUpperCase();
+      // series は判定上 ToUpperCase せずそのまま使用
+      // (J不透過/XL透過 等の日本語含むため大小区別なしで前方一致でOK)
+      const series = product.series || '';
 
-      // 3Mフィルム/ファサラ系: 粗利20%固定運用 → 値下げ余地なし → 割引対象外
-      if (brand === '3Mフィルム' || brand === 'ファサラ') return 0;
+      // ファサラ: 全品ガラスフィルム → 5%上限
+      // (粗利20%基準・5%引き後 粗利15.79% で下限15%を確保)
+      if (brand === 'ファサラ') return 5;
+
+      // 3Mフィルム: シリーズで化粧フィルム vs ガラスフィルムを分岐
+      //   スコッチカル(化粧フィルム) = series が「J不透過/J透過/XL不透過/XL透過/XL非在庫」
+      //     → 粗利20%固定運用継続 → 0%
+      //   それ以外(スコッチティント=ガラスフィルム: 遮熱Nano/日射調整/飛散防止/防犯/
+      //     フロスト/外貼/外貼Nano/特殊/ティント他 等)
+      //     → ガラスフィルム値下げOK → 5%上限
+      if (brand === '3Mフィルム') {
+        if (series.startsWith('J') || series.startsWith('XL')) return 0;
+        return 5;
+      }
 
       // ダイノック: シリーズ別判定
       if (brand === 'ダイノック') {
         // AR シリーズ = 値下げ余地2.04% → 2%上限
-        if (series === 'AR') return 2;
+        if (series.toUpperCase() === 'AR') return 2;
         // それ以外(通常品/EX/EXR/NEO/WD/WG等)= 値下げ余地5%以上 → 5%
         return 5;
       }
