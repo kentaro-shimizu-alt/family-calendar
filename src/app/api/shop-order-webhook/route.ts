@@ -145,7 +145,19 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // 6. 危険スコアが高い場合は健太郎にLW通知 (best-effort, non-blocking)
+  // 6. 全件 主くろメインルームへLW通知 (best-effort, non-blocking)
+  //    - 通常受注(score<50): K009形式の通常通知
+  //    - 不審スコア>=50: 既存の不審通知(DM)+ メインルームに [緊] タグで通知
+  //    背景: N148(2026-04-29)で 4/25-4/26放置受注の原因が score=0 通常受注の通知欠落と判明
+  notifyMainRoom({
+    order_id: payload.order_id,
+    customer_name: cleanedCustomerName,
+    email: payload.email,
+    cart,
+    totals,
+    suspicionScore,
+  }).catch((e) => console.error('[shop-order-webhook] LW main-room notify failed', e));
+
   if (suspicionScore >= 50) {
     notifySuspicion({
       order_id: payload.order_id,
@@ -183,25 +195,18 @@ export async function GET() {
 }
 
 // =============================================================
-// LW通知関数: 危険スコア>=50 の注文を健太郎に即通知
-// (cf7-webhook の notifyKentaro と同じ JWT→token→Bot API パターン)
+// LW Bot access token 取得 (JWT → token)
+// 失敗時は null を返してcaller側でskip判定
 // =============================================================
-async function notifySuspicion(opts: {
-  order_id: string;
-  customer_name: string;
-  score: number;
-  flags: string[];
-  noteSnippet: string;
-}): Promise<void> {
+async function getLwBotToken(): Promise<{ token: string; botId: string } | null> {
   const clientId = process.env.LINEWORKS_CLIENT_ID;
   const clientSecret = process.env.LINEWORKS_CLIENT_SECRET;
   const serviceAccount = process.env.LINEWORKS_SERVICE_ACCOUNT;
   const botId = process.env.LINEWORKS_BOT_ID;
-  const kentaroId = process.env.LINEWORKS_KENTARO_USER_ID;
   const privateKeyRaw = process.env.LINEWORKS_PRIVATE_KEY_PEM;
-  if (!clientId || !clientSecret || !serviceAccount || !botId || !kentaroId || !privateKeyRaw) {
-    console.warn('[shop-order-webhook] LW env未設定でnotifySuspicion skip');
-    return;
+  if (!clientId || !clientSecret || !serviceAccount || !botId || !privateKeyRaw) {
+    console.warn('[shop-order-webhook] LW env未設定で token 取得 skip');
+    return null;
   }
   const privateKey = privateKeyRaw.replace(/\\n/g, '\n');
 
@@ -223,10 +228,113 @@ async function notifySuspicion(opts: {
       scope: 'bot',
     }).toString(),
   });
-  if (!tokRes.ok) return;
+  if (!tokRes.ok) return null;
   const tok = (await tokRes.json()) as { access_token?: string };
   const token = tok.access_token;
-  if (!token) return;
+  if (!token) return null;
+  return { token, botId };
+}
+
+// =============================================================
+// LW通知関数(全件): 主くろメインルームへ通知
+// - 通常受注(score<50): 通常通知ヘッダー
+// - 不審スコア>=50: [緊] タグ付きで主くろメインルームへ警告
+// 既存 notifySuspicion(健太郎DM)は維持・本関数はメインルーム用
+// MAIN_CHANNEL_ID = ea13926f-fc61-b8e8-8d52-031da4e00b38
+// =============================================================
+async function notifyMainRoom(opts: {
+  order_id: string;
+  customer_name: string;
+  email: string;
+  cart: any;
+  totals: any;
+  suspicionScore: number;
+}): Promise<void> {
+  const channelId =
+    process.env.LINEWORKS_MAIN_CHANNEL_ID ||
+    'ea13926f-fc61-b8e8-8d52-031da4e00b38';
+  if (!channelId) {
+    console.warn('[shop-order-webhook] MAIN_CHANNEL_ID 未設定でskip');
+    return;
+  }
+  const auth = await getLwBotToken();
+  if (!auth) return;
+  const { token, botId } = auth;
+
+  // cart/totals から表示用情報を抽出 (best-effort)
+  let firstSku = '';
+  let totalQtyM = 0;
+  try {
+    const list = Array.isArray(opts.cart?.items) ? opts.cart.items : [];
+    if (list && list.length > 0) {
+      firstSku = String(list[0]?.sku || list[0]?.code || list[0]?.product_code || '');
+      for (const it of list) {
+        const q = Number(it?.quantity_m ?? it?.qty_m ?? it?.qty ?? it?.quantity ?? 0);
+        if (Number.isFinite(q)) totalQtyM += q;
+      }
+    }
+  } catch {
+    // ignore parse errors
+  }
+  const grandTotal = Number(
+    opts.totals?.grand_total ?? opts.totals?.total ?? opts.totals?.tax_included ?? 0
+  );
+
+  const isSuspicious = opts.suspicionScore >= 50;
+  const tag = isSuspicious ? '[緊]' : 'HP注文受信';
+  // K004: 1行目58字以内・改行なしで要点凝縮
+  const skuLabel = firstSku || '(品番不明)';
+  const qtyLabel = totalQtyM > 0 ? `${totalQtyM}m` : '-';
+  const priceLabel = grandTotal > 0 ? `税込¥${grandTotal.toLocaleString('ja-JP')}` : '';
+  let head = `${tag}・${skuLabel} ${qtyLabel} ${priceLabel}`.trim();
+  if (head.length > 58) head = head.slice(0, 57) + '…';
+
+  const detailLines = [
+    '詳細:',
+    `- 注文番号: ${opts.order_id}`,
+    `- 商品: ${firstSku || '(cart参照)'}`,
+    `- 数量: ${qtyLabel}`,
+    `- 注文者: ${opts.customer_name}`,
+    `- メール: ${opts.email}`,
+    `- 税込: ${priceLabel || '(totals参照)'}`,
+    `- status: received`,
+  ];
+  if (isSuspicious) {
+    detailLines.push(`- suspicion_score: ${opts.suspicionScore} (要確認)`);
+  }
+  detailLines.push('- 在庫確認FAX送信が必要(健太郎承認後)');
+
+  const text = head + '\n\n' + detailLines.join('\n');
+
+  await fetch(`https://www.worksapis.com/v1.0/bots/${botId}/channels/${channelId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: { type: 'text', text } }),
+  });
+}
+
+// =============================================================
+// LW通知関数: 危険スコア>=50 の注文を健太郎に即DM(既存・後方互換)
+// (cf7-webhook の notifyKentaro と同じ JWT→token→Bot API パターン)
+// =============================================================
+async function notifySuspicion(opts: {
+  order_id: string;
+  customer_name: string;
+  score: number;
+  flags: string[];
+  noteSnippet: string;
+}): Promise<void> {
+  const kentaroId = process.env.LINEWORKS_KENTARO_USER_ID;
+  if (!kentaroId) {
+    console.warn('[shop-order-webhook] KENTARO_USER_ID 未設定でnotifySuspicion skip');
+    return;
+  }
+  const auth = await getLwBotToken();
+  if (!auth) return;
+  const { token, botId } = auth;
 
   // K009 2段組: 1行目58字以内 + 改行 + 詳細
   const text =
