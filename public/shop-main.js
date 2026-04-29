@@ -1098,6 +1098,10 @@
         el.addEventListener('blur', () => validateField(name, el));
       });
 
+      // 2026-04-29 健太郎指示: 〒→住所自動入力 + 〒検索リンク + 弊社情報placeholder→3M本社例 置換
+      // (CF7のform contentはWP管理画面でしか書き換えられないので、JS側でDOM上書きする)
+      this.initZipcodeAutocomplete();
+
       // 送信時最終検証 (A-1対策: CF7のformはid="order-form"ではなくclass="wpcf7-form")
       const form = document.querySelector('.wpcf7-form') || document.getElementById('order-form');
       if (form) {
@@ -1126,6 +1130,80 @@
           e.preventDefault();
           e.returnValue = '';
         }
+      });
+    },
+
+    /* ───────────── 2026-04-29 〒→住所自動入力 / 〒検索リンク / 例の3M本社置換 ─────────────
+     * 健太郎指示3点:
+     *  A. 〒7桁入力で都道府県/市区町村/町域を自動入力(zipcloud API・無料)
+     *  B. 〒フィールド横に「郵便番号がわからない場合」リンク(日本郵便)を追加
+     *  C. 弊社情報(580-0022/松原)のplaceholder→3M Japan本社(141-8645/東京都品川区北品川6-7-29)
+     * CF7のform本体はWP管理画面でしか書き換え不能なので、レンダ後にJSで上書き。
+     */
+    initZipcodeAutocomplete() {
+      const zipEl = document.querySelector('input[name="zip"]');
+      const addrEl = document.querySelector('input[name="address"], textarea[name="address"]');
+      if (!zipEl || !addrEl) return;
+
+      // C. placeholder書き換え(弊社情報→3M本社の例)
+      try {
+        zipEl.setAttribute('placeholder', '例: 1418645');
+        addrEl.setAttribute('placeholder', '例: 東京都品川区北品川6-7-29');
+      } catch (_e) {}
+
+      // B. 〒検索リンクを zipEl の直後に挿入(既に入っていれば重複させない)
+      if (!document.getElementById('zipcode-search-link')) {
+        const link = document.createElement('a');
+        link.id = 'zipcode-search-link';
+        link.href = 'https://www.post.japanpost.jp/zipcode/';
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = '郵便番号がわからない場合';
+        link.style.cssText = 'display:inline-block; margin-left:10px; padding:4px 10px; font-size:0.85em; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; border-radius:4px; text-decoration:none; font-weight:500; vertical-align:middle;';
+        link.addEventListener('mouseover', () => { link.style.background = '#dbeafe'; });
+        link.addEventListener('mouseout', () => { link.style.background = '#eff6ff'; });
+        zipEl.insertAdjacentElement('afterend', link);
+      }
+
+      // A. 〒7桁入力 → zipcloud APIで住所取得 → addrElに自動入力
+      // ※ 既に住所が入力済みの場合は上書きしない(顧客が手で書いた途中の値を破壊しない)
+      const fillFromZipcloud = async () => {
+        const raw = (zipEl.value || '').trim().replace(/[-\s　]/g, '');
+        if (!/^\d{7}$/.test(raw)) return;  // 7桁になっていなければ何もしない
+        try {
+          const url = 'https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + encodeURIComponent(raw);
+          const res = await fetch(url);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!data || data.status !== 200 || !data.results || !data.results.length) return;
+          const r = data.results[0];
+          const filled = (r.address1 || '') + (r.address2 || '') + (r.address3 || '');
+          if (!filled) return;
+          // 既存値が「自動入力された都道府県/市区町村のprefix」かを判定。
+          // 空 or filledで始まらない場合のみ全置換、filledで始まる場合は番地以降を保持。
+          const cur = (addrEl.value || '').trim();
+          if (!cur) {
+            addrEl.value = filled;
+          } else if (cur === filled) {
+            return;  // 何もしない
+          } else if (cur.startsWith(filled)) {
+            return;  // 既に番地まで書かれている
+          } else {
+            // 別の自動入力値が入っている可能性 → prefix付け替え
+            // 安全のため空欄時のみ自動入力に絞る(顧客の手入力を保護)
+            return;
+          }
+          // 反応をブラウザに伝える(CF7やリアルタイム検証のため)
+          addrEl.dispatchEvent(new Event('input', { bubbles: true }));
+          addrEl.dispatchEvent(new Event('blur', { bubbles: true }));
+        } catch (_e) {
+          // API失敗は無音(顧客には影響なし・手入力で続行可能)
+        }
+      };
+      zipEl.addEventListener('blur', fillFromZipcloud);
+      zipEl.addEventListener('input', () => {
+        const raw = (zipEl.value || '').trim().replace(/[-\s　]/g, '');
+        if (/^\d{7}$/.test(raw)) fillFromZipcloud();
       });
     },
 
