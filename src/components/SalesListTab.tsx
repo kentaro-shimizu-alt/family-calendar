@@ -537,10 +537,10 @@ export default function SalesListTab() {
               return (
                 <div
                   key={`${r.date}-${r.entry.id}`}
-                  className={`rounded-xl p-3 shadow-sm border-2 ${
+                  className={`rounded-xl p-3 shadow-sm border-2 bg-white ${
                     t === 'site'
-                      ? 'bg-emerald-50 border-emerald-400'
-                      : 'bg-amber-50 border-amber-400'
+                      ? 'border-emerald-400'
+                      : 'border-amber-400'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
@@ -807,7 +807,7 @@ function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-900 hover:text-black text-2xl leading-none font-bold"
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] bg-slate-900 hover:bg-black text-white text-2xl leading-none font-bold rounded-lg"
             aria-label="閉じる"
             title="閉じる"
           >
@@ -880,7 +880,7 @@ function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="min-h-[44px] px-5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 text-sm font-bold"
+            className="min-h-[44px] px-5 rounded-lg bg-slate-900 hover:bg-black text-white text-sm font-bold"
           >
             × 閉じる
           </button>
