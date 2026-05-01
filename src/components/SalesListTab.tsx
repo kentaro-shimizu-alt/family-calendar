@@ -2,9 +2,10 @@
 
 /**
  * 売上一覧タブ (MVP・案A) — 2026-05-02 健太郎LW指示で新設
+ * 2026-05-02 改訂: events.id 突合フィルタ廃止 → daily_data.sales_entries 全件表示
  *
  * 役割:
- *   - daily_data.sales_entries を全件取得 → event_id付きエントリを抽出 → 一覧表示
+ *   - daily_data.sales_entries を期間内全件取得 → 一覧表示
  *   - 期間フィルタ + タイプフィルタ + 複数ソート + 📋IDコピー
  *   - ✅DB記入済 (read-only) / 納品書ステータス表示
  *
@@ -20,7 +21,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { format, subDays } from 'date-fns';
 import {
-  CalendarEvent,
   DailyData,
   SalesEntry,
   SalesEntryType,
@@ -37,8 +37,7 @@ type TypeFilter = 'all' | 'site' | 'material';
 // flatten後の表示用 row
 interface SalesRow {
   date: string;            // YYYY-MM-DD (daily_data.date)
-  entry: SalesEntry;       // 元エントリ (entry.id = event_id)
-  eventTitle?: string;     // 紐づく event の title (任意)
+  entry: SalesEntry;       // 元エントリ (entry.id)
 }
 
 // 短縮ID表示 (UUID頭8文字 + …)
@@ -64,7 +63,7 @@ const SORT_KEY_LABEL: Record<SortKey, string> = {
 
 export default function SalesListTab() {
   const today = useMemo(() => new Date(), []);
-  const defaultFrom = useMemo(() => format(subDays(today, 30), 'yyyy-MM-dd'), [today]);
+  const defaultFrom = useMemo(() => format(subDays(today, 90), 'yyyy-MM-dd'), [today]);
   const defaultTo = useMemo(() => format(today, 'yyyy-MM-dd'), [today]);
 
   // フィルタstate
@@ -82,8 +81,6 @@ export default function SalesListTab() {
 
   // データstate
   const [dailyList, setDailyList] = useState<DailyData[]>([]);
-  const [eventIdSet, setEventIdSet] = useState<Set<string>>(new Set());
-  const [eventTitleMap, setEventTitleMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,27 +99,7 @@ export default function SalesListTab() {
         const dData = await dRes.json();
         if (aborted) return;
         const daily: DailyData[] = (dData.data || []) as DailyData[];
-
-        // events: 期間内の月を網羅して取得 (eventId set 用)
-        const months = monthsBetween(from, to);
-        const evResults = await Promise.all(
-          months.map((m) => fetch(`/api/events?month=${m}`).then((r) => r.json()).catch(() => ({ events: [] })))
-        );
-        if (aborted) return;
-        const idSet = new Set<string>();
-        const titleMap: Record<string, string> = {};
-        for (const r of evResults) {
-          const evs: CalendarEvent[] = (r?.events || []) as CalendarEvent[];
-          for (const ev of evs) {
-            if (ev?.id) {
-              idSet.add(ev.id);
-              if (ev.title) titleMap[ev.id] = ev.title;
-            }
-          }
-        }
         setDailyList(daily);
-        setEventIdSet(idSet);
-        setEventTitleMap(titleMap);
       } catch (e: any) {
         if (!aborted) setError(e?.message || String(e));
       } finally {
@@ -134,27 +111,24 @@ export default function SalesListTab() {
     };
   }, [from, to]);
 
-  // flatten + event_id付きフィルタ + タイプフィルタ
+  // flatten + タイプフィルタ (events.id 突合は廃止 — daily_data 全件表示)
   const rows = useMemo<SalesRow[]>(() => {
     const out: SalesRow[] = [];
     for (const d of dailyList) {
       if (!d.salesEntries) continue;
       for (const entry of d.salesEntries) {
         if (!entry?.id) continue;
-        // event_id付きエントリ抽出 (entry.id が events.id と一致)
-        if (!eventIdSet.has(entry.id)) continue;
         // タイプフィルタ
         const t: SalesEntryType = entry.type === 'material' ? 'material' : 'site';
         if (typeFilter !== 'all' && typeFilter !== t) continue;
         out.push({
           date: d.date,
           entry,
-          eventTitle: eventTitleMap[entry.id],
         });
       }
     }
     return out;
-  }, [dailyList, eventIdSet, eventTitleMap, typeFilter]);
+  }, [dailyList, typeFilter]);
 
   // ソート (複数キー)
   const sortedRows = useMemo<SalesRow[]>(() => {
@@ -213,9 +187,9 @@ export default function SalesListTab() {
     <div className="px-3 py-4 max-w-6xl mx-auto">
       {/* ヘッダー: タイトル */}
       <div className="mb-3">
-        <h2 className="text-lg font-bold text-slate-800">📊 売上一覧 (event_id 付き)</h2>
+        <h2 className="text-lg font-bold text-slate-800">📊 売上一覧</h2>
         <p className="text-xs text-slate-500 mt-1">
-          家族カレンダーの予定に紐づいた売上記録のみ表示。📋でevent_idコピー可能。
+          家族カレンダー内の売上記録 (daily_data.sales_entries) を期間内全件表示。📋でIDコピー可能。
         </p>
       </div>
 
@@ -247,6 +221,16 @@ export default function SalesListTab() {
             className="text-[11px] px-2 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
           >
             過去30日
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFrom(format(subDays(new Date(), 90), 'yyyy-MM-dd'));
+              setTo(format(new Date(), 'yyyy-MM-dd'));
+            }}
+            className="text-[11px] px-2 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+          >
+            過去90日
           </button>
           <button
             type="button"
@@ -360,7 +344,7 @@ export default function SalesListTab() {
                   <th className="px-2 py-2 text-left">取引先</th>
                   <th className="px-2 py-2 text-left">タイプ</th>
                   <th className="px-2 py-2 text-right">金額(税抜)</th>
-                  <th className="px-2 py-2 text-left">event_id</th>
+                  <th className="px-2 py-2 text-left">ID</th>
                   <th className="px-2 py-2 text-center">📋</th>
                   <th className="px-2 py-2 text-center">DB記入済</th>
                   <th className="px-2 py-2 text-left">納品書</th>
@@ -384,9 +368,6 @@ export default function SalesListTab() {
                       <td className="px-2 py-2 whitespace-nowrap text-slate-700">{r.date}</td>
                       <td className="px-2 py-2 text-slate-800">
                         <div className="font-semibold truncate max-w-[180px]">{pickCustomer(r.entry)}</div>
-                        {r.eventTitle && (
-                          <div className="text-[10px] text-slate-400 truncate max-w-[180px]">{r.eventTitle}</div>
-                        )}
                       </td>
                       <td className="px-2 py-2">
                         <span
@@ -408,8 +389,8 @@ export default function SalesListTab() {
                           type="button"
                           onClick={() => handleCopyId(r.entry.id)}
                           className="shrink-0 inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-blue-600 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-200 rounded-lg text-xl leading-none transition"
-                          title="event_id をコピー"
-                          aria-label="event_id をコピー"
+                          title="ID をコピー"
+                          aria-label="ID をコピー"
                         >
                           📋
                         </button>
@@ -468,16 +449,13 @@ export default function SalesListTab() {
                       <div className="font-semibold text-slate-800 truncate mt-0.5">
                         {pickCustomer(r.entry)}
                       </div>
-                      {r.eventTitle && (
-                        <div className="text-[10px] text-slate-400 truncate">{r.eventTitle}</div>
-                      )}
                     </div>
                     <button
                       type="button"
                       onClick={() => handleCopyId(r.entry.id)}
                       className="shrink-0 inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-blue-600 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-200 rounded-lg text-xl leading-none transition"
-                      title="event_id をコピー"
-                      aria-label="event_id をコピー"
+                      title="ID をコピー"
+                      aria-label="ID をコピー"
                     >
                       📋
                     </button>
@@ -577,26 +555,6 @@ function DeliveryStatusPill({ status }: { status?: DeliveryNoteStatus }) {
 }
 
 // ===== util =====
-
-// "yyyy-MM-dd" 〜 "yyyy-MM-dd" を月リスト ["yyyy-MM", ...] に展開
-function monthsBetween(from: string, to: string): string[] {
-  const out: string[] = [];
-  if (!from || !to) return out;
-  const [fy, fm] = from.split('-').map(Number);
-  const [ty, tm] = to.split('-').map(Number);
-  if (!fy || !fm || !ty || !tm) return out;
-  let y = fy;
-  let m = fm;
-  while (y < ty || (y === ty && m <= tm)) {
-    out.push(`${y}-${String(m).padStart(2, '0')}`);
-    m++;
-    if (m > 12) {
-      m = 1;
-      y++;
-    }
-  }
-  return out;
-}
 
 // ソート値の取り出し
 function pickSortValue(r: SalesRow, key: SortKey): string | number {
