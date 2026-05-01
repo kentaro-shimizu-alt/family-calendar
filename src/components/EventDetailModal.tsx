@@ -33,6 +33,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentText, setEditingCommentText] = useState('');
   const [copyOpen, setCopyOpen] = useState(false);
+  // 2026-05-01 event.id クリップボードコピー用トースト
+  const [idCopiedToast, setIdCopiedToast] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   // lightbox: index は 画像配列(event.images 由来) における位置。null=非表示
@@ -427,6 +429,32 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     }
   }
 
+  // 2026-05-01 event.id (UUID) をクリップボードにコピー
+  // xlsx 現場分シートの event_id 列に貼付して家族カレンダーと連動させる用途
+  async function handleCopyEventId() {
+    if (!event) return;
+    const id = event.id;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(id);
+      } else {
+        // フォールバック (古いブラウザ/HTTP環境)
+        const ta = document.createElement('textarea');
+        ta.value = id;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      setIdCopiedToast(true);
+      setTimeout(() => setIdCopiedToast(false), 2000);
+    } catch (e: any) {
+      alert('IDコピーに失敗しました: ' + (e?.message || e));
+    }
+  }
+
   const siteProfit = event.site
     ? (event.site.amount || 0) - (event.site.cost || 0)
     : 0;
@@ -517,7 +545,19 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               </button>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-3xl leading-none">×</button>
+          <div className="flex items-start gap-1">
+            {/* 2026-05-01 event_id コピー (xlsx現場分連動用) */}
+            <button
+              type="button"
+              onClick={handleCopyEventId}
+              className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg px-2 py-1 text-base leading-none transition"
+              title="event_id をコピー (xlsx 現場分シート連動用)"
+              aria-label="event_id をコピー"
+            >
+              📋
+            </button>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-3xl leading-none">×</button>
+          </div>
         </div>
 
         {/* 関連付けピッカー(検索) */}
@@ -969,6 +1009,16 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           onClose={() => setCopyOpen(false)}
           onApplied={() => { setCopyOpen(false); onCommentAdded(); }}
         />
+        {/* 2026-05-01 event_id コピー完了トースト */}
+        {idCopiedToast && (
+          <div
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[70] bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-lg pointer-events-none"
+            role="status"
+            aria-live="polite"
+          >
+            ✓ IDコピー済
+          </div>
+        )}
       </div>
 
       {/* Lightbox for fullscreen image view (swipe / arrow keys で前後切替) */}
