@@ -803,7 +803,7 @@ function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-500 hover:text-slate-800 text-2xl leading-none"
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-900 hover:text-black text-2xl leading-none font-bold"
             aria-label="閉じる"
             title="閉じる"
           >
@@ -876,7 +876,7 @@ function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
           <button
             type="button"
             onClick={onClose}
-            className="min-h-[44px] px-5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium"
+            className="min-h-[44px] px-5 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-900 text-sm font-bold"
           >
             × 閉じる
           </button>
