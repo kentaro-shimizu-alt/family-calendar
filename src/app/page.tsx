@@ -7,6 +7,7 @@ import MonthView from '@/components/MonthView';
 import EventModal from '@/components/EventModal';
 import EventDetailModal from '@/components/EventDetailModal';
 import SalesModal from '@/components/SalesModal';
+import SalesListTab from '@/components/SalesListTab';
 import KeepPanel from '@/components/KeepPanel';
 import SettingsModal, { VirtualCalSettings, VIRTUAL_CAL_KEYS } from '@/components/SettingsModal';
 import DayEventsModal from '@/components/DayEventsModal';
@@ -21,8 +22,12 @@ import {
   SubCalendar,
 } from '@/lib/types';
 
+// 2026-05-02 トップビュー切替 (健太郎LW指示で売上一覧タブ追加)
+type TopView = 'calendar' | 'sales-list';
+
 export default function HomePage() {
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
+  const [topView, setTopView] = useState<TopView>('calendar');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [dailyData, setDailyData] = useState<Record<string, DailyData>>({});
   const [members, setMembers] = useState<Member[]>(DEFAULT_MEMBERS);
@@ -487,6 +492,19 @@ export default function HomePage() {
           >
             🔍
           </button>
+          {/* 2026-05-02 売上一覧タブ切替ボタン (健太郎LW指示) */}
+          <button
+            onClick={() => setTopView((v) => (v === 'calendar' ? 'sales-list' : 'calendar'))}
+            className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
+              topView === 'sales-list'
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-neutral-800 hover:bg-neutral-700 text-slate-300'
+            }`}
+            aria-label="売上一覧を切替"
+            title={topView === 'sales-list' ? 'カレンダーに戻る' : '売上一覧を表示'}
+          >
+            📊
+          </button>
           <button
             onClick={() => setKeepOpen(true)}
             className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-slate-300 text-base"
@@ -801,37 +819,43 @@ export default function HomePage() {
       {/* Reminder runner (no UI) */}
       <ReminderRunner events={visibleEvents} />
 
-      {/* Calendar */}
+      {/* Main view: Calendar or Sales List (2026-05-02 タブ切替) */}
       <div className="flex-1">
-        <MonthView
-          currentMonth={currentMonth}
-          events={visibleEvents}
-          dailyData={dailyData}
-          members={members}
-          subCalendars={subCalendars}
-          onDayClick={handleDayClick}
-          onEventClick={handleEventClick}
-          onSalesClick={handleSalesClick}
-          onMisaClick={handleMisaClick}
-          onSwipeLeft={() => setCurrentMonth((d) => addMonths(d, 1))}
-          onSwipeRight={() => setCurrentMonth((d) => subMonths(d, 1))}
-          showKinenbi={showKinenbi}
-          showHanabi={showHanabi}
-          onHanabiClick={(items, date) => {
-            setHanabiModalData({ date, items });
-            setHanabiModalOpen(true);
-          }}
-        />
+        {topView === 'calendar' ? (
+          <MonthView
+            currentMonth={currentMonth}
+            events={visibleEvents}
+            dailyData={dailyData}
+            members={members}
+            subCalendars={subCalendars}
+            onDayClick={handleDayClick}
+            onEventClick={handleEventClick}
+            onSalesClick={handleSalesClick}
+            onMisaClick={handleMisaClick}
+            onSwipeLeft={() => setCurrentMonth((d) => addMonths(d, 1))}
+            onSwipeRight={() => setCurrentMonth((d) => subMonths(d, 1))}
+            showKinenbi={showKinenbi}
+            showHanabi={showHanabi}
+            onHanabiClick={(items, date) => {
+              setHanabiModalData({ date, items });
+              setHanabiModalOpen(true);
+            }}
+          />
+        ) : (
+          <SalesListTab />
+        )}
       </div>
 
-      {/* Floating Add Button */}
-      <button
-        onClick={handleAddClick}
-        className="fixed bottom-5 right-5 w-14 h-14 rounded-full bg-blue-500 text-white text-3xl shadow-lg hover:bg-blue-600 active:scale-95 transition flex items-center justify-center"
-        aria-label="予定を追加"
-      >
-        +
-      </button>
+      {/* Floating Add Button (カレンダー表示時のみ) */}
+      {topView === 'calendar' && (
+        <button
+          onClick={handleAddClick}
+          className="fixed bottom-5 right-5 w-14 h-14 rounded-full bg-blue-500 text-white text-3xl shadow-lg hover:bg-blue-600 active:scale-95 transition flex items-center justify-center"
+          aria-label="予定を追加"
+        >
+          +
+        </button>
+      )}
 
       {loading && (
         <div className="fixed top-2 right-2 text-xs text-slate-500 bg-black/80 px-2 py-1 rounded">

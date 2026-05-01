@@ -94,6 +94,10 @@ export interface KeepItem {
 // 売上エントリは 現場売上 / 材料販売 の2種類
 export type SalesEntryType = 'site' | 'material';
 
+// 納品書ステータス（売上一覧タブ表示用・MVPはread-only）
+// 'none'=不要 / 'pending'=未作成 / 'created'=作成済 / 'submitted'=提出済 / undef=未指定
+export type DeliveryNoteStatus = 'none' | 'pending' | 'created' | 'submitted';
+
 export interface SalesEntry {
   id: string;
   type?: SalesEntryType; // site=現場売上 / material=材料販売 （未指定は site）
@@ -106,7 +110,17 @@ export interface SalesEntry {
   images?: string[]; // 添付画像URL（/api/uploads/xxx）LINEスクショ等
   pdfs?: Array<{ url: string; name?: string }>; // 添付PDF
   time?: string; // HH:mm（任意）
+  // 2026-05-02 売上一覧タブ MVP 追加(read-only表示・将来skill経由で更新)
+  recorded_to_xlsx?: boolean; // xlsx売上DBに記入済か
+  delivery_note_status?: DeliveryNoteStatus; // 納品書ステータス(発行/提出/入金 3フェーズ簡略版)
 }
+
+export const DELIVERY_NOTE_STATUS_LABEL: Record<DeliveryNoteStatus, string> = {
+  none: '不要',
+  pending: '未作成',
+  created: '作成済',
+  submitted: '提出済',
+};
 
 export const SALES_TYPE_LABEL: Record<SalesEntryType, string> = {
   site: '現場売上',

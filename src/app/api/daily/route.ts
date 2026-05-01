@@ -68,6 +68,15 @@ export async function POST(req: NextRequest) {
                     .map((p: any) => ({ url: p.url, name: p.name || undefined }))
                 : undefined,
               time: e.time || undefined,
+              // 2026-05-02 売上一覧タブMVP: 後方互換でread-only保存(skillから将来更新)
+              recorded_to_xlsx: typeof e.recorded_to_xlsx === 'boolean' ? e.recorded_to_xlsx : undefined,
+              delivery_note_status:
+                e.delivery_note_status === 'none' ||
+                e.delivery_note_status === 'pending' ||
+                e.delivery_note_status === 'created' ||
+                e.delivery_note_status === 'submitted'
+                  ? e.delivery_note_status
+                  : undefined,
             }))
         : [];
     } else if ('sales' in body) {
