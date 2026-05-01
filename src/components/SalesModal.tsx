@@ -796,17 +796,18 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                     key={e.id}
                     className={`border ${c.border} ${c.bg} rounded-lg px-3 py-2 group`}
                   >
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${c.chip}`}>
+                    {/* 2026-05-02 mobile fix: flex-wrap でスマホ幅(<sm)時にボタン群が次行へ折返し・PC(sm+)では従来通り1行 */}
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                      <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded ${c.chip}`}>
                         {SALES_TYPE_LABEL[t]}
                       </span>
-                      <span className={`text-[10px] ${c.text} opacity-70 w-5`}>#{i + 1}</span>
+                      <span className={`shrink-0 text-[10px] ${c.text} opacity-70 w-5`}>#{i + 1}</span>
                       <input
                         type="text"
                         value={e.customer || ''}
                         onChange={(ev) => updateEntry(e.id, { customer: ev.target.value })}
                         placeholder="取引先"
-                        className={`flex-1 bg-transparent border-b border-dashed ${c.border} text-sm focus:outline-none px-1`}
+                        className={`flex-1 min-w-[120px] bg-transparent border-b border-dashed ${c.border} text-sm focus:outline-none px-1`}
                       />
                       <label className="flex items-center gap-1 text-[10px]">
                         <button
@@ -828,10 +829,11 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                         </span>
                       </label>
                       {/* 2026-05-01 sales_entry.id コピー (xlsx 売り上げ記録材料販売/現場分 連動用) */}
+                      {/* 2026-05-02 mobile fix: opacity-60 group-hover:opacity-100 はスマホで:hover発火しないため常時opacity-100・タップ判定36px・shrink-0でレイアウト潰れ防止・border常時表示で視認確保 */}
                       <button
                         type="button"
                         onClick={() => handleCopySalesEntryId(e.id)}
-                        className="opacity-60 group-hover:opacity-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 text-sm w-6 h-6 flex items-center justify-center rounded transition"
+                        className="shrink-0 inline-flex items-center justify-center w-9 h-9 text-blue-600 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-200 rounded text-base transition"
                         title="sales_entry id をコピー (xlsx 売り上げ記録材料販売・現場分シート連動用)"
                         aria-label="sales_entry id をコピー"
                       >
@@ -839,7 +841,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                       </button>
                       <button
                         onClick={() => removeEntry(e.id)}
-                        className="opacity-50 group-hover:opacity-100 text-rose-400 hover:text-rose-600 text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-rose-50"
+                        className="shrink-0 inline-flex items-center justify-center w-9 h-9 text-rose-500 hover:text-rose-600 text-lg rounded hover:bg-rose-50 transition"
                         title="削除"
                       >
                         ×

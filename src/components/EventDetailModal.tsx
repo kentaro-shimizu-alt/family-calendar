@@ -545,18 +545,20 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               </button>
             </div>
           </div>
-          <div className="flex items-start gap-1">
+          {/* 2026-05-02 mobile fix: shrink-0でモーダル右上ボタン群が縮まないように+タップ判定44px確保 */}
+          <div className="flex items-start gap-1 shrink-0">
             {/* 2026-05-01 event_id コピー (xlsx現場分連動用) */}
+            {/* 2026-05-02 mobile fix: min-w/h 44px(iOS推奨タップサイズ)・border常時表示でスマホでも視認可能に */}
             <button
               type="button"
               onClick={handleCopyEventId}
-              className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg px-2 py-1 text-base leading-none transition"
+              className="shrink-0 inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-blue-600 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-200 rounded-lg text-xl leading-none transition"
               title="event_id をコピー (xlsx 現場分シート連動用)"
               aria-label="event_id をコピー"
             >
               📋
             </button>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-3xl leading-none">×</button>
+            <button onClick={onClose} className="shrink-0 inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-400 hover:text-slate-700 text-3xl leading-none">×</button>
           </div>
         </div>
 
