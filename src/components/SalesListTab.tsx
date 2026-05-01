@@ -3,11 +3,14 @@
 /**
  * 売上一覧タブ (MVP・案A) — 2026-05-02 健太郎LW指示で新設
  * 2026-05-02 改訂: events.id 突合フィルタ廃止 → daily_data.sales_entries 全件表示
+ * 2026-05-02 改訂2: ステータスマルチ選択フィルタ + 詳細展開UI(hover/tap) 追加
  *
  * 役割:
  *   - daily_data.sales_entries を期間内全件取得 → 一覧表示
- *   - 期間フィルタ + タイプフィルタ + 複数ソート + 📋IDコピー
+ *   - 期間フィルタ + タイプフィルタ + ステータスフィルタ + 複数ソート + 📋IDコピー
  *   - ✅DB記入済 (read-only) / 納品書ステータス表示
+ *   - PC: hover で note/label 詳細ツールチップ表示
+ *   - スマホ: tap で詳細モーダル表示
  *
  * MVP制約:
  *   - チェックボックスは表示のみ (read-only) 将来skill経由で更新
@@ -34,6 +37,18 @@ type SortKey = 'date' | 'customer' | 'amount' | 'type' | 'recorded' | 'delivery'
 type SortOrder = 'asc' | 'desc';
 type TypeFilter = 'all' | 'site' | 'material';
 
+// ステータスフィルタ用キー(undefined/null は 'pending' に倒して扱う)
+type StatusFilterKey = 'none' | 'pending' | 'created' | 'submitted';
+
+// ステータスソート優先順位 マップ
+// 昇順: none(0) → pending(1) → created(2) → submitted(3)
+const STATUS_ORDER: Record<StatusFilterKey, number> = {
+  none: 0,
+  pending: 1,
+  created: 2,
+  submitted: 3,
+};
+
 // flatten後の表示用 row
 interface SalesRow {
   date: string;            // YYYY-MM-DD (daily_data.date)
@@ -52,6 +67,12 @@ function pickCustomer(e: SalesEntry): string {
   return e.customer || e.label || '-';
 }
 
+// undefined/null → 'pending' に正規化
+function normalizeStatus(s?: DeliveryNoteStatus | null): StatusFilterKey {
+  if (s === 'none' || s === 'pending' || s === 'created' || s === 'submitted') return s;
+  return 'pending';
+}
+
 const SORT_KEY_LABEL: Record<SortKey, string> = {
   date: '日付',
   customer: '取引先',
@@ -59,6 +80,26 @@ const SORT_KEY_LABEL: Record<SortKey, string> = {
   type: 'タイプ',
   recorded: 'DB記入済',
   delivery: '納品書',
+};
+
+// ステータスchip表示色
+const STATUS_CHIP_STYLES: Record<StatusFilterKey, { on: string; off: string }> = {
+  none: {
+    on: 'bg-slate-500 text-white border-slate-500',
+    off: 'bg-white text-slate-500 border-slate-300 hover:bg-slate-50',
+  },
+  pending: {
+    on: 'bg-amber-500 text-white border-amber-500',
+    off: 'bg-white text-amber-700 border-amber-300 hover:bg-amber-50',
+  },
+  created: {
+    on: 'bg-blue-500 text-white border-blue-500',
+    off: 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50',
+  },
+  submitted: {
+    on: 'bg-emerald-500 text-white border-emerald-500',
+    off: 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50',
+  },
 };
 
 export default function SalesListTab() {
@@ -70,6 +111,14 @@ export default function SalesListTab() {
   const [from, setFrom] = useState(defaultFrom);
   const [to, setTo] = useState(defaultTo);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+
+  // ステータスフィルタ(デフォルト全ON)
+  const [statusFilter, setStatusFilter] = useState<Record<StatusFilterKey, boolean>>({
+    none: true,
+    pending: true,
+    created: true,
+    submitted: true,
+  });
 
   // ソートstate (1次/2次/3次)
   const [sort1Key, setSort1Key] = useState<SortKey>('date');
@@ -86,6 +135,9 @@ export default function SalesListTab() {
 
   // コピートースト
   const [copyToast, setCopyToast] = useState(false);
+
+  // 詳細モーダル(モバイル tap用)
+  const [detailOpen, setDetailOpen] = useState<SalesRow | null>(null);
 
   // データ取得 (期間変更時に再取得)
   useEffect(() => {
@@ -111,7 +163,7 @@ export default function SalesListTab() {
     };
   }, [from, to]);
 
-  // flatten + タイプフィルタ (events.id 突合は廃止 — daily_data 全件表示)
+  // flatten + タイプ/ステータスフィルタ (events.id 突合は廃止 — daily_data 全件表示)
   const rows = useMemo<SalesRow[]>(() => {
     const out: SalesRow[] = [];
     for (const d of dailyList) {
@@ -121,6 +173,9 @@ export default function SalesListTab() {
         // タイプフィルタ
         const t: SalesEntryType = entry.type === 'material' ? 'material' : 'site';
         if (typeFilter !== 'all' && typeFilter !== t) continue;
+        // ステータスフィルタ
+        const st = normalizeStatus(entry.delivery_note_status);
+        if (!statusFilter[st]) continue;
         out.push({
           date: d.date,
           entry,
@@ -128,7 +183,7 @@ export default function SalesListTab() {
       }
     }
     return out;
-  }, [dailyList, typeFilter]);
+  }, [dailyList, typeFilter, statusFilter]);
 
   // ソート (複数キー)
   const sortedRows = useMemo<SalesRow[]>(() => {
@@ -182,6 +237,16 @@ export default function SalesListTab() {
     const matCount = sortedRows.filter((r) => r.entry.type === 'material').length;
     return { total, count: sortedRows.length, siteCount, matCount };
   }, [sortedRows]);
+
+  // ステータスchip toggle
+  function toggleStatus(k: StatusFilterKey) {
+    setStatusFilter((prev) => ({ ...prev, [k]: !prev[k] }));
+  }
+  function setAllStatus(v: boolean) {
+    setStatusFilter({ none: v, pending: v, created: v, submitted: v });
+  }
+  const allStatusOn =
+    statusFilter.none && statusFilter.pending && statusFilter.created && statusFilter.submitted;
 
   return (
     <div className="px-3 py-4 max-w-6xl mx-auto">
@@ -270,6 +335,40 @@ export default function SalesListTab() {
           </div>
         </div>
 
+        {/* ステータスフィルタ */}
+        <div className="flex flex-wrap gap-2 items-center mt-2">
+          <label className="text-xs text-slate-600 font-semibold">納品書:</label>
+          <div className="flex gap-1 flex-wrap">
+            {(['none', 'pending', 'created', 'submitted'] as StatusFilterKey[]).map((k) => {
+              const on = statusFilter[k];
+              const styles = STATUS_CHIP_STYLES[k];
+              return (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => toggleStatus(k)}
+                  className={`text-[11px] px-2 py-1 rounded-full border transition ${
+                    on ? styles.on : styles.off
+                  }`}
+                  aria-pressed={on}
+                  title={on ? `${DELIVERY_NOTE_STATUS_LABEL[k]} を非表示にする` : `${DELIVERY_NOTE_STATUS_LABEL[k]} を表示する`}
+                >
+                  {on ? '✓ ' : ''}
+                  {DELIVERY_NOTE_STATUS_LABEL[k]}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => setAllStatus(!allStatusOn)}
+              className="text-[10px] px-2 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+              title={allStatusOn ? '全て非表示' : '全て表示'}
+            >
+              {allStatusOn ? '全OFF' : '全ON'}
+            </button>
+          </div>
+        </div>
+
         {/* ソートUI */}
         <div className="mt-2 pt-2 border-t border-slate-100">
           <div className="text-xs text-slate-600 font-semibold mb-1">ソート (優先順位)</div>
@@ -348,12 +447,13 @@ export default function SalesListTab() {
                   <th className="px-2 py-2 text-center">📋</th>
                   <th className="px-2 py-2 text-center">DB記入済</th>
                   <th className="px-2 py-2 text-left">納品書</th>
+                  <th className="px-2 py-2 text-center">📄</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedRows.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="text-center text-xs text-slate-400 py-6">
+                    <td colSpan={9} className="text-center text-xs text-slate-400 py-6">
                       該当する売上記録はありません
                     </td>
                   </tr>
@@ -364,7 +464,10 @@ export default function SalesListTab() {
                   const recorded = r.entry.recorded_to_xlsx === true;
                   const dnStatus = r.entry.delivery_note_status;
                   return (
-                    <tr key={`${r.date}-${r.entry.id}`} className="border-t border-slate-100 hover:bg-slate-50">
+                    <tr
+                      key={`${r.date}-${r.entry.id}`}
+                      className="border-t border-slate-100 hover:bg-slate-50 group relative"
+                    >
                       <td className="px-2 py-2 whitespace-nowrap text-slate-700">{r.date}</td>
                       <td className="px-2 py-2 text-slate-800">
                         <div className="font-semibold truncate max-w-[180px]">{pickCustomer(r.entry)}</div>
@@ -407,6 +510,10 @@ export default function SalesListTab() {
                       </td>
                       <td className="px-2 py-2 text-xs">
                         <DeliveryStatusPill status={dnStatus} />
+                      </td>
+                      <td className="px-2 py-2 text-center relative">
+                        {/* PC: hover ツールチップ用ラッパ */}
+                        <DetailHover row={r} />
                       </td>
                     </tr>
                   );
@@ -481,11 +588,25 @@ export default function SalesListTab() {
                       納品書: <DeliveryStatusPill status={dnStatus} />
                     </div>
                   </div>
+                  {/* モバイル: 詳細展開ボタン */}
+                  <button
+                    type="button"
+                    onClick={() => setDetailOpen(r)}
+                    className="mt-2 w-full inline-flex items-center justify-center gap-1 min-h-[44px] text-[12px] text-slate-700 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 border border-slate-200 rounded-lg transition"
+                    aria-label="詳細を表示"
+                  >
+                    📄 詳細を表示
+                  </button>
                 </div>
               );
             })}
           </div>
         </>
+      )}
+
+      {/* 詳細モーダル(モバイル tap用) */}
+      {detailOpen && (
+        <DetailModal row={detailOpen} onClose={() => setDetailOpen(null)} />
       )}
 
       {/* コピー完了トースト */}
@@ -554,6 +675,217 @@ function DeliveryStatusPill({ status }: { status?: DeliveryNoteStatus }) {
   return <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full border ${cls}`}>{label}</span>;
 }
 
+// PC: hover で詳細(note/label)ツールチップ表示
+function DetailHover({ row }: { row: SalesRow }) {
+  const [show, setShow] = useState(false);
+  // 100ms遅延で表示(意図的hover時のみ)
+  const timerRef = useStateRefTimer();
+
+  function onEnter() {
+    timerRef.set(() => setShow(true), 100);
+  }
+  function onLeave() {
+    timerRef.clear();
+    setShow(false);
+  }
+
+  return (
+    <span
+      className="relative inline-block"
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      <span
+        className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-help text-base"
+        aria-label="詳細"
+        title=""
+      >
+        📄
+      </span>
+      {show && (
+        <DetailTooltip row={row} />
+      )}
+    </span>
+  );
+}
+
+// 簡易タイマー管理 hook
+function useStateRefTimer() {
+  const ref = useMemo(() => ({ id: null as null | ReturnType<typeof setTimeout> }), []);
+  return {
+    set(fn: () => void, ms: number) {
+      if (ref.id) clearTimeout(ref.id);
+      ref.id = setTimeout(fn, ms);
+    },
+    clear() {
+      if (ref.id) clearTimeout(ref.id);
+      ref.id = null;
+    },
+  };
+}
+
+// PC hover ツールチップ(中身)
+function DetailTooltip({ row }: { row: SalesRow }) {
+  const e = row.entry;
+  const t: SalesEntryType = e.type === 'material' ? 'material' : 'site';
+  const amount = Number(e.amount) || 0;
+  const cost = Number(e.cost) || 0;
+  const customer = pickCustomer(e);
+  return (
+    <div
+      className="absolute z-[80] right-0 top-full mt-1 bg-slate-800 text-white rounded-lg p-3 shadow-lg max-w-md w-[320px] text-left"
+      role="tooltip"
+    >
+      <div className="text-[11px] text-slate-300 mb-1 flex items-center gap-2 flex-wrap">
+        <span>{row.date}</span>
+        <span className="px-1.5 py-0.5 rounded-full bg-slate-700">{SALES_TYPE_LABEL[t]}</span>
+        <DeliveryStatusPill status={e.delivery_note_status} />
+      </div>
+      <div className="text-sm font-semibold mb-2 break-words">{customer}</div>
+      <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-300 mb-2">
+        <div>
+          売値: <span className="text-emerald-300 tabular-nums">¥{amount.toLocaleString()}</span>
+        </div>
+        <div>
+          原価: <span className="text-amber-300 tabular-nums">¥{cost.toLocaleString()}</span>
+        </div>
+      </div>
+      {e.label && (
+        <div className="text-[11px] text-slate-300 mb-1">
+          <span className="text-slate-400">label: </span>
+          <span className="break-words">{e.label}</span>
+        </div>
+      )}
+      {e.note && (
+        <pre className="text-[11px] text-slate-100 whitespace-pre-wrap break-words bg-slate-900/50 rounded p-2 max-h-64 overflow-y-auto font-sans">
+{e.note}
+        </pre>
+      )}
+      {!e.note && !e.label && (
+        <div className="text-[11px] text-slate-500 italic">(詳細メモなし)</div>
+      )}
+      <div className="text-[10px] text-slate-400 mt-2 font-mono break-all">id: {e.id}</div>
+    </div>
+  );
+}
+
+// モバイル詳細モーダル
+function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
+  const e = row.entry;
+  const t: SalesEntryType = e.type === 'material' ? 'material' : 'site';
+  const amount = Number(e.amount) || 0;
+  const cost = Number(e.cost) || 0;
+  const customer = pickCustomer(e);
+
+  // ESCで閉じる
+  useEffect(() => {
+    function onKey(ev: KeyboardEvent) {
+      if (ev.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-3"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[85vh] flex flex-col"
+        onClick={(ev) => ev.stopPropagation()}
+      >
+        {/* ヘッダ */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+          <div className="font-bold text-slate-800 text-sm">📄 売上詳細</div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-500 hover:text-slate-800 text-2xl leading-none"
+            aria-label="閉じる"
+            title="閉じる"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* 本体 */}
+        <div className="px-4 py-3 overflow-y-auto flex-1">
+          <div className="text-[11px] text-slate-500 mb-1 flex items-center gap-2 flex-wrap">
+            <span>{row.date}</span>
+            <span
+              className={`inline-block text-[10px] px-2 py-0.5 rounded-full ${
+                t === 'site'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+              }`}
+            >
+              {SALES_TYPE_LABEL[t]}
+            </span>
+            <DeliveryStatusPill status={e.delivery_note_status} />
+          </div>
+          <div className="text-base font-semibold text-slate-800 mb-3 break-words">
+            {customer}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mb-3">
+            <div className="bg-emerald-50 border border-emerald-200 rounded p-2">
+              <div className="text-[10px] text-slate-500">売値(税抜)</div>
+              <div className="text-emerald-700 font-bold tabular-nums">
+                ¥{amount.toLocaleString()}
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded p-2">
+              <div className="text-[10px] text-slate-500">原価</div>
+              <div className="text-amber-700 font-bold tabular-nums">
+                ¥{cost.toLocaleString()}
+              </div>
+            </div>
+          </div>
+
+          {e.label && (
+            <div className="mb-2">
+              <div className="text-[10px] text-slate-500 mb-0.5">label</div>
+              <div className="text-xs text-slate-800 break-words">{e.label}</div>
+            </div>
+          )}
+
+          {e.note ? (
+            <div className="mb-2">
+              <div className="text-[10px] text-slate-500 mb-0.5">詳細メモ (note)</div>
+              <pre className="text-xs text-slate-800 whitespace-pre-wrap break-words bg-slate-50 border border-slate-200 rounded p-2 font-sans">
+{e.note}
+              </pre>
+            </div>
+          ) : (
+            <div className="text-xs text-slate-400 italic mb-2">(詳細メモなし)</div>
+          )}
+
+          <div className="flex items-center justify-between text-[11px] text-slate-500 border-t border-slate-100 pt-2 mt-2">
+            <span>
+              DB記入: {e.recorded_to_xlsx ? '✓ 済' : '未'}
+            </span>
+            <span className="font-mono text-[10px] break-all">id: {e.id}</span>
+          </div>
+        </div>
+
+        {/* フッタ */}
+        <div className="px-4 py-3 border-t border-slate-200 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-[44px] px-5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium"
+          >
+            × 閉じる
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ===== util =====
 
 // ソート値の取り出し
@@ -570,18 +902,9 @@ function pickSortValue(r: SalesRow, key: SortKey): string | number {
     case 'recorded':
       return r.entry.recorded_to_xlsx ? 1 : 0;
     case 'delivery':
-      // 並び順: pending(2) → created(3) → submitted(4) → none(1) → undef(0)
-      switch (r.entry.delivery_note_status) {
-        case 'pending':
-          return 2;
-        case 'created':
-          return 3;
-        case 'submitted':
-          return 4;
-        case 'none':
-          return 1;
-        default:
-          return 0;
-      }
+      // 並び順: STATUS_ORDER マップ準拠
+      // 昇順: none(0) → pending(1) → created(2) → submitted(3)
+      // undefined / null は pending と同等(値=1扱い)
+      return STATUS_ORDER[normalizeStatus(r.entry.delivery_note_status)];
   }
 }

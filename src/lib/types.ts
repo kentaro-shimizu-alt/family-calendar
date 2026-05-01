@@ -116,10 +116,10 @@ export interface SalesEntry {
 }
 
 export const DELIVERY_NOTE_STATUS_LABEL: Record<DeliveryNoteStatus, string> = {
-  none: '不要',
-  pending: '未作成',
-  created: '作成済',
-  submitted: '提出済',
+  none: '提出不要',
+  pending: '未提出',
+  created: '作成済み',
+  submitted: '提出済み',
 };
 
 export const SALES_TYPE_LABEL: Record<SalesEntryType, string> = {
