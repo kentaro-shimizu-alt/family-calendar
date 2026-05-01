@@ -83,6 +83,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [saving, setSaving] = useState(false);
+  // 2026-05-01 sales_entry id クリップボードコピー用トースト (xlsx 売り上げ記録材料販売/現場分シート連動用)
+  const [idCopiedToast, setIdCopiedToast] = useState(false);
   const customerRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const misaFileRef = useRef<HTMLInputElement>(null);
@@ -330,6 +332,30 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
         e.id === entryId ? { ...e, pdfs: (e.pdfs || []).filter((p) => p.url !== url) } : e
       )
     );
+  }
+
+  // 2026-05-01 sales_entry.id をクリップボードにコピー
+  // xlsx 売り上げ記録材料販売 / 現場分 シートの id 列に貼付して家族カレンダーと連動させる用途
+  async function handleCopySalesEntryId(id: string) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(id);
+      } else {
+        // フォールバック (古いブラウザ/HTTP環境)
+        const ta = document.createElement('textarea');
+        ta.value = id;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      setIdCopiedToast(true);
+      setTimeout(() => setIdCopiedToast(false), 2000);
+    } catch (e: any) {
+      alert('IDコピーに失敗しました: ' + (e?.message || e));
+    }
   }
 
   async function handleSave() {
@@ -801,6 +827,16 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                           納品書{e.deliveryNote ? '要' : '不要'}
                         </span>
                       </label>
+                      {/* 2026-05-01 sales_entry.id コピー (xlsx 売り上げ記録材料販売/現場分 連動用) */}
+                      <button
+                        type="button"
+                        onClick={() => handleCopySalesEntryId(e.id)}
+                        className="opacity-60 group-hover:opacity-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 text-sm w-6 h-6 flex items-center justify-center rounded transition"
+                        title="sales_entry id をコピー (xlsx 売り上げ記録材料販売・現場分シート連動用)"
+                        aria-label="sales_entry id をコピー"
+                      >
+                        📋
+                      </button>
                       <button
                         onClick={() => removeEntry(e.id)}
                         className="opacity-50 group-hover:opacity-100 text-rose-400 hover:text-rose-600 text-sm w-6 h-6 flex items-center justify-center rounded hover:bg-rose-50"
@@ -972,6 +1008,16 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
         onClose={() => setCopyOpen(false)}
         onApplied={() => { onSaved(); }}
       />
+      {/* 2026-05-01 sales_entry.id コピー完了トースト */}
+      {idCopiedToast && (
+        <div
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-[70] bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-lg pointer-events-none"
+          role="status"
+          aria-live="polite"
+        >
+          ✓ IDコピー済
+        </div>
+      )}
     </div>
   );
 }
