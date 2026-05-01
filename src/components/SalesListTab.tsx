@@ -537,7 +537,11 @@ export default function SalesListTab() {
               return (
                 <div
                   key={`${r.date}-${r.entry.id}`}
-                  className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm"
+                  className={`rounded-xl p-3 shadow-sm border-2 ${
+                    t === 'site'
+                      ? 'bg-emerald-50 border-emerald-400'
+                      : 'bg-amber-50 border-amber-400'
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <div className="min-w-0 flex-1">
