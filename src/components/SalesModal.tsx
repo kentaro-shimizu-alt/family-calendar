@@ -424,21 +424,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     }
   }
 
-  async function handleClear() {
-    if (!confirm('この日の売上・メモを全て削除しますか？')) return;
-    setSaving(true);
-    try {
-      await fetch('/api/daily', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: dateKey, salesEntries: [], memo: '', misaMemo: null, misaMemoImages: null }),
-      });
-      onSaved();
-      onClose();
-    } finally {
-      setSaving(false);
-    }
-  }
+  // 2026-05-02 健太郎LW指示「カレンダー内の全削除は全部廃止」・削除はくろに依頼でDB操作する運用に切替・handleClear関数廃止
 
   const tabColors = activeTab === 'misa' ? TAB_COLOR['site'] : TAB_COLOR[activeTab as SalesEntryType];
 
@@ -975,15 +961,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
         </div>
 
         <div className="px-5 py-3 border-t border-slate-100 flex items-center gap-2 sticky bottom-0 bg-white">
-          {(entries.length > 0 || initial?.memo) && (
-            <button
-              onClick={handleClear}
-              disabled={saving}
-              className="text-rose-500 text-sm hover:bg-rose-50 px-3 py-2 rounded-lg disabled:opacity-50"
-            >
-              全削除
-            </button>
-          )}
+          {/* 2026-05-02 健太郎LW指示「全削除は全部廃止」・削除はくろに依頼でDB操作 */}
           <div className="flex-1" />
           <button
             onClick={onClose}
