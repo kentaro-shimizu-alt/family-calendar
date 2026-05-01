@@ -492,19 +492,7 @@ export default function HomePage() {
           >
             🔍
           </button>
-          {/* 2026-05-02 売上一覧タブ切替ボタン (健太郎LW指示) */}
-          <button
-            onClick={() => setTopView((v) => (v === 'calendar' ? 'sales-list' : 'calendar'))}
-            className={`w-9 h-9 flex items-center justify-center rounded-full text-base transition ${
-              topView === 'sales-list'
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-neutral-800 hover:bg-neutral-700 text-slate-300'
-            }`}
-            aria-label="売上一覧を切替"
-            title={topView === 'sales-list' ? 'カレンダーに戻る' : '売上一覧を表示'}
-          >
-            📊
-          </button>
+          {/* 2026-05-02 売上一覧タブ切替ボタンはカレンダー最下部に移動 (健太郎LW id=1687) */}
           <button
             onClick={() => setKeepOpen(true)}
             className="w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 text-slate-300 text-base"
@@ -822,27 +810,61 @@ export default function HomePage() {
       {/* Main view: Calendar or Sales List (2026-05-02 タブ切替) */}
       <div className="flex-1">
         {topView === 'calendar' ? (
-          <MonthView
-            currentMonth={currentMonth}
-            events={visibleEvents}
-            dailyData={dailyData}
-            members={members}
-            subCalendars={subCalendars}
-            onDayClick={handleDayClick}
-            onEventClick={handleEventClick}
-            onSalesClick={handleSalesClick}
-            onMisaClick={handleMisaClick}
-            onSwipeLeft={() => setCurrentMonth((d) => addMonths(d, 1))}
-            onSwipeRight={() => setCurrentMonth((d) => subMonths(d, 1))}
-            showKinenbi={showKinenbi}
-            showHanabi={showHanabi}
-            onHanabiClick={(items, date) => {
-              setHanabiModalData({ date, items });
-              setHanabiModalOpen(true);
-            }}
-          />
+          <>
+            <MonthView
+              currentMonth={currentMonth}
+              events={visibleEvents}
+              dailyData={dailyData}
+              members={members}
+              subCalendars={subCalendars}
+              onDayClick={handleDayClick}
+              onEventClick={handleEventClick}
+              onSalesClick={handleSalesClick}
+              onMisaClick={handleMisaClick}
+              onSwipeLeft={() => setCurrentMonth((d) => addMonths(d, 1))}
+              onSwipeRight={() => setCurrentMonth((d) => subMonths(d, 1))}
+              showKinenbi={showKinenbi}
+              showHanabi={showHanabi}
+              onHanabiClick={(items, date) => {
+                setHanabiModalData({ date, items });
+                setHanabiModalOpen(true);
+              }}
+            />
+            {/* 2026-05-02 売上一覧ボタン カレンダー最下部配置 (健太郎LW id=1687) */}
+            <div className="px-4 py-8 mt-8 border-t border-slate-200">
+              <button
+                onClick={() => setTopView('sales-list')}
+                className="w-full max-w-md mx-auto block py-6 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border-2 border-blue-200 rounded-2xl text-blue-700 text-lg font-semibold transition flex items-center justify-center gap-3 min-h-16"
+                aria-label="売上一覧を表示"
+              >
+                <span className="text-3xl">📊</span>
+                <span>売上一覧を表示</span>
+              </button>
+              <p className="text-center text-xs text-slate-400 mt-2">
+                event_id付きの売上記録を期間/タイプ/ソートで確認
+              </p>
+            </div>
+          </>
         ) : (
-          <SalesListTab />
+          <>
+            {/* 2026-05-02 SalesListTab表示時の「カレンダーに戻る」ヘッダー */}
+            <div className="px-4 py-3 bg-neutral-900 border-b border-neutral-800 sticky top-0 z-10 flex items-center justify-between">
+              <button
+                onClick={() => setTopView('calendar')}
+                className="flex items-center gap-2 text-blue-300 hover:text-blue-200 text-sm font-semibold px-3 py-2 rounded-lg hover:bg-neutral-800 active:scale-95 transition"
+                aria-label="カレンダーに戻る"
+              >
+                <span className="text-lg">‹</span>
+                <span>カレンダーに戻る</span>
+              </button>
+              <span className="text-slate-300 text-sm font-semibold flex items-center gap-1">
+                <span>📊</span>
+                <span>売上一覧</span>
+              </span>
+              <span className="w-24" /> {/* spacer for centering */}
+            </div>
+            <SalesListTab />
+          </>
         )}
       </div>
 
