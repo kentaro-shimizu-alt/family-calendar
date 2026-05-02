@@ -73,7 +73,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
 
   // Draft for adding new entry
   const [draftCustomer, setDraftCustomer] = useState<string>('');
-  const [draftDeliveryNote, setDraftDeliveryNote] = useState<boolean>(false);
+  // 2026-05-02 draftDeliveryNote 削除(納品書要否トグル機能廃止・skill経由更新で代替)
   const [draftAmount, setDraftAmount] = useState<string>('');
   const [draftCost, setDraftCost] = useState<string>('');
   const [draftNote, setDraftNote] = useState<string>('');
@@ -139,7 +139,6 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
       setMisaMemo('');
       setMisaMemoImages([]);
       setDraftCustomer('');
-      setDraftDeliveryNote(false);
       setDraftAmount('');
       setDraftCost('');
       setDraftNote('');
@@ -178,7 +177,6 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
 
   function resetDraft(type: SalesEntryType) {
     setDraftCustomer('');
-    setDraftDeliveryNote(false);
     setDraftAmount('');
     setDraftCost('');
     setDraftNote(TEMPLATE[type]);
@@ -289,7 +287,6 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     return {
       id: newId(),
       type: activeTab as SalesEntryType,
-      deliveryNote: draftDeliveryNote || undefined,
       customer: draftCustomer.trim() || undefined,
       amount: amountN,
       cost: costN,
@@ -627,26 +624,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
               <span className={`text-xs font-bold ${tabColors.text}`}>
                 ＋ {SALES_TYPE_LABEL[activeTab as SalesEntryType]}を追加
               </span>
-              {/* 納品書の要否 toggle */}
-              <label className="flex items-center gap-1.5 cursor-pointer text-xs">
-                <button
-                  type="button"
-                  onClick={() => setDraftDeliveryNote((v) => !v)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition ${
-                    draftDeliveryNote ? 'bg-amber-500' : 'bg-slate-300'
-                  }`}
-                  aria-label="納品書の要否"
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                      draftDeliveryNote ? 'translate-x-4' : 'translate-x-0.5'
-                    }`}
-                  />
-                </button>
-                <span className={`font-semibold whitespace-nowrap ${draftDeliveryNote ? tabColors.text : 'text-slate-400'}`}>
-                  納品書{draftDeliveryNote ? '要' : '不要'}
-                </span>
-              </label>
+              {/* 2026-05-02 健太郎指示「納品書要否トグル不要・skill経由自動更新で代替」削除済 */}
             </div>
 
             {/* 取引先 */}
@@ -795,25 +773,12 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                         placeholder="取引先"
                         className={`flex-1 min-w-[120px] bg-transparent border-b border-dashed ${c.border} text-sm focus:outline-none px-1`}
                       />
-                      <label className="flex items-center gap-1 text-[10px]">
-                        <button
-                          type="button"
-                          onClick={() => updateEntry(e.id, { deliveryNote: !e.deliveryNote })}
-                          className={`relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition ${
-                            e.deliveryNote ? 'bg-amber-500' : 'bg-slate-300'
-                          }`}
-                          aria-label="納品書の要否"
-                        >
-                          <span
-                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition ${
-                              e.deliveryNote ? 'translate-x-3.5' : 'translate-x-0.5'
-                            }`}
-                          />
-                        </button>
-                        <span className={`whitespace-nowrap ${e.deliveryNote ? c.text : 'text-slate-400'}`}>
-                          納品書{e.deliveryNote ? '要' : '不要'}
+                      {/* 2026-05-02 健太郎指示「納品書要否トグル機能不要」削除・read-only表示維持(deliveryNote=true時のみ表示・skill経由更新で代替) */}
+                      {e.deliveryNote && (
+                        <span className={`shrink-0 whitespace-nowrap text-[10px] font-semibold ${c.text}`}>
+                          納品書要
                         </span>
-                      </label>
+                      )}
                       {/* 2026-05-01 sales_entry.id コピー (xlsx 売り上げ記録材料販売/現場分 連動用) */}
                       {/* 2026-05-02 mobile fix: opacity-60 group-hover:opacity-100 はスマホで:hover発火しないため常時opacity-100・タップ判定36px・shrink-0でレイアウト潰れ防止・border常時表示で視認確保 */}
                       <button
