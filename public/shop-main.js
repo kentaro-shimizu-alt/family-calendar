@@ -1049,7 +1049,13 @@
                 meters: r.meters, unit_price: r.unit_price || 0, subtotal: r.subtotal || 0,
                 discount_rate_pct: r.discount_rate_pct || 0, discount_amount: r.discount_amount || 0,
               };
-              const nm = it.name ? ' ' + it.name : '';
+              // 2026-05-04 N187類: name==pn(ダイノック/3Mフィルム等 大半1071/2805品番)では「PS-999 PS-999」と重複表示になるためnm抑止
+              //   products.json側で name に商品名(柄名等・主にオルティノ系)が入っているケースのみ併記
+              //   ロジックは L1523 makeBrandBlockHtml の nameIsProductCode と同等(空白/ハイフン除去後比較)
+              const nameIsProductCode = !it.name
+                || it.name === it.pn
+                || it.name.replace(/[\s-]/g, '') === it.pn.replace(/[\s-]/g, '');
+              const nm = nameIsProductCode ? '' : ' ' + it.name;
               const w = it.width_mm ? ` 幅${it.width_mm}mm` : '';
               const baseLine = `[${it.brand}] ${it.pn}${nm}${w}\n`
                 + `  m単価: ¥${it.unit_price.toLocaleString()} × ${it.meters}m = ¥${it.subtotal.toLocaleString()}`;
