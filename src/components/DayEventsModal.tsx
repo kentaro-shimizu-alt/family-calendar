@@ -24,11 +24,18 @@ export default function DayEventsModal({ open, date, events, subCalendars, onClo
   // #9: 戻るボタンでポップアップだけ閉じる
   // 2026-05-05 戻るボタン修正(EventDetailModal同様):
   // onClose参照変動による pushState 累積を回避するため ref+依存[open]のみ
+  // 2026-05-05 14:48 bfcache破棄時の戻るボタン修正:
+  // 親(page.tsx)が復元時に既に pushState({modal:'day-events-restored'}) を発火している
+  // 場合は重複 pushState を skip。
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open) return;
-    history.pushState({ modal: 'day-events' }, '');
+    const cur = (typeof window !== 'undefined' ? window.history.state : null) as any;
+    const restored = !!(cur && cur.modal === 'day-events-restored');
+    if (!restored) {
+      history.pushState({ modal: 'day-events' }, '');
+    }
     const handler = () => onCloseRef.current();
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);

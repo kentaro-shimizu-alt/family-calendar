@@ -168,11 +168,19 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   // 親再レンダリングごとに onClose 参照が変わると useEffect が再発火して
   // 履歴に pushState が積み重なり、Backを何度も押さないと閉じなかった。
   // onClose を ref で保持し、依存配列を [open] のみにして1回だけ pushState する。
+  // 2026-05-05 14:48 bfcache破棄時の戻るボタン修正:
+  // 親(page.tsx)が復元時に既に pushState({modal:'event-detail-restored'}) を発火している
+  // 場合、ここで pushState すると履歴に2件積まれて戻るボタン2回必要になる。
+  // 復元由来なら pushState を skip して popstate ハンドラだけ登録する。
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open) return;
-    history.pushState({ modal: 'event-detail' }, '');
+    const cur = (typeof window !== 'undefined' ? window.history.state : null) as any;
+    const restored = !!(cur && cur.modal === 'event-detail-restored');
+    if (!restored) {
+      history.pushState({ modal: 'event-detail' }, '');
+    }
     const handler = () => onCloseRef.current();
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);

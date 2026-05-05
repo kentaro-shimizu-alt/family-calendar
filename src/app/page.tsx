@@ -204,6 +204,14 @@ export default function HomePage() {
         if (typeof s.dayEventsDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.dayEventsDate)) {
           const [y, m, d] = s.dayEventsDate.split('-').map(Number);
           setDayEventsDate(new Date(y, m - 1, d));
+          // ★ 2026-05-05 健太郎LW 14:48 bfcache戻るボタン修正:
+          // 復元由来の pushState を親側で1回発火 (子モーダル側は state.modal=='*-restored' なら skip)
+          try {
+            window.history.pushState(
+              { modal: 'day-events-restored', restoredFrom: 'localStorage', ts: Date.now() },
+              ''
+            );
+          } catch {}
           setDayEventsOpen(true);
         }
         // detail と scroll は events 取得後に復元
@@ -353,12 +361,25 @@ export default function HomePage() {
   }, [loadAll]);
 
   // 2026-05-05 events取得完了後に detail / scroll を復元 (1回限り)
+  // 2026-05-05 健太郎LW 14:48 bfcache破棄時の戻るボタン修正:
+  // ページリロード直後は履歴が空 → 子モーダルがopen時にpushStateするが
+  // 戻るボタン1回目が無反応のケースがある。
+  // 親側で先に pushState({modal:'event-detail-restored'}) を1回発火し、
+  // 子モーダル側の useEffect は state.modal が '*-restored' なら skip して
+  // 二重pushStateを防ぐ。
   useEffect(() => {
     if (events.length === 0) return;
     const pendingId = uiPendingDetailIdRef.current;
     if (pendingId !== null && pendingId !== undefined) {
       const target = events.find((e) => e.id === pendingId);
       if (target) {
+        // ★ 復元由来の pushState (子モーダルの pushState は skip される)
+        try {
+          window.history.pushState(
+            { modal: 'event-detail-restored', restoredFrom: 'localStorage', ts: Date.now() },
+            ''
+          );
+        } catch {}
         setDetailEvent(target);
         setDetailOpen(true);
       } else {
