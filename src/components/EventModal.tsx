@@ -116,6 +116,17 @@ export default function EventModal({ open, initialDate, editing, members, subCal
     }
   }, [open, editing, initialDate, subCalendars]);
 
+  // 2026-05-05 戻るボタンで閉じる(健太郎LW「何かと戻るボタンが効くようにしてほしい」)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => {
+    if (!open) return;
+    history.pushState({ modal: 'event-edit' }, '');
+    const handler = () => onCloseRef.current();
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, [open]);
+
   if (!open) return null;
 
   async function uploadFiles(files: File[]) {

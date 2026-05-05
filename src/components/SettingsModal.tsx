@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { COLOR_PALETTE, Member, SubCalendar, colorVariants } from '@/lib/types';
 import { KINENBI } from '@/lib/kinenbi';
 import { HANABI_2026 } from '@/lib/hanabi';
@@ -101,6 +101,17 @@ export default function SettingsModal({ open, members, subCalendars, totalEventC
       setHanabiSettings(loadVirtualSettings('hanabi'));
     }
   }, [open, members, subCalendars]);
+
+  // 2026-05-05 戻るボタンで閉じる(健太郎LW「何かと戻るボタンが効くようにしてほしい」)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => {
+    if (!open) return;
+    history.pushState({ modal: 'settings' }, '');
+    const handler = () => onCloseRef.current();
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, [open]);
 
   if (!open) return null;
 

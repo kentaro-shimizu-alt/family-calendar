@@ -164,13 +164,19 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   }
 
   // #9: 戻るボタンでポップアップだけ閉じる
+  // 2026-05-05 健太郎LW「戻るボタンが効かない」修正:
+  // 親再レンダリングごとに onClose 参照が変わると useEffect が再発火して
+  // 履歴に pushState が積み重なり、Backを何度も押さないと閉じなかった。
+  // onClose を ref で保持し、依存配列を [open] のみにして1回だけ pushState する。
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open) return;
     history.pushState({ modal: 'event-detail' }, '');
-    const handler = () => onClose();
+    const handler = () => onCloseRef.current();
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
-  }, [open, onClose]);
+  }, [open]);
 
   // Build chronological feed items
   const feedItems = useMemo<FeedItem[]>(() => {

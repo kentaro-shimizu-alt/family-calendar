@@ -116,6 +116,17 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     }
   }, []);
 
+  // 2026-05-05 戻るボタンで閉じる(健太郎LW「何かと戻るボタンが効くようにしてほしい」)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => {
+    if (!open) return;
+    history.pushState({ modal: 'sales' }, '');
+    const handler = () => onCloseRef.current();
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
+  }, [open]);
+
   // ドラフトnote・memo・misaMemoが変わったときに高さ再計算
   useEffect(() => { autoResize(draftNoteRef.current); }, [draftNote, autoResize]);
   useEffect(() => { autoResize(memoRef.current); }, [memo, autoResize]);

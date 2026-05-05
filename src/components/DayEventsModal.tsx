@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { CalendarEvent, SubCalendar } from '@/lib/types';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -22,13 +22,17 @@ function eventColor(ev: CalendarEvent, subs: SubCalendar[]): string {
 
 export default function DayEventsModal({ open, date, events, subCalendars, onClose, onEventClick, onAddEvent }: Props) {
   // #9: 戻るボタンでポップアップだけ閉じる
+  // 2026-05-05 戻るボタン修正(EventDetailModal同様):
+  // onClose参照変動による pushState 累積を回避するため ref+依存[open]のみ
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open) return;
     history.pushState({ modal: 'day-events' }, '');
-    const handler = () => onClose();
+    const handler = () => onCloseRef.current();
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open || !date) return null;
 

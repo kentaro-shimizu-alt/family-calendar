@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { KeepItem } from '@/lib/types';
 
 interface Props {
@@ -34,6 +34,17 @@ export default function KeepPanel({ open, onClose }: Props) {
 
   useEffect(() => {
     if (open) load();
+  }, [open]);
+
+  // 2026-05-05 戻るボタンで閉じる(健太郎LW「何かと戻るボタンが効くようにしてほしい」)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  useEffect(() => {
+    if (!open) return;
+    history.pushState({ modal: 'keep' }, '');
+    const handler = () => onCloseRef.current();
+    window.addEventListener('popstate', handler);
+    return () => window.removeEventListener('popstate', handler);
   }, [open]);
 
   if (!open) return null;

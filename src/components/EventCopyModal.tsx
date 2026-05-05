@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, isSameMonth, parseISO, startOfMonth, startOfWeek, endOfWeek, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { CalendarEvent } from '@/lib/types';
@@ -30,14 +30,16 @@ export default function EventCopyModal({ open, source, onClose, onApplied }: Pro
     }
   }, [open, initialMonth]);
 
-  // 戻るボタンで閉じる
+  // 戻るボタンで閉じる (2026-05-05 onClose変動でpushState累積する不具合修正)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open) return;
     history.pushState({ modal: 'event-copy' }, '');
-    const handler = () => onClose();
+    const handler = () => onCloseRef.current();
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open || !source) return null;
 

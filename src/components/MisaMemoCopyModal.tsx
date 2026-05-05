@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   addMonths, eachDayOfInterval, endOfMonth, format,
   isSameMonth, parseISO, startOfMonth, startOfWeek, endOfWeek, subMonths,
@@ -37,14 +37,16 @@ export default function MisaMemoCopyModal({
     }
   }, [open, initialMonth]);
 
-  // 戻るボタンで閉じる
+  // 戻るボタンで閉じる (2026-05-05 onClose変動でpushState累積する不具合修正)
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open) return;
     history.pushState({ modal: 'misa-copy' }, '');
-    const handler = () => onClose();
+    const handler = () => onCloseRef.current();
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
