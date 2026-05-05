@@ -25,6 +25,39 @@ import {
 // 2026-05-02 トップビュー切替 (健太郎LW指示で売上一覧タブ追加)
 type TopView = 'calendar' | 'sales-list';
 
+// 2026-05-05 UI状態 localStorage 永続化 (健太郎LW C-2案)
+// カット表をPDF別タブで開いて戻った時にトップに飛ばされる問題対応
+const UI_STATE_KEY = 'cal-ui-state';
+const UI_STATE_TTL_MS = 12 * 60 * 60 * 1000; // 12時間
+
+type PersistedUiState = {
+  topView: TopView;
+  currentMonth: string; // YYYY-MM
+  detailEventId: string | number | null;
+  dayEventsDate: string | null; // YYYY-MM-DD
+  scrollY: number;
+  savedAt: number;
+};
+
+function loadUiState(): PersistedUiState | null {
+  try {
+    const raw = localStorage.getItem(UI_STATE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedUiState;
+    if (!parsed || typeof parsed !== 'object') return null;
+    if (typeof parsed.savedAt !== 'number') return null;
+    if (Date.now() - parsed.savedAt > UI_STATE_TTL_MS) {
+      try { localStorage.removeItem(UI_STATE_KEY); } catch {}
+      return null;
+    }
+    return parsed;
+  } catch { return null; }
+}
+
+function clearUiState() {
+  try { localStorage.removeItem(UI_STATE_KEY); } catch {}
+}
+
 export default function HomePage() {
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
   const [topView, setTopView] = useState<TopView>('calendar');
@@ -94,6 +127,14 @@ export default function HomePage() {
   const [dayEventsOpen, setDayEventsOpen] = useState(false);
   const [dayEventsDate, setDayEventsDate] = useState<Date | null>(null);
 
+  // 2026-05-05 UI状態 localStorage 永続化 (健太郎LW C-2案)
+  // 起動時1回のみ復元・detail復元はevents取得後の別 useEffect
+  const uiRestoredRef = useRef(false);
+  const uiPendingDetailIdRef = useRef<string | number | null>(null);
+  const uiPendingScrollYRef = useRef<number | null>(null);
+  // 保存抑止フラグ(復元中・初期化中の保存を避ける)
+  const uiSaveEnabledRef = useRef(false);
+
   // Year/Month picker
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerYear, setPickerYear] = useState<number>(new Date().getFullYear());
@@ -144,6 +185,34 @@ export default function HomePage() {
         hiddenFromBar: localStorage.getItem(haKeys.hiddenFromBar) === '1',
       });
     } catch {}
+  }, []);
+
+  // 2026-05-05 UI状態 起動時復元 (mount時1回)
+  useEffect(() => {
+    if (uiRestoredRef.current) return;
+    uiRestoredRef.current = true;
+    const s = loadUiState();
+    if (s) {
+      try {
+        if (s.topView === 'sales-list' || s.topView === 'calendar') {
+          setTopView(s.topView);
+        }
+        if (typeof s.currentMonth === 'string' && /^\d{4}-\d{2}$/.test(s.currentMonth)) {
+          const [y, m] = s.currentMonth.split('-').map(Number);
+          setCurrentMonth(new Date(y, m - 1, 1));
+        }
+        if (typeof s.dayEventsDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.dayEventsDate)) {
+          const [y, m, d] = s.dayEventsDate.split('-').map(Number);
+          setDayEventsDate(new Date(y, m - 1, d));
+          setDayEventsOpen(true);
+        }
+        // detail と scroll は events 取得後に復元
+        uiPendingDetailIdRef.current = s.detailEventId ?? null;
+        uiPendingScrollYRef.current = typeof s.scrollY === 'number' ? s.scrollY : null;
+      } catch {}
+    }
+    // 次のtickから保存有効化(復元setStateの自動保存ループを避ける)
+    setTimeout(() => { uiSaveEnabledRef.current = true; }, 0);
   }, []);
 
   function toggleTheme(t: 'light' | 'dark') {
@@ -282,6 +351,103 @@ export default function HomePage() {
   useEffect(() => {
     loadAll();
   }, [loadAll]);
+
+  // 2026-05-05 events取得完了後に detail / scroll を復元 (1回限り)
+  useEffect(() => {
+    if (events.length === 0) return;
+    const pendingId = uiPendingDetailIdRef.current;
+    if (pendingId !== null && pendingId !== undefined) {
+      const target = events.find((e) => e.id === pendingId);
+      if (target) {
+        setDetailEvent(target);
+        setDetailOpen(true);
+      } else {
+        // 該当event消失=復元中止+localStorageの該当キーをクリア
+        try {
+          const raw = localStorage.getItem(UI_STATE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            parsed.detailEventId = null;
+            localStorage.setItem(UI_STATE_KEY, JSON.stringify(parsed));
+          }
+        } catch {}
+      }
+      uiPendingDetailIdRef.current = null;
+    }
+    const pendingY = uiPendingScrollYRef.current;
+    if (pendingY !== null) {
+      // events描画後に scrollTo (setTimeout 100ms猶予)
+      setTimeout(() => {
+        try { window.scrollTo(0, pendingY); } catch {}
+      }, 100);
+      uiPendingScrollYRef.current = null;
+    }
+  }, [events]);
+
+  // 2026-05-05 UI状態 state変化時に localStorage へ保存
+  useEffect(() => {
+    if (!uiSaveEnabledRef.current) return;
+    try {
+      const fmt2 = (n: number) => String(n).padStart(2, '0');
+      const cm = `${currentMonth.getFullYear()}-${fmt2(currentMonth.getMonth() + 1)}`;
+      const ded = dayEventsDate
+        ? `${dayEventsDate.getFullYear()}-${fmt2(dayEventsDate.getMonth() + 1)}-${fmt2(dayEventsDate.getDate())}`
+        : null;
+      const payload: PersistedUiState = {
+        topView,
+        currentMonth: cm,
+        detailEventId: detailOpen && detailEvent ? detailEvent.id : null,
+        dayEventsDate: dayEventsOpen ? ded : null,
+        scrollY: typeof window !== 'undefined' ? window.scrollY : 0,
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(UI_STATE_KEY, JSON.stringify(payload));
+    } catch {}
+  }, [topView, currentMonth, detailOpen, detailEvent, dayEventsOpen, dayEventsDate]);
+
+  // 2026-05-05 スクロール位置をデバウンス500msで保存
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const onScroll = () => {
+      if (!uiSaveEnabledRef.current) return;
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        try {
+          const raw = localStorage.getItem(UI_STATE_KEY);
+          const base = raw ? JSON.parse(raw) : {};
+          base.scrollY = window.scrollY;
+          base.savedAt = Date.now();
+          localStorage.setItem(UI_STATE_KEY, JSON.stringify(base));
+        } catch {}
+      }, 500);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
+  // 2026-05-05 pagehide / visibilitychange:hidden で確実な最終保存
+  useEffect(() => {
+    const flush = () => {
+      if (!uiSaveEnabledRef.current) return;
+      try {
+        const raw = localStorage.getItem(UI_STATE_KEY);
+        const base = raw ? JSON.parse(raw) : {};
+        base.scrollY = window.scrollY;
+        base.savedAt = Date.now();
+        localStorage.setItem(UI_STATE_KEY, JSON.stringify(base));
+      } catch {}
+    };
+    const onVis = () => { if (document.visibilityState === 'hidden') flush(); };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, []);
 
   // Filter events by visible sub-calendars
   const visibleEvents = useMemo(() => {
@@ -450,9 +616,18 @@ export default function HomePage() {
       {/* Header */}
       <header className="bg-neutral-900 border-b border-neutral-800 px-3 py-2 sticky top-0 z-20">
         <div className="flex items-center justify-center gap-1">
-          {/* 2026-04-25 「今日に戻る」ボタン */}
+          {/* 2026-04-25 「今日に戻る」ボタン (2026-05-05 押下時UI状態クリア) */}
           <button
-            onClick={() => setCurrentMonth(new Date())}
+            onClick={() => {
+              setCurrentMonth(new Date());
+              setDetailOpen(false);
+              setDetailEvent(null);
+              setDayEventsOpen(false);
+              setDayEventsDate(null);
+              setTopView('calendar');
+              try { window.scrollTo(0, 0); } catch {}
+              clearUiState();
+            }}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xl active:scale-95 transition shadow-sm"
             aria-label="今日に戻る"
             title="今日の月に戻る"
