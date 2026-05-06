@@ -453,14 +453,27 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
     let last24h = 0;
     let awaitingPay = 0;
     let overdueCount = 0;
+    let totalAmount = 0; // 税込合計 (キャンセル系除外)
+    let paidCount = 0;
+    let paidAmount = 0;
+    let awaitingAmount = 0;
     const day24 = 24 * 60 * 60 * 1000;
     for (const r of filteredRows) {
+      const st = (r.status || '').trim();
+      const isCancelled = CANCELLED_STATUSES.has(st);
+      const total = extractTotal(r.totals);
+      if (!isCancelled) totalAmount += total;
       const kind = classifyRow(r, now);
       if (kind === 'stalled') stalled += 1;
       const recv = r.received_at ? Date.parse(r.received_at) : NaN;
       if (!Number.isNaN(recv) && now - recv <= day24) last24h += 1;
+      if (r.payment_confirmed_at && !isCancelled) {
+        paidCount += 1;
+        paidAmount += total;
+      }
       if (isAwaitingPayment(r)) {
         awaitingPay += 1;
+        awaitingAmount += total;
         const qms = r.quoted_at ? Date.parse(r.quoted_at) : NaN;
         if (!Number.isNaN(qms) && now - qms >= PAYMENT_DEADLINE_MS) overdueCount += 1;
       }
@@ -472,6 +485,10 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
       rawTotal: rows.length,
       awaitingPay,
       overdueCount,
+      totalAmount,
+      paidCount,
+      paidAmount,
+      awaitingAmount,
     };
   }, [filteredRows, rows.length, nowMs]);
 
@@ -888,6 +905,72 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
               onOrderChange={setSort3Order}
             />
           </div>
+        </div>
+      </div>
+
+      {/* 選択範囲集計バー (健太郎LW指示 2026-05-06) */}
+      <div className="bg-black border border-blue-700 rounded-lg p-3 mb-3 shadow-sm">
+        <div className="text-xs text-slate-300 font-semibold mb-2">
+          📊 選択範囲集計 {filterActive ? '(フィルタ適用中)' : '(全件)'}
+        </div>
+        <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs items-center">
+          {/* 集-1 対象件数 */}
+          <span className="text-slate-300">
+            対象件数:{' '}
+            <span className="text-blue-200 font-semibold">{summary.total}件</span>
+            <span className="text-slate-400"> / {summary.rawTotal}件中</span>
+          </span>
+          {/* 集-2 税込合計 (キャンセル除外) */}
+          <span className="text-slate-300">
+            税込合計:{' '}
+            <span className="text-blue-200 font-semibold">
+              ¥{summary.totalAmount.toLocaleString()}
+            </span>
+            <span className="text-slate-400"> (キャンセル除外)</span>
+          </span>
+          {/* 集-4 入金確認済 */}
+          <span className="text-slate-300">
+            入金確認済:{' '}
+            <span className="text-blue-200 font-semibold">{summary.paidCount}件</span>{' '}
+            <span className="text-blue-200 font-semibold">
+              ¥{summary.paidAmount.toLocaleString()}
+            </span>
+          </span>
+          {/* 集-5 入金待ち */}
+          <span className="text-slate-300">
+            入金待ち:{' '}
+            <span className="text-blue-200 font-semibold">{summary.awaitingPay}件</span>{' '}
+            <span className="text-blue-200 font-semibold">
+              ¥{summary.awaitingAmount.toLocaleString()}
+            </span>
+          </span>
+        </div>
+        {/* 集-6 警告系 (直近24h / 10分停滞 / 5営業日超過) */}
+        <div className="mt-2 pt-2 border-t border-blue-900 flex flex-wrap gap-x-5 gap-y-1 text-xs items-center">
+          <span className="text-slate-300">
+            直近24h:{' '}
+            <span className="text-blue-200 font-semibold">{summary.last24h}件</span>
+          </span>
+          <span className="text-slate-300">
+            10分停滞:{' '}
+            <span
+              className={`font-semibold ${
+                summary.stalled > 0 ? 'text-rose-300' : 'text-blue-200'
+              }`}
+            >
+              {summary.stalled}件
+            </span>
+          </span>
+          <span className="text-slate-300">
+            入金待ち5営業日超過:{' '}
+            <span
+              className={`font-semibold ${
+                summary.overdueCount > 0 ? 'text-orange-300' : 'text-blue-200'
+              }`}
+            >
+              {summary.overdueCount}件
+            </span>
+          </span>
         </div>
       </div>
 
