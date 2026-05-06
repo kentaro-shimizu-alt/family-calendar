@@ -224,6 +224,30 @@ export default function ShopOrdersPage() {
     return map;
   }, [rows]);
 
+  // 入金状況サマリ (2026-05-06 Phase3 健太郎LW追加要件「入金分の欄も必要」)
+  // - 入金確認済: payment_confirmed_at != null
+  // - 入金待ち  : quoted_at != null && payment_confirmed_at == null
+  // 集計はキャンセル/declined を除外 (売上計上対象に揃える)
+  const paymentAgg = useMemo(() => {
+    let confirmedCount = 0;
+    let confirmedTotal = 0;
+    let waitingCount = 0;
+    let waitingTotal = 0;
+    for (const r of rows) {
+      const st = (r.status || '').trim();
+      if (SALES_EXCLUDED_STATUSES.has(st)) continue;
+      const total = extractTotal(r.totals);
+      if (r.payment_confirmed_at) {
+        confirmedCount += 1;
+        confirmedTotal += total;
+      } else if (r.quoted_at) {
+        waitingCount += 1;
+        waitingTotal += total;
+      }
+    }
+    return { confirmedCount, confirmedTotal, waitingCount, waitingTotal };
+  }, [rows]);
+
   return (
     <main className="min-h-screen flex flex-col bg-slate-50">
       {/* ヘッダ */}
@@ -383,6 +407,55 @@ export default function ShopOrdersPage() {
               ※ 直近{AGG_LIMIT}件範囲の現ステータス分布
             </p>
           </div>
+        </div>
+
+        {/* 💰 入金状況サマリ (2026-05-06 Phase3 健太郎LW「入金分の欄も必要」) */}
+        <div className="mt-3 bg-white border border-slate-300 rounded-lg shadow-sm p-3">
+          <div className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+            <span>💰</span>
+            <span>入金状況 (税込・キャンセル除外)</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* 入金確認済 */}
+            <div className="border border-emerald-300 bg-emerald-50 rounded p-2">
+              <div className="text-[10px] text-emerald-900 font-semibold flex items-center gap-1">
+                <span>✓</span>
+                <span>入金確認済</span>
+              </div>
+              <div className="flex items-baseline justify-between mt-1">
+                <div className="text-[11px] text-emerald-900">
+                  <span className="font-semibold tabular-nums">
+                    {paymentAgg.confirmedCount}
+                  </span>{' '}
+                  件
+                </div>
+                <div className="text-emerald-900 font-bold tabular-nums">
+                  ¥{paymentAgg.confirmedTotal.toLocaleString()}
+                </div>
+              </div>
+            </div>
+            {/* 入金待ち */}
+            <div className="border border-orange-300 bg-orange-50 rounded p-2">
+              <div className="text-[10px] text-orange-900 font-semibold flex items-center gap-1">
+                <span>⏳</span>
+                <span>入金待ち (見積送付済・未入金)</span>
+              </div>
+              <div className="flex items-baseline justify-between mt-1">
+                <div className="text-[11px] text-orange-900">
+                  <span className="font-semibold tabular-nums">
+                    {paymentAgg.waitingCount}
+                  </span>{' '}
+                  件
+                </div>
+                <div className="text-orange-900 font-bold tabular-nums">
+                  ¥{paymentAgg.waitingTotal.toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
+            ※ 直近{AGG_LIMIT}件範囲・確認済=payment_confirmed_at有・待ち=quoted_at有かつpayment_confirmed_at無
+          </p>
         </div>
       </section>
 

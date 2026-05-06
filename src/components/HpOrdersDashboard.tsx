@@ -172,6 +172,17 @@ function formatReceivedAt(s: string | null): string {
   return `${mm}/${dd} ${hh}:${mi}`;
 }
 
+// 2026-05-06 Phase3: 入金日 YYYY-MM-DD のみ
+function formatYmdOnly(s: string | null): string {
+  if (!s) return '-';
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return '-';
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 function statusLabel(s: string | null): string {
   if (!s) return '-';
   return STATUS_LABEL[s] || s;
@@ -358,6 +369,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
               <th className="px-2 py-2 text-left">商品</th>
               <th className="px-2 py-2 text-right">税込</th>
               <th className="px-2 py-2 text-left">ステータス</th>
+              <th className="px-2 py-2 text-left">入金状態</th>
               <th className="px-2 py-2 text-left">経過時間</th>
               <th className="px-2 py-2 text-center">詳細</th>
             </tr>
@@ -365,7 +377,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
           <tbody>
             {rows.length === 0 && !loading && (
               <tr>
-                <td colSpan={9} className="text-center text-xs text-slate-500 py-6">
+                <td colSpan={10} className="text-center text-xs text-slate-500 py-6">
                   直近の注文はありません
                 </td>
               </tr>
@@ -427,6 +439,9 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                   </td>
                   <td className="px-2 py-2 text-xs whitespace-nowrap">
                     <StatusPill status={r.status} />
+                  </td>
+                  <td className="px-2 py-2 text-xs whitespace-nowrap">
+                    <PaymentBadge paidAt={r.payment_confirmed_at} />
                   </td>
                   <td className="px-2 py-2 text-xs whitespace-nowrap">
                     {elapsedMs >= 0 ? formatElapsed(elapsedMs) : '-'}
@@ -524,6 +539,10 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                   {total > 0 ? `¥${total.toLocaleString()}` : '-'}
                 </span>
               </div>
+              {/* 2026-05-06 Phase3: 入金状態バッジ (健太郎LW「入金分の欄も必要」) */}
+              <div className="mt-2 flex items-center justify-end">
+                <PaymentBadge paidAt={r.payment_confirmed_at} />
+              </div>
             </div>
           );
         })}
@@ -549,6 +568,28 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
 }
 
 // ===== サブコンポーネント =====
+
+/**
+ * PaymentBadge — 入金状態バッジ (2026-05-06 Phase3 健太郎LW追加要件)
+ *  - paidAt == null → 「未入金」(灰)
+ *  - paidAt != null → 「入金済 YYYY-MM-DD」(緑)
+ *  WCAG AA以上 4.5:1+ の bg/text ペア
+ */
+function PaymentBadge({ paidAt }: { paidAt: string | null }) {
+  if (!paidAt) {
+    return (
+      <span className="inline-block text-[10px] px-2 py-0.5 rounded-full border bg-gray-100 text-gray-700 border-gray-300 font-semibold whitespace-nowrap">
+        未入金
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border bg-emerald-200 text-emerald-900 border-emerald-400 font-semibold whitespace-nowrap">
+      <span>入金済</span>
+      <span className="tabular-nums">{formatYmdOnly(paidAt)}</span>
+    </span>
+  );
+}
 
 /**
  * StatusPill — ステータス別 統計学的視認性ペア (WCAG AA 4.5:1+)

@@ -198,6 +198,16 @@ export default function HomePage() {
       try {
         if (s.topView === 'sales-list' || s.topView === 'calendar') {
           setTopView(s.topView);
+          // 2026-05-06 Phase3: 売上一覧復元時も pushState で履歴登録 (戻るボタン対応)
+          if (s.topView === 'sales-list') {
+            try {
+              window.history.pushState(
+                { topView: 'sales-list', restoredFrom: 'localStorage', ts: Date.now() },
+                '',
+                window.location.pathname + '#sales-list'
+              );
+            } catch {}
+          }
         }
         if (typeof s.currentMonth === 'string' && /^\d{4}-\d{2}$/.test(s.currentMonth)) {
           const [y, m] = s.currentMonth.split('-').map(Number);
@@ -427,6 +437,52 @@ export default function HomePage() {
       localStorage.setItem(UI_STATE_KEY, JSON.stringify(payload));
     } catch {}
   }, [topView, currentMonth, detailOpen, detailEvent, dayEventsOpen, dayEventsDate]);
+
+  // 2026-05-06 Phase3 健太郎LW追加要件「売上集計のページは戻るボタンが効かない」
+  // 売上一覧タブ表示時にブラウザ戻るボタンでカレンダーに戻れるよう popstate 連動
+  // - 「📊 売上一覧を表示」ボタン押下 → setTopView('sales-list') + pushState
+  // - ブラウザ戻る/「カレンダーに戻る」 → popstate受信 → setTopView('calendar')
+  // 既存の bfcache pushState (event-detail-restored / day-events-restored) と区別するため
+  // state.topView='sales-list' を識別キーに使う
+  useEffect(() => {
+    function onPopState(ev: PopStateEvent) {
+      // sales-list 表示中に戻るボタン押下 → state.topViewが無い/null なら calendar に戻す
+      const st = ev.state as { topView?: string } | null;
+      if (!st || st.topView !== 'sales-list') {
+        // sales-list 表示中なら calendar へ
+        setTopView((prev) => (prev === 'sales-list' ? 'calendar' : prev));
+      }
+    }
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // 売上一覧タブへ切替: pushState で履歴登録 (戻るボタン検知用)
+  function openSalesList() {
+    try {
+      window.history.pushState(
+        { topView: 'sales-list', ts: Date.now() },
+        '',
+        window.location.pathname + '#sales-list'
+      );
+    } catch {}
+    setTopView('sales-list');
+  }
+
+  // 売上一覧タブから戻る: history.back() で popstate を発火させ統一フロー
+  function closeSalesList() {
+    try {
+      // 現在のhistory entryが topView='sales-list' なら back で戻る
+      // (pushState入りの状態で設定されているはず)
+      const st = window.history.state as { topView?: string } | null;
+      if (st && st.topView === 'sales-list') {
+        window.history.back();
+        return;
+      }
+    } catch {}
+    // fallback: 直接 state 切替
+    setTopView('calendar');
+  }
 
   // 2026-05-05 スクロール位置をデバウンス500msで保存
   useEffect(() => {
@@ -1031,7 +1087,7 @@ export default function HomePage() {
             {/* 2026-05-02 売上一覧ボタン カレンダー最下部配置 (健太郎LW id=1687) */}
             <div className="px-4 py-8 mt-8 border-t border-slate-200 space-y-3">
               <button
-                onClick={() => setTopView('sales-list')}
+                onClick={openSalesList}
                 className="w-full max-w-md mx-auto block py-6 bg-blue-100 hover:bg-blue-200 active:bg-blue-300 border-2 border-blue-400 rounded-2xl text-blue-900 text-lg font-semibold transition flex items-center justify-center gap-3 min-h-16"
                 aria-label="売上一覧を表示"
               >
@@ -1061,7 +1117,7 @@ export default function HomePage() {
             {/* 2026-05-02 SalesListTab表示時の「カレンダーに戻る」ヘッダー */}
             <div className="px-4 py-3 bg-neutral-900 border-b border-neutral-800 sticky top-0 z-10 flex items-center justify-between">
               <button
-                onClick={() => setTopView('calendar')}
+                onClick={closeSalesList}
                 className="flex items-center gap-2 text-blue-300 hover:text-blue-200 text-sm font-semibold px-3 py-2 rounded-lg hover:bg-neutral-800 active:scale-95 transition"
                 aria-label="カレンダーに戻る"
               >
