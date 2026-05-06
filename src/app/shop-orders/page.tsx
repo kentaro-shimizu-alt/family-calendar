@@ -29,6 +29,7 @@ interface OnlineOrderRow {
   status: string | null;
   received_at: string | null;
   quoted_at: string | null;
+  payment_notified_at: string | null;
   payment_confirmed_at: string | null;
   fax_sent_at: string | null;
   shipped_at: string | null;
@@ -40,6 +41,8 @@ interface OnlineOrderRow {
   tel: string | null;
   zip: string | null;
   address: string | null;
+  payment_amount_confirmed: number | null;
+  payment_payer_name: string | null;
 }
 
 interface Totals {
@@ -55,57 +58,57 @@ const AGG_LIMIT = 200;
 const AGG_POLL_MS = 60_000; // 集計は60秒polling (詳細は30秒)
 
 // 全ステータス (集計表示用に固定順)
-// 2026-05-06 Phase4: dark variant 追加 (ライトモード現状維持)
+// 2026-05-06 Phase5: dark = 黒地+色枠線
 const STATUS_ORDER: { key: string; label: string; cls: string }[] = [
   {
     key: 'received',
     label: '受信',
-    cls: 'bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-900/40 dark:text-blue-100 dark:border-blue-700',
+    cls: 'bg-blue-100 text-blue-900 border-blue-300 dark:bg-black dark:text-blue-200 dark:border-blue-500',
   },
   {
     key: 'inquired',
     label: '在庫確認中',
-    cls: 'bg-orange-100 text-orange-900 border-orange-300 dark:bg-orange-900/40 dark:text-orange-100 dark:border-orange-700',
+    cls: 'bg-orange-100 text-orange-900 border-orange-300 dark:bg-black dark:text-orange-200 dark:border-orange-500',
   },
   {
     key: 'quoted',
     label: '見積送付済',
-    cls: 'bg-cyan-100 text-cyan-900 border-cyan-300 dark:bg-cyan-900/40 dark:text-cyan-100 dark:border-cyan-700',
+    cls: 'bg-cyan-100 text-cyan-900 border-cyan-300 dark:bg-black dark:text-cyan-200 dark:border-cyan-500',
   },
   {
     key: 'payment_notified',
     label: '入金通知',
-    cls: 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900/40 dark:text-purple-100 dark:border-purple-700',
+    cls: 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-black dark:text-purple-200 dark:border-purple-500',
   },
   {
     key: 'payment_confirmed',
     label: '入金確認済',
-    cls: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-100 dark:border-emerald-700',
+    cls: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-black dark:text-emerald-200 dark:border-emerald-500',
   },
   {
     key: 'fax_sent',
     label: '発注FAX送信済',
-    cls: 'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-900/40 dark:text-teal-100 dark:border-teal-700',
+    cls: 'bg-teal-100 text-teal-900 border-teal-300 dark:bg-black dark:text-teal-200 dark:border-teal-500',
   },
   {
     key: 'shipped',
     label: '発送済',
-    cls: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-100 dark:border-emerald-700',
+    cls: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-black dark:text-emerald-200 dark:border-emerald-500',
   },
   {
     key: 'completed',
     label: '完了',
-    cls: 'bg-green-100 text-green-900 border-green-300 dark:bg-green-900/40 dark:text-green-100 dark:border-green-700',
+    cls: 'bg-green-100 text-green-900 border-green-300 dark:bg-black dark:text-green-200 dark:border-green-500',
   },
   {
     key: 'cancelled',
     label: 'キャンセル',
-    cls: 'bg-gray-200 text-gray-700 border-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600',
+    cls: 'bg-gray-200 text-gray-700 border-gray-400 dark:bg-black dark:text-gray-300 dark:border-gray-500',
   },
   {
     key: 'declined',
     label: '在庫NG',
-    cls: 'bg-red-100 text-red-900 border-red-300 dark:bg-red-900/40 dark:text-red-100 dark:border-red-700',
+    cls: 'bg-red-100 text-red-900 border-red-300 dark:bg-black dark:text-red-200 dark:border-red-500',
   },
 ];
 
@@ -295,7 +298,11 @@ export default function ShopOrdersPage() {
   }, [rows]);
 
   return (
-    <main className={`min-h-screen flex flex-col bg-slate-50 dark:bg-black${theme === 'dark' ? ' dark' : ''}`}>
+    <main
+      className={`min-h-screen flex flex-col bg-slate-50 dark:bg-black${
+        theme === 'dark' ? ' dark' : ''
+      }`}
+    >
       {/* ヘッダ */}
       <header className="bg-neutral-900 border-b border-neutral-800 dark:border-neutral-800 px-3 py-3 sticky top-0 z-20">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
@@ -340,20 +347,20 @@ export default function ShopOrdersPage() {
         </div>
 
         {error && (
-          <div className="text-xs text-red-900 bg-red-100 border border-red-300 dark:bg-red-900/40 dark:text-red-100 dark:border-red-700 rounded p-2 mb-3 font-semibold">
+          <div className="text-xs text-red-900 bg-red-100 border border-red-300 dark:bg-black dark:text-red-200 dark:border-red-500 rounded p-2 mb-3 font-semibold">
             集計取得エラー: {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* 月別集計 */}
-          <div className="bg-white border border-slate-300 dark:bg-gray-900 dark:border-gray-700 rounded-lg shadow-sm p-3">
+          <div className="bg-white border border-slate-300 dark:bg-black dark:border-cyan-700 rounded-lg shadow-sm p-3">
             <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
               <span>📅</span>
               <span>月別集計 (税込・キャンセル除外)</span>
             </div>
             <div className="space-y-2">
-              <div className="border border-blue-300 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-700 rounded p-2">
+              <div className="border border-blue-300 bg-blue-50 dark:bg-black dark:border-blue-500 rounded p-2">
                 <div className="text-[10px] text-blue-900 dark:text-blue-200 font-semibold">
                   {monthlyAgg.current.label} (当月)
                 </div>
@@ -367,7 +374,7 @@ export default function ShopOrdersPage() {
                   </div>
                 </div>
               </div>
-              <div className="border border-slate-300 bg-slate-50 dark:bg-gray-800 dark:border-gray-700 rounded p-2">
+              <div className="border border-slate-300 bg-slate-50 dark:bg-black dark:border-slate-500 rounded p-2">
                 <div className="text-[10px] text-slate-700 dark:text-slate-300 font-semibold">
                   {monthlyAgg.previous.label} (前月)
                 </div>
@@ -391,7 +398,7 @@ export default function ShopOrdersPage() {
           </div>
 
           {/* 取引先別集計 (直近30日 top5) */}
-          <div className="bg-white border border-slate-300 dark:bg-gray-900 dark:border-gray-700 rounded-lg shadow-sm p-3">
+          <div className="bg-white border border-slate-300 dark:bg-black dark:border-emerald-700 rounded-lg shadow-sm p-3">
             <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
               <span>🏢</span>
               <span>取引先別 (直近30日・件数Top5)</span>
@@ -403,7 +410,7 @@ export default function ShopOrdersPage() {
                 {customerAgg.map((c, i) => (
                   <div
                     key={c.name}
-                    className="flex items-center justify-between gap-2 border border-slate-200 bg-slate-50 dark:bg-gray-800 dark:border-gray-700 rounded px-2 py-1"
+                    className="flex items-center justify-between gap-2 border border-slate-200 bg-slate-50 dark:bg-black dark:border-emerald-700 rounded px-2 py-1"
                   >
                     <div className="min-w-0 flex-1 flex items-center gap-1">
                       <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold w-4 shrink-0">
@@ -428,7 +435,7 @@ export default function ShopOrdersPage() {
           </div>
 
           {/* ステータス別件数 */}
-          <div className="bg-white border border-slate-300 dark:bg-gray-900 dark:border-gray-700 rounded-lg shadow-sm p-3">
+          <div className="bg-white border border-slate-300 dark:bg-black dark:border-purple-700 rounded-lg shadow-sm p-3">
             <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
               <span>🚦</span>
               <span>ステータス別現件数</span>
@@ -456,14 +463,14 @@ export default function ShopOrdersPage() {
         </div>
 
         {/* 💰 入金状況サマリ (2026-05-06 Phase3 健太郎LW「入金分の欄も必要」) */}
-        <div className="mt-3 bg-white border border-slate-300 dark:bg-gray-900 dark:border-gray-700 rounded-lg shadow-sm p-3">
+        <div className="mt-3 bg-white border border-slate-300 dark:bg-black dark:border-orange-700 rounded-lg shadow-sm p-3">
           <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
             <span>💰</span>
             <span>入金状況 (税込・キャンセル除外)</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* 入金確認済 */}
-            <div className="border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 dark:border-emerald-700 rounded p-2">
+            <div className="border border-emerald-300 bg-emerald-50 dark:bg-black dark:border-emerald-500 rounded p-2">
               <div className="text-[10px] text-emerald-900 dark:text-emerald-200 font-semibold flex items-center gap-1">
                 <span>✓</span>
                 <span>入金確認済</span>
@@ -481,7 +488,7 @@ export default function ShopOrdersPage() {
               </div>
             </div>
             {/* 入金待ち */}
-            <div className="border border-orange-300 bg-orange-50 dark:bg-orange-900/30 dark:border-orange-700 rounded p-2">
+            <div className="border border-orange-300 bg-orange-50 dark:bg-black dark:border-orange-500 rounded p-2">
               <div className="text-[10px] text-orange-900 dark:text-orange-200 font-semibold flex items-center gap-1">
                 <span>⏳</span>
                 <span>入金待ち (見積送付済・未入金)</span>

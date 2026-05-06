@@ -172,49 +172,73 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   // 親(page.tsx)が復元時に既に pushState({modal:'event-detail-restored'}) を発火している
   // 場合、ここで pushState すると履歴に2件積まれて戻るボタン2回必要になる。
   // 復元由来なら pushState を skip して popstate ハンドラだけ登録する。
-  // 2026-05-06 Phase4 健太郎LW「pull-to-refreshしたら戻るボタンが効かずアプリが終了する」:
-  // pull-to-refresh = ブラウザの reload。reload 後は history が消費され戻るボタン押下で
-  // アプリ終了 (戻り先がない) となる。pageshow event で bfcache 復元 / reload 直後を検知し、
-  // モーダルが open のままなら history.pushState({event-detail-restored}) を再発火して
-  // 「戻れる状態」を維持する。これにより戻るボタンで popstate → onClose() が走り、
-  // モーダルだけが閉じる (アプリは終了しない)。
+  // 2026-05-06 Phase5 D-2再修正(健太郎LW「なおってないです」):
+  //  問題: pageshow listener を [open] 依存内で登録すると、open=false で復元される瞬間に
+  //  listener が居ない (mount→effect run の隙間で pageshow が発火する) ため、
+  //  pull-to-refresh 後の reload で開いたままのモーダルが「戻る無し→アプリ終了」になる。
+  //  対策: 三段安全網
+  //    (1) localStorage に open 状態を別キー保存 (parent UI_STATE_KEY と独立して効く)
+  //    (2) pageshow / popstate listener は mount時 [] 依存で常駐
+  //    (3) open=true→false 遷移時に history.back() で復元 pushState を消費
   const onCloseRef = useRef(onClose);
+  const openRef = useRef(open);
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
-  useEffect(() => {
-    if (!open) return;
-    const cur = (typeof window !== 'undefined' ? window.history.state : null) as { modal?: string } | null;
-    const restored = !!(cur && cur.modal === 'event-detail-restored');
-    if (!restored) {
-      history.pushState({ modal: 'event-detail' }, '');
-    }
-    const handler = () => onCloseRef.current();
-    window.addEventListener('popstate', handler);
+  useEffect(() => { openRef.current = open; }, [open]);
 
-    // pageshow: bfcache 復元 / pull-to-refresh 後の reload 直後に発火。
-    // open=true のままここに来た = モーダルが表示中なのに history が空、という状態の可能性。
-    // 現在の history.state が event-detail / event-detail-restored で無ければ
-    // 再 pushState して戻るボタン1回でモーダルを閉じれる状態を作る。
+  // (1) open 変化時の処理: pushState / localStorage 同期
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (open) {
+      const cur = (window.history.state || null) as { modal?: string } | null;
+      const restored = !!(cur && cur.modal === 'event-detail-restored');
+      if (!restored) {
+        try {
+          window.history.pushState({ modal: 'event-detail' }, '');
+        } catch {}
+      }
+      try { localStorage.setItem('event-detail-open', '1'); } catch {}
+    } else {
+      try { localStorage.removeItem('event-detail-open'); } catch {}
+    }
+  }, [open]);
+
+  // (2) popstate / pageshow listener は mount時に常駐 ([] 依存)
+  //   pageshow が listener 登録前に発火する race を防ぐ
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onPopState = () => {
+      if (openRef.current) onCloseRef.current();
+    };
     const onPageShow = (ev: PageTransitionEvent) => {
-      if (!open) return;
+      // pull-to-refresh / bfcache 復元時:
+      //  - localStorage に open フラグが残ってる && 現state が modal でない → pushState で復元
+      let wasOpen = false;
+      try {
+        wasOpen = localStorage.getItem('event-detail-open') === '1';
+      } catch {}
+      if (!openRef.current && !wasOpen) return;
       try {
         const st = (window.history.state || null) as { modal?: string } | null;
         const isModalState = !!(st && (st.modal === 'event-detail' || st.modal === 'event-detail-restored'));
         if (!isModalState) {
-          // 戻り先が無い状態 (pull-to-refresh 後の reload で history がリセットされた) →
-          // 「戻れる」エントリを1つ積む。
           window.history.pushState(
-            { modal: 'event-detail-restored', restoredFrom: ev.persisted ? 'bfcache' : 'reload', ts: Date.now() },
+            {
+              modal: 'event-detail-restored',
+              restoredFrom: ev.persisted ? 'bfcache' : 'reload',
+              ts: Date.now(),
+            },
             ''
           );
         }
       } catch {}
     };
+    window.addEventListener('popstate', onPopState);
     window.addEventListener('pageshow', onPageShow);
     return () => {
-      window.removeEventListener('popstate', handler);
+      window.removeEventListener('popstate', onPopState);
       window.removeEventListener('pageshow', onPageShow);
     };
-  }, [open]);
+  }, []);
 
   // Build chronological feed items
   const feedItems = useMemo<FeedItem[]>(() => {
