@@ -190,6 +190,10 @@ export default function ShopOrdersPage() {
   // ===== 集計計算 =====
 
   // 月別 (当月/前月)
+  // 2026-05-06 確-2 健太郎LW: 月別集計を「取引完了分のみ」に絞込
+  //  - 対象: payment_confirmed_at有 かつ shipped_at有 (両方済み=取引完了)
+  //  - 月基準: shipped_at (発送日)で月をグルーピング
+  //  - キャンセル除外は継続(cancelled/cancelled_test/declined)
   const monthlyAgg = useMemo(() => {
     const now = new Date();
     const cur = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -206,8 +210,11 @@ export default function ShopOrdersPage() {
     for (const r of rows) {
       const st = (r.status || '').trim();
       if (SALES_EXCLUDED_STATUSES.has(st)) continue;
-      if (!r.received_at) continue;
-      const d = new Date(r.received_at);
+      // 取引完了条件: 入金確認済 かつ 発送済
+      if (!r.payment_confirmed_at) continue;
+      if (!r.shipped_at) continue;
+      // 月基準: shipped_at (発送日)
+      const d = new Date(r.shipped_at);
       if (Number.isNaN(d.getTime())) continue;
       const key = ymKey(d);
       if (!buckets[key]) continue;
@@ -342,7 +349,7 @@ export default function ShopOrdersPage() {
           <div className="bg-black border border-cyan-700 rounded-lg shadow-sm p-3">
             <div className="text-xs font-semibold text-slate-200 mb-2 flex items-center gap-1">
               <span>📅</span>
-              <span>月別集計 (税込・キャンセル除外)</span>
+              <span>月別集計 (税込・取引完了分のみ・発送月基準)</span>
             </div>
             <div className="space-y-2">
               <div className="border border-blue-500 bg-black rounded p-2">
@@ -376,8 +383,8 @@ export default function ShopOrdersPage() {
                 </div>
               </div>
               <p className="text-[10px] text-slate-300 leading-relaxed">
-                ※ 直近{AGG_LIMIT}件範囲・received_at基準・status: cancelled/cancelled_test/declined
-                を除外
+                ※ 直近{AGG_LIMIT}
+                件範囲・shipped_at月基準・payment_confirmed_at+shipped_at両方済の取引完了分のみ・キャンセル除外
               </p>
             </div>
           </div>

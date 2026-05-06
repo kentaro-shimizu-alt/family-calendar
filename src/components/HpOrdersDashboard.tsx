@@ -687,63 +687,29 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
 
   return (
     <div className="px-3 py-4 max-w-6xl mx-auto">
-      {/* セクション見出し */}
-      <div className="mb-3 mt-2">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <span>HP販売 受注ダッシュボード</span>
-        </h2>
-        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
-          tecnest.biz/shop からの注文(online_orders 最新{limit}件)。30秒毎に自動更新・1秒経過時間更新。
-        </p>
-      </div>
-
-      {/* サマリヘッダ (黒地+色枠) */}
-      <div className="bg-white border border-slate-300 dark:bg-black dark:border-cyan-700 rounded-lg p-3 mb-3 shadow-sm">
-        <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-700 dark:text-slate-200 items-center">
-          <span>
-            表示:{' '}
-            <span className="font-semibold text-slate-900 dark:text-slate-100">{summary.total}</span>
-            {filterActive && (
-              <span className="text-slate-500 dark:text-slate-300">
-                {' '}
-                / {summary.rawTotal}
-              </span>
-            )}
-          </span>
-          <span>
-            直近24h:{' '}
-            <span className="font-semibold text-blue-800 dark:text-blue-300">{summary.last24h}</span>
-          </span>
-          <span>
-            10分停滞:{' '}
-            <span
-              className={`font-semibold ${
-                summary.stalled > 0 ? 'text-red-800 dark:text-red-300' : 'text-slate-600 dark:text-slate-300'
-              }`}
-            >
-              {summary.stalled}
-            </span>
-          </span>
-          <span>
-            入金待:{' '}
-            <span className="font-semibold text-orange-800 dark:text-orange-300">
-              {summary.awaitingPay}
-            </span>
-            {summary.overdueCount > 0 && (
-              <span className="ml-1 text-red-700 dark:text-red-300 font-bold">
-                (期限超過{summary.overdueCount})
-              </span>
-            )}
-          </span>
-          {lastFetchedAt && (
-            <span className="text-slate-500 dark:text-slate-300 ml-auto">
-              最終取得: {formatReceivedAt(lastFetchedAt.toISOString())}
-            </span>
-          )}
+      {/* セクション見出し
+          2026-05-06 確-1 健太郎LW: 旧サマリヘッダ4項目「表示/直近24h/10分停滞/入金待」を撤去
+          (新B-3警告ブロックと内容重複のため)。
+          「最終取得」と「更新中」は視認性のため見出し右側のバッジに移設。 */}
+      <div className="mb-3 mt-2 flex items-start justify-between gap-2 flex-wrap">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span>HP販売 受注ダッシュボード</span>
+          </h2>
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+            tecnest.biz/shop からの注文(online_orders 最新{limit}件)。30秒毎に自動更新・1秒経過時間更新。
+          </p>
+        </div>
+        <div className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2 shrink-0 pt-1">
           {loading && (
             <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-300">
               <span className="inline-block w-3 h-3 border-2 border-blue-700 dark:border-blue-300 border-t-transparent rounded-full animate-spin"></span>
               更新中
+            </span>
+          )}
+          {lastFetchedAt && (
+            <span className="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white/60 dark:bg-black">
+              最終取得: {formatReceivedAt(lastFetchedAt.toISOString())}
             </span>
           )}
         </div>
