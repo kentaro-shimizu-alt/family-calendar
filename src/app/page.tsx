@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { addMonths, format, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import Link from 'next/link';
 import MonthView from '@/components/MonthView';
 import EventModal from '@/components/EventModal';
 import EventDetailModal from '@/components/EventDetailModal';
@@ -13,7 +14,7 @@ import SettingsModal, { VirtualCalSettings, VIRTUAL_CAL_KEYS } from '@/component
 import DayEventsModal from '@/components/DayEventsModal';
 import TodaySummary from '@/components/TodaySummary';
 import ReminderRunner from '@/components/ReminderRunner';
-import HpOrdersDashboard from '@/components/HpOrdersDashboard';
+// 2026-05-06 Phase2: HpOrdersDashboard は別ページ /shop-orders に分離 (健太郎LW指示「重い」)
 import {
   CalendarEvent,
   DailyData,
@@ -1028,23 +1029,31 @@ export default function HomePage() {
               }}
             />
             {/* 2026-05-02 売上一覧ボタン カレンダー最下部配置 (健太郎LW id=1687) */}
-            <div className="px-4 py-8 mt-8 border-t border-slate-200">
+            <div className="px-4 py-8 mt-8 border-t border-slate-200 space-y-3">
               <button
                 onClick={() => setTopView('sales-list')}
-                className="w-full max-w-md mx-auto block py-6 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border-2 border-blue-200 rounded-2xl text-blue-700 text-lg font-semibold transition flex items-center justify-center gap-3 min-h-16"
+                className="w-full max-w-md mx-auto block py-6 bg-blue-100 hover:bg-blue-200 active:bg-blue-300 border-2 border-blue-400 rounded-2xl text-blue-900 text-lg font-semibold transition flex items-center justify-center gap-3 min-h-16"
                 aria-label="売上一覧を表示"
               >
                 <span className="text-3xl">📊</span>
                 <span>売上一覧を表示</span>
               </button>
-              <p className="text-center text-xs text-slate-400 mt-2">
+              <p className="text-center text-xs text-slate-500 -mt-1">
                 event_id付きの売上記録を期間/タイプ/ソートで確認
               </p>
-            </div>
-            {/* 2026-05-06 HP販売 受注ダッシュボード カレンダー最下部配置 (健太郎LW指示) */}
-            <div className="mt-8 pt-6 border-t-4 border-double border-gray-300">
-              <h2 className="text-lg font-bold mb-4">━━━ HP販売 受注ダッシュボード ━━━</h2>
-              <HpOrdersDashboard />
+
+              {/* 2026-05-06 Phase2: HP受注ダッシュボード別ページボタン (健太郎LW指示「カレンダー重い」分離) */}
+              <Link
+                href="/shop-orders"
+                className="w-full max-w-md mx-auto block py-6 bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 border-2 border-emerald-400 rounded-2xl text-emerald-900 text-lg font-semibold transition flex items-center justify-center gap-3 min-h-16"
+                aria-label="HP受注ダッシュボードを開く"
+              >
+                <span className="text-3xl">📦</span>
+                <span>HP受注ダッシュボード</span>
+              </Link>
+              <p className="text-center text-xs text-slate-500 -mt-1">
+                tecnest.biz/shop からの注文一覧 + 月別/取引先別/ステータス別集計
+              </p>
             </div>
           </>
         ) : (
