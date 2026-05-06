@@ -31,6 +31,7 @@ import {
   DELIVERY_NOTE_STATUS_LABEL,
   DeliveryNoteStatus,
 } from '@/lib/types';
+import HpOrdersDashboard from '@/components/HpOrdersDashboard';
 
 // ソートキー
 type SortKey = 'date' | 'customer' | 'amount' | 'type' | 'recorded' | 'delivery';
@@ -623,6 +624,14 @@ export default function SalesListTab() {
           ✓ IDをコピーしました
         </div>
       )}
+
+      {/* ━━━ HP販売 受注ダッシュボード ━━━ (2026-05-06 健太郎LW指示で追加) */}
+      <div className="mt-10 pt-6 border-t-4 border-double border-slate-300">
+        <div className="text-center text-xs text-slate-500 font-semibold mb-2 tracking-wider">
+          ━━━ HP販売 受注ダッシュボード ━━━
+        </div>
+        <HpOrdersDashboard />
+      </div>
     </div>
   );
 }
