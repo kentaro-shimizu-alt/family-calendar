@@ -447,6 +447,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
   }, [filteredRows, sort1Key, sort1Order, sort2Key, sort2Order, sort3Key, sort3Order, nowMs]);
 
   // サマリ計算 (フィルタ適用前後で見やすくフィルタ後ベース)
+  // 2026-05-06 健太郎LW指示: フェーズ別詳細明細に拡張(B-1/B-2/B-3)
   const summary = useMemo(() => {
     const now = nowMs;
     let stalled = 0;
@@ -458,6 +459,27 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
     let paidAmount = 0;
     let awaitingAmount = 0;
     const day24 = 24 * 60 * 60 * 1000;
+    // B-1 取引フェーズ別カウンタ (件数+金額)
+    const phaseCount: Record<string, number> = {
+      received: 0,
+      inquired: 0,
+      quoted: 0,
+      payment_notified: 0,
+      payment_confirmed: 0,
+      fax_sent: 0,
+      shipped: 0,
+      completed: 0,
+      cancelled_group: 0, // cancelled + cancelled_test + declined を合算
+    };
+    const phaseAmount: Record<string, number> = {
+      quoted: 0,
+      payment_notified: 0,
+      payment_confirmed: 0,
+      fax_sent: 0,
+      shipped: 0,
+      completed: 0,
+      cancelled_group: 0,
+    };
     for (const r of filteredRows) {
       const st = (r.status || '').trim();
       const isCancelled = CANCELLED_STATUSES.has(st);
@@ -477,7 +499,32 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
         const qms = r.quoted_at ? Date.parse(r.quoted_at) : NaN;
         if (!Number.isNaN(qms) && now - qms >= PAYMENT_DEADLINE_MS) overdueCount += 1;
       }
+      // フェーズ別集計
+      if (isCancelled) {
+        phaseCount.cancelled_group += 1;
+        phaseAmount.cancelled_group += total;
+      } else if (st in phaseCount) {
+        phaseCount[st] += 1;
+        if (st in phaseAmount) phaseAmount[st] += total;
+      }
     }
+    // B-2 集計サマリー
+    // 入金済み合計: payment_confirmed / fax_sent / shipped / completed の4フェーズ
+    const paidGroupCount =
+      phaseCount.payment_confirmed +
+      phaseCount.fax_sent +
+      phaseCount.shipped +
+      phaseCount.completed;
+    const paidGroupAmount =
+      phaseAmount.payment_confirmed +
+      phaseAmount.fax_sent +
+      phaseAmount.shipped +
+      phaseAmount.completed;
+    // 未入金合計: quoted / payment_notified の2フェーズ
+    const unpaidGroupCount = phaseCount.quoted + phaseCount.payment_notified;
+    const unpaidGroupAmount = phaseAmount.quoted + phaseAmount.payment_notified;
+    // 金額未確定: received / inquired の2フェーズ
+    const undefinedGroupCount = phaseCount.received + phaseCount.inquired;
     return {
       stalled,
       last24h,
@@ -489,6 +536,15 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
       paidCount,
       paidAmount,
       awaitingAmount,
+      // フェーズ別 (B-1)
+      phaseCount,
+      phaseAmount,
+      // 集計サマリー (B-2)
+      paidGroupCount,
+      paidGroupAmount,
+      unpaidGroupCount,
+      unpaidGroupAmount,
+      undefinedGroupCount,
     };
   }, [filteredRows, rows.length, nowMs]);
 
@@ -908,69 +964,145 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
         </div>
       </div>
 
-      {/* 選択範囲集計バー (健太郎LW指示 2026-05-06) */}
+      {/* 選択範囲明細 フェーズ別詳細表示 (健太郎LW指示 2026-05-06) */}
       <div className="bg-black border border-blue-700 rounded-lg p-3 mb-3 shadow-sm">
-        <div className="text-xs text-slate-300 font-semibold mb-2">
-          📊 選択範囲集計 {filterActive ? '(フィルタ適用中)' : '(全件)'}
-        </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs items-center">
-          {/* 集-1 対象件数 */}
-          <span className="text-slate-300">
-            対象件数:{' '}
-            <span className="text-blue-200 font-semibold">{summary.total}件</span>
-            <span className="text-slate-400"> / {summary.rawTotal}件中</span>
-          </span>
-          {/* 集-2 税込合計 (キャンセル除外) */}
-          <span className="text-slate-300">
-            税込合計:{' '}
-            <span className="text-blue-200 font-semibold">
-              ¥{summary.totalAmount.toLocaleString()}
-            </span>
-            <span className="text-slate-400"> (キャンセル除外)</span>
-          </span>
-          {/* 集-4 入金確認済 */}
-          <span className="text-slate-300">
-            入金確認済:{' '}
-            <span className="text-blue-200 font-semibold">{summary.paidCount}件</span>{' '}
-            <span className="text-blue-200 font-semibold">
-              ¥{summary.paidAmount.toLocaleString()}
-            </span>
-          </span>
-          {/* 集-5 入金待ち */}
-          <span className="text-slate-300">
-            入金待ち:{' '}
-            <span className="text-blue-200 font-semibold">{summary.awaitingPay}件</span>{' '}
-            <span className="text-blue-200 font-semibold">
-              ¥{summary.awaitingAmount.toLocaleString()}
-            </span>
+        <div className="text-blue-200 font-semibold mb-2 text-sm">
+          📊 選択範囲明細 {filterActive ? '(フィルタ適用中)' : '(全件)'}
+          <span className="text-slate-400 text-xs font-normal ml-2">
+            {summary.total}件 / {summary.rawTotal}件中
           </span>
         </div>
-        {/* 集-6 警告系 (直近24h / 10分停滞 / 5営業日超過) */}
-        <div className="mt-2 pt-2 border-t border-blue-900 flex flex-wrap gap-x-5 gap-y-1 text-xs items-center">
-          <span className="text-slate-300">
-            直近24h:{' '}
-            <span className="text-blue-200 font-semibold">{summary.last24h}件</span>
-          </span>
-          <span className="text-slate-300">
-            10分停滞:{' '}
-            <span
-              className={`font-semibold ${
-                summary.stalled > 0 ? 'text-rose-300' : 'text-blue-200'
-              }`}
-            >
-              {summary.stalled}件
+
+        {/* B-1 取引フェーズ別 (9行) */}
+        <div className="text-xs text-slate-400 mb-1">━━ 取引フェーズ別 ━━━━━━</div>
+        <div className="space-y-0.5 text-xs font-mono">
+          {/* 受信 (金額未確定) */}
+          <div className="flex justify-between text-slate-300">
+            <span>🆕 受信(未対応)</span>
+            <span>
+              {summary.phaseCount.received}件{' '}
+              <span className="text-slate-500">(金額未確定)</span>
             </span>
-          </span>
-          <span className="text-slate-300">
-            入金待ち5営業日超過:{' '}
-            <span
-              className={`font-semibold ${
-                summary.overdueCount > 0 ? 'text-orange-300' : 'text-blue-200'
-              }`}
-            >
-              {summary.overdueCount}件
+          </div>
+          {/* 在庫確認中 (金額未確定) */}
+          <div className="flex justify-between text-slate-300">
+            <span>🔍 在庫確認中</span>
+            <span>
+              {summary.phaseCount.inquired}件{' '}
+              <span className="text-slate-500">(金額未確定)</span>
             </span>
-          </span>
+          </div>
+          {/* 見積送付済 (未入金) */}
+          <div className="flex justify-between text-amber-300">
+            <span>📝 見積送付済(未入金)</span>
+            <span>
+              {summary.phaseCount.quoted}件 ¥
+              {summary.phaseAmount.quoted.toLocaleString()}
+            </span>
+          </div>
+          {/* 入金通知受信 (確認待ち・未入金扱い) */}
+          <div className="flex justify-between text-amber-300">
+            <span>💸 入金通知受信(確認待ち)</span>
+            <span>
+              {summary.phaseCount.payment_notified}件 ¥
+              {summary.phaseAmount.payment_notified.toLocaleString()}
+            </span>
+          </div>
+          {/* 入金確認済 (確定売上) */}
+          <div className="flex justify-between text-emerald-300">
+            <span>✅ 入金確認済(発送準備)</span>
+            <span>
+              {summary.phaseCount.payment_confirmed}件 ¥
+              {summary.phaseAmount.payment_confirmed.toLocaleString()}
+            </span>
+          </div>
+          {/* 発注FAX送信済 */}
+          <div className="flex justify-between text-emerald-300">
+            <span>📠 発注FAX送信済</span>
+            <span>
+              {summary.phaseCount.fax_sent}件 ¥
+              {summary.phaseAmount.fax_sent.toLocaleString()}
+            </span>
+          </div>
+          {/* 発送済 */}
+          <div className="flex justify-between text-emerald-300">
+            <span>📦 発送済</span>
+            <span>
+              {summary.phaseCount.shipped}件 ¥
+              {summary.phaseAmount.shipped.toLocaleString()}
+            </span>
+          </div>
+          {/* 完了 */}
+          <div className="flex justify-between text-emerald-300">
+            <span>🎉 完了</span>
+            <span>
+              {summary.phaseCount.completed}件 ¥
+              {summary.phaseAmount.completed.toLocaleString()}
+            </span>
+          </div>
+          {/* キャンセル/在庫NG (集計除外) */}
+          <div className="flex justify-between text-slate-500">
+            <span>❌ キャンセル/在庫NG</span>
+            <span>
+              {summary.phaseCount.cancelled_group}件 ¥
+              {summary.phaseAmount.cancelled_group.toLocaleString()}{' '}
+              <span className="text-slate-600">(集計除外)</span>
+            </span>
+          </div>
+        </div>
+
+        {/* B-2 集計サマリー (3行) */}
+        <div className="text-xs text-slate-400 mt-3 mb-1">━━ 集計サマリー ━━━━━━━━━━</div>
+        <div className="space-y-0.5 text-xs font-mono">
+          {/* 入金済み合計 */}
+          <div className="flex justify-between text-emerald-200 font-bold">
+            <span>💰 入金済み合計(確定売上見込)</span>
+            <span>
+              {summary.paidGroupCount}件 ¥{summary.paidGroupAmount.toLocaleString()}
+            </span>
+          </div>
+          {/* 未入金合計 */}
+          <div className="flex justify-between text-amber-200 font-bold">
+            <span>⏳ 未入金合計(見積〜入金通知)</span>
+            <span>
+              {summary.unpaidGroupCount}件 ¥{summary.unpaidGroupAmount.toLocaleString()}
+            </span>
+          </div>
+          {/* 金額未確定 */}
+          <div className="flex justify-between text-slate-300">
+            <span>❓ 金額未確定(見積前)</span>
+            <span>{summary.undefinedGroupCount}件</span>
+          </div>
+        </div>
+
+        {/* B-3 警告ブロック (3行) */}
+        <div className="text-xs text-slate-400 mt-3 mb-1">━━ 警告 ━━━━━━━━━━━━━━━</div>
+        <div className="space-y-0.5 text-xs font-mono">
+          {/* 入金待ち5営業日超過 */}
+          <div
+            className={`flex justify-between ${
+              summary.overdueCount > 0 ? 'text-rose-300' : 'text-slate-400'
+            }`}
+          >
+            <span>🚨 入金待ち5営業日超過</span>
+            <span>
+              {summary.overdueCount}件 ¥{summary.awaitingAmount.toLocaleString()}
+            </span>
+          </div>
+          {/* 10分停滞 */}
+          <div
+            className={`flex justify-between ${
+              summary.stalled > 0 ? 'text-orange-300' : 'text-slate-400'
+            }`}
+          >
+            <span>⚠️ 10分停滞(受信のまま)</span>
+            <span>{summary.stalled}件</span>
+          </div>
+          {/* 直近24h新規 */}
+          <div className="flex justify-between text-blue-300">
+            <span>🆕 直近24h新規</span>
+            <span>{summary.last24h}件</span>
+          </div>
         </div>
       </div>
 
