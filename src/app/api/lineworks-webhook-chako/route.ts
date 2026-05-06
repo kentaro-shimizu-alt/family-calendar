@@ -5,10 +5,17 @@ import { getSupabase } from '@/lib/supabase';
 export const runtime = 'nodejs';
 
 const BOT_SECRET = process.env.LINEWORKS_CHAKO_BOT_SECRET || '';
+const DEFAULT_CHAKO_CHANNEL_ID = '8f4f478f-6116-14f0-3e69-c2b06d6248f0';
+function validChannelId(value: string): string {
+  const v = value.trim();
+  if (!v || v.includes('•') || /^ctrl\s*\+\s*v$/i.test(v)) return '';
+  return v;
+}
+
 const CHAKO_CHANNEL_ID =
-  process.env.LINEWORKS_CHAKO_CHANNEL_ID ||
-  process.env.LINEWORKS_CHAKO_MAIN_CHANNEL_ID ||
-  '';
+  validChannelId(process.env.LINEWORKS_CHAKO_CHANNEL_ID || '') ||
+  validChannelId(process.env.LINEWORKS_CHAKO_MAIN_CHANNEL_ID || '') ||
+  DEFAULT_CHAKO_CHANNEL_ID;
 const TABLE_NAME = process.env.LINEWORKS_CHAKO_MESSAGES_TABLE || 'chako_messages';
 const ALLOWED_USER_IDS = (
   process.env.LINEWORKS_CHAKO_ALLOWED_USER_IDS ||
