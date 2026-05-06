@@ -61,7 +61,6 @@ export async function GET(req: NextRequest) {
           'delivered_at',
           'cart',
           'totals',
-          'suspicion_score',
           'note',
           'tel',
           'zip',
