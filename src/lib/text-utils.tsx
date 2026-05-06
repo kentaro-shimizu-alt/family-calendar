@@ -1,8 +1,8 @@
 import React from 'react';
 
-// URL検出: http:// または https:// で始まり、空白・全角空白・改行・<>"）)」】]の直前まで
+// URL検出: http:// / https:// / yjcarnavi:// で始まり、空白・全角空白・改行・<>"）)」】]の直前まで
 // 末尾の句読点 . , ; : ! ? ） ) 」 】 、 。 は含めない（自然文の区切り保全）
-const URL_REGEX = /(https?:\/\/[^\s<>"'（）()「」【】]+)/g;
+const URL_REGEX = /((?:https?|yjcarnavi):\/\/[^\s<>"'（）()「」【】]+)/g;
 const TRAIL_PUNCT = /[.,;:!?）)」】、。]+$/;
 
 /**
