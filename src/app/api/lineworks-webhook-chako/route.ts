@@ -10,6 +10,23 @@ const CHAKO_CHANNEL_ID =
   process.env.LINEWORKS_CHAKO_MAIN_CHANNEL_ID ||
   '';
 const TABLE_NAME = process.env.LINEWORKS_CHAKO_MESSAGES_TABLE || 'chako_messages';
+const ALLOWED_USER_IDS = (
+  process.env.LINEWORKS_CHAKO_ALLOWED_USER_IDS ||
+  process.env.CHAKO_ALLOWED_USER_IDS ||
+  process.env.LINEWORKS_KENTARO_USER_ID ||
+  ''
+)
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean);
+const IGNORED_USER_IDS = (
+  process.env.LINEWORKS_CHAKO_IGNORE_USER_IDS ||
+  process.env.LINEWORKS_CHAKO_BOT_USER_ID ||
+  ''
+)
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean);
 
 type LineWorksEvent = {
   type?: string;
@@ -91,6 +108,14 @@ export async function POST(req: NextRequest) {
       filtered: 'non-chako-channel',
       received_channel: ev.source?.channelId || 'no-channel',
     });
+  }
+
+  const userId = ev.source?.userId || '';
+  if (IGNORED_USER_IDS.includes(userId)) {
+    return NextResponse.json({ ok: true, filtered: 'ignored-user' });
+  }
+  if (ALLOWED_USER_IDS.length && !ALLOWED_USER_IDS.includes(userId)) {
+    return NextResponse.json({ ok: true, filtered: 'non-allowed-user' });
   }
 
   const supabase = getSupabase();
