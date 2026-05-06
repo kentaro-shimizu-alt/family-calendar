@@ -6,10 +6,20 @@ export const runtime = 'nodejs';
 
 const BOT_SECRET = process.env.LINEWORKS_CHAKO_BOT_SECRET || '';
 const DEFAULT_CHAKO_CHANNEL_ID = '8f4f478f-6116-14f0-3e69-c2b06d6248f0';
+const DEFAULT_KENTARO_USER_ID = 'f6c17282-9ba1-431b-11a3-045a7392a59c';
 function validChannelId(value: string): string {
   const v = value.trim();
   if (!v || v.includes('•') || /^ctrl\s*\+\s*v$/i.test(v)) return '';
   return v;
+}
+function validIdList(value: string): string[] {
+  return value
+    .split(',')
+    .map((v) => v.trim())
+    .filter((v) => v && !v.includes('•') && !/^ctrl\s*\+\s*v$/i.test(v));
+}
+function firstNonEmpty(...lists: string[][]): string[] {
+  return lists.find((list) => list.length > 0) || [];
 }
 
 const CHAKO_CHANNEL_ID =
@@ -17,23 +27,17 @@ const CHAKO_CHANNEL_ID =
   validChannelId(process.env.LINEWORKS_CHAKO_MAIN_CHANNEL_ID || '') ||
   DEFAULT_CHAKO_CHANNEL_ID;
 const TABLE_NAME = process.env.LINEWORKS_CHAKO_MESSAGES_TABLE || 'chako_messages';
-const ALLOWED_USER_IDS = (
-  process.env.LINEWORKS_CHAKO_ALLOWED_USER_IDS ||
-  process.env.CHAKO_ALLOWED_USER_IDS ||
-  process.env.LINEWORKS_KENTARO_USER_ID ||
-  ''
-)
-  .split(',')
-  .map((v) => v.trim())
-  .filter(Boolean);
-const IGNORED_USER_IDS = (
+const ALLOWED_USER_IDS = firstNonEmpty(
+  validIdList(process.env.LINEWORKS_CHAKO_ALLOWED_USER_IDS || ''),
+  validIdList(process.env.CHAKO_ALLOWED_USER_IDS || ''),
+  validIdList(process.env.LINEWORKS_KENTARO_USER_ID || ''),
+  [DEFAULT_KENTARO_USER_ID]
+);
+const IGNORED_USER_IDS = validIdList(
   process.env.LINEWORKS_CHAKO_IGNORE_USER_IDS ||
   process.env.LINEWORKS_CHAKO_BOT_USER_ID ||
   ''
-)
-  .split(',')
-  .map((v) => v.trim())
-  .filter(Boolean);
+);
 
 type LineWorksEvent = {
   type?: string;
