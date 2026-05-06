@@ -306,44 +306,44 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
     <div className="px-3 py-4 max-w-6xl mx-auto">
       {/* セクション見出し */}
       <div className="mb-3 mt-2">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <span>HP販売 受注ダッシュボード</span>
         </h2>
-        <p className="text-xs text-slate-600 mt-1">
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
           tecnest.biz/shop からの注文(online_orders 最新{limit}件)。30秒毎に自動更新。
         </p>
       </div>
 
       {/* サマリヘッダ */}
-      <div className="bg-white border border-slate-300 rounded-lg p-3 mb-3 shadow-sm">
-        <div className="flex flex-wrap gap-4 text-xs text-slate-700 items-center">
+      <div className="bg-white border border-slate-300 dark:bg-gray-900 dark:border-gray-700 rounded-lg p-3 mb-3 shadow-sm">
+        <div className="flex flex-wrap gap-4 text-xs text-slate-700 dark:text-slate-300 items-center">
           <span>
-            表示件数: <span className="font-semibold text-slate-900">{summary.total}</span>
+            表示件数: <span className="font-semibold text-slate-900 dark:text-slate-100">{summary.total}</span>
           </span>
           <span>
             直近24h受注:{' '}
-            <span className="font-semibold text-blue-800">{summary.last24h}</span> 件
+            <span className="font-semibold text-blue-800 dark:text-blue-300">{summary.last24h}</span> 件
           </span>
           <span>
             10分停滞:{' '}
             <span
               className={`font-semibold ${
-                summary.stalled > 0 ? 'text-red-800' : 'text-slate-600'
+                summary.stalled > 0 ? 'text-red-800 dark:text-red-300' : 'text-slate-600 dark:text-slate-400'
               }`}
             >
               {summary.stalled}
             </span>{' '}
             件
-            {summary.stalled > 0 && <span className="ml-1 text-red-700 font-bold">!</span>}
+            {summary.stalled > 0 && <span className="ml-1 text-red-700 dark:text-red-300 font-bold">!</span>}
           </span>
           {lastFetchedAt && (
-            <span className="text-slate-500 ml-auto">
+            <span className="text-slate-500 dark:text-slate-400 ml-auto">
               最終取得: {formatReceivedAt(lastFetchedAt.toISOString())}
             </span>
           )}
           {loading && (
-            <span className="inline-flex items-center gap-1 text-blue-700">
-              <span className="inline-block w-3 h-3 border-2 border-blue-700 border-t-transparent rounded-full animate-spin"></span>
+            <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-300">
+              <span className="inline-block w-3 h-3 border-2 border-blue-700 dark:border-blue-300 border-t-transparent rounded-full animate-spin"></span>
               更新中
             </span>
           )}
@@ -352,15 +352,15 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
 
       {/* エラー表示 */}
       {error && (
-        <div className="text-xs text-red-900 bg-red-100 border border-red-300 rounded p-2 my-2 font-semibold">
+        <div className="text-xs text-red-900 bg-red-100 border border-red-300 dark:bg-red-900/40 dark:text-red-100 dark:border-red-700 rounded p-2 my-2 font-semibold">
           エラー: {error}
         </div>
       )}
 
       {/* 一覧テーブル(PC) */}
-      <div className="hidden sm:block overflow-x-auto bg-white border border-slate-300 rounded-lg shadow-sm">
+      <div className="hidden sm:block overflow-x-auto bg-white border border-slate-300 dark:bg-gray-900 dark:border-gray-700 rounded-lg shadow-sm">
         <table className="min-w-full text-sm">
-          <thead className="bg-slate-100 text-slate-800 text-xs">
+          <thead className="bg-slate-100 text-slate-800 dark:bg-gray-800 dark:text-slate-200 text-xs">
             <tr>
               <th className="px-2 py-2 text-left">受信時刻</th>
               <th className="px-2 py-2 text-left">注文番号</th>
@@ -377,7 +377,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
           <tbody>
             {rows.length === 0 && !loading && (
               <tr>
-                <td colSpan={10} className="text-center text-xs text-slate-500 py-6">
+                <td colSpan={10} className="text-center text-xs text-slate-500 dark:text-slate-400 py-6">
                   直近の注文はありません
                 </td>
               </tr>
@@ -391,20 +391,21 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
               const cust = r.customer_name || r.company || '-';
               const isCancelled = kind === 'cancelled';
               // WCAG AA以上 (4.5:1+) の bg / text ペア
+              // 2026-05-06 Phase4: dark variant 追加 (ライトモード現状維持)
               const rowBg =
                 kind === 'completed'
-                  ? 'bg-green-50 text-green-900'
+                  ? 'bg-green-50 text-green-900 dark:bg-green-900/30 dark:text-green-200'
                   : kind === 'cancelled'
-                    ? 'bg-gray-100 text-gray-700'
+                    ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
                     : kind === 'stalled'
-                      ? 'bg-red-50 text-red-900 font-semibold'
+                      ? 'bg-red-50 text-red-900 font-semibold dark:bg-red-900/30 dark:text-red-200'
                       : kind === 'suspicious'
-                        ? 'bg-yellow-50 text-yellow-900 font-semibold'
-                        : 'bg-white text-slate-900';
+                        ? 'bg-yellow-50 text-yellow-900 font-semibold dark:bg-yellow-900/30 dark:text-yellow-200'
+                        : 'bg-white text-slate-900 dark:bg-gray-900 dark:text-slate-100';
               return (
                 <tr
                   key={r.order_id}
-                  className={`border-t border-slate-200 ${rowBg} ${
+                  className={`border-t border-slate-200 dark:border-gray-700 ${rowBg} ${
                     isCancelled ? 'line-through' : ''
                   }`}
                 >
@@ -413,7 +414,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                   </td>
                   <td className="px-2 py-2 font-mono text-[11px] whitespace-nowrap">
                     {kind === 'suspicious' && (
-                      <span title="suspicion>=50" className="text-yellow-900 font-bold mr-0.5">
+                      <span title="suspicion>=50" className="text-yellow-900 dark:text-yellow-200 font-bold mr-0.5">
                         !
                       </span>
                     )}
@@ -423,7 +424,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                     <button
                       type="button"
                       onClick={() => handleCopyId(r.order_id)}
-                      className="inline-flex items-center justify-center min-w-[36px] min-h-[36px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 rounded-lg text-base leading-none transition"
+                      className="inline-flex items-center justify-center min-w-[36px] min-h-[36px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-700 dark:hover:bg-blue-800/60 rounded-lg text-base leading-none transition"
                       title="注文番号をコピー"
                       aria-label="注文番号をコピー"
                     >
@@ -450,7 +451,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                     <button
                       type="button"
                       onClick={() => setDetailOpen(r)}
-                      className="inline-flex items-center justify-center min-w-[36px] min-h-[36px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 rounded-lg text-sm leading-none transition"
+                      className="inline-flex items-center justify-center min-w-[36px] min-h-[36px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-700 dark:hover:bg-blue-800/60 rounded-lg text-sm leading-none transition"
                       title="詳細を表示"
                       aria-label="詳細を表示"
                     >
@@ -467,7 +468,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
       {/* モバイルカード */}
       <div className="sm:hidden space-y-2">
         {rows.length === 0 && !loading && (
-          <div className="text-center text-xs text-slate-500 py-6 bg-white border border-slate-300 rounded-lg">
+          <div className="text-center text-xs text-slate-500 dark:text-slate-400 py-6 bg-white border border-slate-300 dark:bg-gray-900 dark:border-gray-700 rounded-lg">
             直近の注文はありません
           </div>
         )}
@@ -480,16 +481,17 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
           const cust = r.customer_name || r.company || '-';
           const isCancelled = kind === 'cancelled';
           // WCAG AA以上 (4.5:1+) の bg / text ペア
+          // 2026-05-06 Phase4: dark variant 追加 (ライトモード現状維持)
           const cardBg =
             kind === 'completed'
-              ? 'bg-green-50 border-green-400 text-green-900'
+              ? 'bg-green-50 border-green-400 text-green-900 dark:bg-green-900/30 dark:border-green-700 dark:text-green-200'
               : kind === 'cancelled'
-                ? 'bg-gray-100 border-gray-400 text-gray-700'
+                ? 'bg-gray-100 border-gray-400 text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400'
                 : kind === 'stalled'
-                  ? 'bg-red-50 border-red-400 text-red-900 font-semibold'
+                  ? 'bg-red-50 border-red-400 text-red-900 font-semibold dark:bg-red-900/30 dark:border-red-700 dark:text-red-200'
                   : kind === 'suspicious'
-                    ? 'bg-yellow-50 border-yellow-400 text-yellow-900 font-semibold'
-                    : 'bg-white border-slate-300 text-slate-900';
+                    ? 'bg-yellow-50 border-yellow-400 text-yellow-900 font-semibold dark:bg-yellow-900/30 dark:border-yellow-700 dark:text-yellow-200'
+                    : 'bg-white border-slate-300 text-slate-900 dark:bg-gray-900 dark:border-gray-700 dark:text-slate-100';
           return (
             <div
               key={r.order_id}
@@ -499,12 +501,12 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
             >
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] text-slate-600">
+                  <div className="text-[11px] text-slate-600 dark:text-slate-400">
                     {formatReceivedAt(r.received_at)}
                   </div>
                   <div className="font-mono text-[11px] break-all flex items-center gap-1">
                     {kind === 'suspicious' && (
-                      <span title="suspicion>=50" className="text-yellow-900 font-bold">
+                      <span title="suspicion>=50" className="text-yellow-900 dark:text-yellow-200 font-bold">
                         !
                       </span>
                     )}
@@ -516,7 +518,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                   <button
                     type="button"
                     onClick={() => handleCopyId(r.order_id)}
-                    className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 rounded-lg text-xl leading-none transition"
+                    className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-700 dark:hover:bg-blue-800/60 rounded-lg text-xl leading-none transition"
                     title="注文番号をコピー"
                     aria-label="注文番号をコピー"
                   >
@@ -525,14 +527,14 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                   <button
                     type="button"
                     onClick={() => setDetailOpen(r)}
-                    className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 rounded-lg text-xs leading-none transition"
+                    className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-700 dark:hover:bg-blue-800/60 rounded-lg text-xs leading-none transition"
                   >
                     詳細
                   </button>
                 </div>
               </div>
               <div className="text-xs mt-1 break-words">{cartLabel}</div>
-              <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-300 text-[11px]">
+              <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-300 dark:border-gray-700 text-[11px]">
                 <StatusPill status={r.status} />
                 <span>{elapsedMs >= 0 ? formatElapsed(elapsedMs) : '-'}</span>
                 <span className="font-semibold tabular-nums">
@@ -556,7 +558,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
       {/* コピー完了トースト */}
       {copyToast && (
         <div
-          className="fixed top-6 left-1/2 -translate-x-1/2 z-[90] bg-slate-900 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-lg pointer-events-none"
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-[90] bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-lg pointer-events-none"
           role="status"
           aria-live="polite"
         >
@@ -578,13 +580,13 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
 function PaymentBadge({ paidAt }: { paidAt: string | null }) {
   if (!paidAt) {
     return (
-      <span className="inline-block text-[10px] px-2 py-0.5 rounded-full border bg-gray-100 text-gray-700 border-gray-300 font-semibold whitespace-nowrap">
+      <span className="inline-block text-[10px] px-2 py-0.5 rounded-full border bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 font-semibold whitespace-nowrap">
         未入金
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border bg-emerald-200 text-emerald-900 border-emerald-400 font-semibold whitespace-nowrap">
+    <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border bg-emerald-200 text-emerald-900 border-emerald-400 dark:bg-emerald-800 dark:text-emerald-100 dark:border-emerald-600 font-semibold whitespace-nowrap">
       <span>入金済</span>
       <span className="tabular-nums">{formatYmdOnly(paidAt)}</span>
     </span>
@@ -598,19 +600,28 @@ function PaymentBadge({ paidAt }: { paidAt: string | null }) {
 function StatusPill({ status }: { status: string | null }) {
   const label = statusLabel(status);
   const st = (status || '').trim();
-  let cls = 'bg-slate-100 text-slate-800 border-slate-300';
-  if (COMPLETED_STATUSES.has(st)) cls = 'bg-green-100 text-green-900 border-green-300';
+  // 2026-05-06 Phase4: dark variant 追加 (ライトモード現状維持)
+  let cls = 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-gray-800 dark:text-slate-200 dark:border-gray-600';
+  if (COMPLETED_STATUSES.has(st))
+    cls = 'bg-green-100 text-green-900 border-green-300 dark:bg-green-900/40 dark:text-green-100 dark:border-green-700';
   else if (st === 'cancelled' || st === 'cancelled_test')
-    cls = 'bg-gray-200 text-gray-700 border-gray-400';
-  else if (st === 'declined') cls = 'bg-red-100 text-red-900 border-red-300';
-  else if (st === 'received') cls = 'bg-blue-100 text-blue-900 border-blue-300';
-  else if (st === 'inquired') cls = 'bg-orange-100 text-orange-900 border-orange-300';
-  else if (st === 'quoted') cls = 'bg-cyan-100 text-cyan-900 border-cyan-300';
-  else if (st === 'payment_notified') cls = 'bg-purple-100 text-purple-900 border-purple-300';
+    cls = 'bg-gray-200 text-gray-700 border-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600';
+  else if (st === 'declined')
+    cls = 'bg-red-100 text-red-900 border-red-300 dark:bg-red-900/40 dark:text-red-100 dark:border-red-700';
+  else if (st === 'received')
+    cls = 'bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-900/40 dark:text-blue-100 dark:border-blue-700';
+  else if (st === 'inquired')
+    cls = 'bg-orange-100 text-orange-900 border-orange-300 dark:bg-orange-900/40 dark:text-orange-100 dark:border-orange-700';
+  else if (st === 'quoted')
+    cls = 'bg-cyan-100 text-cyan-900 border-cyan-300 dark:bg-cyan-900/40 dark:text-cyan-100 dark:border-cyan-700';
+  else if (st === 'payment_notified')
+    cls = 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-900/40 dark:text-purple-100 dark:border-purple-700';
   else if (st === 'payment_confirmed')
-    cls = 'bg-emerald-100 text-emerald-900 border-emerald-300';
-  else if (st === 'fax_sent') cls = 'bg-teal-100 text-teal-900 border-teal-300';
-  else if (st === 'shipped') cls = 'bg-emerald-100 text-emerald-900 border-emerald-300';
+    cls = 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-100 dark:border-emerald-700';
+  else if (st === 'fax_sent')
+    cls = 'bg-teal-100 text-teal-900 border-teal-300 dark:bg-teal-900/40 dark:text-teal-100 dark:border-teal-700';
+  else if (st === 'shipped')
+    cls = 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-100 dark:border-emerald-700';
   return (
     <span
       className={`inline-block text-[10px] px-2 py-0.5 rounded-full border font-semibold ${cls}`}
@@ -650,16 +661,16 @@ function DetailModal({
       aria-modal="true"
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[85vh] flex flex-col"
+        className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full max-h-[85vh] flex flex-col"
         onClick={(ev) => ev.stopPropagation()}
       >
         {/* ヘッダ */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-          <div className="font-bold text-slate-900 text-sm">HP注文詳細</div>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-gray-700">
+          <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">HP注文詳細</div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] bg-slate-900 hover:bg-black text-white text-2xl leading-none font-bold rounded-lg"
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] bg-slate-900 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-2xl leading-none font-bold rounded-lg"
             aria-label="閉じる"
             title="閉じる"
           >
@@ -669,24 +680,24 @@ function DetailModal({
 
         {/* 本体 */}
         <div className="px-4 py-3 overflow-y-auto flex-1">
-          <div className="text-[11px] text-slate-600 mb-1 flex items-center gap-2 flex-wrap">
+          <div className="text-[11px] text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-2 flex-wrap">
             <span>{formatReceivedAt(row.received_at)}</span>
             <StatusPill status={row.status} />
             {(row.suspicion_score ?? 0) >= 50 && (
-              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full border bg-yellow-100 text-yellow-900 border-yellow-300 font-semibold">
+              <span className="inline-block text-[10px] px-2 py-0.5 rounded-full border bg-yellow-100 text-yellow-900 border-yellow-300 dark:bg-yellow-900/40 dark:text-yellow-100 dark:border-yellow-700 font-semibold">
                 ! suspicion {row.suspicion_score}
               </span>
             )}
           </div>
-          <div className="text-base font-semibold text-slate-900 mb-1 break-words">{cust}</div>
+          <div className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1 break-words">{cust}</div>
           <div className="flex items-center gap-2 mb-3">
-            <div className="text-[11px] text-slate-700 font-mono break-all flex-1">
+            <div className="text-[11px] text-slate-700 dark:text-slate-300 font-mono break-all flex-1">
               {row.order_id}
             </div>
             <button
               type="button"
               onClick={() => onCopyId(row.order_id)}
-              className="shrink-0 inline-flex items-center justify-center min-w-[36px] min-h-[36px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 rounded-lg text-base leading-none transition"
+              className="shrink-0 inline-flex items-center justify-center min-w-[36px] min-h-[36px] text-blue-700 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 border border-blue-300 dark:bg-blue-900/40 dark:text-blue-200 dark:border-blue-700 dark:hover:bg-blue-800/60 rounded-lg text-base leading-none transition"
               title="注文番号をコピー"
               aria-label="注文番号をコピー"
             >
@@ -695,28 +706,28 @@ function DetailModal({
           </div>
 
           {/* 連絡先 */}
-          <div className="text-xs text-slate-800 space-y-1 mb-3">
+          <div className="text-xs text-slate-800 dark:text-slate-200 space-y-1 mb-3">
             {row.email && (
               <div>
-                <span className="text-slate-600">Email: </span>
+                <span className="text-slate-600 dark:text-slate-400">Email: </span>
                 <span className="break-all">{row.email}</span>
               </div>
             )}
             {row.tel && (
               <div>
-                <span className="text-slate-600">TEL: </span>
+                <span className="text-slate-600 dark:text-slate-400">TEL: </span>
                 <span>{row.tel}</span>
               </div>
             )}
             {row.zip && (
               <div>
-                <span className="text-slate-600">〒: </span>
+                <span className="text-slate-600 dark:text-slate-400">〒: </span>
                 <span>{row.zip}</span>
               </div>
             )}
             {row.address && (
               <div>
-                <span className="text-slate-600">住所: </span>
+                <span className="text-slate-600 dark:text-slate-400">住所: </span>
                 <span className="break-words">{row.address}</span>
               </div>
             )}
@@ -724,13 +735,13 @@ function DetailModal({
 
           {/* カート明細 */}
           <div className="mb-3">
-            <div className="text-[10px] text-slate-600 mb-1">カート明細</div>
+            <div className="text-[10px] text-slate-600 dark:text-slate-400 mb-1">カート明細</div>
             {items.length === 0 ? (
-              <div className="text-xs text-slate-500 italic">(明細なし)</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400 italic">(明細なし)</div>
             ) : (
-              <div className="border border-slate-300 rounded">
+              <div className="border border-slate-300 dark:border-gray-700 rounded">
                 <table className="w-full text-xs">
-                  <thead className="bg-slate-100 text-slate-800">
+                  <thead className="bg-slate-100 text-slate-800 dark:bg-gray-800 dark:text-slate-200">
                     <tr>
                       <th className="px-2 py-1 text-left">品番</th>
                       <th className="px-2 py-1 text-right">数量</th>
@@ -740,20 +751,20 @@ function DetailModal({
                   </thead>
                   <tbody>
                     {items.map((it, idx) => (
-                      <tr key={idx} className="border-t border-slate-200">
-                        <td className="px-2 py-1 text-slate-900">{it.pn || it.name || '-'}</td>
-                        <td className="px-2 py-1 text-right tabular-nums text-slate-900">
+                      <tr key={idx} className="border-t border-slate-200 dark:border-gray-700">
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100">{it.pn || it.name || '-'}</td>
+                        <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
                           {it.meters ?? it.qty ?? '-'}
                           {(it.meters != null || it.qty != null) && (
-                            <span className="text-slate-500 text-[10px] ml-0.5">
+                            <span className="text-slate-500 dark:text-slate-400 text-[10px] ml-0.5">
                               {it.meters != null ? 'm' : ''}
                             </span>
                           )}
                         </td>
-                        <td className="px-2 py-1 text-right tabular-nums text-slate-900">
+                        <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
                           {it.unit_price != null ? `¥${it.unit_price.toLocaleString()}` : '-'}
                         </td>
-                        <td className="px-2 py-1 text-right tabular-nums text-slate-900">
+                        <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
                           {it.subtotal != null ? `¥${it.subtotal.toLocaleString()}` : '-'}
                         </td>
                       </tr>
@@ -765,17 +776,17 @@ function DetailModal({
           </div>
 
           {/* 合計 */}
-          <div className="bg-emerald-50 border border-emerald-300 rounded p-2 mb-3">
-            <div className="text-[10px] text-emerald-800">税込合計</div>
-            <div className="text-emerald-900 font-bold tabular-nums text-lg">
+          <div className="bg-emerald-50 border border-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-700 rounded p-2 mb-3">
+            <div className="text-[10px] text-emerald-800 dark:text-emerald-200">税込合計</div>
+            <div className="text-emerald-900 dark:text-emerald-100 font-bold tabular-nums text-lg">
               {total > 0 ? `¥${total.toLocaleString()}` : '-'}
             </div>
           </div>
 
           {/* タイムライン */}
           <div className="mb-3">
-            <div className="text-[10px] text-slate-600 mb-1">タイムスタンプ</div>
-            <div className="text-xs text-slate-800 grid grid-cols-2 gap-1">
+            <div className="text-[10px] text-slate-600 dark:text-slate-400 mb-1">タイムスタンプ</div>
+            <div className="text-xs text-slate-800 dark:text-slate-200 grid grid-cols-2 gap-1">
               <Stamp label="受信" v={row.received_at} />
               <Stamp label="見積送付" v={row.quoted_at} />
               <Stamp label="入金確認" v={row.payment_confirmed_at} />
@@ -788,8 +799,8 @@ function DetailModal({
           {/* 備考 */}
           {row.note && (
             <div className="mb-2">
-              <div className="text-[10px] text-slate-600 mb-0.5">備考(顧客入力)</div>
-              <pre className="text-xs text-slate-900 whitespace-pre-wrap break-words bg-slate-50 border border-slate-300 rounded p-2 font-sans">
+              <div className="text-[10px] text-slate-600 dark:text-slate-400 mb-0.5">備考(顧客入力)</div>
+              <pre className="text-xs text-slate-900 dark:text-slate-100 whitespace-pre-wrap break-words bg-slate-50 border border-slate-300 dark:bg-gray-800 dark:border-gray-700 rounded p-2 font-sans">
 {row.note}
               </pre>
             </div>
@@ -797,11 +808,11 @@ function DetailModal({
         </div>
 
         {/* フッタ */}
-        <div className="px-4 py-3 border-t border-slate-200 flex justify-end">
+        <div className="px-4 py-3 border-t border-slate-200 dark:border-gray-700 flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="min-h-[44px] px-5 rounded-lg bg-slate-900 hover:bg-black text-white text-sm font-bold"
+            className="min-h-[44px] px-5 rounded-lg bg-slate-900 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-bold"
           >
             × 閉じる
           </button>
@@ -814,8 +825,8 @@ function DetailModal({
 function Stamp({ label, v }: { label: string; v: string | null }) {
   return (
     <div className="flex items-center gap-1">
-      <span className="text-slate-600 text-[10px]">{label}:</span>
-      <span className="tabular-nums text-slate-900">{v ? formatReceivedAt(v) : '-'}</span>
+      <span className="text-slate-600 dark:text-slate-400 text-[10px]">{label}:</span>
+      <span className="tabular-nums text-slate-900 dark:text-slate-100">{v ? formatReceivedAt(v) : '-'}</span>
     </div>
   );
 }

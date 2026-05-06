@@ -172,18 +172,48 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   // 親(page.tsx)が復元時に既に pushState({modal:'event-detail-restored'}) を発火している
   // 場合、ここで pushState すると履歴に2件積まれて戻るボタン2回必要になる。
   // 復元由来なら pushState を skip して popstate ハンドラだけ登録する。
+  // 2026-05-06 Phase4 健太郎LW「pull-to-refreshしたら戻るボタンが効かずアプリが終了する」:
+  // pull-to-refresh = ブラウザの reload。reload 後は history が消費され戻るボタン押下で
+  // アプリ終了 (戻り先がない) となる。pageshow event で bfcache 復元 / reload 直後を検知し、
+  // モーダルが open のままなら history.pushState({event-detail-restored}) を再発火して
+  // 「戻れる状態」を維持する。これにより戻るボタンで popstate → onClose() が走り、
+  // モーダルだけが閉じる (アプリは終了しない)。
   const onCloseRef = useRef(onClose);
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open) return;
-    const cur = (typeof window !== 'undefined' ? window.history.state : null) as any;
+    const cur = (typeof window !== 'undefined' ? window.history.state : null) as { modal?: string } | null;
     const restored = !!(cur && cur.modal === 'event-detail-restored');
     if (!restored) {
       history.pushState({ modal: 'event-detail' }, '');
     }
     const handler = () => onCloseRef.current();
     window.addEventListener('popstate', handler);
-    return () => window.removeEventListener('popstate', handler);
+
+    // pageshow: bfcache 復元 / pull-to-refresh 後の reload 直後に発火。
+    // open=true のままここに来た = モーダルが表示中なのに history が空、という状態の可能性。
+    // 現在の history.state が event-detail / event-detail-restored で無ければ
+    // 再 pushState して戻るボタン1回でモーダルを閉じれる状態を作る。
+    const onPageShow = (ev: PageTransitionEvent) => {
+      if (!open) return;
+      try {
+        const st = (window.history.state || null) as { modal?: string } | null;
+        const isModalState = !!(st && (st.modal === 'event-detail' || st.modal === 'event-detail-restored'));
+        if (!isModalState) {
+          // 戻り先が無い状態 (pull-to-refresh 後の reload で history がリセットされた) →
+          // 「戻れる」エントリを1つ積む。
+          window.history.pushState(
+            { modal: 'event-detail-restored', restoredFrom: ev.persisted ? 'bfcache' : 'reload', ts: Date.now() },
+            ''
+          );
+        }
+      } catch {}
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('popstate', handler);
+      window.removeEventListener('pageshow', onPageShow);
+    };
   }, [open]);
 
   // Build chronological feed items

@@ -1,6 +1,10 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
+  // 2026-05-06 Phase4 健太郎LW: ダークモード対応
+  // page.tsx で <main className="... dark"> をトグルして適用するため、
+  // class 戦略 (media ではなく) を使う。.dark 配下の dark: prefix が有効になる。
+  darkMode: 'class',
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
