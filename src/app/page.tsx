@@ -13,6 +13,7 @@ import SettingsModal, { VirtualCalSettings, VIRTUAL_CAL_KEYS } from '@/component
 import DayEventsModal from '@/components/DayEventsModal';
 import TodaySummary from '@/components/TodaySummary';
 import ReminderRunner from '@/components/ReminderRunner';
+import HpOrdersDashboard from '@/components/HpOrdersDashboard';
 import {
   CalendarEvent,
   DailyData,
@@ -1039,6 +1040,11 @@ export default function HomePage() {
               <p className="text-center text-xs text-slate-400 mt-2">
                 event_id付きの売上記録を期間/タイプ/ソートで確認
               </p>
+            </div>
+            {/* 2026-05-06 HP販売 受注ダッシュボード カレンダー最下部配置 (健太郎LW指示) */}
+            <div className="mt-8 pt-6 border-t-4 border-double border-gray-300">
+              <h2 className="text-lg font-bold mb-4">━━━ HP販売 受注ダッシュボード ━━━</h2>
+              <HpOrdersDashboard />
             </div>
           </>
         ) : (
