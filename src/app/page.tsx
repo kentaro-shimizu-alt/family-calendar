@@ -373,25 +373,18 @@ export default function HomePage() {
   }, [loadAll]);
 
   // 2026-05-05 events取得完了後に detail / scroll を復元 (1回限り)
-  // 2026-05-05 健太郎LW 14:48 bfcache破棄時の戻るボタン修正:
-  // ページリロード直後は履歴が空 → 子モーダルがopen時にpushStateするが
-  // 戻るボタン1回目が無反応のケースがある。
-  // 親側で先に pushState({modal:'event-detail-restored'}) を1回発火し、
-  // 子モーダル側の useEffect は state.modal が '*-restored' なら skip して
-  // 二重pushStateを防ぐ。
+  // 2026-05-06 D-2 4回目修正: 子モーダル側を URL hash方式に書き換えたため
+  // 親側からの `event-detail-restored` pushState は撤去 (二重pushState/競合排除)。
+  // 子の useEffect が open=true 観測時に hash を pushState するため、
+  // 親は単純に setDetailEvent + setDetailOpen するだけで戻るボタン1回で閉じる。
   useEffect(() => {
     if (events.length === 0) return;
     const pendingId = uiPendingDetailIdRef.current;
     if (pendingId !== null && pendingId !== undefined) {
       const target = events.find((e) => e.id === pendingId);
       if (target) {
-        // ★ 復元由来の pushState (子モーダルの pushState は skip される)
-        try {
-          window.history.pushState(
-            { modal: 'event-detail-restored', restoredFrom: 'localStorage', ts: Date.now() },
-            ''
-          );
-        } catch {}
+        // 子モーダルの useEffect が open=true 検出時に
+        // hash (`#event/<id>`) を pushState する。親はsetState のみ。
         setDetailEvent(target);
         setDetailOpen(true);
       } else {

@@ -297,14 +297,14 @@ export default function ShopOrdersPage() {
     return { confirmedCount, confirmedTotal, waitingCount, waitingTotal };
   }, [rows]);
 
+  // 2026-05-06 修-3 健太郎LW「白背景嫌・薄文字を読める色に」:
+  // shop-ordersページはダーク固定運用とし、theme切替に関わらず常時ダーク背景。
+  // 既存 dark: プレフィックスを活かしつつ、bg-slate-50 を bg-black に換装し、
+  // 親<main>に `dark` クラスを常時付与。最終取得や集計サマリ等のメタ文字も text-slate-200/300 で読めるように引き上げ。
   return (
-    <main
-      className={`min-h-screen flex flex-col bg-slate-50 dark:bg-black${
-        theme === 'dark' ? ' dark' : ''
-      }`}
-    >
+    <main className="min-h-screen flex flex-col bg-black dark">
       {/* ヘッダ */}
-      <header className="bg-neutral-900 border-b border-neutral-800 dark:border-neutral-800 px-3 py-3 sticky top-0 z-20">
+      <header className="bg-neutral-900 border-b border-neutral-700 px-3 py-3 sticky top-0 z-20">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
           <Link
             href="/"
@@ -325,11 +325,11 @@ export default function ShopOrdersPage() {
       {/* 集計セクション */}
       <section className="px-3 py-4 max-w-6xl mx-auto w-full">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">集計サマリ</h2>
-          <div className="text-[11px] text-slate-600 dark:text-slate-400 flex items-center gap-2">
+          <h2 className="text-sm font-bold text-slate-100">集計サマリ</h2>
+          <div className="text-[11px] text-slate-200 flex items-center gap-2">
             {loading && (
-              <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-300">
-                <span className="inline-block w-3 h-3 border-2 border-blue-700 dark:border-blue-300 border-t-transparent rounded-full animate-spin"></span>
+              <span className="inline-flex items-center gap-1 text-blue-200">
+                <span className="inline-block w-3 h-3 border-2 border-blue-200 border-t-transparent rounded-full animate-spin"></span>
                 更新中
               </span>
             )}
@@ -347,50 +347,50 @@ export default function ShopOrdersPage() {
         </div>
 
         {error && (
-          <div className="text-xs text-red-900 bg-red-100 border border-red-300 dark:bg-black dark:text-red-200 dark:border-red-500 rounded p-2 mb-3 font-semibold">
+          <div className="text-xs bg-black text-red-200 border border-red-500 rounded p-2 mb-3 font-semibold">
             集計取得エラー: {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* 月別集計 */}
-          <div className="bg-white border border-slate-300 dark:bg-black dark:border-cyan-700 rounded-lg shadow-sm p-3">
-            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
+          <div className="bg-black border border-cyan-700 rounded-lg shadow-sm p-3">
+            <div className="text-xs font-semibold text-slate-200 mb-2 flex items-center gap-1">
               <span>📅</span>
               <span>月別集計 (税込・キャンセル除外)</span>
             </div>
             <div className="space-y-2">
-              <div className="border border-blue-300 bg-blue-50 dark:bg-black dark:border-blue-500 rounded p-2">
-                <div className="text-[10px] text-blue-900 dark:text-blue-200 font-semibold">
+              <div className="border border-blue-500 bg-black rounded p-2">
+                <div className="text-[10px] text-blue-200 font-semibold">
                   {monthlyAgg.current.label} (当月)
                 </div>
                 <div className="flex items-baseline justify-between mt-1">
-                  <div className="text-[11px] text-blue-900 dark:text-blue-200">
+                  <div className="text-[11px] text-blue-200">
                     <span className="font-semibold tabular-nums">{monthlyAgg.current.count}</span>{' '}
                     件
                   </div>
-                  <div className="text-blue-900 dark:text-blue-200 font-bold tabular-nums">
+                  <div className="text-blue-200 font-bold tabular-nums">
                     ¥{monthlyAgg.current.total.toLocaleString()}
                   </div>
                 </div>
               </div>
-              <div className="border border-slate-300 bg-slate-50 dark:bg-black dark:border-slate-500 rounded p-2">
-                <div className="text-[10px] text-slate-700 dark:text-slate-300 font-semibold">
+              <div className="border border-slate-500 bg-black rounded p-2">
+                <div className="text-[10px] text-slate-200 font-semibold">
                   {monthlyAgg.previous.label} (前月)
                 </div>
                 <div className="flex items-baseline justify-between mt-1">
-                  <div className="text-[11px] text-slate-800 dark:text-slate-200">
+                  <div className="text-[11px] text-slate-200">
                     <span className="font-semibold tabular-nums">
                       {monthlyAgg.previous.count}
                     </span>{' '}
                     件
                   </div>
-                  <div className="text-slate-900 dark:text-slate-100 font-bold tabular-nums">
+                  <div className="text-slate-100 font-bold tabular-nums">
                     ¥{monthlyAgg.previous.total.toLocaleString()}
                   </div>
                 </div>
               </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-[10px] text-slate-300 leading-relaxed">
                 ※ 直近{AGG_LIMIT}件範囲・received_at基準・status: cancelled/cancelled_test/declined
                 を除外
               </p>
@@ -398,33 +398,33 @@ export default function ShopOrdersPage() {
           </div>
 
           {/* 取引先別集計 (直近30日 top5) */}
-          <div className="bg-white border border-slate-300 dark:bg-black dark:border-emerald-700 rounded-lg shadow-sm p-3">
-            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
+          <div className="bg-black border border-emerald-700 rounded-lg shadow-sm p-3">
+            <div className="text-xs font-semibold text-slate-200 mb-2 flex items-center gap-1">
               <span>🏢</span>
               <span>取引先別 (直近30日・件数Top5)</span>
             </div>
             {customerAgg.length === 0 ? (
-              <div className="text-xs text-slate-500 dark:text-slate-400 italic">直近30日の受注なし</div>
+              <div className="text-xs text-slate-300 italic">直近30日の受注なし</div>
             ) : (
               <div className="space-y-1">
                 {customerAgg.map((c, i) => (
                   <div
                     key={c.name}
-                    className="flex items-center justify-between gap-2 border border-slate-200 bg-slate-50 dark:bg-black dark:border-emerald-700 rounded px-2 py-1"
+                    className="flex items-center justify-between gap-2 border border-emerald-700 bg-black rounded px-2 py-1"
                   >
                     <div className="min-w-0 flex-1 flex items-center gap-1">
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold w-4 shrink-0">
+                      <span className="text-[10px] text-slate-300 font-semibold w-4 shrink-0">
                         {i + 1}.
                       </span>
-                      <span className="text-xs text-slate-900 dark:text-slate-100 truncate" title={c.name}>
+                      <span className="text-xs text-slate-100 truncate" title={c.name}>
                         {c.name}
                       </span>
                     </div>
                     <div className="shrink-0 flex items-center gap-2 text-[11px]">
-                      <span className="text-blue-900 dark:text-blue-200 font-semibold tabular-nums">
+                      <span className="text-blue-200 font-semibold tabular-nums">
                         {c.count}件
                       </span>
-                      <span className="text-emerald-900 dark:text-emerald-200 font-bold tabular-nums">
+                      <span className="text-emerald-200 font-bold tabular-nums">
                         ¥{c.total.toLocaleString()}
                       </span>
                     </div>
@@ -435,8 +435,8 @@ export default function ShopOrdersPage() {
           </div>
 
           {/* ステータス別件数 */}
-          <div className="bg-white border border-slate-300 dark:bg-black dark:border-purple-700 rounded-lg shadow-sm p-3">
-            <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
+          <div className="bg-black border border-purple-700 rounded-lg shadow-sm p-3">
+            <div className="text-xs font-semibold text-slate-200 mb-2 flex items-center gap-1">
               <span>🚦</span>
               <span>ステータス別現件数</span>
             </div>
@@ -456,64 +456,64 @@ export default function ShopOrdersPage() {
                 );
               })}
             </div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+            <p className="text-[10px] text-slate-300 mt-2 leading-relaxed">
               ※ 直近{AGG_LIMIT}件範囲の現ステータス分布
             </p>
           </div>
         </div>
 
         {/* 💰 入金状況サマリ (2026-05-06 Phase3 健太郎LW「入金分の欄も必要」) */}
-        <div className="mt-3 bg-white border border-slate-300 dark:bg-black dark:border-orange-700 rounded-lg shadow-sm p-3">
-          <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1">
+        <div className="mt-3 bg-black border border-orange-700 rounded-lg shadow-sm p-3">
+          <div className="text-xs font-semibold text-slate-200 mb-2 flex items-center gap-1">
             <span>💰</span>
             <span>入金状況 (税込・キャンセル除外)</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* 入金確認済 */}
-            <div className="border border-emerald-300 bg-emerald-50 dark:bg-black dark:border-emerald-500 rounded p-2">
-              <div className="text-[10px] text-emerald-900 dark:text-emerald-200 font-semibold flex items-center gap-1">
+            <div className="border border-emerald-500 bg-black rounded p-2">
+              <div className="text-[10px] text-emerald-200 font-semibold flex items-center gap-1">
                 <span>✓</span>
                 <span>入金確認済</span>
               </div>
               <div className="flex items-baseline justify-between mt-1">
-                <div className="text-[11px] text-emerald-900 dark:text-emerald-200">
+                <div className="text-[11px] text-emerald-200">
                   <span className="font-semibold tabular-nums">
                     {paymentAgg.confirmedCount}
                   </span>{' '}
                   件
                 </div>
-                <div className="text-emerald-900 dark:text-emerald-200 font-bold tabular-nums">
+                <div className="text-emerald-200 font-bold tabular-nums">
                   ¥{paymentAgg.confirmedTotal.toLocaleString()}
                 </div>
               </div>
             </div>
             {/* 入金待ち */}
-            <div className="border border-orange-300 bg-orange-50 dark:bg-black dark:border-orange-500 rounded p-2">
-              <div className="text-[10px] text-orange-900 dark:text-orange-200 font-semibold flex items-center gap-1">
+            <div className="border border-orange-500 bg-black rounded p-2">
+              <div className="text-[10px] text-orange-200 font-semibold flex items-center gap-1">
                 <span>⏳</span>
                 <span>入金待ち (見積送付済・未入金)</span>
               </div>
               <div className="flex items-baseline justify-between mt-1">
-                <div className="text-[11px] text-orange-900 dark:text-orange-200">
+                <div className="text-[11px] text-orange-200">
                   <span className="font-semibold tabular-nums">
                     {paymentAgg.waitingCount}
                   </span>{' '}
                   件
                 </div>
-                <div className="text-orange-900 dark:text-orange-200 font-bold tabular-nums">
+                <div className="text-orange-200 font-bold tabular-nums">
                   ¥{paymentAgg.waitingTotal.toLocaleString()}
                 </div>
               </div>
             </div>
           </div>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+          <p className="text-[10px] text-slate-300 mt-2 leading-relaxed">
             ※ 直近{AGG_LIMIT}件範囲・確認済=payment_confirmed_at有・待ち=quoted_at有かつpayment_confirmed_at無
           </p>
         </div>
       </section>
 
       {/* 詳細リスト (HpOrdersDashboard 流用・limit=200) */}
-      <section className="border-t-2 border-slate-300 dark:border-gray-700 mt-2">
+      <section className="border-t-2 border-gray-700 mt-2">
         <HpOrdersDashboard limit={AGG_LIMIT} />
       </section>
     </main>

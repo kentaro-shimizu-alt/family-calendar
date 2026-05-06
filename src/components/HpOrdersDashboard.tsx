@@ -274,6 +274,13 @@ function csvEscape(v: unknown): string {
 type SortKey = 'received' | 'amount' | 'status' | 'elapsed';
 type SortDir = 'asc' | 'desc';
 
+const SORT_KEY_LABEL: Record<SortKey, string> = {
+  received: '受信時刻',
+  amount: '金額',
+  status: 'ステータス',
+  elapsed: '経過時間',
+};
+
 // ===== Filter state =====
 interface FilterState {
   dateFrom: string; // YYYY-MM-DD
@@ -311,12 +318,15 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
   const [copyToast, setCopyToast] = useState(false);
   const [exportToast, setExportToast] = useState(false);
 
-  // フィルタ
+  // フィルタ (SalesListTab 同型: 常時表示・折りたたみ無し)
   const [filter, setFilter] = useState<FilterState>(INITIAL_FILTER);
-  const [filterOpen, setFilterOpen] = useState(false);
-  // ソート
-  const [sortKey, setSortKey] = useState<SortKey>('received');
-  const [sortDir, setSortDir] = useState<SortDir>('desc');
+  // ソート (SalesListTab 同型: 1次/2次/3次 multi-key)
+  const [sort1Key, setSort1Key] = useState<SortKey>('received');
+  const [sort1Order, setSort1Order] = useState<SortDir>('desc');
+  const [sort2Key, setSort2Key] = useState<SortKey | ''>('');
+  const [sort2Order, setSort2Order] = useState<SortDir>('asc');
+  const [sort3Key, setSort3Key] = useState<SortKey | ''>('');
+  const [sort3Order, setSort3Order] = useState<SortDir>('asc');
 
   // ポーリング(30秒)
   useEffect(() => {
@@ -390,47 +400,51 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
     });
   }, [rows, filter]);
 
-  // ===== ソート適用 =====
+  // ===== ソート適用 (SalesListTab 同型: 1次/2次/3次 multi-key) =====
   const sortedRows = useMemo(() => {
-    const arr = [...filteredRows];
-    const dir = sortDir === 'asc' ? 1 : -1;
-    arr.sort((a, b) => {
-      let cmp = 0;
-      switch (sortKey) {
+    const keys: Array<{ key: SortKey; order: SortDir }> = [];
+    keys.push({ key: sort1Key, order: sort1Order });
+    if (sort2Key) keys.push({ key: sort2Key as SortKey, order: sort2Order });
+    if (sort3Key) keys.push({ key: sort3Key as SortKey, order: sort3Order });
+
+    const cmpOne = (a: OnlineOrderRow, b: OnlineOrderRow, key: SortKey): number => {
+      switch (key) {
         case 'received': {
           const av = a.received_at ? Date.parse(a.received_at) : 0;
           const bv = b.received_at ? Date.parse(b.received_at) : 0;
-          cmp = av - bv;
-          break;
+          return av - bv;
         }
-        case 'amount': {
-          cmp = extractTotal(a.totals) - extractTotal(b.totals);
-          break;
-        }
+        case 'amount':
+          return extractTotal(a.totals) - extractTotal(b.totals);
         case 'status': {
           const aSt = (a.status || '').trim();
           const bSt = (b.status || '').trim();
-          // 固定順 (ALL_STATUSES) のindexで比較
           const aIdx = ALL_STATUSES.indexOf(aSt);
           const bIdx = ALL_STATUSES.indexOf(bSt);
-          cmp = (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
-          if (cmp === 0) cmp = aSt.localeCompare(bSt);
-          break;
+          let c = (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx);
+          if (c === 0) c = aSt.localeCompare(bSt);
+          return c;
         }
         case 'elapsed': {
           const aLast = latestUpdateMs(a);
           const bLast = latestUpdateMs(b);
-          // 経過時間 = nowMs - last。ascで「経過短い順」。
           const ae = aLast > 0 ? nowMs - aLast : -1;
           const be = bLast > 0 ? nowMs - bLast : -1;
-          cmp = ae - be;
-          break;
+          return ae - be;
         }
       }
-      return cmp * dir;
+    };
+
+    const arr = [...filteredRows];
+    arr.sort((a, b) => {
+      for (const { key, order } of keys) {
+        const c = cmpOne(a, b, key);
+        if (c !== 0) return order === 'asc' ? c : -c;
+      }
+      return 0;
     });
     return arr;
-  }, [filteredRows, sortKey, sortDir, nowMs]);
+  }, [filteredRows, sort1Key, sort1Order, sort2Key, sort2Order, sort3Key, sort3Order, nowMs]);
 
   // サマリ計算 (フィルタ適用前後で見やすくフィルタ後ベース)
   const summary = useMemo(() => {
@@ -553,22 +567,22 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
     setTimeout(() => setExportToast(false), 2000);
   }
 
-  // ===== ヘッダソートボタン共通 =====
+  // ===== ヘッダソートボタン共通 (1次ソートのキーをクリックで切替) =====
   function HeaderSort({ k, label, align }: { k: SortKey; label: string; align?: 'left' | 'right' }) {
-    const active = sortKey === k;
-    const arrow = active ? (sortDir === 'asc' ? '▲' : '▼') : '';
+    const active = sort1Key === k;
+    const arrow = active ? (sort1Order === 'asc' ? '▲' : '▼') : '';
     const alignCls = align === 'right' ? 'text-right' : 'text-left';
     return (
       <th
         className={`px-2 py-2 ${alignCls} cursor-pointer select-none hover:bg-slate-200 dark:hover:bg-gray-700 transition`}
         onClick={() => {
-          if (active) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+          if (active) setSort1Order((d) => (d === 'asc' ? 'desc' : 'asc'));
           else {
-            setSortKey(k);
-            setSortDir(k === 'received' || k === 'amount' || k === 'elapsed' ? 'desc' : 'asc');
+            setSort1Key(k);
+            setSort1Order(k === 'received' || k === 'amount' || k === 'elapsed' ? 'desc' : 'asc');
           }
         }}
-        title="クリックでソート切替"
+        title="クリックで1次ソート切替"
       >
         <span className={active ? 'text-cyan-700 dark:text-cyan-300 font-semibold' : ''}>
           {label} {arrow}
@@ -605,7 +619,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <span>HP販売 受注ダッシュボード</span>
         </h2>
-        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
           tecnest.biz/shop からの注文(online_orders 最新{limit}件)。30秒毎に自動更新・1秒経過時間更新。
         </p>
       </div>
@@ -617,7 +631,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
             表示:{' '}
             <span className="font-semibold text-slate-900 dark:text-slate-100">{summary.total}</span>
             {filterActive && (
-              <span className="text-slate-500 dark:text-slate-400">
+              <span className="text-slate-500 dark:text-slate-300">
                 {' '}
                 / {summary.rawTotal}
               </span>
@@ -631,7 +645,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
             10分停滞:{' '}
             <span
               className={`font-semibold ${
-                summary.stalled > 0 ? 'text-red-800 dark:text-red-300' : 'text-slate-600 dark:text-slate-400'
+                summary.stalled > 0 ? 'text-red-800 dark:text-red-300' : 'text-slate-600 dark:text-slate-300'
               }`}
             >
               {summary.stalled}
@@ -649,7 +663,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
             )}
           </span>
           {lastFetchedAt && (
-            <span className="text-slate-500 dark:text-slate-400 ml-auto">
+            <span className="text-slate-500 dark:text-slate-300 ml-auto">
               最終取得: {formatReceivedAt(lastFetchedAt.toISOString())}
             </span>
           )}
@@ -662,59 +676,91 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
         </div>
       </div>
 
-      {/* フィルタ + ソート + アクションバー */}
-      <div className="bg-white border border-slate-300 dark:bg-black dark:border-emerald-700 rounded-lg p-3 mb-3 shadow-sm">
-        <div className="flex flex-wrap items-center gap-2">
+      {/* フィルタバー (SalesListTab 同型: 常時展開・折りたたみ無し・1セクション内に積み上げ) */}
+      <div className="bg-gray-900 border border-emerald-700 rounded-lg p-3 mb-3 shadow-sm">
+        {/* 行1: 期間 + クイック切替 + CSVエクスポート */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <label className="text-xs text-slate-200 font-semibold">期間:</label>
+          <input
+            type="date"
+            value={filter.dateFrom}
+            onChange={(e) => setFilter((f) => ({ ...f, dateFrom: e.target.value }))}
+            className="border border-emerald-600 bg-black text-slate-100 rounded px-2 py-1 text-sm"
+          />
+          <span className="text-xs text-slate-300">〜</span>
+          <input
+            type="date"
+            value={filter.dateTo}
+            onChange={(e) => setFilter((f) => ({ ...f, dateTo: e.target.value }))}
+            className="border border-emerald-600 bg-black text-slate-100 rounded px-2 py-1 text-sm"
+          />
+          {/* クイック切替 */}
           <button
             type="button"
-            onClick={() => setFilterOpen((v) => !v)}
-            className={`inline-flex items-center gap-1 min-h-[36px] px-3 rounded-lg border text-xs font-semibold transition ${
-              filterActive
-                ? 'bg-cyan-100 text-cyan-900 border-cyan-400 dark:bg-cyan-900/40 dark:text-cyan-100 dark:border-cyan-500'
-                : 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-gray-900 dark:text-slate-200 dark:border-gray-600 hover:bg-slate-200 dark:hover:bg-gray-800'
-            }`}
-            title="フィルタ"
+            onClick={() => {
+              const d = new Date();
+              d.setDate(d.getDate() - 30);
+              setFilter((f) => ({
+                ...f,
+                dateFrom: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+                dateTo: (() => {
+                  const t = new Date();
+                  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+                })(),
+              }));
+            }}
+            className="text-[11px] px-2 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-slate-200 border border-gray-600"
           >
-            <span>🔍</span>
-            <span>フィルタ {filterActive && '●'}</span>
-            <span className="text-slate-400 dark:text-slate-500">{filterOpen ? '▲' : '▼'}</span>
+            過去30日
           </button>
-
+          <button
+            type="button"
+            onClick={() => {
+              const d = new Date();
+              d.setDate(d.getDate() - 90);
+              setFilter((f) => ({
+                ...f,
+                dateFrom: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+                dateTo: (() => {
+                  const t = new Date();
+                  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+                })(),
+              }));
+            }}
+            className="text-[11px] px-2 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-slate-200 border border-gray-600"
+          >
+            過去90日
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const d = new Date();
+              const first = new Date(d.getFullYear(), d.getMonth(), 1);
+              const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+              setFilter((f) => ({
+                ...f,
+                dateFrom: `${first.getFullYear()}-${String(first.getMonth() + 1).padStart(2, '0')}-${String(first.getDate()).padStart(2, '0')}`,
+                dateTo: `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}-${String(last.getDate()).padStart(2, '0')}`,
+              }));
+            }}
+            className="text-[11px] px-2 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-slate-200 border border-gray-600"
+          >
+            今月
+          </button>
           {filterActive && (
             <button
               type="button"
               onClick={clearFilter}
-              className="inline-flex items-center gap-1 min-h-[36px] px-3 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:bg-gray-900 dark:text-slate-200 dark:border-gray-600 dark:hover:bg-gray-800 text-xs font-semibold transition"
+              className="text-[11px] px-2 py-1 rounded-full bg-rose-900 hover:bg-rose-800 text-rose-100 border border-rose-600"
               title="フィルタ解除"
             >
               ✕ 解除
             </button>
           )}
-
-          <span className="text-xs text-slate-600 dark:text-slate-400 ml-2">並び替え:</span>
-          <select
-            value={sortKey}
-            onChange={(e) => setSortKey(e.target.value as SortKey)}
-            className="min-h-[36px] px-2 rounded-lg border border-slate-300 bg-white text-slate-900 dark:bg-black dark:text-slate-100 dark:border-emerald-600 text-xs"
-          >
-            <option value="received">受信時刻</option>
-            <option value="amount">金額</option>
-            <option value="status">ステータス</option>
-            <option value="elapsed">経過時間</option>
-          </select>
-          <button
-            type="button"
-            onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
-            className="min-h-[36px] px-3 rounded-lg border border-slate-300 bg-white text-slate-900 dark:bg-black dark:text-slate-100 dark:border-emerald-600 hover:bg-slate-100 dark:hover:bg-gray-900 text-xs font-semibold"
-            title="昇降切替"
-          >
-            {sortDir === 'asc' ? '↑ 昇順' : '↓ 降順'}
-          </button>
-
           <button
             type="button"
             onClick={handleExportCsv}
-            className="ml-auto inline-flex items-center gap-1 min-h-[36px] px-3 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100 dark:bg-black dark:text-emerald-200 dark:border-emerald-500 dark:hover:bg-emerald-900/40 text-xs font-semibold transition"
+            className="ml-auto inline-flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-emerald-500 bg-black text-emerald-200 hover:bg-emerald-900/40 font-semibold"
             title="フィルタ済リストをCSVダウンロード"
           >
             <span>⬇</span>
@@ -722,120 +768,127 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
           </button>
         </div>
 
-        {/* フィルタ展開部 */}
-        {filterOpen && (
-          <div className="mt-3 pt-3 border-t border-slate-200 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {/* 日付範囲 */}
-            <div className="border border-slate-200 bg-slate-50 dark:bg-black dark:border-cyan-700 rounded p-2">
-              <div className="text-[11px] font-semibold text-slate-700 dark:text-cyan-200 mb-1">
-                受信日(範囲)
-              </div>
-              <div className="flex items-center gap-1">
+        {/* 行2: 入金状態 chip */}
+        <div className="flex flex-wrap gap-2 items-center mt-2">
+          <label className="text-xs text-slate-200 font-semibold">入金:</label>
+          <div className="flex gap-1">
+            {(['all', 'paid', 'unpaid'] as const).map((m) => (
+              <label
+                key={m}
+                className={`cursor-pointer text-[11px] px-2 py-1 rounded-full border transition ${
+                  filter.paymentMode === m
+                    ? 'bg-orange-500 text-white border-orange-500'
+                    : 'bg-black text-orange-200 border-orange-700 hover:bg-orange-900/40'
+                }`}
+              >
                 <input
-                  type="date"
-                  value={filter.dateFrom}
-                  onChange={(e) => setFilter((f) => ({ ...f, dateFrom: e.target.value }))}
-                  className="flex-1 min-h-[32px] px-2 rounded border border-slate-300 bg-white dark:bg-black dark:text-slate-100 dark:border-cyan-600 text-xs"
+                  type="radio"
+                  name="paymentMode"
+                  className="hidden"
+                  checked={filter.paymentMode === m}
+                  onChange={() => setFilter((f) => ({ ...f, paymentMode: m }))}
                 />
-                <span className="text-slate-500 dark:text-slate-400 text-xs">〜</span>
-                <input
-                  type="date"
-                  value={filter.dateTo}
-                  onChange={(e) => setFilter((f) => ({ ...f, dateTo: e.target.value }))}
-                  className="flex-1 min-h-[32px] px-2 rounded border border-slate-300 bg-white dark:bg-black dark:text-slate-100 dark:border-cyan-600 text-xs"
-                />
-              </div>
-            </div>
-
-            {/* 金額レンジ */}
-            <div className="border border-slate-200 bg-slate-50 dark:bg-black dark:border-emerald-700 rounded p-2">
-              <div className="text-[11px] font-semibold text-slate-700 dark:text-emerald-200 mb-1">
-                税込金額(範囲・円)
-              </div>
-              <div className="flex items-center gap-1">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="min"
-                  value={filter.amountMin}
-                  onChange={(e) => setFilter((f) => ({ ...f, amountMin: e.target.value }))}
-                  className="flex-1 min-w-0 min-h-[32px] px-2 rounded border border-slate-300 bg-white dark:bg-black dark:text-slate-100 dark:border-emerald-600 text-xs tabular-nums"
-                />
-                <span className="text-slate-500 dark:text-slate-400 text-xs">〜</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="max"
-                  value={filter.amountMax}
-                  onChange={(e) => setFilter((f) => ({ ...f, amountMax: e.target.value }))}
-                  className="flex-1 min-w-0 min-h-[32px] px-2 rounded border border-slate-300 bg-white dark:bg-black dark:text-slate-100 dark:border-emerald-600 text-xs tabular-nums"
-                />
-              </div>
-            </div>
-
-            {/* 入金状態 */}
-            <div className="border border-slate-200 bg-slate-50 dark:bg-black dark:border-orange-700 rounded p-2">
-              <div className="text-[11px] font-semibold text-slate-700 dark:text-orange-200 mb-1">
-                入金状態
-              </div>
-              <div className="flex items-center gap-1 flex-wrap">
-                {[
-                  { v: 'all', label: 'すべて' },
-                  { v: 'paid', label: '入金済' },
-                  { v: 'unpaid', label: '未入金' },
-                ].map((o) => (
-                  <button
-                    key={o.v}
-                    type="button"
-                    onClick={() =>
-                      setFilter((f) => ({
-                        ...f,
-                        paymentMode: o.v as FilterState['paymentMode'],
-                      }))
-                    }
-                    className={`min-h-[32px] px-3 rounded border text-xs font-semibold transition ${
-                      filter.paymentMode === o.v
-                        ? 'bg-orange-100 text-orange-900 border-orange-400 dark:bg-orange-900/40 dark:text-orange-100 dark:border-orange-500'
-                        : 'bg-white text-slate-700 border-slate-300 dark:bg-black dark:text-slate-300 dark:border-orange-700 hover:bg-slate-100 dark:hover:bg-gray-900'
-                    }`}
-                  >
-                    {o.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ステータス multi-select */}
-            <div className="sm:col-span-2 lg:col-span-3 border border-slate-200 bg-slate-50 dark:bg-black dark:border-purple-700 rounded p-2">
-              <div className="text-[11px] font-semibold text-slate-700 dark:text-purple-200 mb-1">
-                ステータス(複数選択可・空=全件)
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {ALL_STATUSES.map((s) => {
-                  const checked = filter.statuses.has(s);
-                  return (
-                    <label
-                      key={s}
-                      className={`inline-flex items-center gap-1 min-h-[32px] px-2 rounded border text-xs font-semibold cursor-pointer select-none transition ${
-                        checked
-                          ? 'bg-purple-100 text-purple-900 border-purple-400 dark:bg-purple-900/50 dark:text-purple-100 dark:border-purple-500'
-                          : 'bg-white text-slate-700 border-slate-300 dark:bg-black dark:text-slate-300 dark:border-purple-700 hover:bg-slate-100 dark:hover:bg-gray-900'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleStatusFilter(s)}
-                        className="accent-purple-600"
-                      />
-                      <span>{statusLabel(s)}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+                {m === 'all' ? 'すべて' : m === 'paid' ? '入金済' : '未入金'}
+              </label>
+            ))}
           </div>
-        )}
+        </div>
+
+        {/* 行3: 税込金額レンジ (HpOrdersDashboard 固有・SalesListTabには無いが要件で必要) */}
+        <div className="flex flex-wrap gap-2 items-center mt-2">
+          <label className="text-xs text-slate-200 font-semibold">税込金額:</label>
+          <input
+            type="number"
+            inputMode="numeric"
+            placeholder="min"
+            value={filter.amountMin}
+            onChange={(e) => setFilter((f) => ({ ...f, amountMin: e.target.value }))}
+            className="w-24 border border-emerald-600 bg-black text-slate-100 rounded px-2 py-1 text-xs tabular-nums"
+          />
+          <span className="text-xs text-slate-300">〜</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            placeholder="max"
+            value={filter.amountMax}
+            onChange={(e) => setFilter((f) => ({ ...f, amountMax: e.target.value }))}
+            className="w-24 border border-emerald-600 bg-black text-slate-100 rounded px-2 py-1 text-xs tabular-nums"
+          />
+          <span className="text-[10px] text-slate-300 ml-1">円</span>
+        </div>
+
+        {/* 行4: ステータス chip toggle (SalesListTab 同型) */}
+        <div className="flex flex-wrap gap-2 items-center mt-2">
+          <label className="text-xs text-slate-200 font-semibold">ステータス:</label>
+          <div className="flex gap-1 flex-wrap">
+            {ALL_STATUSES.map((s) => {
+              const checked = filter.statuses.has(s);
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleStatusFilter(s)}
+                  className={`text-[11px] px-2 py-1 rounded-full border transition ${
+                    checked
+                      ? 'bg-purple-500 text-white border-purple-500'
+                      : 'bg-black text-purple-200 border-purple-700 hover:bg-purple-900/40'
+                  }`}
+                  aria-pressed={checked}
+                  title={checked ? `${statusLabel(s)} を解除` : `${statusLabel(s)} で絞込`}
+                >
+                  {checked ? '✓ ' : ''}
+                  {statusLabel(s)}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => {
+                const allOn = filter.statuses.size === ALL_STATUSES.length;
+                setFilter((f) => ({
+                  ...f,
+                  statuses: allOn ? new Set() : new Set(ALL_STATUSES),
+                }));
+              }}
+              className="text-[10px] px-2 py-1 rounded-full bg-gray-800 hover:bg-gray-700 text-slate-200 border border-gray-600"
+              title="全ON/全OFF"
+            >
+              {filter.statuses.size === ALL_STATUSES.length ? '全OFF' : '全ON'}
+            </button>
+          </div>
+          <span className="text-[10px] text-slate-400">
+            ({filter.statuses.size === 0 ? '全件表示' : `${filter.statuses.size}個選択中`})
+          </span>
+        </div>
+
+        {/* 行5: ソート (SalesListTab 同型 1次/2次/3次) */}
+        <div className="mt-2 pt-2 border-t border-gray-700">
+          <div className="text-xs text-slate-200 font-semibold mb-1">ソート (優先順位)</div>
+          <div className="flex flex-wrap gap-2 items-center">
+            <SortPicker
+              label="1次"
+              keyVal={sort1Key}
+              orderVal={sort1Order}
+              onKeyChange={(v) => setSort1Key(v as SortKey)}
+              onOrderChange={setSort1Order}
+              required
+            />
+            <SortPicker
+              label="2次"
+              keyVal={sort2Key}
+              orderVal={sort2Order}
+              onKeyChange={(v) => setSort2Key(v as SortKey | '')}
+              onOrderChange={setSort2Order}
+            />
+            <SortPicker
+              label="3次"
+              keyVal={sort3Key}
+              orderVal={sort3Order}
+              onKeyChange={(v) => setSort3Key(v as SortKey | '')}
+              onOrderChange={setSort3Order}
+            />
+          </div>
+        </div>
       </div>
 
       {/* エラー表示 */}
@@ -865,7 +918,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
           <tbody>
             {sortedRows.length === 0 && !loading && (
               <tr>
-                <td colSpan={10} className="text-center text-xs text-slate-500 dark:text-slate-400 py-6">
+                <td colSpan={10} className="text-center text-xs text-slate-500 dark:text-slate-300 py-6">
                   {filterActive ? 'フィルタ条件に一致する注文がありません' : '直近の注文はありません'}
                 </td>
               </tr>
@@ -889,7 +942,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
                 kind === 'completed'
                   ? 'bg-green-50 text-green-900 dark:bg-black dark:text-green-200'
                   : kind === 'cancelled'
-                    ? 'bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-400'
+                    ? 'bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300'
                     : kind === 'stalled'
                       ? 'bg-red-50 text-red-900 font-semibold dark:bg-black dark:text-red-200'
                       : kind === 'suspicious'
@@ -970,7 +1023,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
       {/* モバイルカード */}
       <div className="sm:hidden space-y-2">
         {sortedRows.length === 0 && !loading && (
-          <div className="text-center text-xs text-slate-500 dark:text-slate-400 py-6 bg-white border border-slate-300 dark:bg-black dark:border-cyan-700 rounded-lg">
+          <div className="text-center text-xs text-slate-500 dark:text-slate-300 py-6 bg-white border border-slate-300 dark:bg-black dark:border-cyan-700 rounded-lg">
             {filterActive ? 'フィルタ条件に一致する注文がありません' : '直近の注文はありません'}
           </div>
         )}
@@ -991,7 +1044,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
             kind === 'completed'
               ? 'bg-green-50 border-green-400 text-green-900 dark:bg-black dark:border-green-500 dark:text-green-200'
               : kind === 'cancelled'
-                ? 'bg-gray-100 border-gray-400 text-gray-700 dark:bg-black dark:border-gray-600 dark:text-gray-400'
+                ? 'bg-gray-100 border-gray-400 text-gray-700 dark:bg-black dark:border-gray-600 dark:text-gray-300'
                 : kind === 'stalled'
                   ? 'bg-red-50 border-red-400 text-red-900 font-semibold dark:bg-black dark:border-red-500 dark:text-red-200'
                   : kind === 'suspicious'
@@ -1006,7 +1059,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
             >
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                  <div className="text-[11px] text-slate-600 dark:text-slate-300">
                     {formatReceivedAt(r.received_at)}
                   </div>
                   <div className="font-mono text-[11px] break-all flex items-center gap-1">
@@ -1231,7 +1284,7 @@ function DetailModal({
 
         {/* 本体 */}
         <div className="px-4 py-3 overflow-y-auto flex-1">
-          <div className="text-[11px] text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-2 flex-wrap">
+          <div className="text-[11px] text-slate-600 dark:text-slate-300 mb-1 flex items-center gap-2 flex-wrap">
             <span>{formatReceivedAt(row.received_at)}</span>
             <StatusPill status={row.status} />
             {(row.suspicion_score ?? 0) >= 50 && (
@@ -1274,25 +1327,25 @@ function DetailModal({
           <div className="text-xs text-slate-800 dark:text-slate-200 space-y-1 mb-3">
             {row.email && (
               <div>
-                <span className="text-slate-600 dark:text-slate-400">Email: </span>
+                <span className="text-slate-600 dark:text-slate-300">Email: </span>
                 <span className="break-all">{row.email}</span>
               </div>
             )}
             {row.tel && (
               <div>
-                <span className="text-slate-600 dark:text-slate-400">TEL: </span>
+                <span className="text-slate-600 dark:text-slate-300">TEL: </span>
                 <span>{row.tel}</span>
               </div>
             )}
             {row.zip && (
               <div>
-                <span className="text-slate-600 dark:text-slate-400">〒: </span>
+                <span className="text-slate-600 dark:text-slate-300">〒: </span>
                 <span>{row.zip}</span>
               </div>
             )}
             {row.address && (
               <div>
-                <span className="text-slate-600 dark:text-slate-400">住所: </span>
+                <span className="text-slate-600 dark:text-slate-300">住所: </span>
                 <span className="break-words">{row.address}</span>
               </div>
             )}
@@ -1300,9 +1353,9 @@ function DetailModal({
 
           {/* カート明細 */}
           <div className="mb-3">
-            <div className="text-[10px] text-slate-600 dark:text-slate-400 mb-1">カート明細</div>
+            <div className="text-[10px] text-slate-600 dark:text-slate-300 mb-1">カート明細</div>
             {items.length === 0 ? (
-              <div className="text-xs text-slate-500 dark:text-slate-400 italic">(明細なし)</div>
+              <div className="text-xs text-slate-500 dark:text-slate-300 italic">(明細なし)</div>
             ) : (
               <div className="border border-slate-300 dark:border-cyan-700 rounded">
                 <table className="w-full text-xs">
@@ -1321,7 +1374,7 @@ function DetailModal({
                         <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
                           {it.meters ?? it.qty ?? '-'}
                           {(it.meters != null || it.qty != null) && (
-                            <span className="text-slate-500 dark:text-slate-400 text-[10px] ml-0.5">
+                            <span className="text-slate-500 dark:text-slate-300 text-[10px] ml-0.5">
                               {it.meters != null ? 'm' : ''}
                             </span>
                           )}
@@ -1361,14 +1414,14 @@ function DetailModal({
                 {row.payment_amount_confirmed != null ? (
                   <span className="tabular-nums">¥{row.payment_amount_confirmed.toLocaleString()}</span>
                 ) : (
-                  <span className="text-slate-500 dark:text-slate-400 italic">未対応</span>
+                  <span className="text-slate-500 dark:text-slate-300 italic">未対応</span>
                 )}
               </DetailKv>
               <DetailKv k="入金者名">
                 {row.payment_payer_name ? (
                   row.payment_payer_name
                 ) : (
-                  <span className="text-slate-500 dark:text-slate-400 italic">未対応</span>
+                  <span className="text-slate-500 dark:text-slate-300 italic">未対応</span>
                 )}
               </DetailKv>
               <DetailKv k="入金通知">
@@ -1379,7 +1432,7 @@ function DetailModal({
 
           {/* タイムスタンプ全件 */}
           <div className="mb-3">
-            <div className="text-[10px] text-slate-600 dark:text-slate-400 mb-1">タイムスタンプ(全件)</div>
+            <div className="text-[10px] text-slate-600 dark:text-slate-300 mb-1">タイムスタンプ(全件)</div>
             <div className="bg-white border border-slate-300 dark:bg-black dark:border-cyan-700 rounded p-2 text-xs space-y-1">
               <StampRow label="受信" v={row.received_at} />
               <StampRow label="見積送付" v={row.quoted_at} />
@@ -1393,7 +1446,7 @@ function DetailModal({
 
           {/* online_order_events ログ */}
           <div className="mb-3">
-            <div className="text-[10px] text-slate-600 dark:text-slate-400 mb-1 flex items-center gap-2">
+            <div className="text-[10px] text-slate-600 dark:text-slate-300 mb-1 flex items-center gap-2">
               <span>イベントログ (online_order_events)</span>
               {eventsLoading && (
                 <span className="inline-block w-3 h-3 border-2 border-blue-600 dark:border-blue-300 border-t-transparent rounded-full animate-spin" />
@@ -1403,7 +1456,7 @@ function DetailModal({
               <div className="text-[10px] text-red-700 dark:text-red-300 mb-1">{eventsError}</div>
             )}
             {!eventsLoading && events.length === 0 && !eventsError && (
-              <div className="text-xs text-slate-500 dark:text-slate-400 italic">(ログなし)</div>
+              <div className="text-xs text-slate-500 dark:text-slate-300 italic">(ログなし)</div>
             )}
             {events.length > 0 && (
               <div className="border border-slate-300 dark:border-purple-700 rounded max-h-48 overflow-y-auto">
@@ -1423,7 +1476,7 @@ function DetailModal({
                         <td className="px-2 py-1 text-slate-900 dark:text-slate-100 break-all">
                           <span className="font-semibold">{ev.event || '-'}</span>
                           {ev.payload != null && typeof ev.payload === 'object' ? (
-                            <span className="ml-1 text-slate-500 dark:text-slate-400 text-[10px]">
+                            <span className="ml-1 text-slate-500 dark:text-slate-300 text-[10px]">
                               {(() => {
                                 try {
                                   const s = JSON.stringify(ev.payload);
@@ -1446,7 +1499,7 @@ function DetailModal({
           {/* 備考 */}
           {row.note && (
             <div className="mb-2">
-              <div className="text-[10px] text-slate-600 dark:text-slate-400 mb-0.5">備考(顧客入力)</div>
+              <div className="text-[10px] text-slate-600 dark:text-slate-300 mb-0.5">備考(顧客入力)</div>
               <pre className="text-xs text-slate-900 dark:text-slate-100 whitespace-pre-wrap break-words bg-slate-50 border border-slate-300 dark:bg-black dark:border-gray-600 rounded p-2 font-sans">
 {row.note}
               </pre>
@@ -1472,7 +1525,7 @@ function DetailModal({
 function DetailKv({ k, children }: { k: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-1">
-      <span className="text-slate-600 dark:text-slate-400 text-[10px]">{k}:</span>
+      <span className="text-slate-600 dark:text-slate-300 text-[10px]">{k}:</span>
       <span className="text-slate-900 dark:text-slate-100">{children}</span>
     </div>
   );
@@ -1481,10 +1534,47 @@ function DetailKv({ k, children }: { k: string; children: React.ReactNode }) {
 function StampRow({ label, v }: { label: string; v: string | null }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="text-slate-600 dark:text-slate-400 w-24 shrink-0">{label}:</span>
+      <span className="text-slate-600 dark:text-slate-300 w-24 shrink-0">{label}:</span>
       <span className="tabular-nums text-slate-900 dark:text-slate-100">
-        {v ? formatYmdHms(v) : <span className="text-slate-500 dark:text-slate-400 italic">-</span>}
+        {v ? formatYmdHms(v) : <span className="text-slate-500 dark:text-slate-300 italic">-</span>}
       </span>
+    </div>
+  );
+}
+
+// SortPicker (SalesListTab 同型: ソートキー select + 昇降ボタン)
+function SortPicker(props: {
+  label: string;
+  keyVal: SortKey | '';
+  orderVal: SortDir;
+  onKeyChange: (v: SortKey | '') => void;
+  onOrderChange: (v: SortDir) => void;
+  required?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-[10px] text-slate-300">{props.label}</span>
+      <select
+        value={props.keyVal}
+        onChange={(e) => props.onKeyChange(e.target.value as SortKey | '')}
+        className="border border-emerald-600 bg-black text-slate-100 rounded px-1 py-1 text-xs"
+      >
+        {!props.required && <option value="">-</option>}
+        {(Object.keys(SORT_KEY_LABEL) as SortKey[]).map((k) => (
+          <option key={k} value={k}>
+            {SORT_KEY_LABEL[k]}
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        onClick={() => props.onOrderChange(props.orderVal === 'asc' ? 'desc' : 'asc')}
+        className="text-[11px] px-2 py-1 rounded border border-emerald-600 bg-black text-slate-100 hover:bg-emerald-900/40 disabled:opacity-40"
+        title={props.orderVal === 'asc' ? '昇順 (クリックで降順)' : '降順 (クリックで昇順)'}
+        disabled={!props.keyVal}
+      >
+        {props.orderVal === 'asc' ? '↑' : '↓'}
+      </button>
     </div>
   );
 }

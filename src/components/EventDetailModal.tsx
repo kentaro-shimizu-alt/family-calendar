@@ -163,81 +163,59 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     }
   }
 
-  // #9: 戻るボタンでポップアップだけ閉じる
-  // 2026-05-05 健太郎LW「戻るボタンが効かない」修正:
-  // 親再レンダリングごとに onClose 参照が変わると useEffect が再発火して
-  // 履歴に pushState が積み重なり、Backを何度も押さないと閉じなかった。
-  // onClose を ref で保持し、依存配列を [open] のみにして1回だけ pushState する。
-  // 2026-05-05 14:48 bfcache破棄時の戻るボタン修正:
-  // 親(page.tsx)が復元時に既に pushState({modal:'event-detail-restored'}) を発火している
-  // 場合、ここで pushState すると履歴に2件積まれて戻るボタン2回必要になる。
-  // 復元由来なら pushState を skip して popstate ハンドラだけ登録する。
-  // 2026-05-06 Phase5 D-2再修正(健太郎LW「なおってないです」):
-  //  問題: pageshow listener を [open] 依存内で登録すると、open=false で復元される瞬間に
-  //  listener が居ない (mount→effect run の隙間で pageshow が発火する) ため、
-  //  pull-to-refresh 後の reload で開いたままのモーダルが「戻る無し→アプリ終了」になる。
-  //  対策: 三段安全網
-  //    (1) localStorage に open 状態を別キー保存 (parent UI_STATE_KEY と独立して効く)
-  //    (2) pageshow / popstate listener は mount時 [] 依存で常駐
-  //    (3) open=true→false 遷移時に history.back() で復元 pushState を消費
+  // 2026-05-06 D-2 4回目修正(健太郎LW「pull-to-refresh後 戻るボタン無効」):
+  // 過去3回 (pageshow/localStorage三段安全網) 失敗→ URL hash方式に書換。
+  //  仕組み:
+  //   ・open=true 時: hash が `#event/<id>` でなければ pushState で hash 設定
+  //   ・popstate (戻るボタン): hash が消えた(or `#event/...` でない)→ onClose
+  //   ・open=false 時: 自分が積んだ hash が残っていれば履歴を戻して消費
+  //   ・pull-to-refresh 後の reload でも hash は URL に残る → 親が detailEventId 復元
+  //     → open=true になると useEffect が hash 同期 (既に hash あれば pushState skip)
+  //   ・既存 localStorage/pageshow ロジックは全削除 (競合排除)
   const onCloseRef = useRef(onClose);
   const openRef = useRef(open);
+  const ourPushStateRef = useRef(false); // 自分が pushState した履歴を持っているか
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => { openRef.current = open; }, [open]);
 
-  // (1) open 変化時の処理: pushState / localStorage 同期
+  // hash 同期: open 変化時に URL hash を pushState/back で同期
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (open) {
-      const cur = (window.history.state || null) as { modal?: string } | null;
-      const restored = !!(cur && cur.modal === 'event-detail-restored');
-      if (!restored) {
+    const eventId = event?.id || '';
+    const expectedHash = `#event/${eventId}`;
+
+    if (open && eventId) {
+      // モーダル開いた時: 現在の hash が `#event/<id>` でなければ pushState
+      if (window.location.hash !== expectedHash) {
         try {
-          window.history.pushState({ modal: 'event-detail' }, '');
+          window.history.pushState({ modal: 'event-detail' }, '', expectedHash);
+          ourPushStateRef.current = true;
         } catch {}
       }
-      try { localStorage.setItem('event-detail-open', '1'); } catch {}
+      // 既に hash がついている場合 (reload 復元) は ourPushStateRef を立てない
+      // (back() で消す責任は無い・ユーザー操作で戻る前提)
     } else {
-      try { localStorage.removeItem('event-detail-open'); } catch {}
+      // モーダル閉じた時: 自分が pushState した hash を back で消費
+      if (ourPushStateRef.current && window.location.hash.startsWith('#event/')) {
+        ourPushStateRef.current = false;
+        try { window.history.back(); } catch {}
+      }
     }
-  }, [open]);
+  }, [open, event?.id]);
 
-  // (2) popstate / pageshow listener は mount時に常駐 ([] 依存)
-  //   pageshow が listener 登録前に発火する race を防ぐ
+  // popstate listener (mount時に常駐): hash が `#event/...` で無くなったら close
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const onPopState = () => {
-      if (openRef.current) onCloseRef.current();
-    };
-    const onPageShow = (ev: PageTransitionEvent) => {
-      // pull-to-refresh / bfcache 復元時:
-      //  - localStorage に open フラグが残ってる && 現state が modal でない → pushState で復元
-      let wasOpen = false;
-      try {
-        wasOpen = localStorage.getItem('event-detail-open') === '1';
-      } catch {}
-      if (!openRef.current && !wasOpen) return;
-      try {
-        const st = (window.history.state || null) as { modal?: string } | null;
-        const isModalState = !!(st && (st.modal === 'event-detail' || st.modal === 'event-detail-restored'));
-        if (!isModalState) {
-          window.history.pushState(
-            {
-              modal: 'event-detail-restored',
-              restoredFrom: ev.persisted ? 'bfcache' : 'reload',
-              ts: Date.now(),
-            },
-            ''
-          );
-        }
-      } catch {}
+      if (!openRef.current) return;
+      // hash が `#event/...` で始まらない = ユーザーが戻った → close
+      if (!window.location.hash.startsWith('#event/')) {
+        ourPushStateRef.current = false; // 既にbrowser側で消費されている
+        onCloseRef.current();
+      }
     };
     window.addEventListener('popstate', onPopState);
-    window.addEventListener('pageshow', onPageShow);
-    return () => {
-      window.removeEventListener('popstate', onPopState);
-      window.removeEventListener('pageshow', onPageShow);
-    };
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   // Build chronological feed items
