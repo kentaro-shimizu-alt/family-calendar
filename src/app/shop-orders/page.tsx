@@ -150,23 +150,8 @@ export default function ShopOrdersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetchedAt, setLastFetchedAt] = useState<Date | null>(null);
-  // 2026-05-06 Phase4: メインカレンダー (page.tsx) で保存された theme を読み取って
-  // <main className="... dark"> をトグル。 'calendar-theme' localStorage キーで連動。
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('calendar-theme') as 'light' | 'dark' | null;
-      if (saved === 'light' || saved === 'dark') setTheme(saved);
-    } catch {}
-    // 別タブで切替えた場合の同期
-    function onStorage(e: StorageEvent) {
-      if (e.key === 'calendar-theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
-        setTheme(e.newValue);
-      }
-    }
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+  // 2026-05-06 健太郎LW指示で <main> は常時 dark 固定運用に変更。
+  // 旧 theme 切替state(useState/useEffect/storage event listener)はデッドコードのため削除済み。
 
   // 集計用 fetch (60秒polling)
   useEffect(() => {

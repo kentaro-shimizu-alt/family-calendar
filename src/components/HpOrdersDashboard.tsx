@@ -856,7 +856,7 @@ export default function HpOrdersDashboard({ limit = 50 }: HpOrdersDashboardProps
               {filter.statuses.size === ALL_STATUSES.length ? '全OFF' : '全ON'}
             </button>
           </div>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-slate-300">
             ({filter.statuses.size === 0 ? '全件表示' : `${filter.statuses.size}個選択中`})
           </span>
         </div>
