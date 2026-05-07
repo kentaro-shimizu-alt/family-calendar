@@ -64,11 +64,18 @@ export async function POST(req: NextRequest) {
   //   - env未設定時は従来通り全件受信(セーフフォールバック)
   //
   // 2026-05-07 追加: 美砂3人ルーム(LINEWORKS_MISA_CHANNEL_ID)も受信対象に含める。
+  // 2026-05-08 追加: ちゃこ3人ルーム(LINEWORKS_BOTCHAT_CHANNEL_ID)も受信対象に含める。
+  //                  ce55d1d revert副作用で受信許可消失していたのを復活(N204再発防止)。
   const MAIN_CHANNEL_ID = process.env.LINEWORKS_MAIN_CHANNEL_ID || '';
   const MISA_CHANNEL_ID = process.env.LINEWORKS_MISA_CHANNEL_ID || '';
+  const BOTCHAT_CHANNEL_ID = process.env.LINEWORKS_BOTCHAT_CHANNEL_ID || '';
   const incomingChannelId = ev.source?.channelId || '';
   const isMisaRoom = !!MISA_CHANNEL_ID && incomingChannelId === MISA_CHANNEL_ID;
-  if (MAIN_CHANNEL_ID && incomingChannelId !== MAIN_CHANNEL_ID && !isMisaRoom) {
+  const isBotchatRoom = !!BOTCHAT_CHANNEL_ID && incomingChannelId === BOTCHAT_CHANNEL_ID;
+  if (MAIN_CHANNEL_ID &&
+      incomingChannelId !== MAIN_CHANNEL_ID &&
+      !isMisaRoom &&
+      !isBotchatRoom) {
     return NextResponse.json({
       ok: true,
       filtered: 'non-main-channel',
