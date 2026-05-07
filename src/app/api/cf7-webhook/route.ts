@@ -31,6 +31,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
+import { notifyKentaroNewOrder } from '@/lib/notify_kentaro_order';
 
 const SHOP_SECRET = process.env.SHOP_WEBHOOK_SECRET || '';
 
@@ -329,6 +330,17 @@ export async function POST(req: NextRequest) {
   // 主くろ(健太郎)に即通知(ベストエフォート・await しない)
   notifyKentaro({ orderId, customerName, email, totals, cart, integrity }).catch((e) => {
     console.error('[cf7-webhook] LW notify failed', e);
+  });
+
+  // 健太郎個人にGmail+LW DM両通知 (2026-05-08 G-12 別タスク残置完了・健太郎LW C両方承認)
+  notifyKentaroNewOrder({
+    order_id: orderId,
+    customer_name: customerName,
+    email,
+    cart,
+    totals,
+  }).catch((e) => {
+    console.error('[cf7-webhook] kentaro Gmail/LW notify failed', e);
   });
 
   return NextResponse.json({ ok: true, order_id: orderId, anomaly: !integrity.ok });

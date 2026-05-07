@@ -17,6 +17,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { notifyKentaroNewOrder } from '@/lib/notify_kentaro_order';
 
 const SUPABASE_URL = process.env.SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -157,6 +158,15 @@ export async function POST(req: NextRequest) {
     totals,
     suspicionScore,
   }).catch((e) => console.error('[shop-order-webhook] LW main-room notify failed', e));
+
+  // 健太郎個人にGmail+LW DM両通知 (2026-05-08 G-12 別タスク残置完了・健太郎LW C両方承認)
+  notifyKentaroNewOrder({
+    order_id: payload.order_id,
+    customer_name: cleanedCustomerName,
+    email: payload.email,
+    cart,
+    totals,
+  }).catch((e) => console.error('[shop-order-webhook] kentaro Gmail/LW notify failed', e));
 
   if (suspicionScore >= 50) {
     notifySuspicion({
