@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280, initial-scale=1.0">
+<title>カット指示書 (現場名不明) EC-001 ホワイトケーブ</title>
+<style>
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #222;
+    background: #fff;
+    font-size: 11px;
+    padding: 12px 16px;
+  }
+
+  /* メタ情報 (PDF風 2列レイアウト) */
+  table.meta {
+    border-collapse: collapse;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  table.meta td {
+    padding: 1px 8px 1px 0;
+    vertical-align: top;
+  }
+  table.meta td.lbl {
+    font-weight: bold;
+    width: 40px;
+  }
+  table.meta td.val {
+    min-width: 180px;
+    border-bottom: none;
+  }
+
+  /* 本表 */
+  table.cut {
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin-top: 2px;
+  }
+  table.cut th, table.cut td {
+    border: 0.5px solid #888;
+    padding: 1px 3px;
+    text-align: center;
+    font-size: 11px;
+    height: 20px;
+    line-height: 1.2;
+  }
+  /* 列幅 (PDF踏襲) */
+  th.c-no,    td.c-no    { width: 38px; }
+  th.c-cat1,  td.c-cat1  { width: 90px; text-align: left; padding-left: 5px; }
+  th.c-cat2,  td.c-cat2  { width: 90px; text-align: left; padding-left: 5px; }
+  th.c-L,     td.c-L     { width: 44px; }
+  th.c-W,     td.c-W     { width: 38px; }
+  th.c-cnt,   td.c-cnt   { width: 36px; }
+  th.c-piece, td.c-piece { width: 32px; }
+  th.c-band,  td.c-band  { width: 36px; }
+  th.c-Lcut,  td.c-Lcut  { width: 60px; }
+  th.c-amari, td.c-amari { width: 50px; }
+
+  /* ヘッダ行 (PDF: 紺色帯) */
+  table.cut thead th {
+    background: #2C3E5C;
+    color: #fff;
+    font-weight: bold;
+    font-size: 11px;
+    height: 22px;
+  }
+
+  /* ゼブラ (PDF互換: 偶数行 #F7F7F7) */
+  table.cut tbody tr.zebra td { background: #F7F7F7; }
+  table.cut tbody tr.zebra td.c-piece.b1,
+  table.cut tbody tr td.c-piece.b1 { background: #FFE4E1; }
+  table.cut tbody tr.zebra td.c-piece.b2,
+  table.cut tbody tr td.c-piece.b2 { background: #E0FFFF; }
+  table.cut tbody tr.zebra td.c-piece.b3,
+  table.cut tbody tr td.c-piece.b3 { background: #FFFACD; }
+  table.cut tbody tr.zebra td.c-piece.b4,
+  table.cut tbody tr td.c-piece.b4 { background: #E6E6FA; }
+  table.cut tbody tr.zebra td.c-piece.b5,
+  table.cut tbody tr td.c-piece.b5 { background: #F0FFF0; }
+  table.cut tbody tr.zebra td.c-piece.b6,
+  table.cut tbody tr td.c-piece.b6 { background: #FFE4B5; }
+  table.cut tbody tr.zebra td.c-piece.b7,
+  table.cut tbody tr td.c-piece.b7 { background: #DCDCDC; }
+  table.cut tbody tr.zebra td.c-piece.b8,
+  table.cut tbody tr td.c-piece.b8 { background: #FFB6C1; }
+  td.c-band.s1 { background: #FFE4E1; font-weight: bold; }
+  td.c-band.s2 { background: #E0FFFF; font-weight: bold; }
+  td.c-band.s3 { background: #FFFACD; font-weight: bold; }
+  td.c-band.s4 { background: #E6E6FA; font-weight: bold; }
+  td.c-band.s5 { background: #F0FFF0; font-weight: bold; }
+  td.c-band.s6 { background: #FFE4B5; font-weight: bold; }
+  td.c-band.s7 { background: #DCDCDC; font-weight: bold; }
+  td.c-band.s8 { background: #FFB6C1; font-weight: bold; }
+
+  /* 集計ラベル */
+  td.c-band.lbl-total,
+  td.c-band.lbl-m,
+  td.c-band.lbl-bands { font-weight: bold; background: #fafafa; }
+
+  /* 空行用(右側帯サマリ無しの行・PDF視覚再現) */
+  td.empty-cell { background: #fff; }
+  table.cut tbody tr.zebra td.empty-cell { background: #F7F7F7; }
+
+  /* タップ対象セル(枚数列の右の数字) */
+  td.c-piece.tappable {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  td.c-piece.tappable:active { transform: scale(0.92); }
+
+  /* カット済み */
+  td.c-piece.tappable.done {
+    background: #DDDDDD !important;
+    color: #999 !important;
+    text-decoration: line-through;
+  }
+
+  /* 隠し折り畳みコントロール (画面下端極小) */
+  .hidden-controls {
+    position: fixed;
+    bottom: 4px;
+    right: 6px;
+    font-size: 9px;
+    color: #aaa;
+    background: rgba(255,255,255,0.85);
+    padding: 2px 6px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    z-index: 50;
+    user-select: none;
+  }
+  .hidden-controls .toggle {
+    cursor: pointer;
+    color: #888;
+  }
+  .hidden-controls .panel {
+    display: none;
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top: 1px solid #eee;
+  }
+  .hidden-controls.open .panel { display: block; }
+  .hidden-controls .panel button {
+    font-size: 9px;
+    padding: 2px 6px;
+    background: #fafafa;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    cursor: pointer;
+    color: #666;
+  }
+  .hidden-controls .panel button:active { background: #e8e8e8; }
+
+  /* 印刷時 */
+  @media print {
+    body { padding: 8mm; font-size: 10px; }
+    .hidden-controls { display: none !important; }
+    table.cut td.c-piece.tappable.done {
+      background: #DDDDDD !important;
+      color: #999 !important;
+      text-decoration: line-through;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    table.cut tbody tr td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { size: A4 landscape; margin: 8mm; }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- メタ情報 (PDF: 2列レイアウト) -->
+<table class="meta">
+  <tr>
+    <td class="lbl">現場</td><td class="val">(現場名不明)</td>
+    <td class="lbl">材料</td><td class="val">EC-001 ホワイトケーブ</td>
+  </tr>
+  <tr>
+    <td class="lbl">採寸</td><td class="val">清水 2026-05-07</td>
+    <td class="lbl">&nbsp;</td><td class="val">1220mm</td>
+  </tr>
+</table>
+
+<!-- 本表 -->
+<table class="cut">
+  <thead>
+    <tr>
+      <th class="c-no">番号</th>
+      <th class="c-cat1">カテゴリー&#9312;</th>
+      <th class="c-cat2">カテゴリー&#9313;</th>
+      <th class="c-L">L(長)</th>
+      <th class="c-W">W(巾)</th>
+      <th class="c-cnt">枚数</th>
+      <th class="c-piece">1</th>
+      <th class="c-piece">2</th>
+      <th class="c-piece">3</th>
+      <th class="c-piece">4</th>
+      <th class="c-piece">5</th>
+      <th class="c-piece">6</th>
+      <th class="c-piece">7</th>
+      <th class="c-piece">8</th>
+      <th class="c-piece">9</th>
+      <th class="c-piece">10</th>
+      <th class="c-band">帯</th>
+      <th class="c-Lcut">Lカット寸</th>
+      <th class="c-amari">余り巾</th>
+    </tr>
+  </thead>
+  <tbody id="tbody">
+    <!-- JS生成 -->
+  </tbody>
+</table>
+
+<!-- 隠しコントロール (画面下端・極小) -->
+<div class="hidden-controls" id="hiddenCtrl">
+  <span class="toggle" id="ctrlToggle">&#9661; <span id="ctrlSummary">0/0</span></span>
+  <div class="panel">
+    <button id="resetBtn">リセット</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// 採寸データ (L降順W降順)
+const ROWS = [{"no": "9", "cat1": "キッチン下(回転)", "cat2": "シンク側", "L": 900, "W": 600, "cnt": 1, "bands": [1]}, {"no": "8", "cat1": "キッチン下(回転)", "cat2": "シンク側", "L": 900, "W": 300, "cnt": 1, "bands": [1]}, {"no": "16", "cat1": "カップボード下(回転)", "cat2": "", "L": 900, "W": 300, "cnt": 1, "bands": [1]}, {"no": "5", "cat1": "キッチン下(回転)", "cat2": "左から ※確認要", "L": 850, "W": 600, "cnt": 1, "bands": [2]}, {"no": "12", "cat1": "カップボード上", "cat2": "", "L": 850, "W": 500, "cnt": 2, "bands": [2, 3]}, {"no": "2", "cat1": "キッチン上", "cat2": "", "L": 700, "W": 550, "cnt": 2, "bands": [3, 4]}, {"no": "1", "cat1": "キッチン上", "cat2": "", "L": 700, "W": 350, "cnt": 1, "bands": [4]}, {"no": "4", "cat1": "キッチン下(回転)", "cat2": "左から", "L": 700, "W": 300, "cnt": 1, "bands": [4]}, {"no": "12", "cat1": "カップボード上(回転)", "cat2": "", "L": 500, "W": 850, "cnt": 1, "bands": [5]}, {"no": "7", "cat1": "キッチン下(回転)", "cat2": "食洗機周り", "L": 500, "W": 350, "cnt": 1, "bands": [5]}, {"no": "13", "cat1": "カップボード下(回転)", "cat2": "", "L": 500, "W": 150, "cnt": 1, "bands": [3]}, {"no": "17", "cat1": "カップボード下", "cat2": "", "L": 400, "W": 900, "cnt": 1, "bands": [6]}, {"no": "14", "cat1": "カップボード下", "cat2": "", "L": 400, "W": 500, "cnt": 1, "bands": [7]}, {"no": "11", "cat1": "キッチン下", "cat2": "右側", "L": 400, "W": 400, "cnt": 1, "bands": [7]}, {"no": "10", "cat1": "キッチン下(回転)", "cat2": "右側", "L": 400, "W": 300, "cnt": 2, "bands": [6, 7]}, {"no": "1", "cat1": "キッチン上(回転)", "cat2": "", "L": 350, "W": 700, "cnt": 1, "bands": [8]}, {"no": "6", "cat1": "キッチン下", "cat2": "食洗機周り", "L": 350, "W": 450, "cnt": 1, "bands": [8]}, {"no": "3", "cat1": "キッチン下(回転)", "cat2": "左から", "L": 250, "W": 300, "cnt": 1, "bands": [9]}, {"no": "15", "cat1": "カップボード下", "cat2": "", "L": 200, "W": 900, "cnt": 1, "bands": [9]}];
+
+// 帯サマリ + 集計 (右側 帯/Lカット寸/余り巾 列に並列配置)
+// [band-cell-text, band-cell-class, Lcut, Amari]
+const RIGHT_COL = [["1", "s1", "900", "20"], ["2", "s2", "850", "120"], ["3", "s3", "850", "20"], ["4", "s4", "700", "20"], ["5", "s5", "500", "20"], ["6", "s6", "400", "20"], ["7", "s7", "400", "20"], ["8", "s8", "350", "70"], ["9", "", "250", "20"], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["", "", "", ""], ["合計", "lbl-total", "5200", ""], ["m換算", "lbl-m", "5.20 m", ""], ["帯数", "lbl-bands", "9帯", ""]];
+
+const STORAGE_KEY = 'cut_sheet_カット指示書_(現場名不明)_EC-001_20260507_v3_インタラクティブ_state';
+const MAX_PIECES = 10;
+const TOTAL_ROWS_DISPLAY = 27;
+
+// localStorage
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (!s) return {};
+    return JSON.parse(s);
+  } catch (e) {
+    return {};
+  }
+}
+function saveState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+const state = loadState();
+
+function buildTable() {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  for (let r = 0; r < TOTAL_ROWS_DISPLAY; r++) {
+    const tr = document.createElement('tr');
+    if (r % 2 === 1) tr.className = 'zebra';
+
+    const row = ROWS[r]; // undefined for empty rows
+
+    // 番号
+    const tdNo = document.createElement('td');
+    tdNo.className = 'c-no';
+    tdNo.innerHTML = row ? row.no : '&nbsp;';
+    tr.appendChild(tdNo);
+
+    // カテゴリー1
+    const tdCat1 = document.createElement('td');
+    tdCat1.className = 'c-cat1';
+    tdCat1.innerHTML = row && row.cat1 ? row.cat1 : '&nbsp;';
+    tr.appendChild(tdCat1);
+
+    // カテゴリー2
+    const tdCat2 = document.createElement('td');
+    tdCat2.className = 'c-cat2';
+    tdCat2.innerHTML = row && row.cat2 ? row.cat2 : '&nbsp;';
+    tr.appendChild(tdCat2);
+
+    // L
+    const tdL = document.createElement('td');
+    tdL.className = 'c-L';
+    tdL.innerHTML = row ? row.L : '&nbsp;';
+    tr.appendChild(tdL);
+
+    // W
+    const tdW = document.createElement('td');
+    tdW.className = 'c-W';
+    tdW.innerHTML = row ? row.W : '&nbsp;';
+    tr.appendChild(tdW);
+
+    // 枚数
+    const tdCnt = document.createElement('td');
+    tdCnt.className = 'c-cnt';
+    tdCnt.innerHTML = row ? row.cnt : '&nbsp;';
+    tr.appendChild(tdCnt);
+
+    // 1〜10列 (タップ対象)
+    for (let i = 0; i < MAX_PIECES; i++) {
+      const td = document.createElement('td');
+      td.className = 'c-piece';
+      if (row && i < row.bands.length) {
+        const band = row.bands[i];
+        const cellKey = 'cell_' + r + '_' + i;
+        td.classList.add('b' + band);
+        td.classList.add('tappable');
+        td.textContent = band;
+        td.dataset.key = cellKey;
+        td.dataset.band = band;
+        if (state[cellKey]) td.classList.add('done');
+        td.addEventListener('click', function() { toggleCell(td); });
+      } else {
+        td.innerHTML = '&nbsp;';
+        td.classList.add('empty-cell');
+      }
+      tr.appendChild(td);
+    }
+
+    // 右側 帯/Lカット寸/余り巾 列
+    const right = RIGHT_COL[r];
+    const tdBand = document.createElement('td');
+    tdBand.className = 'c-band';
+    if (right) {
+      if (right[1]) tdBand.classList.add(right[1]);
+      tdBand.innerHTML = right[0] || '&nbsp;';
+    } else {
+      tdBand.innerHTML = '&nbsp;';
+      tdBand.classList.add('empty-cell');
+    }
+    tr.appendChild(tdBand);
+
+    const tdLcut = document.createElement('td');
+    tdLcut.className = 'c-Lcut';
+    if (right) {
+      tdLcut.innerHTML = right[2] || '&nbsp;';
+    } else {
+      tdLcut.innerHTML = '&nbsp;';
+      tdLcut.classList.add('empty-cell');
+    }
+    tr.appendChild(tdLcut);
+
+    const tdAmari = document.createElement('td');
+    tdAmari.className = 'c-amari';
+    if (right) {
+      tdAmari.innerHTML = right[3] || '&nbsp;';
+    } else {
+      tdAmari.innerHTML = '&nbsp;';
+      tdAmari.classList.add('empty-cell');
+    }
+    tr.appendChild(tdAmari);
+
+    tbody.appendChild(tr);
+  }
+}
+
+function toggleCell(td) {
+  const key = td.dataset.key;
+  const isDone = td.classList.toggle('done');
+  if (isDone) state[key] = true;
+  else delete state[key];
+  saveState(state);
+  updateSummary();
+}
+
+function updateSummary() {
+  const cells = document.querySelectorAll('td.c-piece.tappable');
+  let total = 0, done = 0;
+  cells.forEach(td => {
+    total++;
+    if (td.classList.contains('done')) done++;
+  });
+  const el = document.getElementById('ctrlSummary');
+  if (el) el.textContent = done + '/' + total;
+}
+
+// 隠しコントロール 折り畳み
+document.getElementById('ctrlToggle').addEventListener('click', function() {
+  document.getElementById('hiddenCtrl').classList.toggle('open');
+});
+document.getElementById('resetBtn').addEventListener('click', function() {
+  if (!confirm('全カット済みフラグをリセットしますか?')) return;
+  Object.keys(state).forEach(k => delete state[k]);
+  saveState(state);
+  document.querySelectorAll('td.c-piece.tappable.done').forEach(td => td.classList.remove('done'));
+  updateSummary();
+});
+
+// 初期化
+buildTable();
+updateSummary();
+
+</script>
+</body>
+</html>
