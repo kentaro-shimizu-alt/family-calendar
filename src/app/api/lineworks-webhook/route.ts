@@ -13,11 +13,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import { getSupabase } from '@/lib/supabase';
-import {
-  shouldRespond,
-  updateStateAfterMessage,
-  TARGET_CHANNEL_ID as BOTCHAT_TARGET_CHANNEL_ID,
-} from '@/lib/botchat_judge';
 
 const BOT_SECRET = process.env.LINEWORKS_BOT_SECRET || '';
 
@@ -68,39 +63,17 @@ export async function POST(req: NextRequest) {
   //   - Supabase line_messages 未書込 → Realtime通知発火せず → くろ完全無認識
   //   - env未設定時は従来通り全件受信(セーフフォールバック)
   //
-  // 2026-05-06 追加: 3者チャットルーム(健太郎+くろ+ちゃこ)も受信対象に含める。
-  // ループ防止判定は botchat_judge 側で行う。
   // 2026-05-07 追加: 美砂3人ルーム(LINEWORKS_MISA_CHANNEL_ID)も受信対象に含める。
   const MAIN_CHANNEL_ID = process.env.LINEWORKS_MAIN_CHANNEL_ID || '';
   const MISA_CHANNEL_ID = process.env.LINEWORKS_MISA_CHANNEL_ID || '';
   const incomingChannelId = ev.source?.channelId || '';
-  const isBotchatRoom = incomingChannelId === BOTCHAT_TARGET_CHANNEL_ID;
   const isMisaRoom = !!MISA_CHANNEL_ID && incomingChannelId === MISA_CHANNEL_ID;
-  if (MAIN_CHANNEL_ID && incomingChannelId !== MAIN_CHANNEL_ID && !isBotchatRoom && !isMisaRoom) {
+  if (MAIN_CHANNEL_ID && incomingChannelId !== MAIN_CHANNEL_ID && !isMisaRoom) {
     return NextResponse.json({
       ok: true,
       filtered: 'non-main-channel',
       received_channel: incomingChannelId || 'no-channel',
     });
-  }
-
-  // 3者チャットルーム判定 (くろBot視点):
-  // - ループ防止のため shouldRespond で応答可否を判定
-  // - 状態更新はinsert後に行う (= 受信メッセージとして state を進める)
-  let botchatDecision: Awaited<ReturnType<typeof shouldRespond>> | null = null;
-  if (isBotchatRoom) {
-    const judgePayload = {
-      channel_id: incomingChannelId,
-      sender_id: ev.source?.userId || '',
-      message_text: ev.content?.text || '',
-      message_id: ev.issuedTime || null,
-    };
-    try {
-      botchatDecision = await shouldRespond(judgePayload, 'くろ');
-    } catch (e) {
-      console.error('[botchat-rule] shouldRespond error', e);
-      botchatDecision = null;
-    }
   }
 
   const supabase = getSupabase();
@@ -109,33 +82,6 @@ export async function POST(req: NextRequest) {
   const ts = ev.issuedTime || new Date().toISOString();
   const userId = ev.source?.userId || '';
   const eventId = `lw:${ts}:${userId}`;
-
-  // 3者チャットルーム: should_respond=false なら line_messages 未挿入で Realtime 発火を阻止
-  // (= くろが完全沈黙する) + state は更新する
-  if (isBotchatRoom && botchatDecision && !botchatDecision.should_respond) {
-    await updateStateAfterMessage({
-      channel_id: incomingChannelId,
-      sender_id: ev.source?.userId || '',
-      message_text: ev.content?.text || '',
-      message_id: ev.issuedTime || null,
-    }).catch((e) => console.error('[botchat-rule] updateState error', e));
-    console.log('[botchat-rule] skip:', botchatDecision.round_action);
-    return NextResponse.json({
-      ok: true,
-      skipped: true,
-      reason: botchatDecision.round_action,
-    });
-  }
-
-  // is_final_rally の場合は raw_event に extra_prompt を埋め込み、reply listener が prompt に注入できるようにする
-  const rawEvent: Record<string, unknown> = { platform: 'lineworks', ...ev };
-  if (isBotchatRoom && botchatDecision) {
-    rawEvent.botchat = {
-      round_action: botchatDecision.round_action,
-      is_final_rally: botchatDecision.is_final_rally,
-      extra_prompt: botchatDecision.extra_prompt,
-    };
-  }
 
   await supabase.from('line_messages').insert({
     event_id: eventId,
@@ -147,18 +93,8 @@ export async function POST(req: NextRequest) {
     message_text: ev.content?.text || null,
     message_id: null,
     reply_token: null,
-    raw_event: rawEvent,
+    raw_event: { platform: 'lineworks', ...ev } as Record<string, unknown>,
   });
-
-  // 状態更新 (insert後・3者ルームのみ)
-  if (isBotchatRoom) {
-    await updateStateAfterMessage({
-      channel_id: incomingChannelId,
-      sender_id: ev.source?.userId || '',
-      message_text: ev.content?.text || '',
-      message_id: ev.issuedTime || null,
-    }).catch((e) => console.error('[botchat-rule] updateState error', e));
-  }
 
   // 既読マーク(ベストエフォート): LINE WORKS 公式未提供だが将来 API 提供時の切替点
   // 失敗しても受信処理に影響させない(fire-and-forget)
