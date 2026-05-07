@@ -582,7 +582,11 @@ export default function HomePage() {
     setEditing(detailEvent);
     setModalDate(undefined);
     setDetailOpen(false);
-    setModalOpen(true);
+    // Defer to next tick: let EventDetailModal's history.back() popstate be
+    // consumed by the OLD listener BEFORE EventModal pushes a new state +
+    // registers its popstate listener. Otherwise the back() fires AFTER the
+    // edit modal mounts and immediately closes it (2026-05-07 fix).
+    setTimeout(() => setModalOpen(true), 0);
   }
 
   async function handleTogglePin() {
