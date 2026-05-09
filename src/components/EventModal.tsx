@@ -18,6 +18,22 @@ interface Props {
 
 interface DateRange { start: string; end: string; }
 
+// T194 (2026-04-21 健太郎LW指示): note欄に金額系情報を書かせない
+// 売上情報は daily_data.sales_entries 側(¥ボタン経由)が正本(N8違反防止)
+// ¥/円/原価/粗利/単価/掛率/見積/請求/入金 等のキーワード or 4桁以上の数字+円/¥ をブロック
+// 金額キーワード(「円」は誤検知多いので数字+円側で検知・「¥/￥」は単独でも金額表記)
+const MONEY_NOTE_REGEX = /(¥|￥|原価|粗利|単価|掛率|掛け率|見積|請求|入金|売値|売価|仕入値|仕入価)/;
+const MONEY_NUM_REGEX = /\d{3,}\s*(円|¥|￥)/; // 例: 12000円 / ¥5000
+const MONEY_NUM_COMMA_REGEX = /\d{1,3}(,\d{3})+/; // 例: 12,000 / 1,200,000
+
+function detectMoneyInNote(text: string): { hit: boolean; reason: string } {
+  if (!text) return { hit: false, reason: '' };
+  if (MONEY_NOTE_REGEX.test(text)) return { hit: true, reason: '金額キーワード(¥/円/原価/粗利/単価 等)' };
+  if (MONEY_NUM_REGEX.test(text)) return { hit: true, reason: '数字+円/¥ パターン' };
+  if (MONEY_NUM_COMMA_REGEX.test(text)) return { hit: true, reason: 'カンマ区切り金額(例: 12,000)' };
+  return { hit: false, reason: '' };
+}
+
 export default function EventModal({ open, initialDate, editing, members, subCalendars, onClose, onSaved }: Props) {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
@@ -219,6 +235,19 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   async function handleSave() {
     if (!title.trim() || !date) {
       alert('タイトルと日付は必須です');
+      return;
+    }
+    // T194 (2026-04-21 健太郎LW指示): note欄に金額情報書込みブロック
+    // 売上は ¥ボタン(現場売上/材料販売タブ)経由・events.note への金額混入禁止
+    const moneyCheck = detectMoneyInNote(note);
+    if (moneyCheck.hit) {
+      alert(
+        '⚠️ メモ欄に金額情報は書けません\n\n' +
+          `検出: ${moneyCheck.reason}\n\n` +
+          '売上・原価・粗利・単価などは、日付右の「¥」ボタン\n' +
+          '(現場売上タブ / 材料販売タブ)から入力してください。\n\n' +
+          'メモ欄は連絡事項・備考専用です。'
+      );
       return;
     }
     setSaving(true);
@@ -581,19 +610,36 @@ export default function EventModal({ open, initialDate, editing, members, subCal
           </div>
 
           {/* Note */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 mb-1">メモ</label>
-            <div className="mb-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-md text-[11px] text-amber-800 leading-relaxed">
-              ⚠️ <strong>売上・金額・原価はここに書かない</strong>。日付右の <strong>円マーク(¥)</strong> 欄から入力してください(現場売上/材料販売タブ)。
-            </div>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={5}
-              placeholder="自由メモ・連絡先など(売上金額の記入はNG)"
-              className="w-full border border-slate-200 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-300 resize-y min-h-[100px]"
-            />
-          </div>
+          {/* T194 (2026-04-21 健太郎LW指示): note欄に金額情報書込みブロック・売上は¥ボタン経由 */}
+          {(() => {
+            const moneyCheck = detectMoneyInNote(note);
+            const isHit = moneyCheck.hit;
+            return (
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1">メモ</label>
+                <div className={`mb-2 px-3 py-2 rounded-md text-[11px] leading-relaxed border ${isHit ? 'bg-red-50 border-red-300 text-red-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+                  {isHit ? (
+                    <>
+                      🚫 <strong>金額情報が検出されました</strong>({moneyCheck.reason})。<br />
+                      メモ欄には<strong>金額情報を書かないでください</strong>。売上・原価・粗利・単価は<strong>日付右の「¥」ボタン</strong>(現場売上/材料販売タブ)から入力してください。<br />
+                      このまま保存しようとするとブロックされます。
+                    </>
+                  ) : (
+                    <>
+                      ⚠️ <strong>売上・金額・原価はここに書かない</strong>。日付右の <strong>円マーク(¥)</strong> 欄から入力してください(現場売上/材料販売タブ)。
+                    </>
+                  )}
+                </div>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={5}
+                  placeholder="※金額情報は書かないでください・売上タブへ&#10;連絡事項・備考・現場メモ等のみ"
+                  className={`w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 resize-y min-h-[100px] border ${isHit ? 'border-red-400 focus:ring-red-300 bg-red-50' : 'border-slate-200 focus:ring-blue-300'}`}
+                />
+              </div>
+            );
+          })()}
 
           {/* Pin */}
           <div>
