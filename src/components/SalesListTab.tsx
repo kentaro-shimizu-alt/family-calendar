@@ -112,6 +112,10 @@ export default function SalesListTab() {
   const [to, setTo] = useState(defaultTo);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
 
+  // 文字検索 (取引先/id/label/note OR部分一致・大文字小文字無視・リアルタイム)
+  // 2026-05-12 健太郎LW指示: 納品書計上済か確認用検索
+  const [searchQuery, setSearchQuery] = useState('');
+
   // ステータスフィルタ(デフォルト全ON)
   const [statusFilter, setStatusFilter] = useState<Record<StatusFilterKey, boolean>>({
     none: true,
@@ -163,9 +167,10 @@ export default function SalesListTab() {
     };
   }, [from, to]);
 
-  // flatten + タイプ/ステータスフィルタ (events.id 突合は廃止 — daily_data 全件表示)
+  // flatten + タイプ/ステータス/検索 フィルタ (events.id 突合は廃止 — daily_data 全件表示)
   const rows = useMemo<SalesRow[]>(() => {
     const out: SalesRow[] = [];
+    const q = searchQuery.trim().toLowerCase();
     for (const d of dailyList) {
       if (!d.salesEntries) continue;
       for (const entry of d.salesEntries) {
@@ -176,6 +181,21 @@ export default function SalesListTab() {
         // ステータスフィルタ
         const st = normalizeStatus(entry.delivery_note_status);
         if (!statusFilter[st]) continue;
+        // 文字検索フィルタ (OR部分一致・大文字小文字無視)
+        if (q) {
+          const customer = (entry.customer ?? '').toLowerCase();
+          const id = (entry.id ?? '').toLowerCase();
+          const label = (entry.label ?? '').toLowerCase();
+          const note = (entry.note ?? '').toLowerCase();
+          if (
+            !customer.includes(q) &&
+            !id.includes(q) &&
+            !label.includes(q) &&
+            !note.includes(q)
+          ) {
+            continue;
+          }
+        }
         out.push({
           date: d.date,
           entry,
@@ -183,7 +203,7 @@ export default function SalesListTab() {
       }
     }
     return out;
-  }, [dailyList, typeFilter, statusFilter]);
+  }, [dailyList, typeFilter, statusFilter, searchQuery]);
 
   // ソート (複数キー)
   const sortedRows = useMemo<SalesRow[]>(() => {
@@ -309,6 +329,32 @@ export default function SalesListTab() {
             今月
           </button>
         </div>
+        {/* 文字検索 (取引先/id/label/note OR部分一致・リアルタイム) */}
+        <div className="flex flex-wrap gap-2 items-center mt-2">
+          <label className="text-xs text-slate-600 font-semibold shrink-0" htmlFor="sales-search">
+            🔍 検索:
+          </label>
+          <input
+            id="sales-search"
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="取引先 / ID / label / note 部分一致"
+            className="flex-1 min-w-[180px] border border-slate-200 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+            autoComplete="off"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="text-[11px] px-2 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
+              title="検索クリア"
+            >
+              ✕ クリア
+            </button>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-2 items-center mt-2">
           {/* タイプ */}
           <label className="text-xs text-slate-600 font-semibold">タイプ:</label>
