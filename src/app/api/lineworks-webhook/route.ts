@@ -66,16 +66,22 @@ export async function POST(req: NextRequest) {
   // 2026-05-07 追加: 美砂3人ルーム(LINEWORKS_MISA_CHANNEL_ID)も受信対象に含める。
   // 2026-05-08 追加: ちゃこ3人ルーム(LINEWORKS_BOTCHAT_CHANNEL_ID)も受信対象に含める。
   //                  ce55d1d revert副作用で受信許可消失していたのを復活(N204再発防止)。
+  // 2026-05-11 追加 (BB-10): 材料販売専用ルーム(LINEWORKS_SHOP_CHANNEL_ID)も受信対象に含める。
+  //                  販売くろセッションが line_notify_shop.flag を watch する基盤。
+  //                  flagのch別分岐書込は dispatch/line_socket.mjs 側で実施。
   const MAIN_CHANNEL_ID = process.env.LINEWORKS_MAIN_CHANNEL_ID || '';
   const MISA_CHANNEL_ID = process.env.LINEWORKS_MISA_CHANNEL_ID || '';
   const BOTCHAT_CHANNEL_ID = process.env.LINEWORKS_BOTCHAT_CHANNEL_ID || '';
+  const SHOP_CHANNEL_ID = process.env.LINEWORKS_SHOP_CHANNEL_ID || 'ebd6867e-01e7-2245-21ef-432bf77f88a5';
   const incomingChannelId = ev.source?.channelId || '';
   const isMisaRoom = !!MISA_CHANNEL_ID && incomingChannelId === MISA_CHANNEL_ID;
   const isBotchatRoom = !!BOTCHAT_CHANNEL_ID && incomingChannelId === BOTCHAT_CHANNEL_ID;
+  const isShopRoom = !!SHOP_CHANNEL_ID && incomingChannelId === SHOP_CHANNEL_ID;
   if (MAIN_CHANNEL_ID &&
       incomingChannelId !== MAIN_CHANNEL_ID &&
       !isMisaRoom &&
-      !isBotchatRoom) {
+      !isBotchatRoom &&
+      !isShopRoom) {
     return NextResponse.json({
       ok: true,
       filtered: 'non-main-channel',
