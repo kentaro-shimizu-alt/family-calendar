@@ -110,7 +110,8 @@ async function sendGmailToKentaro(c: KentaroOrderNotifyContext): Promise<void> {
   const qtyLabel = totalQtyM > 0 ? `${totalQtyM}m` : '-';
   const priceLabel = grandTotal > 0 ? `税込¥${grandTotal.toLocaleString('ja-JP')}` : '-';
 
-  const subject = `【HP注文受信】${skuLabel} ${qtyLabel} / ${c.customer_name}`;
+  const grandTotalLabel = grandTotal > 0 ? ` 税込¥${grandTotal.toLocaleString('ja-JP')}` : '';
+  const subject = `🛒【HP新規注文 #${c.order_id}】${skuLabel} ${qtyLabel} / ${c.customer_name}${grandTotalLabel}`;
   const body = [
     `HPショップに新規注文が入りました。`,
     ``,
@@ -180,9 +181,13 @@ async function getLwBotToken(): Promise<{ token: string; botId: string } | null>
 }
 
 async function sendLWDMToKentaro(c: KentaroOrderNotifyContext): Promise<void> {
+  // 2026-05-11 BB-9: 材料販売専用ch (LINEWORKS_SHOP_CHANNEL_ID) があれば channel送信を優先。
+  //   無ければ従来通り個人user-id宛 push (健太郎DM) にfallback。
+  //   後方互換性維持・主くろ①ルームには送らない (HP注文は④へ分離)
+  const shopChannelId = process.env.LINEWORKS_SHOP_CHANNEL_ID;
   const kentaroId = process.env.LINEWORKS_KENTARO_USER_ID;
-  if (!kentaroId) {
-    console.warn('[notify_kentaro_order] LINEWORKS_KENTARO_USER_ID 未設定でskip');
+  if (!shopChannelId && !kentaroId) {
+    console.warn('[notify_kentaro_order] LINEWORKS_SHOP_CHANNEL_ID も LINEWORKS_KENTARO_USER_ID も未設定でskip');
     return;
   }
   const auth = await getLwBotToken();
@@ -213,7 +218,13 @@ async function sendLWDMToKentaro(c: KentaroOrderNotifyContext): Promise<void> {
   ];
   const text = head + '\n\n' + detailLines.join('\n');
 
-  await fetch(`https://www.worksapis.com/v1.0/bots/${botId}/users/${kentaroId}/messages`, {
+  // 送信URL: shopChannelId 優先・無ければ個人DM fallback
+  const targetUrl = shopChannelId
+    ? `https://www.worksapis.com/v1.0/bots/${botId}/channels/${shopChannelId}/messages`
+    : `https://www.worksapis.com/v1.0/bots/${botId}/users/${kentaroId}/messages`;
+  const targetLabel = shopChannelId ? `channel ${shopChannelId.slice(0, 8)}...` : 'user DM (fallback)';
+
+  const res = await fetch(targetUrl, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -221,6 +232,12 @@ async function sendLWDMToKentaro(c: KentaroOrderNotifyContext): Promise<void> {
     },
     body: JSON.stringify({ content: { type: 'text', text } }),
   });
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(`[notify_kentaro_order] LW送信失敗 ${targetLabel} status=${res.status}: ${errText.slice(0, 200)}`);
+  } else {
+    console.log(`[notify_kentaro_order] LW送信OK ${targetLabel}`);
+  }
 }
 
 // =============================================================
