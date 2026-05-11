@@ -160,7 +160,11 @@ export async function POST(req: NextRequest) {
   }).catch((e) => console.error('[shop-order-webhook] LW main-room notify failed', e));
 
   // 健太郎個人にGmail+LW DM両通知 (2026-05-08 G-12 別タスク残置完了・健太郎LW C両方承認)
-  notifyKentaroNewOrder({
+  // 2026-05-11 N219: await必須化。fire-and-forgetだとVercel serverlessが
+  //   response後にfn終了してSMTP接続が途中で切られる場合があり、
+  //   2回目のテスト注文(22:24)でGmail未着が発生したため。
+  //   await化でレイテンシは数百ms増えるが、Gmail配送を保証する。
+  await notifyKentaroNewOrder({
     order_id: payload.order_id,
     customer_name: cleanedCustomerName,
     email: payload.email,
