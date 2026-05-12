@@ -309,16 +309,19 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       alert('タイトルと日付は必須です');
       return;
     }
-    // T194 (2026-04-21 健太郎LW指示): note欄に金額情報書込みブロック
-    // 売上は ¥ボタン(現場売上/材料販売タブ)経由・events.note への金額混入禁止
+    // T194 (2026-04-21): note欄金額情報書込みブロック
+    // T204 (2026-05-13 健太郎承認): 売上系入力UI廃止・売上は ¥ボタン(SalesModal)経由のみ
+    // events.note への金額混入は完全禁止・daily_data.sales_entries が正本
     const moneyCheck = detectMoneyInNote(note);
     if (moneyCheck.hit) {
       alert(
-        '⚠️ メモ欄に金額情報は書けません\n\n' +
+        '⚠️ メモ欄に金額情報は書けません (T204: 売上タブへ完全集約)\n\n' +
           `検出: ${moneyCheck.reason}\n\n` +
-          '売上・原価・粗利・単価などは、日付右の「¥」ボタン\n' +
-          '(現場売上タブ / 材料販売タブ)から入力してください。\n\n' +
-          'メモ欄は連絡事項・備考専用です。'
+          '💰 売上・原価・粗利・単価などは、日付右の「¥」ボタン\n' +
+          '(現場売上タブ / 材料販売タブ)から入力してください。\n' +
+          'メモ欄は連絡事項・備考専用です。\n\n' +
+          '※売上タブで入力した金額は daily_data.sales_entries に\n' +
+          '正しく記録され、xlsx売上DB・粗利集計と連動します。'
       );
       return;
     }
@@ -797,23 +800,37 @@ export default function EventModal({ open, initialDate, editing, members, subCal
           </div>
 
           {/* Note */}
-          {/* T194 (2026-04-21 健太郎LW指示): note欄に金額情報書込みブロック・売上は¥ボタン経由 */}
+          {/* T194 (2026-04-21): note欄金額入力ブロック実装 */}
+          {/* T204 (2026-05-13 健太郎承認・本実装): 売上系入力UI廃止を明文化
+              - EventModal経由のevents.note への金額/売上書込みを完全廃止
+              - 売上系入力は SalesModal(円マーク欄・daily_data.sales_entries)へ完全集約
+              - 既存events.note データ(過去入力)は表示維持(EventDetailModal側)・新規入力だけ廃止 */}
           {(() => {
             const moneyCheck = detectMoneyInNote(note);
             const isHit = moneyCheck.hit;
             return (
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1">メモ</label>
-                <div className={`mb-2 px-3 py-2 rounded-md text-[11px] leading-relaxed border ${isHit ? 'bg-red-50 border-red-300 text-red-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+                <div className={`mb-2 px-3 py-2.5 rounded-md text-[12px] leading-relaxed border-2 ${isHit ? 'bg-red-50 border-red-400 text-red-800' : 'bg-amber-50 border-amber-300 text-amber-800'}`}>
                   {isHit ? (
                     <>
-                      🚫 <strong>金額情報が検出されました</strong>({moneyCheck.reason})。<br />
-                      メモ欄には<strong>金額情報を書かないでください</strong>。売上・原価・粗利・単価は<strong>日付右の「¥」ボタン</strong>(現場売上/材料販売タブ)から入力してください。<br />
-                      このまま保存しようとするとブロックされます。
+                      <div className="font-bold text-[13px] mb-1">🚫 金額情報が検出されました</div>
+                      <div className="mb-1.5">検出: <strong>{moneyCheck.reason}</strong></div>
+                      <div>
+                        💰 売上・原価・粗利・単価などは、<strong>日付右の「¥」ボタン</strong>(現場売上タブ / 材料販売タブ)から入力してください。
+                      </div>
+                      <div className="mt-1.5 text-[11px] text-red-700">
+                        このまま保存しようとするとブロックされます(T204: 売上タブへ完全集約)。
+                      </div>
                     </>
                   ) : (
                     <>
-                      ⚠️ <strong>売上・金額・原価はここに書かない</strong>。日付右の <strong>円マーク(¥)</strong> 欄から入力してください(現場売上/材料販売タブ)。
+                      <div className="font-bold text-[13px] mb-1">💰 売上金額の入力は「売上タブ」(円マーク欄)から行ってください</div>
+                      <div className="text-[11px]">
+                        メモ欄には<strong>金額情報を書かない</strong>でください。<br />
+                        売上・原価・粗利・単価は<strong>日付右の「¥」ボタン</strong>(現場売上タブ / 材料販売タブ)で入力すると、daily_data.sales_entries に正しく記録されます。<br />
+                        メモ欄は連絡事項・現場備考・スケジュール調整等のみ。
+                      </div>
                     </>
                   )}
                 </div>
@@ -821,7 +838,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   rows={5}
-                  placeholder="※金額情報は書かないでください・売上タブへ&#10;連絡事項・備考・現場メモ等のみ"
+                  placeholder="※金額情報は書かないでください・売上は日付右の「¥」ボタン(売上タブ)へ&#10;連絡事項・備考・現場メモ等のみ"
                   className={`w-full rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 resize-y min-h-[100px] border ${isHit ? 'border-red-400 focus:ring-red-300 bg-red-50' : 'border-slate-200 focus:ring-blue-300'}`}
                 />
               </div>
