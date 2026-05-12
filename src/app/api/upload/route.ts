@@ -154,7 +154,11 @@ export async function POST(req: NextRequest) {
         if (!isImage && !isPdf && !isHtml) continue;
         let buf: Buffer = Buffer.from(await file.arrayBuffer());
         let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : isHtml ? '.html' : '.bin')).toLowerCase();
-        let mimeType = type || (isPdf ? 'application/pdf' : isHtml ? 'text/html' : 'application/octet-stream');
+        // HTMLは必ず charset=utf-8 を含める(健太郎LW 2026-05-12 文字化け対策)
+        let mimeType = type || (isPdf ? 'application/pdf' : isHtml ? 'text/html; charset=utf-8' : 'application/octet-stream');
+        if (isHtml && mimeType.toLowerCase() === 'text/html') {
+          mimeType = 'text/html; charset=utf-8';
+        }
         if (isImage) {
           const r = await compressImageIfNeeded(buf, mimeType, ext);
           buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
@@ -185,7 +189,11 @@ export async function POST(req: NextRequest) {
         if (!isImage && !isPdf && !isHtml) continue;
         let buf: Buffer = Buffer.from(await file.arrayBuffer());
         let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : isHtml ? '.html' : '.bin')).toLowerCase();
-        let mimeType = type || (isPdf ? 'application/pdf' : isHtml ? 'text/html' : 'application/octet-stream');
+        // HTMLは必ず charset=utf-8 を含める(健太郎LW 2026-05-12 文字化け対策)
+        let mimeType = type || (isPdf ? 'application/pdf' : isHtml ? 'text/html; charset=utf-8' : 'application/octet-stream');
+        if (isHtml && mimeType.toLowerCase() === 'text/html') {
+          mimeType = 'text/html; charset=utf-8';
+        }
         if (isImage) {
           const r = await compressImageIfNeeded(buf, mimeType, ext);
           buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
@@ -198,8 +206,13 @@ export async function POST(req: NextRequest) {
         const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         const filename = `${id}${ext}`;
         const pathInBucket = `${isPdf ? 'pdf' : isHtml ? 'html' : 'img'}/${filename}`;
+        // HTML は必ず charset=utf-8 を付ける（健太郎LW 2026-05-12: 「mp2cdbp51j8enb.html開くと文字化け」修正）
+        // ブラウザは Content-Type の charset 指定が無いと SHIFT_JIS 等で誤解釈する
+        const uploadContentType = isHtml
+          ? 'text/html; charset=utf-8'
+          : mimeType;
         const { error } = await sb.storage.from(STORAGE_BUCKET).upload(pathInBucket, buf, {
-          contentType: mimeType,
+          contentType: uploadContentType,
           upsert: false,
         });
         if (error) {
