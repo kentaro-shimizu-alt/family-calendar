@@ -33,18 +33,34 @@ function rowToEvent(r: any): CalendarEvent {
     location: r.location || undefined,
     images: r.images || undefined,
     pdfs: r.pdfs || undefined,
+    // HTML添付（カット指示書等インタラクティブHTML）2026-05-12 健太郎LW指示
+    htmls: r.htmls || undefined,
     pinned: !!r.pinned,
     comments: r.comments || undefined,
     recurrence: r.recurrence || undefined,
     reminderMinutes: r.reminder_minutes || undefined,
     site: r.site || undefined,
     relatedEventIds: Array.isArray(r.related_event_ids) ? r.related_event_ids : undefined,
+    // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override
+    dateOverrides: r.date_overrides && typeof r.date_overrides === 'object' && !Array.isArray(r.date_overrides)
+      ? r.date_overrides
+      : undefined,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
 }
 
 function eventToRow(e: CalendarEvent): any {
+  // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override
+  // migration `2026-05-12_add_date_overrides_to_events.sql` 未適用 DB との互換のため、
+  // dateOverrides がセットされている時のみ date_overrides 列を含める（spread で条件付き挿入）
+  const hasOverrides =
+    e.dateOverrides && typeof e.dateOverrides === 'object' && Object.keys(e.dateOverrides).length > 0;
+  // 2026-05-12 健太郎LW: HTML添付（カット指示書等）
+  // migration `2026-05-12_add_htmls_to_events.sql` 未適用 DB との互換のため、
+  // htmls プロパティが明示的にセットされている時のみ htmls 列を含める（spread で条件付き挿入）
+  // 空配列でも「全削除」として送る必要があるので、undefined のみスキップ
+  const hasHtmlsKey = e.htmls !== undefined;
   return {
     id: e.id,
     calendar_id: e.calendarId ?? null,
@@ -66,7 +82,10 @@ function eventToRow(e: CalendarEvent): any {
     recurrence: e.recurrence ?? null,
     reminder_minutes: e.reminderMinutes ?? null,
     site: e.site ?? null,
-    related_event_ids: Array.isArray(e.relatedEventIds) && e.relatedEventIds.length > 0 ? e.relatedEventIds : null,
+    related_event_ids:
+      Array.isArray(e.relatedEventIds) && e.relatedEventIds.length > 0 ? e.relatedEventIds : null,
+    ...(hasOverrides ? { date_overrides: e.dateOverrides } : {}),
+    ...(hasHtmlsKey ? { htmls: e.htmls } : {}),
     created_at: e.createdAt,
     updated_at: e.updatedAt,
   };

@@ -9,6 +9,9 @@ const UPLOAD_DIR = path.join(process.cwd(), 'data', 'uploads');
 
 const ACCEPTED_IMAGE = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
 const ACCEPTED_PDF = ['application/pdf'];
+// HTML添付: カット指示書等のインタラクティブHTML (健太郎LW指示 2026-05-12)
+// 拡張子 .html / .htm も許可（ブラウザによっては type が空文字になる）
+const ACCEPTED_HTML = ['text/html'];
 
 // 画像圧縮設定（B案: アップ時自動圧縮 / Supabase Storage 容量対策）
 // 仕様: 長辺最大1280px・JPEG品質80%・GIF/SVGは原本維持・失敗時は原本フォールバック
@@ -41,8 +44,15 @@ async function isAlreadyCompressedByUs(buf: Buffer): Promise<boolean> {
 
 export interface UploadedFile {
   url: string;
-  kind: 'image' | 'pdf';
+  kind: 'image' | 'pdf' | 'html';
   name: string;
+}
+
+// HTML判定ヘルパー: MIME or 拡張子 (.html/.htm) のどちらかでヒット
+function isHtmlFile(type: string, fileName: string): boolean {
+  if (ACCEPTED_HTML.includes(type)) return true;
+  const lower = fileName.toLowerCase();
+  return lower.endsWith('.html') || lower.endsWith('.htm');
 }
 
 /**
@@ -140,10 +150,11 @@ export async function POST(req: NextRequest) {
         const type = (file.type || '').toLowerCase();
         const isImage = ACCEPTED_IMAGE.includes(type) || type.startsWith('image/');
         const isPdf = ACCEPTED_PDF.includes(type) || file.name.toLowerCase().endsWith('.pdf');
-        if (!isImage && !isPdf) continue;
+        const isHtml = !isImage && !isPdf && isHtmlFile(type, file.name);
+        if (!isImage && !isPdf && !isHtml) continue;
         let buf: Buffer = Buffer.from(await file.arrayBuffer());
-        let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : '.bin')).toLowerCase();
-        let mimeType = type || (isPdf ? 'application/pdf' : 'application/octet-stream');
+        let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : isHtml ? '.html' : '.bin')).toLowerCase();
+        let mimeType = type || (isPdf ? 'application/pdf' : isHtml ? 'text/html' : 'application/octet-stream');
         if (isImage) {
           const r = await compressImageIfNeeded(buf, mimeType, ext);
           buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
@@ -157,7 +168,7 @@ export async function POST(req: NextRequest) {
         const filename = `${id}${ext}`;
         const fileId = await uploadToGDrive(buf, filename, mimeType);
         const url = `/api/gdrive-image/${fileId}`;
-        const kind: 'image' | 'pdf' = isPdf ? 'pdf' : 'image';
+        const kind: 'image' | 'pdf' | 'html' = isPdf ? 'pdf' : isHtml ? 'html' : 'image';
         items.push({ url, kind, name: file.name });
         if (kind === 'image') urls.push(url);
       }
@@ -170,10 +181,11 @@ export async function POST(req: NextRequest) {
         const type = (file.type || '').toLowerCase();
         const isImage = ACCEPTED_IMAGE.includes(type) || type.startsWith('image/');
         const isPdf = ACCEPTED_PDF.includes(type) || file.name.toLowerCase().endsWith('.pdf');
-        if (!isImage && !isPdf) continue;
+        const isHtml = !isImage && !isPdf && isHtmlFile(type, file.name);
+        if (!isImage && !isPdf && !isHtml) continue;
         let buf: Buffer = Buffer.from(await file.arrayBuffer());
-        let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : '.bin')).toLowerCase();
-        let mimeType = type || (isPdf ? 'application/pdf' : 'application/octet-stream');
+        let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : isHtml ? '.html' : '.bin')).toLowerCase();
+        let mimeType = type || (isPdf ? 'application/pdf' : isHtml ? 'text/html' : 'application/octet-stream');
         if (isImage) {
           const r = await compressImageIfNeeded(buf, mimeType, ext);
           buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
@@ -185,7 +197,7 @@ export async function POST(req: NextRequest) {
         }
         const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         const filename = `${id}${ext}`;
-        const pathInBucket = `${isPdf ? 'pdf' : 'img'}/${filename}`;
+        const pathInBucket = `${isPdf ? 'pdf' : isHtml ? 'html' : 'img'}/${filename}`;
         const { error } = await sb.storage.from(STORAGE_BUCKET).upload(pathInBucket, buf, {
           contentType: mimeType,
           upsert: false,
@@ -195,7 +207,7 @@ export async function POST(req: NextRequest) {
         }
         const { data: pub } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(pathInBucket);
         const url = pub.publicUrl;
-        const kind: 'image' | 'pdf' = isPdf ? 'pdf' : 'image';
+        const kind: 'image' | 'pdf' | 'html' = isPdf ? 'pdf' : isHtml ? 'html' : 'image';
         items.push({ url, kind, name: file.name });
         if (kind === 'image') urls.push(url);
       }
@@ -208,10 +220,11 @@ export async function POST(req: NextRequest) {
       const type = (file.type || '').toLowerCase();
       const isImage = ACCEPTED_IMAGE.includes(type) || type.startsWith('image/');
       const isPdf = ACCEPTED_PDF.includes(type) || file.name.toLowerCase().endsWith('.pdf');
-      if (!isImage && !isPdf) continue;
+      const isHtml = !isImage && !isPdf && isHtmlFile(type, file.name);
+      if (!isImage && !isPdf && !isHtml) continue;
       let buf: Buffer = Buffer.from(await file.arrayBuffer());
-      let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : '.bin')).toLowerCase();
-      let mimeType = type || (isPdf ? 'application/pdf' : 'application/octet-stream');
+      let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : isHtml ? '.html' : '.bin')).toLowerCase();
+      let mimeType = type || (isPdf ? 'application/pdf' : isHtml ? 'text/html' : 'application/octet-stream');
       if (isImage) {
         const r = await compressImageIfNeeded(buf, mimeType, ext);
         buf = r.buf as Buffer; mimeType = r.mime; ext = r.ext;
@@ -225,7 +238,7 @@ export async function POST(req: NextRequest) {
       const filename = `${id}${ext}`;
       fs.writeFileSync(path.join(UPLOAD_DIR, filename), buf);
       const url = `/api/uploads/${filename}`;
-      const kind: 'image' | 'pdf' = isPdf ? 'pdf' : 'image';
+      const kind: 'image' | 'pdf' | 'html' = isPdf ? 'pdf' : isHtml ? 'html' : 'image';
       items.push({ url, kind, name: file.name });
       if (kind === 'image') urls.push(url);
     }

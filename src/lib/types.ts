@@ -39,6 +39,67 @@ export interface SiteInfo {
   note?: string; // 現場情報メモ（住所・内訳など）
 }
 
+// 飛び飛び期間予定の各日付に個別の題名・色を設定するoverride（健太郎LW id=2054+2055 2026-05-12）
+// 例: ギャロップ案件で 5/18=「現調」青 / 5/19=「本工事1日目」緑 / 5/20=「完了」橙
+// events.id は共通維持・key=YYYY-MM-DD（ISO日付文字列）
+export type DateOverrideColor =
+  | 'blue'    // 現調・調査系
+  | 'green'   // 本工事・完了系
+  | 'orange'  // 重要・確認系
+  | 'gray'    // 休工・保留系
+  | 'red'     // 緊急・要対応
+  | 'purple'  // 材料納品系
+  | 'pink';   // 打ち合わせ系
+
+export interface DateOverride {
+  title?: string;
+  color?: DateOverrideColor;
+}
+
+export type DateOverrides = Record<string, DateOverride>; // key: 'YYYY-MM-DD'
+
+// プリセット色: DateOverrideColor -> hex
+export const DATE_OVERRIDE_COLOR_HEX: Record<DateOverrideColor, string> = {
+  blue:   '#3b82f6',
+  green:  '#10b981',
+  orange: '#f59e0b',
+  gray:   '#9ca3af',
+  red:    '#ef4444',
+  purple: '#a855f7',
+  pink:   '#ec4899',
+};
+
+// プリセット色の文字色: 背景に対するcontrast確保（健太郎LW id=2059「紫の字が見えない・白がいい」2026-05-12）
+// 健太郎LW id=2066 (2026-05-12): 「背景がグレーのとこの文字は全部白にしたほうが見やすい」
+// → gray も白文字に変更（WCAG AA未達 2.85:1 だが健太郎好み優先・家族内UI）
+// 暗色背景(blue/green/red/purple/pink) + 明色背景(gray) -> 白文字
+// 明色背景(orange) -> 黒文字（健太郎明示外のため維持）
+export const DATE_OVERRIDE_COLOR_FG: Record<DateOverrideColor, string> = {
+  blue:   '#ffffff',
+  green:  '#ffffff',
+  orange: '#1f2937', // 明色背景→濃灰(near-black) ※健太郎指示外のため維持
+  gray:   '#ffffff', // 健太郎LW id=2066: 灰背景は白文字
+  red:    '#ffffff',
+  purple: '#ffffff',
+  pink:   '#ffffff',
+};
+
+// プリセット色ラベル（UI表示用）
+export const DATE_OVERRIDE_COLOR_LABEL: Record<DateOverrideColor, string> = {
+  blue:   '青(現調)',
+  green:  '緑(本工事)',
+  orange: '橙(完了)',
+  gray:   '灰(休工)',
+  red:    '赤(緊急)',
+  purple: '紫(材料)',
+  pink:   '桃(打合)',
+};
+
+// プリセットラベル候補（自由入力可・あくまでサジェスト）
+export const DATE_OVERRIDE_TITLE_PRESETS: string[] = [
+  '現調', '本工事', '本工事1日目', '本工事2日目', '完了', '休工', '材料納品', '打ち合わせ',
+];
+
 // 画像アイテム: 後方互換で string（URL のみ）も受け付ける
 export interface ImageItem {
   url: string;
@@ -70,12 +131,19 @@ export interface CalendarEvent {
   location?: string;
   images?: ImageEntry[]; // URL文字列 または {url, rotation} オブジェクト（後方互換）
   pdfs?: Array<{ url: string; name?: string }>; // PDF添付
+  // HTMLファイル添付（カット指示書等のインタラクティブHTML）
+  // 健太郎LW指示 2026-05-12: 現場でスマホからタップして開いて使うため新設
+  // pdfs と同型・タイプ識別を明示するため別フィールド
+  htmls?: Array<{ url: string; name?: string }>;
   pinned?: boolean; // 上部に固定表示
   comments?: EventComment[];
   recurrence?: RecurrenceRule;
   reminderMinutes?: number[]; // 何分前に通知
   site?: SiteInfo; // 現場案件情報（売値・原価）
   relatedEventIds?: string[]; // 関連予定ID（双方向）— 2026-04-25 追加
+  // 飛び飛び期間予定の各日付に個別title/colorを設定するoverride（健太郎LW id=2054+2055 2026-05-12）
+  // events.id は共通維持・key=YYYY-MM-DD（ISO日付文字列）・各日title/colorは optional
+  dateOverrides?: DateOverrides;
   createdAt: string;
   updatedAt: string;
 }

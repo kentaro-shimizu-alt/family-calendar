@@ -25,7 +25,9 @@ interface Props {
 type FeedItem =
   | { kind: 'comment'; id: string; ts: number; comment: EventComment }
   | { kind: 'image'; id: string; ts: number; url: string; rotation: 0 | 90 | 180 | 270; index: number }
-  | { kind: 'pdf'; id: string; ts: number; url: string; name?: string; index: number };
+  | { kind: 'pdf'; id: string; ts: number; url: string; name?: string; index: number }
+  // HTML添付（カット指示書等インタラクティブHTML）2026-05-12 健太郎LW指示
+  | { kind: 'html'; id: string; ts: number; url: string; name?: string; index: number };
 
 export default function EventDetailModal({ open, event, members, onClose, onEdit, onTogglePin, onDelete, onCommentAdded, onJumpToEvent }: Props) {
   const [commentText, setCommentText] = useState('');
@@ -246,6 +248,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       items.push({ kind: 'pdf', id: `p_${p.url}_${i}`, ts, url: p.url, name: p.name, index: i });
     });
 
+    // HTML添付（カット指示書等）PDFよりさらに後ろに並べる（番号順保持）
+    (event.htmls || []).forEach((h, i) => {
+      const ts = eventDateMs + 1000 * 60 * 60 * (2000 + i);
+      items.push({ kind: 'html', id: `h_${h.url}_${i}`, ts, url: h.url, name: h.name, index: i });
+    });
+
     items.sort((a, b) => a.ts - b.ts);
     return items;
   }, [event]);
@@ -365,12 +373,17 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       const newPdfs = data.items
         .filter((it: any) => it.kind === 'pdf')
         .map((it: any) => ({ url: it.url, name: it.name }));
+      // HTML添付（カット指示書等）2026-05-12 健太郎LW指示
+      const newHtmls = data.items
+        .filter((it: any) => it.kind === 'html')
+        .map((it: any) => ({ url: it.url, name: it.name }));
       const patch: any = {};
       if (newImages.length) patch.images = [
         ...(event.images || []).map((e) => normalizeImageEntry(e)),
         ...newImages,
       ];
       if (newPdfs.length) patch.pdfs = [...(event.pdfs || []), ...newPdfs];
+      if (newHtmls.length) patch.htmls = [...(event.htmls || []), ...newHtmls];
       const putRes = await fetch(`/api/events/${event.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -472,6 +485,25 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       onCommentAdded(); // reload event
     } catch (e: any) {
       alert('PDF削除に失敗しました: ' + e.message);
+    }
+  }
+
+  // HTMLの削除: 指定インデックスを htmls配列から除外して保存（カット指示書等）2026-05-12
+  async function handleDeleteHtml(index: number) {
+    if (!event) return;
+    if (!confirm('このHTMLを削除しますか？元には戻せません。')) return;
+    try {
+      const currentHtmls = event.htmls || [];
+      const updatedHtmls = currentHtmls.filter((_, i) => i !== index);
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ htmls: updatedHtmls }),
+      });
+      if (!res.ok) throw new Error('delete html failed');
+      onCommentAdded(); // reload event
+    } catch (e: any) {
+      alert('HTML削除に失敗しました: ' + e.message);
     }
   }
 
@@ -946,11 +978,40 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                   );
                 }
 
-                // pdf
+                if (item.kind === 'pdf') {
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-2 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-100 transition group"
+                    >
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 flex-1 min-w-0"
+                      >
+                        <span className="text-lg">📄</span>
+                        <span className="text-xs text-rose-700 font-semibold flex-1 truncate">
+                          {item.name || 'PDF'}
+                        </span>
+                      </a>
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeletePdf(item.index); }}
+                        className="text-rose-400 hover:text-rose-600 text-lg px-1 leading-none"
+                        title="PDFを削除"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                }
+
+                // html（カット指示書等インタラクティブHTML）2026-05-12 健太郎LW指示
+                // 別オリジン(Supabase Storage)で開くので target=_blank + rel=noopener noreferrer 必須
                 return (
                   <div
                     key={item.id}
-                    className="flex items-center gap-2 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 hover:bg-rose-100 transition group"
+                    className="flex items-center gap-2 bg-sky-50 border border-sky-200 rounded-lg px-3 py-2 hover:bg-sky-100 transition group"
                   >
                     <a
                       href={item.url}
@@ -958,15 +1019,15 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 flex-1 min-w-0"
                     >
-                      <span className="text-lg">📄</span>
-                      <span className="text-xs text-rose-700 font-semibold flex-1 truncate">
-                        {item.name || 'PDF'}
+                      <span className="text-lg">🌐</span>
+                      <span className="text-xs text-sky-700 font-semibold flex-1 truncate">
+                        {item.name || 'HTML'}
                       </span>
                     </a>
                     <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeletePdf(item.index); }}
-                      className="text-rose-400 hover:text-rose-600 text-lg px-1 leading-none"
-                      title="PDFを削除"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteHtml(item.index); }}
+                      className="text-sky-400 hover:text-sky-600 text-lg px-1 leading-none"
+                      title="HTMLを削除"
                     >
                       ×
                     </button>
@@ -980,10 +1041,10 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           <div className="flex items-center gap-3">
             <div className="w-8 text-center text-slate-400">📎</div>
             <label className="flex-1 text-xs text-slate-500 border-2 border-dashed border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer transition">
-              {uploading ? 'アップロード中...' : '画像・PDFをここにドラッグ / ペースト / クリックして選択'}
+              {uploading ? 'アップロード中...' : '画像・PDF・HTMLをここにドラッグ / ペースト / クリックして選択'}
               <input
                 type="file"
-                accept="image/*,application/pdf"
+                accept="image/*,application/pdf,text/html,.html,.htm"
                 multiple
                 className="hidden"
                 onChange={handleFilePick}

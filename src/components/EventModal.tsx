@@ -3,7 +3,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, isSameMonth, parseISO, startOfMonth, startOfWeek, endOfWeek, subMonths } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { CalendarEvent, Member, MemberId, RecurrenceRule, SubCalendar, COLOR_PALETTE, normalizeImageEntry } from '@/lib/types';
+import {
+  CalendarEvent,
+  Member,
+  MemberId,
+  RecurrenceRule,
+  SubCalendar,
+  COLOR_PALETTE,
+  normalizeImageEntry,
+  DateOverrides,
+  DateOverride,
+  DateOverrideColor,
+  DATE_OVERRIDE_COLOR_HEX,
+  DATE_OVERRIDE_COLOR_LABEL,
+  DATE_OVERRIDE_TITLE_PRESETS,
+} from '@/lib/types';
 import { downscaleFiles } from '@/lib/imageDownscale';
 
 interface Props {
@@ -39,6 +53,8 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   const [date, setDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [extraRanges, setExtraRanges] = useState<DateRange[]>([]); // 飛び飛び期間（2本目以降）
+  // 飛び飛び期間予定の各日付の title/color override（健太郎LW id=2054+2055 2026-05-12）
+  const [dateOverrides, setDateOverrides] = useState<DateOverrides>({});
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [memberId, setMemberId] = useState<MemberId>('all');
@@ -49,6 +65,8 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   const [location, setLocation] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [pdfs, setPdfs] = useState<Array<{ url: string; name?: string }>>([]);
+  // HTML添付 (カット指示書等のインタラクティブHTML) 2026-05-12 健太郎LW指示
+  const [htmls, setHtmls] = useState<Array<{ url: string; name?: string }>>([]);
   const [pinned, setPinned] = useState(false);
   // Recurrence
   const [recEnabled, setRecEnabled] = useState(false);
@@ -83,6 +101,10 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       } else {
         setExtraRanges([]);
       }
+      // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override 読込
+      setDateOverrides(
+        editing.dateOverrides && typeof editing.dateOverrides === 'object' ? { ...editing.dateOverrides } : {}
+      );
       setStartTime(editing.startTime || '');
       setEndTime(editing.endTime || '');
       setMemberId(editing.memberId);
@@ -93,6 +115,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setLocation(editing.location || '');
       setImages((editing.images || []).map((e) => normalizeImageEntry(e).url));
       setPdfs(editing.pdfs || []);
+      setHtmls(editing.htmls || []);
       setPinned(!!editing.pinned);
       if (editing.recurrence) {
         setRecEnabled(true);
@@ -109,6 +132,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setDate(initialDate ? format(initialDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'));
       setEndDate('');
       setExtraRanges([]);
+      setDateOverrides({});
       setStartTime('');
       setEndTime('');
       setMemberId('all');
@@ -119,6 +143,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       setLocation('');
       setImages([]);
       setPdfs([]);
+      setHtmls([]);
       setPinned(false);
       setRecEnabled(false);
       setRecFreq('weekly');
@@ -157,12 +182,15 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       if (Array.isArray(data.items)) {
         const newImages: string[] = [];
         const newPdfs: Array<{ url: string; name?: string }> = [];
+        const newHtmls: Array<{ url: string; name?: string }> = [];
         for (const it of data.items) {
           if (it.kind === 'image') newImages.push(it.url);
           else if (it.kind === 'pdf') newPdfs.push({ url: it.url, name: it.name });
+          else if (it.kind === 'html') newHtmls.push({ url: it.url, name: it.name });
         }
         if (newImages.length) setImages((prev) => [...prev, ...newImages]);
         if (newPdfs.length) setPdfs((prev) => [...prev, ...newPdfs]);
+        if (newHtmls.length) setHtmls((prev) => [...prev, ...newHtmls]);
       }
     } catch (err) {
       console.error(err);
@@ -203,8 +231,52 @@ export default function EventModal({ open, initialDate, editing, members, subCal
 
   function removeImage(u: string) { setImages((prev) => prev.filter((x) => x !== u)); }
   function removePdf(u: string) { setPdfs((prev) => prev.filter((p) => p.url !== u)); }
+  function removeHtml(u: string) { setHtmls((prev) => prev.filter((h) => h.url !== u)); }
   function toggleReminder(min: number) {
     setReminders((prev) => prev.includes(min) ? prev.filter((m) => m !== min) : [...prev, min]);
+  }
+
+  // 飛び飛び期間予定の各日付enum（健太郎LW id=2054+2055 2026-05-12）
+  // 期間1(date〜endDate or date) + extraRanges を全て展開し、ISO日付配列を返す
+  // 巨大期間で爆発しないよう上限366件（1年分）でガード
+  function enumerateAllDates(): string[] {
+    const all: string[] = [];
+    const ranges: Array<{ start: string; end: string }> = [];
+    if (date) ranges.push({ start: date, end: endDate || date });
+    for (const r of extraRanges) {
+      if (r.start) ranges.push({ start: r.start, end: r.end || r.start });
+    }
+    for (const r of ranges) {
+      if (!r.start) continue;
+      const s = parseISO(r.start);
+      const e = parseISO(r.end || r.start);
+      if (isNaN(s.getTime()) || isNaN(e.getTime())) continue;
+      const days = eachDayOfInterval({ start: s, end: e });
+      for (const d of days) {
+        const key = format(d, 'yyyy-MM-dd');
+        if (!all.includes(key)) all.push(key);
+        if (all.length >= 366) return all;
+      }
+    }
+    return all.sort();
+  }
+
+  function updateDateOverride(key: string, patch: Partial<DateOverride>) {
+    setDateOverrides((prev) => {
+      const cur: DateOverride = { ...(prev[key] || {}) };
+      if (patch.title !== undefined) {
+        if (patch.title === '') delete cur.title;
+        else cur.title = patch.title;
+      }
+      if (patch.color !== undefined) {
+        if (patch.color === undefined || (patch.color as any) === '') delete cur.color;
+        else cur.color = patch.color;
+      }
+      const next = { ...prev };
+      if (!cur.title && !cur.color) delete next[key];
+      else next[key] = cur;
+      return next;
+    });
   }
 
   function addExtraRange() {
@@ -274,6 +346,25 @@ export default function EventModal({ open, initialDate, editing, members, subCal
         url,
         rotation: existingRotationMap.get(url) ?? 0,
       }));
+      // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override
+      // 飛び飛び期間が指定されているときのみ送出(単日予定では使わない)
+      // 空オブジェクト/空エントリは除去して送信
+      const cleanedOverrides: DateOverrides = {};
+      if (hasExtra) {
+        for (const [k, v] of Object.entries(dateOverrides)) {
+          if (!v) continue;
+          const entry: DateOverride = {};
+          if (v.title && v.title.trim()) entry.title = v.title.trim();
+          if (v.color) entry.color = v.color;
+          if (entry.title || entry.color) cleanedOverrides[k] = entry;
+        }
+      }
+      // 編集時はクリア意図を明示するため null を送る・新規時は undefined（POST 時は省略）
+      const overridesToSend =
+        Object.keys(cleanedOverrides).length > 0
+          ? cleanedOverrides
+          : (editing ? null : undefined);
+
       const baseBody = {
         title: title.trim(),
         startTime, endTime,
@@ -282,8 +373,12 @@ export default function EventModal({ open, initialDate, editing, members, subCal
         note, url: url || undefined, location: location || undefined,
         images: imagesWithRotation.length > 0 ? imagesWithRotation : undefined,
         pdfs: pdfs.length > 0 ? pdfs : undefined,
+        // HTML添付（カット指示書等）2026-05-12 健太郎LW指示
+        // 編集時に全削除した場合は空配列で送って DB 側もクリアする
+        htmls: editing ? htmls : (htmls.length > 0 ? htmls : undefined),
         pinned, recurrence,
         reminderMinutes: reminders.length > 0 ? reminders : undefined,
+        dateOverrides: overridesToSend,
       };
 
       if (!editing && multiDaySelected.size > 0) {
@@ -466,6 +561,98 @@ export default function EventModal({ open, initialDate, editing, members, subCal
           >
             ＋ 飛び飛び期間を追加（例: 4/11-15, 4/18-21）
           </button>
+
+          {/* 各日付の題名+色 override（飛び飛び期間または複数日のみ表示）
+              2026-05-12 健太郎LW id=2054+2055: 5/18=現調 / 5/19=本工事1日目 / 5/20=完了 のような個別設定
+              events.id は共通維持・各日title/colorを上書き */}
+          {(extraRanges.length > 0 || (endDate && endDate !== date)) && (() => {
+            const allDates = enumerateAllDates();
+            if (allDates.length <= 1) return null;
+            return (
+              <div className="border border-purple-300 rounded-xl bg-purple-50/40 p-3 -mt-1">
+                <div className="flex items-baseline justify-between mb-2 gap-2">
+                  <label className="block text-sm font-bold text-purple-900">
+                    🎨 各日の題名+色（任意）
+                  </label>
+                  <span className="text-xs font-semibold text-purple-800">{allDates.length}日</span>
+                </div>
+                <p className="text-xs text-slate-700 mb-2 leading-relaxed font-medium">
+                  ※未入力なら上のタイトル・色を使用。各日のみ違う題名/色にしたいときに入力。
+                </p>
+                <div className="space-y-2">
+                  {allDates.map((key) => {
+                    const ov = dateOverrides[key] || {};
+                    const dow = parseISO(key).getDay();
+                    const dowLabel = ['日','月','火','水','木','金','土'][dow];
+                    const dateColor = dow === 0 ? 'text-rose-700' : dow === 6 ? 'text-sky-700' : 'text-slate-900';
+                    return (
+                      <div key={key} className="bg-white rounded-lg border border-purple-200 p-2">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className={`text-sm font-bold ${dateColor}`}>
+                            {key.slice(5).replace('-', '/')}（{dowLabel}）
+                          </span>
+                          {(ov.title || ov.color) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDateOverrides((prev) => {
+                                  const next = { ...prev };
+                                  delete next[key];
+                                  return next;
+                                });
+                              }}
+                              className="text-[10px] text-rose-400 hover:text-rose-600"
+                              title="この日のoverrideをクリア"
+                            >
+                              ✕ クリア
+                            </button>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={ov.title || ''}
+                          onChange={(e) => updateDateOverride(key, { title: e.target.value })}
+                          placeholder="例: 現調 / 本工事1日目 / 完了"
+                          list="date-override-title-presets"
+                          className="w-full border border-purple-100 rounded-md px-2 py-1.5 text-sm mb-1.5"
+                        />
+                        <div className="flex flex-wrap items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => updateDateOverride(key, { color: undefined })}
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-[9px] ${
+                              !ov.color ? 'border-slate-700 scale-110' : 'border-slate-200'
+                            }`}
+                            style={{ backgroundColor: '#f1f5f9' }}
+                            title="色overrideなし(予定本体の色)"
+                          >
+                            {!ov.color ? '✓' : ''}
+                          </button>
+                          {(Object.keys(DATE_OVERRIDE_COLOR_HEX) as DateOverrideColor[]).map((cKey) => (
+                            <button
+                              key={cKey}
+                              type="button"
+                              onClick={() => updateDateOverride(key, { color: cKey })}
+                              className={`w-6 h-6 rounded-full border-2 transition ${
+                                ov.color === cKey ? 'border-slate-700 scale-110' : 'border-white'
+                              }`}
+                              style={{ backgroundColor: DATE_OVERRIDE_COLOR_HEX[cKey] }}
+                              title={DATE_OVERRIDE_COLOR_LABEL[cKey]}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <datalist id="date-override-title-presets">
+                  {DATE_OVERRIDE_TITLE_PRESETS.map((p) => (
+                    <option key={p} value={p} />
+                  ))}
+                </datalist>
+              </div>
+            );
+          })()}
 
           {/* 複数日に同じ予定を追加（新規作成時のみ） */}
           {!editing && (
@@ -768,10 +955,10 @@ export default function EventModal({ open, initialDate, editing, members, subCal
             </div>
           )}
 
-          {/* Images + PDFs */}
+          {/* Images + PDFs + HTMLs */}
           <div>
             <label className="block text-xs font-semibold text-slate-500 mb-1">
-              📎 添付（画像・PDF）
+              📎 添付（画像・PDF・HTML）
               <span className="font-normal text-slate-400"> Ctrl+V ペースト / ドラッグ&ドロップ可</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -805,13 +992,33 @@ export default function EventModal({ open, initialDate, editing, members, subCal
                   >×</button>
                 </a>
               ))}
+              {htmls.map((h) => (
+                <a
+                  key={h.url}
+                  href={h.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative aspect-square rounded-lg border border-sky-200 bg-sky-50 flex flex-col items-center justify-center gap-1 p-2 hover:bg-sky-100 transition"
+                  title={h.name || 'HTML'}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="text-3xl">🌐</span>
+                  <span className="text-[9px] text-sky-700 truncate max-w-full font-semibold">
+                    {h.name || 'HTML'}
+                  </span>
+                  <button
+                    onClick={(e) => { e.preventDefault(); removeHtml(h.url); }}
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white text-xs leading-none"
+                  >×</button>
+                </a>
+              ))}
               <label className="aspect-square rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 text-xs cursor-pointer hover:bg-slate-50 gap-1">
                 <span className="text-2xl">{uploading ? '...' : '+'}</span>
-                <span>画像/PDF</span>
+                <span>画像/PDF/HTML</span>
                 <input
                   ref={fileRef}
                   type="file"
-                  accept="image/*,application/pdf"
+                  accept="image/*,application/pdf,text/html,.html,.htm"
                   multiple
                   className="hidden"
                   onChange={handleUpload}

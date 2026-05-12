@@ -32,6 +32,13 @@ export async function POST(req: NextRequest) {
       location: body.location || undefined,
       images: Array.isArray(body.images) && body.images.length > 0 ? body.images : undefined,
       pdfs: Array.isArray(body.pdfs) ? body.pdfs : undefined,
+      // 2026-05-12 健太郎LW: HTML添付（カット指示書等）
+      // 各要素は {url:string, name?:string} の形にサニタイズ。url が無いものは除外。
+      htmls: Array.isArray(body.htmls)
+        ? body.htmls
+            .filter((h: any) => h && typeof h.url === 'string' && h.url.length > 0)
+            .map((h: any) => ({ url: String(h.url), name: h.name ? String(h.name) : undefined }))
+        : undefined,
       pinned: !!body.pinned,
       recurrence: body.recurrence || undefined,
       reminderMinutes: Array.isArray(body.reminderMinutes) ? body.reminderMinutes : undefined,
@@ -40,6 +47,13 @@ export async function POST(req: NextRequest) {
         cost: body.site.cost != null ? Number(body.site.cost) || 0 : undefined,
         note: body.site.note || undefined,
       } : undefined,
+      // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override
+      dateOverrides:
+        body.dateOverrides &&
+        typeof body.dateOverrides === 'object' &&
+        !Array.isArray(body.dateOverrides)
+          ? body.dateOverrides
+          : undefined,
       comments: [],
     });
     return NextResponse.json({ event }, { status: 201 });

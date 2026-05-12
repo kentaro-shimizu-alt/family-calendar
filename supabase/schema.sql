@@ -43,6 +43,10 @@ create table if not exists public.events (
 
 -- 既存テーブルへの列追加(再実行安全)
 alter table public.events add column if not exists related_event_ids jsonb;
+-- 飛び飛び期間予定の各日付に個別title/colorを設定するoverride (2026-05-12 健太郎LW id=2054+2055)
+alter table public.events add column if not exists date_overrides jsonb default null;
+-- HTMLファイル添付配列(カット指示書等のインタラクティブHTML) - 2026-05-12 健太郎LW
+alter table public.events add column if not exists htmls jsonb default null;
 
 create index if not exists events_date_idx on public.events (date);
 create index if not exists events_end_date_idx on public.events (end_date);
