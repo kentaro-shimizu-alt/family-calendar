@@ -113,6 +113,72 @@ interface BarSeg {
   continuesRight: boolean;
   isOriginStart: boolean;
   slot: number;
+  // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override 適用用
+  // dateOverrides ありの予定は per-day に分割した bar になり、segStartDate はその日付
+  // それ以外（通常の複数日バー）は segStartDate = セグメント開始日（範囲の左端）
+  segStartDate?: string;
+}
+
+// DateOverrideColor → hex 解決（types.ts と一致）
+const DATE_OVERRIDE_COLOR_HEX_MV: Record<string, string> = {
+  blue:   '#3b82f6',
+  green:  '#10b981',
+  orange: '#f59e0b',
+  gray:   '#9ca3af',
+  red:    '#ef4444',
+  purple: '#a855f7',
+  pink:   '#ec4899',
+};
+
+// DateOverrideColor → 文字色 解決（健太郎LW id=2059「紫の字が見えない・白がいい」2026-05-12）
+// 健太郎LW id=2066 (2026-05-12): 「背景がグレーのとこの文字は全部白にしたほうが見やすい」
+// → gray も白文字（contrast 2.85:1・健太郎好み優先・types.ts と同期）
+const DATE_OVERRIDE_COLOR_FG_MV: Record<string, string> = {
+  blue:   '#ffffff',
+  green:  '#ffffff',
+  orange: '#1f2937',
+  gray:   '#ffffff', // 健太郎LW id=2066: 灰背景は白文字
+  red:    '#ffffff',
+  purple: '#ffffff',
+  pink:   '#ffffff',
+};
+
+// 各日付の override を考慮して色を解決
+function resolveEventColorForDate(
+  ev: CalendarEvent,
+  dateKey: string | undefined,
+  subCalendars: SubCalendar[]
+): { bg: string; fg: string; accent: string; mobileBg: string; mobileFg: string; subAccent?: string } {
+  // 2026-05-12 健太郎LW id=2054+2055: 各日付color override
+  if (dateKey && ev.dateOverrides && ev.dateOverrides[dateKey]?.color) {
+    const colorKey = ev.dateOverrides[dateKey].color!;
+    const hex = DATE_OVERRIDE_COLOR_HEX_MV[colorKey];
+    if (hex) {
+      const subCal = ev.calendarId ? subCalendars.find((c) => c.id === ev.calendarId) : undefined;
+      const colors = eventColors(hex);
+      // 健太郎LW id=2059 (2026-05-12): プリセット色は明確な contrast 文字色を使う
+      // PC fg は eventColors の「背景を darken した文字色」だと暗紫等で視認不可
+      // → プリセット定義の白/黒に上書き（mobileFg は元から白固定なので OK だが念のため同期）
+      const presetFg = DATE_OVERRIDE_COLOR_FG_MV[colorKey] || colors.fg;
+      const subAccent =
+        subCal && subCal.color && subCal.color !== hex ? subCal.color : undefined;
+      return {
+        ...colors,
+        fg: presetFg,
+        mobileFg: presetFg,
+        subAccent,
+      };
+    }
+  }
+  return resolveEventColor(ev, subCalendars);
+}
+
+// 各日付の override を考慮して題名を解決
+function resolveEventTitleForDate(ev: CalendarEvent, dateKey: string | undefined): string {
+  if (dateKey && ev.dateOverrides && ev.dateOverrides[dateKey]?.title) {
+    return ev.dateOverrides[dateKey].title!;
+  }
+  return ev.title;
 }
 
 // 日本の祝日（2025-2027）
@@ -275,6 +341,18 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
       // Iterate through weeks and create a bar seg per week-slice
       const rStart = r.start;
       const rEnd = r.end;
+      // 2026-05-12 健太郎LW id=2054+2055: dateOverrides ありの予定は per-day に分割
+      // この range 内のどこかに override があれば、その range は per-day bar として描く
+      const hasAnyOverrideInRange = (() => {
+        if (!ev.dateOverrides) return false;
+        for (const k of Object.keys(ev.dateOverrides)) {
+          if (k >= rStart && k <= rEnd) {
+            const ov = ev.dateOverrides[k];
+            if (ov && (ov.title || ov.color)) return true;
+          }
+        }
+        return false;
+      })();
       // Also, if this particular range is single-day but event is multi, still use bar (consistency)
       for (let wi = 0; wi < weeks.length; wi++) {
         const wk = weeks[wi];
@@ -285,16 +363,35 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
         const segEndStr = rEnd < wkEnd ? rEnd : wkEnd;
         const startCol = dateIndex.get(segStartStr)?.col ?? 0;
         const endCol = dateIndex.get(segEndStr)?.col ?? 6;
-        barSegs.push({
-          event: ev,
-          weekIdx: wi,
-          startCol,
-          span: endCol - startCol + 1,
-          continuesLeft: rStart < wkStart,
-          continuesRight: rEnd > wkEnd,
-          isOriginStart: segStartStr === originStart,
-          slot: 0,
-        });
+        if (hasAnyOverrideInRange) {
+          // per-day に分割: startCol〜endCol を 1日ずつ独立 bar に
+          for (let col = startCol; col <= endCol; col++) {
+            const dayDate = format(wk[col], 'yyyy-MM-dd');
+            barSegs.push({
+              event: ev,
+              weekIdx: wi,
+              startCol: col,
+              span: 1,
+              continuesLeft: false, // per-day bar なので連結扱いしない
+              continuesRight: false,
+              isOriginStart: dayDate === originStart,
+              slot: 0,
+              segStartDate: dayDate,
+            });
+          }
+        } else {
+          barSegs.push({
+            event: ev,
+            weekIdx: wi,
+            startCol,
+            span: endCol - startCol + 1,
+            continuesLeft: rStart < wkStart,
+            continuesRight: rEnd > wkEnd,
+            isOriginStart: segStartStr === originStart,
+            slot: 0,
+            segStartDate: segStartStr,
+          });
+        }
       }
     }
   }
@@ -409,7 +506,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       <div className="event-scroll flex-1 px-1 pb-1 overflow-y-auto">
                         <div className="flex flex-col" style={{ gap: BAR_GAP }}>
                           {dayEvents.map((ev) => {
-                            const c = resolveEventColor(ev, subCalendars);
+                            // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override
+                            const c = resolveEventColorForDate(ev, dateKey, subCalendars);
+                            const displayTitle = resolveEventTitleForDate(ev, dateKey);
                             return (
                               <button
                                 key={ev.id}
@@ -428,7 +527,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                   height: BAR_H,
                                 } as React.CSSProperties}
                                 data-sub-accent={c.subAccent || undefined}
-                                title={ev.title}
+                                title={displayTitle}
                               >
                                 {ev.pinned && <span className="text-[7px] sm:text-[8px]">📌</span>}
                                 {ev.site && <span className="text-[7px] sm:text-[8px]">💼</span>}
@@ -436,7 +535,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                                 {ev.startTime && (
                                   <span className="font-bold hidden sm:inline">{ev.startTime}</span>
                                 )}
-                                <span className="truncate">{ev.title}</span>
+                                <span className="truncate">{displayTitle}</span>
                                 {/* B17: SHOW_CAMERA_ICON フラグで復活可能 */}
                                 {SHOW_CAMERA_ICON && ev.images && ev.images.length > 0 && (
                                   <span className="text-[8px]">📷</span>
@@ -691,7 +790,9 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                 style={{ top: DATE_HEADER_H, height: barAreaH }}
               >
                 {barsByWeek[wi].map((b) => {
-                  const c = resolveEventColor(b.event, subCalendars);
+                  // 2026-05-12 健太郎LW id=2054+2055: 各日付title/color override
+                  const c = resolveEventColorForDate(b.event, b.segStartDate, subCalendars);
+                  const displayTitle = resolveEventTitleForDate(b.event, b.segStartDate);
                   const leftPct = (b.startCol / 7) * 100;
                   const widthPct = (b.span / 7) * 100;
                   const top = b.slot * (BAR_H + BAR_GAP);
@@ -725,7 +826,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                         paddingRight: b.continuesRight ? 2 : 4,
                       } as React.CSSProperties}
                       data-sub-accent={c.subAccent || undefined}
-                      title={b.event.title}
+                      title={displayTitle}
                     >
                       {b.continuesLeft && <span className="text-[8px] opacity-60">◂</span>}
                       {showFirstWeekOnly && b.event.pinned && <span className="text-[8px]">📌</span>}
@@ -733,7 +834,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
                       {showFirstWeekOnly && b.event.startTime && (
                         <span className="font-semibold">{b.event.startTime}</span>
                       )}
-                      <span className="truncate">{b.event.title}</span>
+                      <span className="truncate">{displayTitle}</span>
                       {b.continuesRight && <span className="text-[9px] opacity-60 ml-auto">▸</span>}
                     </button>
                   );
