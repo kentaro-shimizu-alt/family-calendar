@@ -144,6 +144,44 @@ function extractTotal(totals: unknown): number {
   return 0;
 }
 
+interface TotalsAll {
+  subtotal: number; // 税別・割引前
+  discount: number; // 量割引額
+  subtotalAfterDiscount: number; // 税別・割引後
+  shipping: number;
+  tax: number;
+  total: number; // 税込合計
+}
+
+function extractTotalsAll(totals: unknown): TotalsAll {
+  const empty: TotalsAll = {
+    subtotal: 0,
+    discount: 0,
+    subtotalAfterDiscount: 0,
+    shipping: 0,
+    tax: 0,
+    total: 0,
+  };
+  if (!totals || typeof totals !== 'object') return empty;
+  const t = totals as Record<string, unknown>;
+  const num = (v: unknown): number => {
+    if (typeof v === 'number' && !Number.isNaN(v)) return v;
+    if (typeof v === 'string' && v) {
+      const n = Number(String(v).replace(/[^0-9.\-]/g, ''));
+      if (!Number.isNaN(n)) return n;
+    }
+    return 0;
+  };
+  return {
+    subtotal: num(t.subtotal),
+    discount: num(t.discount),
+    subtotalAfterDiscount: num(t.subtotalAfterDiscount),
+    shipping: num(t.shipping),
+    tax: num(t.tax),
+    total: num(t.total ?? t.grand_total ?? t.tax_included ?? t['合計']),
+  };
+}
+
 function formatCartLabel(cart: unknown): string {
   const items = extractCartItems(cart);
   if (items.length === 0) return '(品番不明)';
@@ -1574,13 +1612,45 @@ function DetailModal({
             )}
           </div>
 
-          {/* 合計 */}
-          <div className="bg-emerald-50 border border-emerald-300 dark:bg-black dark:border-emerald-500 rounded p-2 mb-3">
-            <div className="text-[10px] text-emerald-800 dark:text-emerald-200">税込合計</div>
-            <div className="text-emerald-900 dark:text-emerald-100 font-bold tabular-nums text-lg">
-              {total > 0 ? `¥${total.toLocaleString()}` : '-'}
-            </div>
-          </div>
+          {/* 合計(2026-05-19 G-62 健太郎LW指示: 割引額分解表示・品番×数量×単価合算と整合) */}
+          {(() => {
+            const ta = extractTotalsAll(row.totals);
+            return (
+              <div className="bg-emerald-50 border border-emerald-300 dark:bg-black dark:border-emerald-500 rounded p-2 mb-3">
+                <div className="text-[10px] text-emerald-800 dark:text-emerald-200 mb-1">金額内訳</div>
+                <div className="text-xs space-y-0.5">
+                  <div className="flex justify-between text-slate-900 dark:text-slate-100 tabular-nums">
+                    <span>小計(税別)</span>
+                    <span>¥{ta.subtotal.toLocaleString()}</span>
+                  </div>
+                  {ta.discount > 0 && (
+                    <>
+                      <div className="flex justify-between text-orange-700 dark:text-orange-300 tabular-nums">
+                        <span>量割引</span>
+                        <span>-¥{ta.discount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-900 dark:text-slate-100 tabular-nums">
+                        <span>小計(割引後)</span>
+                        <span>¥{ta.subtotalAfterDiscount.toLocaleString()}</span>
+                      </div>
+                    </>
+                  )}
+                  <div className="flex justify-between text-slate-900 dark:text-slate-100 tabular-nums">
+                    <span>送料(税別)</span>
+                    <span>¥{ta.shipping.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-900 dark:text-slate-100 tabular-nums">
+                    <span>消費税(10%)</span>
+                    <span>¥{ta.tax.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t border-emerald-300 dark:border-emerald-500 mt-1 pt-1 flex justify-between text-emerald-900 dark:text-emerald-100 font-bold text-base tabular-nums">
+                    <span>税込合計</span>
+                    <span>¥{ta.total.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* 入金詳細 */}
           <div className="mb-3 bg-white border border-slate-300 dark:bg-black dark:border-orange-500 rounded p-2">
