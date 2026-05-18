@@ -68,12 +68,24 @@ interface CartItem {
   subtotal?: number;
 }
 
+interface DiscountBreakdownItem {
+  pn: string;
+  brand?: string;
+  amount: number;
+  meters?: number;
+  rate_pct: number;
+}
+
 interface Totals {
   total?: number;
   subtotal?: number;
   tax?: number;
   grand_total?: number;
   tax_included?: number;
+  discount?: number;
+  subtotalAfterDiscount?: number;
+  shipping?: number;
+  discountBreakdown?: DiscountBreakdownItem[];
 }
 
 // ステータス日本語ラベル (10種類フェーズ細分化)
@@ -151,6 +163,7 @@ interface TotalsAll {
   shipping: number;
   tax: number;
   total: number; // 税込合計
+  discountBreakdown: DiscountBreakdownItem[];
 }
 
 function extractTotalsAll(totals: unknown): TotalsAll {
@@ -161,6 +174,7 @@ function extractTotalsAll(totals: unknown): TotalsAll {
     shipping: 0,
     tax: 0,
     total: 0,
+    discountBreakdown: [],
   };
   if (!totals || typeof totals !== 'object') return empty;
   const t = totals as Record<string, unknown>;
@@ -179,6 +193,7 @@ function extractTotalsAll(totals: unknown): TotalsAll {
     shipping: num(t.shipping),
     tax: num(t.tax),
     total: num(t.total ?? t.grand_total ?? t.tax_included ?? t['合計']),
+    discountBreakdown: Array.isArray(t.discountBreakdown) ? (t.discountBreakdown as DiscountBreakdownItem[]) : [],
   };
 }
 
@@ -1576,39 +1591,59 @@ function DetailModal({
             {items.length === 0 ? (
               <div className="text-xs text-slate-500 dark:text-slate-300 italic">(明細なし)</div>
             ) : (
-              <div className="border border-slate-300 dark:border-cyan-700 rounded">
-                <table className="w-full text-xs">
-                  <thead className="bg-slate-100 text-slate-800 dark:bg-gray-900 dark:text-slate-200">
-                    <tr>
-                      <th className="px-2 py-1 text-left">品番</th>
-                      <th className="px-2 py-1 text-right">数量</th>
-                      <th className="px-2 py-1 text-right">単価</th>
-                      <th className="px-2 py-1 text-right">小計</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((it, idx) => (
-                      <tr key={idx} className="border-t border-slate-200 dark:border-gray-700">
-                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100">{it.pn || it.name || '-'}</td>
-                        <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
-                          {it.meters ?? it.qty ?? '-'}
-                          {(it.meters != null || it.qty != null) && (
-                            <span className="text-slate-500 dark:text-slate-300 text-[10px] ml-0.5">
-                              {it.meters != null ? 'm' : ''}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
-                          {it.unit_price != null ? `¥${it.unit_price.toLocaleString()}` : '-'}
-                        </td>
-                        <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
-                          {it.subtotal != null ? `¥${it.subtotal.toLocaleString()}` : '-'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              (() => {
+                const ta = extractTotalsAll(row.totals);
+                const dbMap = new Map(ta.discountBreakdown.map((d) => [d.pn, d]));
+                return (
+                  <div className="border border-slate-300 dark:border-cyan-700 rounded">
+                    <table className="w-full text-xs">
+                      <thead className="bg-slate-100 text-slate-800 dark:bg-gray-900 dark:text-slate-200">
+                        <tr>
+                          <th className="px-2 py-1 text-left">品番</th>
+                          <th className="px-2 py-1 text-right">数量</th>
+                          <th className="px-2 py-1 text-right">単価</th>
+                          <th className="px-2 py-1 text-right">小計</th>
+                          <th className="px-2 py-1 text-right">割引</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((it, idx) => {
+                          const pnKey = it.pn || '';
+                          const d = pnKey ? dbMap.get(pnKey) : undefined;
+                          return (
+                            <tr key={idx} className="border-t border-slate-200 dark:border-gray-700">
+                              <td className="px-2 py-1 text-slate-900 dark:text-slate-100">{it.pn || it.name || '-'}</td>
+                              <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
+                                {it.meters ?? it.qty ?? '-'}
+                                {(it.meters != null || it.qty != null) && (
+                                  <span className="text-slate-500 dark:text-slate-300 text-[10px] ml-0.5">
+                                    {it.meters != null ? 'm' : ''}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
+                                {it.unit_price != null ? `¥${it.unit_price.toLocaleString()}` : '-'}
+                              </td>
+                              <td className="px-2 py-1 text-right tabular-nums text-slate-900 dark:text-slate-100">
+                                {it.subtotal != null ? `¥${it.subtotal.toLocaleString()}` : '-'}
+                              </td>
+                              <td className="px-2 py-1 text-right tabular-nums">
+                                {d ? (
+                                  <span className="text-orange-700 dark:text-orange-300">
+                                    -¥{d.amount.toLocaleString()} ({d.rate_pct}%)
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-500 dark:text-slate-300">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()
             )}
           </div>
 
@@ -1629,6 +1664,16 @@ function DetailModal({
                         <span>量割引</span>
                         <span>-¥{ta.discount.toLocaleString()}</span>
                       </div>
+                      {ta.discountBreakdown.length > 0 && (
+                        <div className="pl-3 text-[10px] text-orange-600 dark:text-orange-400 space-y-0.5">
+                          {ta.discountBreakdown.map((d, i) => (
+                            <div key={i} className="flex justify-between tabular-nums">
+                              <span>└ {d.pn} ({d.rate_pct}%)</span>
+                              <span>-¥{d.amount.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       <div className="flex justify-between text-slate-900 dark:text-slate-100 tabular-nums">
                         <span>小計(割引後)</span>
                         <span>¥{ta.subtotalAfterDiscount.toLocaleString()}</span>
