@@ -31,6 +31,8 @@ export interface KentaroOrderNotifyContext {
   email: string;
   cart: unknown;
   totals: unknown;
+  payment_deadline?: string;
+  status?: string;
 }
 
 const DASHBOARD_URL = 'https://family-calendar-delta-snowy.vercel.app/shop-orders';
@@ -241,6 +243,184 @@ async function sendLWDMToKentaro(c: KentaroOrderNotifyContext): Promise<void> {
 }
 
 // =============================================================
+// C. 人間向け整形LWサマリ (主くろメインルーム ①)
+// 既存の sendLWDMToKentaro (=材料販売ch ⑤) と並列発火・
+// 「誰が・何を・いくら」が一発で分かる整形版を主くろメインルーム ① へ
+// 健太郎LW指示 2026-05-19: 「技術ペイロード中心で読みにくい→人間向け整形LW追加」
+// =============================================================
+const STATUS_JP: Record<string, string> = {
+  received: '入金待ち',
+  inquired: '在庫確認中',
+  quoted: '見積送付済(入金待ち)',
+  payment_notified: '入金通知受信',
+  payment_confirmed: '入金確認済',
+  fax_sent: '発注FAX送信済',
+  shipped: '発送済',
+  completed: '完了',
+  cancelled: 'キャンセル',
+};
+
+interface CartLine {
+  pn?: string;
+  name?: string;
+  meters?: number;
+  qty?: number;
+  unit_price?: number;
+  subtotal?: number;
+  [k: string]: unknown;
+}
+
+interface DiscountBreakdownLine {
+  pn?: string;
+  brand?: string;
+  amount?: number;
+  meters?: number;
+  rate_pct?: number;
+  [k: string]: unknown;
+}
+
+interface OrderTotals {
+  subtotal?: number;
+  discount?: number;
+  subtotalAfterDiscount?: number;
+  shipping?: number;
+  tax?: number;
+  total?: number;
+  grand_total?: number;
+  tax_included?: number;
+  discountBreakdown?: DiscountBreakdownLine[];
+  [k: string]: unknown;
+}
+
+function extractCartLines(cart: unknown): CartLine[] {
+  if (!cart) return [];
+  if (Array.isArray(cart)) return cart as CartLine[];
+  if (typeof cart === 'object') {
+    const obj = cart as { items?: unknown };
+    if (Array.isArray(obj.items)) return obj.items as CartLine[];
+  }
+  return [];
+}
+
+function fmtYen(n: number | undefined | null): string {
+  const v = Number(n ?? 0);
+  if (!Number.isFinite(v)) return '¥0';
+  return '¥' + v.toLocaleString('ja-JP');
+}
+
+function fmtDeadline(s: string | undefined | null): string {
+  if (!s) return '本メール送付日から5営業日以内(土日祝除く)';
+  // YYYY-MM-DD or ISO → YYYY/MM/DD
+  const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}/${m[2]}/${m[3]}`;
+  return s;
+}
+
+async function sendHumanReadableLWSummary(c: KentaroOrderNotifyContext): Promise<void> {
+  const mainChannelId =
+    process.env.LINEWORKS_MAIN_CHANNEL_ID ||
+    'e6c01920-85bc-6051-6494-22ec11ace91b'; // ①健太郎+くろBot 2人(CLAUDE.md L24)
+  if (!mainChannelId) {
+    console.warn('[notify_kentaro_order] LINEWORKS_MAIN_CHANNEL_ID 未設定でskip');
+    return;
+  }
+  const auth = await getLwBotToken();
+  if (!auth) {
+    console.warn('[notify_kentaro_order] LW token取得失敗で人間向けサマリskip');
+    return;
+  }
+  const { token, botId } = auth;
+
+  const totals = (c.totals || {}) as OrderTotals;
+  const lines = extractCartLines(c.cart);
+  const grandTotal = Number(
+    totals.total ?? totals.grand_total ?? totals.tax_included ?? totals['合計'] ?? 0
+  );
+  const discount = Number(totals.discount ?? 0);
+  const shipping = Number(totals.shipping ?? 0);
+  const tax = Number(totals.tax ?? 0);
+  const breakdown: DiscountBreakdownLine[] = Array.isArray(totals.discountBreakdown)
+    ? totals.discountBreakdown
+    : [];
+  const statusKey = c.status || 'received';
+  const statusLabel = STATUS_JP[statusKey] || statusKey;
+
+  // ---- 1行目: 58字以内・改行なし ----
+  // 「HP受注 {order_id} / {customer_name}様 / 税込¥{total}」
+  const totalLabel = grandTotal > 0 ? `税込${fmtYen(grandTotal)}` : '税込-';
+  let head = `HP受注 ${c.order_id} / ${c.customer_name}様 / ${totalLabel}`;
+  if (head.length > 58) head = head.slice(0, 57) + '…';
+
+  // ---- 2行目以降: 明細 ----
+  const body: string[] = [];
+  body.push('明細:');
+  if (lines.length === 0) {
+    body.push('- (cart明細なし)');
+  } else {
+    for (const it of lines) {
+      const pn = String(it.pn || it.name || '(品番不明)');
+      const meters = Number(it.meters ?? it.qty ?? 0);
+      const unitPrice = Number(it.unit_price ?? 0);
+      const subtotal = Number(it.subtotal ?? meters * unitPrice);
+      const mLabel = meters > 0 ? `${meters}m` : '-';
+      const upLabel = unitPrice > 0 ? `${fmtYen(unitPrice)}/m` : '-';
+      const subLabel = subtotal > 0 ? fmtYen(subtotal) : '-';
+      body.push(`- ${pn} ${mLabel} ${upLabel} = ${subLabel}`);
+    }
+  }
+
+  // ---- 量割引(>0 のときのみ) ----
+  if (discount > 0) {
+    body.push('');
+    body.push(`量割引: -${fmtYen(discount)}`);
+    for (const d of breakdown) {
+      const pn = String(d.pn || '(品番不明)');
+      const ratePct = Number(d.rate_pct ?? 0);
+      const amount = Number(d.amount ?? 0);
+      if (amount > 0) {
+        body.push(`  - ${pn} (${ratePct}%) -${fmtYen(amount)}`);
+      }
+    }
+  }
+
+  // ---- 送料/税/ステータス/期限 ----
+  body.push('');
+  body.push(`送料(税別): ${fmtYen(shipping)}`);
+  body.push(`消費税(10%): ${fmtYen(tax)}`);
+  body.push(`ステータス: ${statusLabel}`);
+  body.push(`振込期限: ${fmtDeadline(c.payment_deadline)}`);
+  body.push('');
+  body.push('詳細: 家族カレンダー → HP受注ダッシュボード');
+
+  const text = head + '\n\n' + body.join('\n');
+
+  const url = `https://www.worksapis.com/v1.0/bots/${botId}/channels/${mainChannelId}/messages`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ content: { type: 'text', text } }),
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(
+      `[notify_kentaro_order] 人間向けLWサマリ送信失敗 status=${res.status}: ${errText.slice(0, 200)}`
+    );
+  } else {
+    console.log(
+      `[notify_kentaro_order] 人間向けLWサマリ送信OK channel ${mainChannelId.slice(0, 8)}...`
+    );
+  }
+}
+
+// public 公開: 既存通知の最後に並列発火する用途
+export async function notifyHumanReadableLW(c: KentaroOrderNotifyContext): Promise<void> {
+  await sendHumanReadableLWSummary(c);
+}
+
+// =============================================================
 // public API: 両通知を並列発火
 //   - どちらか失敗しても他方は届く(Promise.allSettled)
 //   - 失敗は console.error にログのみ・throwしない(insertを止めない)
@@ -256,4 +436,10 @@ export async function notifyKentaroNewOrder(c: KentaroOrderNotifyContext): Promi
       console.error(`[notify_kentaro_order] ${labels[i]} failed:`, r.reason);
     }
   });
+
+  // 並列発火(失敗しても既存通知に影響なし)
+  // 2026-05-19: 人間向け整形LWサマリ(主くろメインルーム ①宛)
+  notifyHumanReadableLW(c).catch((e) =>
+    console.error('[notifyHumanReadableLW] failed:', e)
+  );
 }
