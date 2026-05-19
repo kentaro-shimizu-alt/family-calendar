@@ -640,6 +640,40 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           </div>
         </div>
 
+        {/* CMNT_STICKY_V4_20260519 主くろ: 操作ボタン(ピン/削除/複数日/編集)をヘッダー直下へ上配置・shrink-0で固定(健太郎LW指示2026-05-19 21:01 画像付き) */}
+        <div className="px-5 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap shrink-0 bg-white">
+          <button
+            onClick={onTogglePin}
+            className={`text-sm px-3 py-2 rounded-lg transition ${
+              event.pinned
+                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                : 'text-slate-500 hover:bg-slate-100'
+            }`}
+          >
+            {event.pinned ? '📌 ピン解除' : '📌 ピン留め'}
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-rose-500 text-sm hover:bg-rose-50 px-3 py-2 rounded-lg"
+          >
+            削除
+          </button>
+          <button
+            onClick={() => setCopyOpen(true)}
+            className="text-slate-600 text-sm hover:bg-slate-100 px-3 py-2 rounded-lg"
+            title="この予定を別の複数日にコピー"
+          >
+            📋 複数日に適用
+          </button>
+          <div className="flex-1" />
+          <button
+            onClick={onEdit}
+            className="bg-blue-500 text-white text-sm font-bold px-5 py-2 rounded-lg hover:bg-blue-600"
+          >
+            ✏️ 編集
+          </button>
+        </div>
+
         {/* CMNT_STICKY_V2_20260519 主くろ: モーダルをflex-col化・本文(関連付け+予定詳細)を flex-1 overflow-y-auto・
             フッター(コメント入力+操作ボタン)を shrink-0 固定で 予定情報スクロール中もコメント記入欄が常に下部に表示
             (健太郎LW指示 2026-05-19 20:35 リトライ・前回スクロール改修効かず) */}
@@ -1100,39 +1134,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               </button>
             </div>
           </div>
-          <div className="px-5 py-3 border-t border-slate-100 flex items-center gap-2 flex-wrap">
-          <button
-            onClick={onTogglePin}
-            className={`text-sm px-3 py-2 rounded-lg transition ${
-              event.pinned
-                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                : 'text-slate-500 hover:bg-slate-100'
-            }`}
-          >
-            {event.pinned ? '📌 ピン解除' : '📌 ピン留め'}
-          </button>
-          <button
-            onClick={onDelete}
-            className="text-rose-500 text-sm hover:bg-rose-50 px-3 py-2 rounded-lg"
-          >
-            削除
-          </button>
-          <button
-            onClick={() => setCopyOpen(true)}
-            className="text-slate-600 text-sm hover:bg-slate-100 px-3 py-2 rounded-lg"
-            title="この予定を別の複数日にコピー"
-          >
-            📋 複数日に適用
-          </button>
-          <div className="flex-1" />
-          <button
-            onClick={onEdit}
-            className="bg-blue-500 text-white text-sm font-bold px-5 py-2 rounded-lg hover:bg-blue-600"
-          >
-            ✏️ 編集
-          </button>
-        </div>
-        </div>{/* CMNT_STICKY_V2_20260519 主くろ: shrink-0 フッター wrapper 閉じ */}
+        </div>{/* CMNT_STICKY_V4_20260519 主くろ: shrink-0 フッター wrapper 閉じ・操作ボタンはV4でヘッダー直下へ移動 */}
         <EventCopyModal
           open={copyOpen}
           source={event}
