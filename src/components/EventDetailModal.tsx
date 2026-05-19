@@ -545,7 +545,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className={`w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] flex flex-col overflow-hidden transition select-none ${
+        className={`w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] overflow-y-auto sm:overflow-hidden sm:flex sm:flex-col transition select-none ${
           dragOver ? 'ring-4 ring-blue-300' : ''
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -554,9 +554,9 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
         onDragLeave={(e) => { e.preventDefault(); setDragOver(false); }}
         onDrop={handleDrop}
       >
-        <div className="h-2 shrink-0" style={{ backgroundColor: member.color }} />
+        <div className="h-2 sm:shrink-0" style={{ backgroundColor: member.color }} />
 
-        <div className="px-5 pt-4 pb-2 flex items-start justify-between gap-3 shrink-0">
+        <div className="px-5 pt-4 pb-2 flex items-start justify-between gap-3 sm:shrink-0">
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <span
@@ -643,7 +643,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
         {/* CMNT_STICKY_V2_20260519 主くろ: モーダルをflex-col化・本文(関連付け+予定詳細)を flex-1 overflow-y-auto・
             フッター(コメント入力+操作ボタン)を shrink-0 固定で 予定情報スクロール中もコメント記入欄が常に下部に表示
             (健太郎LW指示 2026-05-19 20:35 リトライ・前回スクロール改修効かず) */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="sm:flex-1 sm:overflow-y-auto sm:min-h-0">
 
         {/* CMNT_STICKY_V5_20260519 主くろ: 操作ボタン(ピン/削除/複数日/編集)を本文最上部(スクロール可エリア)に配置・固定は下フッターのみ(健太郎LW指示2026-05-19 21:10「上の部分はスクロールしてほしい・固定部分は下だけ」) */}
         <div className="px-5 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap">
@@ -1091,8 +1091,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
         </div>
         </div>{/* CMNT_STICKY_V2_20260519 主くろ: 本文 flex-1 overflow-y-auto wrapper 閉じ */}
 
-        {/* CMNT_STICKY_V2_20260519 主くろ フッター: コメント入力欄+操作ボタン群を shrink-0 で常時最下部固定 */}
-        <div className="shrink-0 bg-white border-t border-slate-100">
+        {/* CMNT_STICKY_V6_20260519 主くろ フッター: スマホは親overflow-y-autoの中で sticky bottom-0 で下固定 / PCは shrink-0 で flex-col 末尾固定(健太郎LW指示2026-05-19 21:15「PC現状・スマホは上もスクロール」) */}
+        <div className="sticky bottom-0 bg-white border-t border-slate-100 sm:static sm:shrink-0">
           <div className="px-5 pt-3 pb-2">
             <div className="flex gap-2 items-end">
               {/* CMNT_STICKY_V3_20260519 主くろ: 📎ファイル添付ボタン(マークのみ・固定フッター内・健太郎LW指示2026-05-19 20:51) */}
