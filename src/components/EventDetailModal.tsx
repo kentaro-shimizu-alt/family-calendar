@@ -1053,28 +1053,30 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             </div>
           </div>
 
-          {/* Drop zone hint + manual file picker */}
-          <div className="flex items-center gap-3">
-            <div className="w-8 text-center text-slate-400">📎</div>
-            <label className="flex-1 text-xs text-slate-500 border-2 border-dashed border-slate-200 rounded-lg px-3 py-2 hover:bg-slate-50 cursor-pointer transition">
-              {uploading ? 'アップロード中...' : '画像・PDF・HTMLをここにドラッグ / ペースト / クリックして選択'}
-              <input
-                type="file"
-                accept="image/*,application/pdf,text/html,.html,.htm"
-                multiple
-                className="hidden"
-                onChange={handleFilePick}
-              />
-            </label>
-          </div>
-
+          {/* CMNT_STICKY_V3_20260519 主くろ: 旧ドロップゾーン+ピッカー削除→フッター内📎ボタンに統合(健太郎LW指示2026-05-19 20:51・モーダル全体のドラッグ&ペーストは従来通り動作) */}
         </div>
         </div>{/* CMNT_STICKY_V2_20260519 主くろ: 本文 flex-1 overflow-y-auto wrapper 閉じ */}
 
         {/* CMNT_STICKY_V2_20260519 主くろ フッター: コメント入力欄+操作ボタン群を shrink-0 で常時最下部固定 */}
         <div className="shrink-0 bg-white border-t border-slate-100">
           <div className="px-5 pt-3 pb-2">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-end">
+              {/* CMNT_STICKY_V3_20260519 主くろ: 📎ファイル添付ボタン(マークのみ・固定フッター内・健太郎LW指示2026-05-19 20:51) */}
+              <label
+                className={`shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg cursor-pointer text-xl transition ${
+                  uploading ? 'bg-slate-200 text-slate-400 animate-pulse' : 'text-slate-500 hover:bg-slate-100'
+                }`}
+                title={uploading ? 'アップロード中…' : '画像・PDF・HTMLを添付(ドラッグ&ペーストもOK)'}
+              >
+                📎
+                <input
+                  type="file"
+                  accept="image/*,application/pdf,text/html,.html,.htm"
+                  multiple
+                  className="hidden"
+                  onChange={handleFilePick}
+                />
+              </label>
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
