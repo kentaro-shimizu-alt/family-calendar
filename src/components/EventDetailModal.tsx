@@ -640,8 +640,13 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           </div>
         </div>
 
-        {/* CMNT_STICKY_V4_20260519 主くろ: 操作ボタン(ピン/削除/複数日/編集)をヘッダー直下へ上配置・shrink-0で固定(健太郎LW指示2026-05-19 21:01 画像付き) */}
-        <div className="px-5 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap shrink-0 bg-white">
+        {/* CMNT_STICKY_V2_20260519 主くろ: モーダルをflex-col化・本文(関連付け+予定詳細)を flex-1 overflow-y-auto・
+            フッター(コメント入力+操作ボタン)を shrink-0 固定で 予定情報スクロール中もコメント記入欄が常に下部に表示
+            (健太郎LW指示 2026-05-19 20:35 リトライ・前回スクロール改修効かず) */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+
+        {/* CMNT_STICKY_V5_20260519 主くろ: 操作ボタン(ピン/削除/複数日/編集)を本文最上部(スクロール可エリア)に配置・固定は下フッターのみ(健太郎LW指示2026-05-19 21:10「上の部分はスクロールしてほしい・固定部分は下だけ」) */}
+        <div className="px-5 py-2 border-b border-slate-100 flex items-center gap-2 flex-wrap">
           <button
             onClick={onTogglePin}
             className={`text-sm px-3 py-2 rounded-lg transition ${
@@ -673,11 +678,6 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             ✏️ 編集
           </button>
         </div>
-
-        {/* CMNT_STICKY_V2_20260519 主くろ: モーダルをflex-col化・本文(関連付け+予定詳細)を flex-1 overflow-y-auto・
-            フッター(コメント入力+操作ボタン)を shrink-0 固定で 予定情報スクロール中もコメント記入欄が常に下部に表示
-            (健太郎LW指示 2026-05-19 20:35 リトライ・前回スクロール改修効かず) */}
-        <div className="flex-1 overflow-y-auto min-h-0">
 
         {/* 関連付けピッカー(検索) */}
         {relationPickerOpen && (
@@ -1122,7 +1122,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                   }
                 }}
                 placeholder="コメントを追加...（Enterで改行／送信ボタン or Ctrl+Enterで送信）"
-                rows={2}
+                rows={4}
                 className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
               />
               <button
