@@ -242,6 +242,35 @@ export const supabaseStore: Store = {
     for (const r of recurRows) {
       if (!seen.has(r.id)) { seen.add(r.id); all.push(r); }
     }
+    // (4): 2026-05-19 健太郎LW指示で追加
+    //   date_ranges 配列内のいずれかのレンジが本月内と重なる event を取得。
+    //   Supabase JSONB の配列要素ごとの比較は SQL では難しいため、
+    //   date_ranges が null でない範囲を広めに取って、クライアント側で重なり判定する。
+    //   範囲: 過去6ヶ月〜未来6ヶ月の date を持つ event（現実的に飛び飛びレンジが及ぶ最大幅）
+    const monthStartDate = new Date(monthStart + 'T00:00:00');
+    const monthEndDate = new Date(monthEnd + 'T23:59:59');
+    const dateLowerBound = (() => {
+      const d = new Date(monthStartDate);
+      d.setMonth(d.getMonth() - 6);
+      return d.toISOString().slice(0, 10);
+    })();
+    const dateUpperBound = (() => {
+      const d = new Date(monthEndDate);
+      d.setMonth(d.getMonth() + 6);
+      return d.toISOString().slice(0, 10);
+    })();
+    const rangeOverlapRows = await fetchWith((q) =>
+      q.not('date_ranges', 'is', null).gte('date', dateLowerBound).lte('date', dateUpperBound)
+    );
+    for (const r of rangeOverlapRows) {
+      if (seen.has(r.id)) continue;
+      const ranges = Array.isArray(r.date_ranges) ? r.date_ranges : [];
+      const hasOverlap = ranges.some((rg: any) =>
+        rg && typeof rg.start === 'string' && typeof rg.end === 'string'
+        && rg.start <= monthEnd && rg.end >= monthStart
+      );
+      if (hasOverlap) { seen.add(r.id); all.push(r); }
+    }
     return all.map(rowToEvent);
   },
   async getEventById(id: string): Promise<CalendarEvent | null> {
