@@ -1063,8 +1063,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             </label>
           </div>
 
-          {/* New comment input (always at bottom) */}
-          <div className="border-t border-slate-100 pt-3">
+        </div>
+
+        {/* CMNT_STICKY_20260519 主くろ: コメント入力欄+操作ボタン群を sticky bottom で固定
+            (予定情報をスクロールして見ながらコメント記入できるように・健太郎LW指示2026-05-19 20:10) */}
+        <div className="sticky bottom-0 bg-white border-t border-slate-100 z-10">
+          <div className="px-5 pt-3 pb-2">
             <div className="flex gap-2">
               <textarea
                 value={commentText}
@@ -1089,9 +1093,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               </button>
             </div>
           </div>
-        </div>
-
-        <div className="px-5 py-3 border-t border-slate-100 flex items-center gap-2 flex-wrap sticky bottom-0 bg-white">
+          <div className="px-5 py-3 border-t border-slate-100 flex items-center gap-2 flex-wrap bg-white">
           <button
             onClick={onTogglePin}
             className={`text-sm px-3 py-2 rounded-lg transition ${
