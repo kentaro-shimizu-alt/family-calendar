@@ -545,7 +545,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className={`w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] overflow-y-auto transition select-none ${
+        className={`w-full sm:max-w-2xl bg-white rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] flex flex-col overflow-hidden transition select-none ${
           dragOver ? 'ring-4 ring-blue-300' : ''
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -554,9 +554,9 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
         onDragLeave={(e) => { e.preventDefault(); setDragOver(false); }}
         onDrop={handleDrop}
       >
-        <div className="h-2" style={{ backgroundColor: member.color }} />
+        <div className="h-2 shrink-0" style={{ backgroundColor: member.color }} />
 
-        <div className="px-5 pt-4 pb-2 flex items-start justify-between gap-3">
+        <div className="px-5 pt-4 pb-2 flex items-start justify-between gap-3 shrink-0">
           <div className="flex-1">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <span
@@ -639,6 +639,11 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             <button onClick={onClose} className="shrink-0 inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-slate-400 hover:text-slate-700 text-3xl leading-none">×</button>
           </div>
         </div>
+
+        {/* CMNT_STICKY_V2_20260519 主くろ: モーダルをflex-col化・本文(関連付け+予定詳細)を flex-1 overflow-y-auto・
+            フッター(コメント入力+操作ボタン)を shrink-0 固定で 予定情報スクロール中もコメント記入欄が常に下部に表示
+            (健太郎LW指示 2026-05-19 20:35 リトライ・前回スクロール改修効かず) */}
+        <div className="flex-1 overflow-y-auto min-h-0">
 
         {/* 関連付けピッカー(検索) */}
         {relationPickerOpen && (
@@ -1063,8 +1068,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             </label>
           </div>
 
-          {/* New comment input (always at bottom) */}
-          <div className="border-t border-slate-100 pt-3">
+        </div>
+        </div>{/* CMNT_STICKY_V2_20260519 主くろ: 本文 flex-1 overflow-y-auto wrapper 閉じ */}
+
+        {/* CMNT_STICKY_V2_20260519 主くろ フッター: コメント入力欄+操作ボタン群を shrink-0 で常時最下部固定 */}
+        <div className="shrink-0 bg-white border-t border-slate-100">
+          <div className="px-5 pt-3 pb-2">
             <div className="flex gap-2">
               <textarea
                 value={commentText}
@@ -1089,9 +1098,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               </button>
             </div>
           </div>
-        </div>
-
-        <div className="px-5 py-3 border-t border-slate-100 flex items-center gap-2 flex-wrap sticky bottom-0 bg-white">
+          <div className="px-5 py-3 border-t border-slate-100 flex items-center gap-2 flex-wrap">
           <button
             onClick={onTogglePin}
             className={`text-sm px-3 py-2 rounded-lg transition ${
@@ -1123,6 +1130,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
             ✏️ 編集
           </button>
         </div>
+        </div>{/* CMNT_STICKY_V2_20260519 主くろ: shrink-0 フッター wrapper 閉じ */}
         <EventCopyModal
           open={copyOpen}
           source={event}
