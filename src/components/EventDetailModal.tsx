@@ -756,8 +756,19 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 {dateLabel}{endLabel && endLabel !== dateLabel ? ` 〜 ${endLabel}` : ''}
               </div>
               {event.dateRanges && event.dateRanges.length > 1 && (
-                <div className="text-indigo-500 text-[11px] mt-0.5">
-                  + {event.dateRanges.length - 1} 期間（飛び飛び）
+                <div className="text-indigo-500 text-[11px] mt-0.5 space-y-0.5">
+                  <div>+ {event.dateRanges.length - 1} 期間（飛び飛び）:</div>
+                  {event.dateRanges.slice(1).map((r, i) => {
+                    const startLabel = format(parseISO(r.start), 'M月d日(E)', { locale: ja });
+                    const endLabelR = r.end && r.end !== r.start
+                      ? format(parseISO(r.end), 'M月d日(E)', { locale: ja })
+                      : '';
+                    return (
+                      <div key={i} className="pl-3">
+                        ・{startLabel}{endLabelR ? ` 〜 ${endLabelR}` : ''}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               {(event.startTime || event.endTime) && (
