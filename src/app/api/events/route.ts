@@ -5,10 +5,23 @@ import { MemberId } from '@/lib/types';
 // ISR: 10秒キャッシュ後に再検証（stale-while-revalidate で高速応答）
 export const revalidate = 10;
 
+// 2026-05-22 KuroCal(Even G2眼鏡plugin)からのfetchを許可するためCORS追加
+// Even Hub WebView (WebView2) はクロスオリジンfetchにAccess-Control-Allow-Origin要求
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+}
+
 export async function GET(req: NextRequest) {
   const yearMonth = req.nextUrl.searchParams.get('month') || undefined;
   const events = await listEvents(yearMonth);
-  return NextResponse.json({ events });
+  return NextResponse.json({ events }, { headers: CORS_HEADERS });
 }
 
 export async function POST(req: NextRequest) {
@@ -56,8 +69,8 @@ export async function POST(req: NextRequest) {
           : undefined,
       comments: [],
     });
-    return NextResponse.json({ event }, { status: 201 });
+    return NextResponse.json({ event }, { status: 201, headers: CORS_HEADERS });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    return NextResponse.json({ error: e.message }, { status: 500, headers: CORS_HEADERS });
   }
 }
