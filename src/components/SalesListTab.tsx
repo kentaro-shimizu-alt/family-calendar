@@ -116,6 +116,10 @@ export default function SalesListTab() {
   // 2026-05-12 健太郎LW指示: 納品書計上済か確認用検索
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 取引先フィルタ(単一選択・'all' = 全部表示)
+  // 2026-05-23 健太郎LW指示: 月末以外は会社別フィルタが便利
+  const [customerFilter, setCustomerFilter] = useState<string>('all');
+
   // ステータスフィルタ(デフォルト全ON)
   const [statusFilter, setStatusFilter] = useState<Record<StatusFilterKey, boolean>>({
     none: true,
@@ -167,7 +171,7 @@ export default function SalesListTab() {
     };
   }, [from, to]);
 
-  // flatten + タイプ/ステータス/検索 フィルタ (events.id 突合は廃止 — daily_data 全件表示)
+  // flatten + タイプ/ステータス/検索/取引先 フィルタ (events.id 突合は廃止 — daily_data 全件表示)
   const rows = useMemo<SalesRow[]>(() => {
     const out: SalesRow[] = [];
     const q = searchQuery.trim().toLowerCase();
@@ -181,6 +185,10 @@ export default function SalesListTab() {
         // ステータスフィルタ
         const st = normalizeStatus(entry.delivery_note_status);
         if (!statusFilter[st]) continue;
+        // 取引先フィルタ (customer 完全一致 — pickCustomer で正規化済の値で比較)
+        if (customerFilter !== 'all') {
+          if (pickCustomer(entry) !== customerFilter) continue;
+        }
         // 文字検索フィルタ (OR部分一致・大文字小文字無視)
         if (q) {
           const customer = (entry.customer ?? '').toLowerCase();
@@ -203,6 +211,46 @@ export default function SalesListTab() {
       }
     }
     return out;
+  }, [dailyList, typeFilter, statusFilter, customerFilter, searchQuery]);
+
+  // 取引先一覧 (期間内 sales_entries から動的抽出・取引件数の多い順)
+  // 取引先フィルタ自体は除外して計算(他フィルタは反映)→ ボタン押下時のラベルが安定
+  const customerOptions = useMemo<Array<{ name: string; count: number }>>(() => {
+    const counter = new Map<string, number>();
+    const q = searchQuery.trim().toLowerCase();
+    for (const d of dailyList) {
+      if (!d.salesEntries) continue;
+      for (const entry of d.salesEntries) {
+        if (!entry?.id) continue;
+        const t: SalesEntryType = entry.type === 'material' ? 'material' : 'site';
+        if (typeFilter !== 'all' && typeFilter !== t) continue;
+        const st = normalizeStatus(entry.delivery_note_status);
+        if (!statusFilter[st]) continue;
+        if (q) {
+          const customer = (entry.customer ?? '').toLowerCase();
+          const id = (entry.id ?? '').toLowerCase();
+          const label = (entry.label ?? '').toLowerCase();
+          const note = (entry.note ?? '').toLowerCase();
+          if (
+            !customer.includes(q) &&
+            !id.includes(q) &&
+            !label.includes(q) &&
+            !note.includes(q)
+          ) {
+            continue;
+          }
+        }
+        const name = pickCustomer(entry);
+        if (!name || name === '-') continue;
+        counter.set(name, (counter.get(name) || 0) + 1);
+      }
+    }
+    return Array.from(counter.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return a.name.localeCompare(b.name, 'ja');
+      });
   }, [dailyList, typeFilter, statusFilter, searchQuery]);
 
   // ソート (複数キー)
@@ -412,6 +460,55 @@ export default function SalesListTab() {
             >
               {allStatusOn ? '全OFF' : '全ON'}
             </button>
+          </div>
+        </div>
+
+        {/* 取引先フィルタ (期間内 sales_entries から動的抽出・取引件数の多い順) */}
+        {/* 2026-05-23 健太郎LW指示: 普段は会社別・月末に全部表示が便利 */}
+        <div className="flex flex-wrap gap-2 items-start mt-2">
+          <label className="text-xs text-slate-600 font-semibold shrink-0 pt-1">取引先:</label>
+          <div className="flex gap-1 flex-wrap flex-1">
+            <button
+              type="button"
+              onClick={() => setCustomerFilter('all')}
+              className={`text-[11px] px-2 py-1 rounded-full border transition ${
+                customerFilter === 'all'
+                  ? 'bg-amber-500 text-white border-amber-500'
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+              aria-pressed={customerFilter === 'all'}
+              title="取引先フィルタを解除して全件表示"
+            >
+              {customerFilter === 'all' ? '✓ ' : ''}全部
+            </button>
+            {customerOptions.map((opt) => {
+              const on = customerFilter === opt.name;
+              return (
+                <button
+                  key={opt.name}
+                  type="button"
+                  onClick={() => setCustomerFilter(on ? 'all' : opt.name)}
+                  className={`text-[11px] px-2 py-1 rounded-full border transition ${
+                    on
+                      ? 'bg-amber-500 text-white border-amber-500'
+                      : 'bg-white text-slate-700 border-slate-300 hover:bg-amber-50'
+                  }`}
+                  aria-pressed={on}
+                  title={`${opt.name} (${opt.count}件)`}
+                >
+                  {on ? '✓ ' : ''}
+                  {opt.name}
+                  <span className={`ml-1 text-[10px] ${on ? 'text-amber-100' : 'text-slate-400'}`}>
+                    {opt.count}
+                  </span>
+                </button>
+              );
+            })}
+            {customerOptions.length === 0 && (
+              <span className="text-[11px] text-slate-400 italic py-1">
+                (該当期間に取引先データなし)
+              </span>
+            )}
           </div>
         </div>
 
