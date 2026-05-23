@@ -29,7 +29,7 @@ function newId(): string {
   return Math.random().toString(36).slice(2, 9);
 }
 
-const TABS: SalesEntryType[] = ['site', 'material'];
+// 2026-05-23 タブ統合により TABS 配列は廃止(売上タブは1つに集約)
 
 const TEMPLATE: Record<SalesEntryType, string> = {
   site: SITE_TEMPLATE,
@@ -67,7 +67,10 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
   const [memo, setMemo] = useState<string>('');
   const [misaMemo, setMisaMemo] = useState<string>('');
   const [misaMemoImages, setMisaMemoImages] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<SalesEntryType | 'misa'>('site');
+  // 2026-05-23 タブ統合: 「現場売上」「材料販売」→「売上」1タブ + 「美砂メモ」
+  // (健太郎指示「どっち押しても同じentry一覧なら分ける意味がない」)
+  // 内部state: 'sales' | 'misa' (旧 'site'/'material' は initialTab 受け取り時に 'sales' へ正規化)
+  const [activeTab, setActiveTab] = useState<'sales' | 'misa'>('sales');
   // 日付変更
   const [editDateStr, setEditDateStr] = useState<string>('');
 
@@ -168,10 +171,12 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     setMisaMemo(initial?.misaMemo || '');
     setMisaMemoImages(initial?.misaMemoImages || []);
     setEditDateStr(date ? format(date, 'yyyy-MM-dd') : '');
-    const startTab = initialTab ?? 'site';
+    // 旧 initialTab 'site'/'material' は新 'sales' へ正規化(後方互換・page.tsxは触らない)
+    const rawStart = initialTab ?? 'site';
+    const startTab: 'sales' | 'misa' = rawStart === 'misa' ? 'misa' : 'sales';
     setActiveTab(startTab);
     if (startTab !== 'misa') {
-      resetDraft(startTab as SalesEntryType);
+      resetDraft('site');
       setTimeout(() => customerRef.current?.focus(), 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -195,10 +200,10 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     setDraftPdfs([]);
   }
 
-  function switchTab(t: SalesEntryType | 'misa') {
+  function switchTab(t: 'sales' | 'misa') {
     setActiveTab(t);
     if (t !== 'misa') {
-      resetDraft(t as SalesEntryType);
+      resetDraft('site');
       setTimeout(() => customerRef.current?.focus(), 50);
     }
   }
@@ -280,11 +285,12 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
 
   function draftHasContent(): boolean {
     if (activeTab === 'misa') return false; // 美砂メモはドラフトエントリにしない
+    // タブ統合後は draft の type を 'site' 固定(入力フォームは非表示・将来復活時に分岐再導入)
     return !!(
       draftCustomer.trim() ||
       draftAmount ||
       draftCost ||
-      (draftNote.trim() && draftNote.trim() !== TEMPLATE[activeTab as SalesEntryType]?.trim()) ||
+      (draftNote.trim() && draftNote.trim() !== TEMPLATE['site']?.trim()) ||
       draftImages.length > 0 ||
       draftPdfs.length > 0
     );
@@ -297,7 +303,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     const costN = Number(draftCost.replace(/,/g, '')) || undefined;
     return {
       id: newId(),
-      type: activeTab as SalesEntryType,
+      type: 'site', // タブ統合後は draft type 'site' 固定(入力フォーム非表示)
       customer: draftCustomer.trim() || undefined,
       amount: amountN,
       cost: costN,
@@ -314,7 +320,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
       return;
     }
     setEntries((prev) => [...prev, entry]);
-    resetDraft(activeTab as SalesEntryType);
+    resetDraft('site'); // タブ統合後は 'site' 固定
     customerRef.current?.focus();
   }
 
@@ -434,7 +440,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
 
   // 2026-05-02 健太郎LW指示「カレンダー内の全削除は全部廃止」・削除はくろに依頼でDB操作する運用に切替・handleClear関数廃止
 
-  const tabColors = activeTab === 'misa' ? TAB_COLOR['site'] : TAB_COLOR[activeTab as SalesEntryType];
+  // タブ統合後は売上タブの色は 'site'(amber)系で統一(入力フォームは非表示なので実質UI影響なし)
+  const tabColors = TAB_COLOR['site'];
 
   return (
     <div
@@ -492,25 +499,18 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
         </div>
 
         <div className="px-5 py-4 space-y-4">
-          {/* Tab selector */}
+          {/* Tab selector (2026-05-23 統合: 現場売上+材料販売 → 売上1タブ + 美砂メモ) */}
           <div className="flex gap-1 border-b border-slate-200">
-            {TABS.map((t) => {
-              const active = activeTab === t;
-              const c = TAB_COLOR[t];
-              return (
-                <button
-                  key={t}
-                  onClick={() => switchTab(t)}
-                  className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition border-b-2 ${
-                    active
-                      ? `${c.bg} ${c.text} border-current`
-                      : 'text-slate-400 border-transparent hover:text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  {SALES_TYPE_LABEL[t]}
-                </button>
-              );
-            })}
+            <button
+              onClick={() => switchTab('sales')}
+              className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition border-b-2 ${
+                activeTab === 'sales'
+                  ? `${TAB_COLOR['site'].bg} ${TAB_COLOR['site'].text} border-current`
+                  : 'text-slate-400 border-transparent hover:text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              売上
+            </button>
             {/* 美砂メモタブ */}
             <button
               onClick={() => switchTab('misa')}
@@ -634,11 +634,11 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
               - 既存entry一覧表示(主くろがSupabase直叩きでpushしたもの)は維持
               - 美砂メモタブは維持
               - state(draftCustomer等)は将来復活備えて残置 */}
-          {false && activeTab !== 'misa' && (
+          {false && activeTab === 'sales' && (
           <div className={`rounded-xl border ${tabColors.border} ${tabColors.bg} p-3 space-y-2`}>
             <div className="flex items-center justify-between">
               <span className={`text-xs font-bold ${tabColors.text}`}>
-                ＋ {SALES_TYPE_LABEL[activeTab as SalesEntryType]}を追加
+                ＋ {SALES_TYPE_LABEL['site']}を追加
               </span>
               {/* 2026-05-02 健太郎指示「納品書要否トグル不要・skill経由自動更新で代替」削除済 */}
             </div>
@@ -753,7 +753,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                 onClick={addDraft}
                 className={`${tabColors.btn} text-white text-sm font-bold px-4 py-2 rounded-lg`}
               >
-                ＋ この{SALES_TYPE_LABEL[activeTab as SalesEntryType]}を追加
+                ＋ この{SALES_TYPE_LABEL['site']}を追加
               </button>
               <div className="text-[10px] text-slate-400 flex-1">
                 売値・原価は空欄OK。あとからくろさんが計算して清書します。
@@ -762,8 +762,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
           </div>
           )} {/* end activeTab !== 'misa' */}
 
-          {/* Entries list (売上タブのみ表示) */}
-          {activeTab !== 'misa' && (
+          {/* Entries list (売上タブのみ表示・type='site'/'material' 両方を一覧表示) */}
+          {activeTab === 'sales' && (
           <>
           {/* Entries list */}
           {entries.length > 0 && (
@@ -924,7 +924,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
             </div>
           )}
 
-          </> )} {/* end activeTab !== 'misa' Entries list */}
+          </> )} {/* end activeTab === 'sales' Entries list */}
 
           {/* Memo / Diary */}
           <div>
