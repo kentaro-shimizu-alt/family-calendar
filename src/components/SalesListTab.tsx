@@ -37,7 +37,9 @@ type SortKey = 'date' | 'customer' | 'amount' | 'type' | 'recorded' | 'delivery'
 type SortOrder = 'asc' | 'desc';
 type TypeFilter = 'all' | 'site' | 'material';
 
-// ステータスフィルタ用キー(undefined/null は 'pending' に倒して扱う)
+// ステータスフィルタ用キー(undefined/null/'' は 'none' = 提出不要 に倒して扱う)
+// 2026-05-24 健太郎LW指示: 空欄entryは原価のみ・古いデータ等で「未提出(pending)」扱いNG
+// → 「未提出」 = pending のみ / 「提出不要」 = none または 空欄(undefined/null/'')
 type StatusFilterKey = 'none' | 'pending' | 'created' | 'submitted';
 
 // ステータスソート優先順位 マップ
@@ -67,10 +69,11 @@ function pickCustomer(e: SalesEntry): string {
   return e.customer || e.label || '-';
 }
 
-// undefined/null → 'pending' に正規化
+// undefined/null/'' → 'none' (提出不要) に正規化
+// 2026-05-24 健太郎LW指示: 空欄entryは「未提出」ではなく「提出不要」扱い
 function normalizeStatus(s?: DeliveryNoteStatus | null): StatusFilterKey {
   if (s === 'none' || s === 'pending' || s === 'created' || s === 'submitted') return s;
-  return 'pending';
+  return 'none';
 }
 
 const SORT_KEY_LABEL: Record<SortKey, string> = {
