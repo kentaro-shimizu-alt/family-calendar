@@ -629,7 +629,12 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
           )}
 
           {/* Add area (売上タブのみ表示) */}
-          {activeTab !== 'misa' && (
+          {/* 2026-05-23 健太郎LW指示「売上入力は全部くろがやるから手入力フォームは消してOK」
+              - 入力フォーム(取引先/売値/原価/note/画像添付/追加ボタン)を非表示化
+              - 既存entry一覧表示(主くろがSupabase直叩きでpushしたもの)は維持
+              - 美砂メモタブは維持
+              - state(draftCustomer等)は将来復活備えて残置 */}
+          {false && activeTab !== 'misa' && (
           <div className={`rounded-xl border ${tabColors.border} ${tabColors.bg} p-3 space-y-2`}>
             <div className="flex items-center justify-between">
               <span className={`text-xs font-bold ${tabColors.text}`}>
