@@ -6583,14 +6583,7 @@ function renderCards() {
         </div>`
       : "";
 
-    const tagsHtml = (item.seoTags && item.seoTags.length)
-      ? `<div class="detail-section">
-          <div class="detail-label">タグ</div>
-          <div class="tag-list">
-            ${item.seoTags.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join("")}
-          </div>
-        </div>`
-      : "";
+    const tagsHtml = "";  // 2026-05-24 健太郎指示: タグ非表示
 
     card.innerHTML = `
       <button class="qa-head" type="button" aria-expanded="false">
