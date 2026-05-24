@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<title>Phase 13 致命A-4〜A-13 判定用抜粋QA 2026-05-24 v2</title>
+<style>
+body { font-family: "Yu Gothic UI", "Meiryo", sans-serif; max-width: 1080px; margin: 24px auto; padding: 0 24px; background: #f5f5f0; color: #222; line-height: 1.65; font-size: 14px; }
+h1 { color: #b22; border-bottom: 3px solid #b22; padding-bottom: 8px; }
+h2.card-h { background: #b22; color: white; padding: 10px 16px; border-radius: 6px 6px 0 0; margin: 32px 0 0 0; font-size: 18px; }
+.card { background: white; border: 2px solid #b22; border-radius: 0 0 6px 6px; padding: 18px 22px 22px 22px; margin-bottom: 18px; }
+.label { color: #555; font-weight: bold; font-size: 12px; letter-spacing: 0.5px; margin-top: 12px; }
+.q { font-size: 16px; font-weight: bold; color: #222; margin: 4px 0 12px 0; }
+.short { background: #fafafa; padding: 10px 14px; border-left: 4px solid #888; margin: 6px 0 12px 0; }
+.detail { background: #fbfbf6; padding: 10px 14px; border-left: 4px solid #c9a96e; margin: 6px 0 12px 0; font-size: 13px; }
+.meta-row { font-size: 12px; color: #555; margin: 4px 0; }
+.problem { background: #fde2e2; border-left: 6px solid #b22; padding: 12px 16px; margin: 14px 0 6px 0; border-radius: 0 4px 4px 0; }
+.fix { background: #e8f4fd; border-left: 6px solid #2196F3; padding: 12px 16px; margin: 6px 0 14px 0; border-radius: 0 4px 4px 0; }
+.judge { background: #fff8e1; border: 2px dashed #f0ad4e; padding: 12px 16px; margin-top: 14px; border-radius: 4px; font-weight: bold; }
+.judge label { margin-right: 24px; cursor: pointer; }
+.idx { color: white; background: #444; padding: 2px 10px; border-radius: 10px; font-size: 12px; margin-right: 10px; }
+.meta { color: #666; font-size: 13px; margin-bottom: 18px; }
+.toc { background: #2c3e50; color: white; padding: 12px 20px; border-radius: 6px; margin-bottom: 24px; }
+.toc a { color: #ffd; text-decoration: none; display: inline-block; margin: 2px 8px 2px 0; font-size: 13px; }
+.toc a:hover { text-decoration: underline; }
+mark.problem-hl { background: #ffeb3b; color: #b22; padding: 2px 5px; border-radius: 3px; font-weight: bold; border: 1px solid #f0ad4e; }
+.legend { background: #fff8e1; border-left: 4px solid #f0ad4e; padding: 10px 14px; margin: 10px 0 18px 0; font-size: 13px; border-radius: 4px; }
+</style></head><body>
+<h1>Phase 13 致命A-4〜A-13 判定用 抜粋Q&A(11件) v2</h1>
+<div class="meta">作成: 2026-05-24 主くろ / 目的: 健太郎が元Q&A本文+問題箇所+修正案を見ながら判定<br>
+出典: <code>files/データベース/塩ビシート総合ナレッジDB.csv</code> + 統合リスト_phase13_20260524.md</div>
+<div class="legend">
+<strong>📌 読み方</strong>: 各カードの「短答/詳細本文/出典」の中で <mark class="problem-hl">黄色マーカー</mark> が問題箇所(主くろ指摘の場所)。<br>
+さらに下の赤枠『🚨 問題箇所』で何が問題かを言葉で説明、青枠『💡 修正案』で主くろ提案を表示。<br>
+判定方法: 各カード末尾「判定」欄で OK(修正実行) / NG(現状維持) / 保留 を選択 → 主くろに伝達
+</div>
+
+<div class="toc">
+<strong>📑 目次</strong><br>
+<a href="#KB-A041">A-4 KB-A041</a>
+<a href="#KB-B041">A-5 KB-B041</a>
+<a href="#KB-C036">A-6 KB-C036</a>
+<a href="#KB-F005">A-7 KB-F005</a>
+<a href="#KB-F012">A-8 KB-F012</a>
+<a href="#KB-F024">A-9 KB-F024</a>
+<a href="#KB-F021">A-10 KB-F021</a>
+<a href="#KB-F036">A-11 KB-F036</a>
+<a href="#KB-F044">A-12 KB-F044</a>
+<a href="#KB-K026">A-13a KB-K026</a>
+<a href="#KB-K030">A-13b KB-K030</a>
+</div>
+
+<h2 class="card-h" id="KB-A041"><span class="idx">A-4</span>KB-A041 — PC-0335対象外品番リスト不完全(LE/DPF欠落)</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 基本/概要 / 基材活用 / ダイライト6FAL下地 | ペルソナ: 設計者</div>
+<div class="label">質問</div><div class="q">3Mダイノックを大建工業の「ダイライト6FAL」下地に貼ると不燃材料になるのですか?施工方法は?</div>
+<div class="label">短答</div><div class="short">ダイライト6FAL(大建工業の火山性ガラス質複合板・厚6mm)下地への3Mダイノック貼付は、AE/CA/CH/CN/FA/FE/FW/HG/LW/ME/MW/NU/OM/PA/PC/PG/PS/PT/RT/SI/ST/TE/VM/WG等の指定シリーズが大臣認定番号NM-5784(2)で不燃材料になります(2024年Ver.1基準)。重ね貼り不可、AR/DG/DR/EX/FLS/末尾TIL等は対象外です。</div>
+<div class="label">詳細本文</div><div class="detail">技術資料PC-0335-00(2024/11/1)に詳細記載。接着力データ(プライマー無し: 19.7N/25mm幅、DP-900N3塗布: 26.6N、WP-2000塗布: 39.6N等、目安10N以上で十分な接着性)。施工方法は2系統: 1)現場施工: 設置済みダイライト6FALに直接貼付。ジョイントは透かし目地(目地幅6mm程度)で、端部・小口・目地底にプライマー塗布、2)Dボード工法: 工場でダイライト6FALに四周巻き込みでフィルム貼付→パネル化→現場で両面テープ+接着剤で固定。裏面に粘着が付くなら3MプライマーDP-900N3塗布。失敗回避ポイント: <mark class="problem-hl">AR(凹凸柄)、DG、DR、EX、PS-MTRC、FLS、末尾TIL、NEO-FLE、WH-111は対象外</mark>。重ね貼りすると不燃材料の対象外となる。</div>
+<div class="meta-row"><strong>関連品番</strong>: 3MダイノックAE/CA/CH/FE/PA/PS/ST/VM等多数</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: ダイノック</div>
+<div class="meta-row"><strong>出典</strong>: 3M技術資料 PC-0335-00 2024/11/1「3Mダイノックフィルム:ダイライト6FAL下地への貼付について」</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>詳細本文の対象外リストに『LE-1551/1552』『DPF-100』が欠落(PC-0335 PDF公式リストには含まれる)。※Phase13検証W1 H-4の『DW-2474MT・DW-2481MT混入』指摘は本文に該当文字列なし=検証レポート側の誤指摘の可能性大</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>対象外リストを PC-0335 PDF準拠で完全版に書き換え: LE-1551/1552 / PS-MTRC全品番 / AR / DG / DPF-100 / DR / EX / FLS / NEO-FLE / -TIL / WH-111(LE-1551/1552・DPF-100を追記)</div>
+<div class="judge">健太郎判定 (A-4 KB-A041):
+<label><input type="radio" name="j_KB-A041" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-A041" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-A041" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-B041"><span class="idx">A-5</span>KB-B041 — Dilite=アルミ複合板 誤同定</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 下地別施工 / アルミ複合板 / Dilite/アルミ複合板への施工 | ペルソナ: 職人</div>
+<div class="label">質問</div><div class="q">アルミ複合板(Dilite等)の下地に3Mダイノックを貼ることはできますか?サイン用途で検討しています</div>
+<div class="label">短答</div><div class="short">アルミ複合板はサインの定番下地で3Mダイノック貼付可能ですが、屋外用途ならEX/EXRシリーズを選定します(屋内用一般シリーズは耐候性不足)。プライマーDP-900N3塗布でアルミ表面に十分な接着力を確保。ただし溶融亜鉛めっき鋼板やフッ素塗装は使用不可。EXRシリーズの場合、適用下地表(技術資料PC-0387)でアルミ=◎(垂直面10年耐候)です。</div>
+<div class="label">詳細本文</div><div class="detail">アルミ複合板(代表的に<mark class="problem-hl">Alpolic/Dibond/Dilite</mark>=三菱ケミカルアルポリック等)はアルミ表板2枚で芯材をサンドした複合パネルで、サイン・看板・店舗外装で多用されます。3Mダイノック施工可否: 1)屋内用途: 一般シリーズ(AE/WG等)+DP-900N3プライマー、十分な接着力(アルミ下地接着力38.2N/25mm幅程度・PC-0385データ)、2)屋外用途: EX/EXRシリーズ必須(技術資料PC-0387適用下地表でアルミニウム=◎、垂直面10年耐候性)、焼付塗装鋼板/チタン/ステンレスも○、3)注意点: 塩ビ鋼板はMEシリーズ/PS-4007EXRで変色の可能性あり使用不可、溶融亜鉛めっき鋼板は湿度高環境で接着力低下で使用不可、無垢材/木材/モルタル/ガラスは×(端部から水分浸入で接着不良)、4)前処理: アルコール脱脂→#180サンディング→DP-900N3塗布(端部・小口は重ね塗り推奨)。失敗回避ポイント: アルミ複合板はエッジから水分が入りやすいため、屋外曝露面のエッジは必ず四周巻き込みまたはコーキング処理。Dilite等の表面塗装が劣化していると剥離するため、塗装状態確認必須。</div>
+<div class="meta-row"><strong>関連品番</strong>: 3MダイノックEX/EXR/WDシリーズ(屋外)・一般シリーズ(屋内)</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: ダイノック</div>
+<div class="meta-row"><strong>出典</strong>: 3M技術資料 PC-0387「EXRシリーズ製品ブリーフ」適用下地表/PC-0385「WDシリーズ製品ブリーフ」接着力データ</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>短答・詳細で『アルミ複合板(Alpolic/Dibond/Dilite)』とDiliteを並列分類しているが、Dilite=ダイライト®6FAL=大建工業の火山性ガラス質複合板(不燃)で別カテゴリ</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>Diliteをアルミ複合板列から除外。『ダイライト6FAL=大建工業の火山性ガラス質複合板(不燃NM-5784(2))・別カテゴリ』と注記分離</div>
+<div class="judge">健太郎判定 (A-5 KB-B041):
+<label><input type="radio" name="j_KB-B041" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-B041" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-B041" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-C036"><span class="idx">A-6</span>KB-C036 — 価格表単位『m≒㎡』誤記</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 法規/価格/選定 / 価格表 / 2026年価格表 | ペルソナ: 設計者</div>
+<div class="label">質問</div><div class="q">3Mダイノックの2026年版価格表で主な品番のm単価はいくらですか?2026年6月値上げ後はどう変わる?</div>
+<div class="label">短答</div><div class="short">2026年3月9日現在の3Mダイノックm単価(代表): スタンダードAE/CH/FA/FE/HS/LE/LW/LZ/ME/OM/PA/PC/PG/RT/SI/ST/WG=¥7,600〜¥9,700、AE-MT/AM/CA/HG/MW/PS-MT/PT/TE/VM=¥9,700〜¥13,200、PS=¥5,400(最安)、ET=¥15,700(最高)。機能製品AR=¥7,600〜¥11,600、抗ウイルスPV=¥9,700、NEO=¥5,400〜¥15,400。2026年6月1日受注分から約6%値上げ。</div>
+<div class="label">詳細本文</div><div class="detail">3M公式「材料設計価格一覧」2026年3月9日現在(3Mダイノック_価格表2026.pdf掲載・税抜)。スタンダード製品m単価(円/㎡=幅1220mmで<mark class="problem-hl">実質m単価相当</mark>): AE=¥9,700、AE-MT=¥12,100、AM=¥13,200、CA=¥12,100、CH=¥9,700、CN=¥8,700、DW=¥12,100、ET=¥15,700(最高値)、FA=¥9,700、FE=¥9,700、FW=¥10,200、HG=¥12,100、HS=¥9,700、LE=¥8,700、LW=¥8,700、LZ=¥9,700、ME=¥9,700、MW=¥12,100、NU=¥9,700、NU-MT=¥12,100、OM=¥9,700、PA=¥8,700、PC=¥8,700、PG=¥8,700、PS=¥5,400(最安値)、PS-MT=¥9,700、PS-MTRC=¥9,700、PT=¥9,700、PW=¥13,200、RT=¥9,700、SI=¥9,700、ST=¥8,700、ST-MT=¥12,100、SU-MT=¥12,100、TE=¥12,100、VM=¥13,200、WG=¥7,600、WG-GN=¥8,700。機能製品: AR(PS-AR)=¥7,600、AR(PS以外)=¥11,600、DG各種¥7,600〜¥13,800、WD各種¥11,600〜¥13,800、EX/EXR各種¥8,700〜¥12,100、IL=¥6,400、NEO各種¥5,400〜¥15,400、抗ウイルスPV=¥9,700、ホワイトボードWH=¥12,100、PWF=¥13,200。※印は特殊掛率品。価格改定: 2026年6月1日受注分から約6%値上げ(新和興業正式通知 2026-04-20、対象:ダイノック/ガラス/スコッチカルXL&amp;J/グラフィック/印刷加工品/副資材全般)。HP販売(tecnest.biz/shop)向け客向け表示は2026年5月25日ご注文分から+10%。失敗回避ポイント: m単価は㎡単価で表示されているが幅1220mmで<mark class="problem-hl">実質m≒㎡</mark>。施工費・諸経費は別計算。表示価格に消費税含まれず。</div>
+<div class="meta-row"><strong>関連品番</strong>: 3Mダイノック全シリーズ</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: ダイノック</div>
+<div class="meta-row"><strong>出典</strong>: 3M公式材料設計価格一覧 2026年3月9日現在「3Mダイノック_価格表2026.pdf」</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>『m単価は㎡単価で表示されているが幅1220mmで実質m≒㎡』表現が数学的に誤(幅1.22mなのでm単価=㎡単価×1.22)・約22%の価格誤認を生む</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>幅1.2m固定計算ルール(CLAUDE.md L10)で書き直し or 規格幅1.22m準拠で書き直し → 健太郎判定要</div>
+<div class="judge">健太郎判定 (A-6 KB-C036):
+<label><input type="radio" name="j_KB-C036" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-C036" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-C036" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-F005"><span class="idx">A-7</span>KB-F005 — WB系=ホワイトボードシリーズ 品番創作</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 材料選び / ダイノック / WBシリーズ(ホワイトボード) | ペルソナ: 設計者・オフィス管理者</div>
+<div class="label">質問</div><div class="q">ダイノックのWBホワイトボード機能シートで会議室の壁はどう変わりますか?</div>
+<div class="label">短答</div><div class="short">既存壁を全面ホワイトボード化できる粘着剤付きシートで、ホワイトボードマーカーで書いて消せるようになります。会議室・教室・打合せスペースの壁を「書ける壁」に変えられ、専用ホワイトボード設置不要になります。</div>
+<div class="label">詳細本文</div><div class="detail">ダイノックの<mark class="problem-hl">WBシリーズ</mark>(品番例:<mark class="problem-hl">WB系</mark>の正式品番は要確認)はホワイトボードマーカーで筆記・消去可能な表面を持つ塩ビシートです。&lt;br&gt;(1)機能:ホワイトボード専用マーカー(油性ではなく水性マーカー)で文字や図を書け、専用イレーザーや乾いた布で消去できます。&lt;br&gt;(2)推奨用途:会議室壁面・スタートアップオフィスのアイデア出しスペース・学校の教室・塾の自習室・ブレインストーミングルーム等です。&lt;br&gt;(3)サイズ:壁一面(例:幅3m×高さ2.4m)を全面ホワイトボード化できるのが最大の強み。市販のホワイトボード(幅1.8m前後)では足りない大型空間に向きます。&lt;br&gt;(4)注意:油性マーカーで書くと消えなくなります。客先への引き渡し時に「水性ホワイトボードマーカーのみ可」と必ず伝達します。また、書いたまま長期放置するとゴーストイメージ(うっすら跡が残る)が出るため、使用後は早めに消すよう案内します。&lt;&lt;br&gt;失敗回避ポイント:ホワイトボードシートは振動部・可動部(扉)NG・垂直壁面のみが推奨です(意匠系のWBシートは類似品多く、メーカー仕様要個別確認)。</div>
+<div class="meta-row"><strong>関連品番</strong>: <mark class="problem-hl">WB系</mark>全般(品番要確認)</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: ダイノック</div>
+<div class="meta-row"><strong>出典</strong>: 3Mダイノック施工マニュアル(2016改訂)12.シリーズ別注意・3Mダイノック製品ブリーフ_PB-DIN-001</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>『WB系/WBシリーズ』記述・3M公式に『WB』存在せず・品番インデックス0件=創作疑い。正規はWH(WH-111/WH-200)・PWF(PWF-500)・IWB(IWB-600)</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>『WB系』→『WH系(WH-111/WH-200)/PWF系(PWF-500)/IWB系(IWB-600)』に全面差し替え</div>
+<div class="judge">健太郎判定 (A-7 KB-F005):
+<label><input type="radio" name="j_KB-F005" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-F005" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-F005" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-F012"><span class="idx">A-8</span>KB-F012 — ダブルカット重ね幅 5〜10mm誤</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 施工技術 / ダイノック / 継ぎ目処理 | ペルソナ: 中級職人/設計士</div>
+<div class="label">質問</div><div class="q">ダイノックの継ぎ目は突き付け貼りできますか?重ね貼りの正しい手順は?</div>
+<div class="label">短答</div><div class="short">ダイノックも他塩ビシートと同様、ジョイント突き付け貼りはNGです。必ず重ね貼り→カッターでまとめ切り(ダブルカット)→重ね部除去→密着の手順で処理します。屋外は端部シーリングも必須です。</div>
+<div class="label">詳細本文</div><div class="detail">塩ビシートのジョイント(継ぎ目)処理は施工品質を左右する最重要工程です。&lt;br&gt;(1)突き付け貼りNGの理由:塩ビシートは温度変化で微妙に伸縮するため、突き付け(隙間なく並べる)で施工しても数か月で目すき(隙間)が出ます。一度開くと水分・ほこりが入り、剥がれが進行します。&lt;br&gt;(2)正しい重ね貼り(ダブルカット工法):&lt;br&gt;  手順1:1枚目を貼った上に、2枚目を<mark class="problem-hl">5〜10mm重ね</mark>て貼ります。&lt;br&gt;  手順2:重ね部の中央(両方のシートを貫通)にカッターで定規当てて一発切りします(これを「まとめ切り/ダブルカット」と呼びます)。&lt;br&gt;  手順3:不要な余白(下側1枚目の端材+上側2枚目の端材)を剥がします。&lt;br&gt;  手順4:継ぎ目部をスキージーとドライヤー加熱で完全密着させます。&lt;br&gt;(3)カッター刃の注意:切れの悪い刃で切ると下地まで傷つけたり切り口が雑になります。&lt;br&gt;失敗回避ポイント:大判の柄合せが必要な品番(SUPER REAL WOOD系・グラフィック系)は、ジョイント位置を意匠的に目立たない位置(柱の影・天井際)に設計段階から決めます。</div>
+<div class="meta-row"><strong>関連品番</strong>: ダイノック全般</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: ダイノック</div>
+<div class="meta-row"><strong>出典</strong>: 3Mダイノック施工マニュアル / 共通/施工要領_共通フロー.md ⑤端部処理 / 既存KB-A013</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>『1枚目の上に2枚目を5〜10mm重ねて貼る』は3M公式マニュアル(2022/11改訂 P.13)『約20mm重ね・剥離紙30mm残し』と矛盾</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>3M施工マニュアル2022/11改訂 P.13『約20mm重ね・剥離紙30mm残し』に修正</div>
+<div class="judge">健太郎判定 (A-8 KB-F012):
+<label><input type="radio" name="j_KB-F012" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-F012" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-F012" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-F024"><span class="idx">A-9</span>KB-F024 — 出典PDF誤帰属(施工上の注意_R5 P.44)</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 施工技術 / ガラスフィルム / 水貼り工法 | ペルソナ: 中級職人/施工管理</div>
+<div class="label">質問</div><div class="q">ガラスフィルムの「水貼り工法」とはどんな施工方法ですか?気泡やエッジスペースはどう処理しますか?</div>
+<div class="label">短答</div><div class="short">水貼り工法はガラス面と粘着面の両方に中性洗剤を薄めた施工液を吹付けて貼る方法です。位置調整しながら貼れ、スキージーで水を中央から外側へ追い出すことで気泡を抜きます。フィルム端とガラス枠の間は2〜3mmのエッジスペースを必ず確保します(3M公式PDF明記値)。施工温度は12〜38℃が推奨です。</div>
+<div class="label">詳細本文</div><div class="detail">ガラスフィルム施工は塩ビシートと異なり「水貼り工法(ウェット工法)」が基本です。&lt;br&gt;(1)準備:中性洗剤(食器用洗剤等)を水で薄めた施工液をスプレーボトルに入れます。3M公式PDFには中性洗剤を水で薄めた施工液とだけ記載があり、具体的な配合比は明記されていません(&lt;br&gt;(2)施工温度:3M公式PDF「ガラスフィルム施工上の注意_R5」では推奨温度12〜38℃・直射日光があたらない時間帯での施工が指示されています。最低5℃以上が条件です。&lt;br&gt;(8)養生期間:総厚350μm超の防犯フィルムは1ヶ月程度の養生期間が必要(冬季はさらに延長)と3M公式PDF multimedia.pdf P.46に明記。通常フィルムの養生期間は3M公式PDFでは明文化されていません。&lt;br&gt;失敗回避ポイント:**エッジスペースは1〜2mmでなく必ず2〜3mm(3M公式PDF明記値)**。1〜2mmでは少なすぎて温度伸縮で端部が枠と干渉し剥離原因になります。施工温度12〜38℃を厳守し、酷暑・極寒・直射日光下での施工は避けること。</div>
+<div class="meta-row"><strong>関連品番</strong>: 3Mファサラ・3Mウインドウフィルム全般</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: 3Mファサラ/3Mウインドウフィルム</div>
+<div class="meta-row"><strong>出典</strong>: 3M公式PDF「ガラスフィルム<mark class="problem-hl">施工上の注意_R5」P.44</mark> エッジカット項 /「ガラスフィルム_multimedia.pdf」P.46 養生期間</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>出典『ガラスフィルム施工上の注意_R5 P.44』だがR5はP.37-40のみ収録(P.44なし)・実際は製品ガイド_R4 P.44由来</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>出典を『製品ガイド_R4 P.44(フィルムのエッジカット項)』に訂正(内容自体は正)</div>
+<div class="judge">健太郎判定 (A-9 KB-F024):
+<label><input type="radio" name="j_KB-F024" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-F024" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-F024" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-F021"><span class="idx">A-10</span>KB-F021 — 出典PDF誤帰属(使用上の注意4_R2 JIS A 5759)</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 材料選び / ガラスフィルム / 飛散防止 | ペルソナ: 住宅オーナー・店舗オーナー</div>
+<div class="label">質問</div><div class="q">3Mのガラスフィルム飛散防止品はどんな効果がありますか?JIS認定はありますか?</div>
+<div class="label">短答</div><div class="short">3Mウインドウフィルム/スコッチティントの飛散防止フィルムは地震・台風・物の衝突でガラス破片が飛散しないよう保持する効果があります。JIS A 5759準拠・必ず公式仕様を確認すること。</div>
+<div class="label">詳細本文</div><div class="detail">飛散防止フィルムは地震・台風・暴風・物体衝突等でガラスが割れた場合の二次被害(破片飛散による怪我)を防ぐための窓ガラス用フィルムです。&lt;br&gt;(1)効果:ガラスが割れてもフィルムが破片を保持し、破片の飛散・落下を防止する。完全にガラスが破壊されない訳ではなく、破片が散らばらないことが目的。&lt;br&gt;(2)JIS A 5759:2016:建築用窓ガラスフィルムの規格・ショットバッグ試験(衝撃試験)等での飛散防止性能を規定。3M公式PDF(multimedia.pdf P.47)に「JIS A 5759:2016 の規格値」「ガラス飛散防止フィルムの貼替えに関する指針」記載あり。&lt;br&gt;(3)推奨設置場所:&lt;br&gt;  ・学校・幼稚園・保育園(生徒の安全)。&lt;br&gt;  ・病院・介護施設(患者の安全)。&lt;br&gt;  ・地震災害時の避難経路の窓。&lt;br&gt;  ・台風常襲地域の住宅。&lt;br&gt;  ・店舗のショーウィンドウ(物体衝突対策)。&lt;&lt;br&gt;失敗回避ポイント:ガラス端部までしっかり貼らないと、端から破片が抜けるため、フチまで完全に貼ること。</div>
+<div class="meta-row"><strong>関連品番</strong>: スコッチティント飛散防止系:SH2CLAR/SH4CLAR/ULTRA S800(PDF実在)</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: 3Mウインドウフィルム</div>
+<div class="meta-row"><strong>出典</strong>: 3M公式 multimedia.pdf P.47(<mark class="problem-hl">JIS A 5759:2016</mark>)/3M_ガラスフィルム<mark class="problem-hl">使用上の注意4_R2(JIS A 5759:2016</mark>品番別厚み試験)</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>出典『使用上の注意4_R2(JIS A 5759:2016)』だが当該PDFにJIS A 5759文字列なし・実際はmultimedia.pdf P.47由来</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>出典から該当部分削除・『multimedia.pdf P.47』のみに統一</div>
+<div class="judge">健太郎判定 (A-10 KB-F021):
+<label><input type="radio" name="j_KB-F021" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-F021" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-F021" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-F036"><span class="idx">A-11</span>KB-F036 — 出典PC-0029誤記(NEOシリーズ製品説明書)</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 材料選び / ダイノック / AR限界 | ペルソナ: 設計者・施工管理</div>
+<div class="label">質問</div><div class="q">ダイノックARでもカバーできない傷の種類は?どんな現場でARを過信するとマズいですか?</div>
+<div class="label">短答</div><div class="short">ARは「擦り傷(線状の細かい傷)」には強いですが、「カッター等の刃物による切傷・金属角がぶつかる打傷・砂利混じりの靴での擦り傷」には弱いです。学校・倉庫・カートが行き交う施設等では、ARでも数年で傷だらけになるためタフな下地保護を別途検討します。</div>
+<div class="label">詳細本文</div><div class="detail">AR(Abrasion Resistant=耐擦り傷強化)はダイノックの硬質コート品ですが、対応できる傷種類には限界があります。&lt;br&gt;(1)ARが強い傷:爪・指輪・カバン・布袋等の日常接触で発生する細かな線傷。表面ハードコート層が摩耗・線傷の進行を抑えます。&lt;br&gt;(2)ARが弱い傷:[a]カッター・ナイフ等の刃物による切傷=ハードコート層を貫通するため通常品と差がありません。[b]金属角・什器の角が直撃する打痕=エンボス凹凸が押し潰れる傷で、AR有無に関係なく発生します。[c]砂利・砂粒を踏んだ靴での擦り傷=研磨剤として作用し、ARでも徐々に削れます。&lt;br&gt;(3)ARを過信してはいけない現場:小学校の廊下腰壁(カート・体育器具の打痕)・物流倉庫の出入口腰壁(台車衝突)・砂塵が多い屋外通路面など、機械的衝撃が多い場所です。&lt;&lt;br&gt;失敗回避ポイント:見積時に客先から「ARなら傷つかないんですよね?」と言われたら必ず「線傷には強いですが切傷・打傷には通常品同等です」と訂正します。期待値の擦り合わせ漏れがクレームの最大原因です。</div>
+<div class="meta-row"><strong>関連品番</strong>: AE-1632AR/CH-1628AR/BW-1310AR/PS-001AR</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: ダイノック</div>
+<div class="meta-row"><strong>出典</strong>: 品番インデックス_ダイノックdin350.csv(AR品番81件) / 3Mダイノック施工マニュアル(2016改訂)12.シリーズ別注意・3Mダイノック_<mark class="problem-hl">PC-0029(AR硬度試験</mark>データ)</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>出典『PC-0029(AR硬度試験データ)』だがPC-0029=NEOシリーズ(水廻り用)製品説明書・AR硬度試験記載なし</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>該当出典完全削除(F036本文は擦り傷・切傷・打傷の一般説明のため出典なしで可)</div>
+<div class="judge">健太郎判定 (A-11 KB-F036):
+<label><input type="radio" name="j_KB-F036" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-F036" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-F036" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-F044"><span class="idx">A-12</span>KB-F044 — 出典PC-0177誤記(吸音パネル工法)</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 施工 / ダイノック / プライマー94塗布量・乾燥時間 | ペルソナ: 施工業者・現場監督</div>
+<div class="label">質問</div><div class="q">ダイノックプライマー94の正しい塗布量と乾燥時間は?塗りすぎ・塗り不足のリスクは?</div>
+<div class="label">短答</div><div class="short">プライマー94は刷毛またはローラーで均一に塗布し、メーカー指定の塗布量(目安0.05〜0.1kg/㎡)を守ります。乾燥時間は環境により30分〜2時間で、表面が透明になり指触乾燥した状態が貼り適期です。塗りすぎは溶剤臭の残存・接着不良、塗り不足は剥がれの原因になります。</div>
+<div class="label">詳細本文</div><div class="detail">3Mダイノックプライマー94(専用下地処理剤)の使い方を整理します。&lt;br&gt;(1)用途:鋼板・コンクリート・石膏ボード等の難接着下地に使用する下地処理剤です。合板下地は不要なケースもありますが、安全側で塗布するのが原則です。&lt;br&gt;(2)塗布量目安:0.05〜0.1kg/㎡が一般的な目安です(共通施工フロー記載)。塩ビ製品の説明書を必ず再確認。&lt;br&gt;(3)塗布方法:刷毛またはローラーで均一塗布。重ね塗りで厚塗りしません。&lt;br&gt;(4)乾燥時間:温度20℃・湿度50%程度の環境で30分〜2時間です。気温が低いと長くなり、冬季は2時間以上要する場合もあります。&lt;br&gt;(5)貼り適期の判別:[a]表面が乳白色から透明に変わる。[b]指で触ってベタつかない(指触乾燥)。[c]溶剤臭が大幅に減る。この3条件を満たしたら貼ります。&lt;&lt;br&gt;失敗回避ポイント:[a]冬季施工は乾燥時間を1.5倍見込みます。[b]塗布後の乾燥チェックを必ず行い、未乾燥のまま貼らない。[c]2回塗りは初回完全乾燥後に行います。</div>
+<div class="meta-row"><strong>関連品番</strong>: AE-1632/FW-1022/WG-1044</div>
+<div class="meta-row"><strong>対象メーカー</strong>: 3M / <strong>対象ブランド</strong>: ダイノック</div>
+<div class="meta-row"><strong>出典</strong>: 共通/施工要領_共通フロー.md(③プライマー) / 注意事項DB.csv / 3Mダイノック施工マニュアル(2016改訂)3.下地調整・プライマー塗布項 / 3Mダイノック_<mark class="problem-hl">PC-0177(プライマー94</mark>仕様)</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>出典『PC-0177(プライマー94仕様)』だがPC-0177=吸音パネル工法PDF・プライマー94記載なし</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>出典差替え or 削除(数値根拠は別途要再調査)</div>
+<div class="judge">健太郎判定 (A-12 KB-F044):
+<label><input type="radio" name="j_KB-F044" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-F044" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-F044" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-K026"><span class="idx">A-13a</span>KB-K026 — Fog2300/2000『電動切替』誤認</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 材料選び / 機能系 / 電源仕様 | ペルソナ: 設計者・電気工事担当</div>
+<div class="label">質問</div><div class="q">クレアスFog2300とFog2000は何が違うのですか?電源仕様や用途で選び分けたいです。</div>
+<div class="label">短答</div><div class="short">Fog2300(GF1853)とFog2000(GF1854)はいずれも<mark class="problem-hl">電動で透明/白濁が切り替わる</mark><mark class="problem-hl">PETベース調光フィルム</mark>で、施工要領書も共通です。具体的な<mark class="problem-hl">印加電圧・消費電力</mark>等の電源仕様の差はクレアスvol.03施工要領書(Fog2300-2000およびインクジェット特注品_2505)では機種比較表として明示されていないため、選定時はサンゲツに照会して仕様書を取り寄せます(主くろ要追加調査)。</div>
+<div class="label">詳細本文</div><div class="detail">クレアスFog2300とFog2000の違いを整理します。&lt;br&gt;(1)品番:Fog2300=GF1853・Fog2000=GF1854(クレアスvol.03一般注意P.29 Fog掲載)。&lt;br&gt;(2)共通施工要領書:両機種は同一の施工要領書(クレアスvol.03_施工要領書_Fog2300-2000およびインクジェット特注品_2505)で扱われ、PETベース・印刷部凹凸あり・ジョイント不推奨等の留意点も共通。&lt;br&gt;(3)電源仕様差:Fog2300とFog2000の動作電圧・消費電力等の機種別比較数値はクレアスvol.03施工要領書の引用範囲では明示なし。電源工事を伴う発注時は、サンゲツ正規ルートで「機種別仕様書」を取り寄せて電気工事業者と擦り合わせます(主くろ要追加調査)。&lt;br&gt;(4)Fog1500Sの位置付け:カタログP.29にはFog1500S(GF1861)も併記されますが、用途・電源仕様は別途確認が必要(主くろ要追加調査)。&lt;br&gt;(5)選定の考え方:電動調光フィルムの選定は、ガラスサイズ・必要枚数・電源供給ルートの3点でメーカー相談が前提となります。&lt;br&gt;失敗回避ポイント:「Fog系=どれも同じ」とせず、必ず案件ごとに機種別仕様書を取り寄せて電気工事業者と擦り合わせる。配線位置・隠ぺい配線の可否は施工後変更不可のため事前確認必須です。</div>
+<div class="meta-row"><strong>関連品番</strong>: GF1853(Fog2300)|GF1854(Fog2000)|GF1861(Fog1500S)</div>
+<div class="meta-row"><strong>対象メーカー</strong>: サンゲツ / <strong>対象ブランド</strong>: クレアス</div>
+<div class="meta-row"><strong>出典</strong>: クレアスvol.03_施工要領書_Fog2300-2000およびインクジェット特注品_2505 + クレアスvol.03_一般的な施工上の注意_2505 P.29</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>『Fog2300/Fog2000は電動で透明/白濁が切り替わるPETベース調光フィルム』『印加電圧・消費電力』記述・実際はUVインクジェット印刷の固定柄フィルム(電源不要)</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>全行削除推奨 or 『Fog2300とFog2000の意匠濃度差・グラデーション方向違い』など正しい比較軸で全面書き直し</div>
+<div class="judge">健太郎判定 (A-13a KB-K026):
+<label><input type="radio" name="j_KB-K026" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-K026" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-K026" value="hold"> 保留</label>
+</div>
+</div>
+
+<h2 class="card-h" id="KB-K030"><span class="idx">A-13b</span>KB-K030 — Fog2300/2000『通電不良トラブル対処』虚構</h2>
+<div class="card">
+<div class="meta-row">カテゴリ: 施工・道具 / トラブル対処 / Fog電源系トラブル | ペルソナ: 現場監督・施工管理</div>
+<div class="label">質問</div><div class="q">クレアスFog2300/Fog2000を貼ったのに<mark class="problem-hl">通電しても白濁しない</mark>、または部分的にしか切替えできません。どう対処すればよいですか?</div>
+<div class="label">短答</div><div class="short">クレアスFog系の<mark class="problem-hl">通電</mark>不良・部分白濁トラブルの一次対処は、(1)電源工事の<mark class="problem-hl">通電</mark>状態(印加電圧・配線断線)・(2)フィルム端子部の損傷・(3)複数枚並ぶ場合の同一ロット適合・(4)経年劣化の4点切り分けです。クレアスvol.03施工要領書の引用範囲には電気系統トラブルシューティング手順は明記なしのため、サンゲツ営業窓口へ施工写真+<mark class="problem-hl">電圧計</mark>測値を添えて問合せが基本です(主くろ要追加調査)。</div>
+<div class="label">詳細本文</div><div class="detail">Fog2300/Fog2000系の<mark class="problem-hl">通電不良</mark>トラブル切り分けを整理します。&lt;br&gt;(1)切り分け手順:a.電気工事側の通電確認(<mark class="problem-hl">電圧計</mark>でフィルム端子部の印加電圧を実測・規定値はサンゲツ仕様書参照)。b.配線断線・コネクタ脱落・電源装置故障の有無を電気工事業者と確認。c.フィルム端子部の運搬・施工時損傷(折れ/破れ)の目視確認・損傷ありなら張替必須。d.複数枚並ぶ場合は同一ロット品で揃っているか確認(クレアスvol.03一般注意P.22「ロットによる差異」に注意喚起あり)。e.経年劣化による動作不良はサンゲツ保証規定要確認(主くろ要追加調査:具体的な保証年数・耐用年数の数値は引用範囲では明記なし)。&lt;br&gt;(2)サンゲツ問合せの実務:現場写真(全景+端子部アップ)+電圧実測値+施工日+ロット番号(ラベルの製造番号)をセットでサンゲツ営業窓口へ送付し、技術部判定を仰ぐ。&lt;br&gt;(3)現場での応急処置不可:Fog系は内部<mark class="problem-hl">電極構造</mark>を含む特殊品のため、現場での導電修理・端子再接続等は不可。サンゲツの判定なしに分解・補修すると保証対象外になります。&lt;br&gt;(4)張替判断:端子部損傷・運搬中折れ等で「<mark class="problem-hl">電極構造</mark>の一部が断線」している場合は張替が必要。Fog系の張替コストはサイズに応じて高額(主くろ要追加調査:具体的単価は案件別見積)。&lt;br&gt;失敗回避ポイント:Fog系トラブルは「電源工事/フィルム/施工/経年」のどれが原因かを切り分けないと客先説明が成立しません。電気工事業者・フィルム施工業者・サンゲツの3者で原因を特定する流れが必須。客先には「Fog系=精密電気品でメーカー保証範囲も限定的」と契約時に説明しておくと後の紛争回避になります。</div>
+<div class="meta-row"><strong>関連品番</strong>: GF1853(Fog2300)|GF1854(Fog2000)</div>
+<div class="meta-row"><strong>対象メーカー</strong>: サンゲツ / <strong>対象ブランド</strong>: クレアス</div>
+<div class="meta-row"><strong>出典</strong>: クレアスvol.03_施工要領書_Fog2300-2000およびインクジェット特注品_2505 + クレアスvol.03_一般的な施工上の注意_2505 P.22「ロットによる差異」</div>
+<div class="problem"><strong>🚨 問題箇所</strong><br>『Fog2300/2000を貼ったのに通電しても白濁しない…どう対処?』が質問自体虚構・Fog系は通電動作なし</div>
+<div class="fix"><strong>💡 主くろ修正案</strong><br>全行完全削除推奨。代替で『Fog系施工後のくもり・水疱対処(=正しい養生期間1-2ヶ月の説明)』に置換</div>
+<div class="judge">健太郎判定 (A-13b KB-K030):
+<label><input type="radio" name="j_KB-K030" value="OK"> OK(修正実行)</label>
+<label><input type="radio" name="j_KB-K030" value="NG"> NG(現状維持)</label>
+<label><input type="radio" name="j_KB-K030" value="hold"> 保留</label>
+</div>
+</div>
+
+<hr><p style="text-align:right;color:#999;font-size:12px;">本HTML作成: 主くろ(d55f6e94) 2026-05-24 v2(問題箇所ハイライト対応)</p>
+</body></html>
