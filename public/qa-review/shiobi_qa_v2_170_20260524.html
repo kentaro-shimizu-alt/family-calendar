@@ -650,9 +650,47 @@ mark.search-hit {
     padding: 18px 18px;
   }
 }
+
+/* ========== モバイル縮小化(健太郎リモート閲覧用 2026-05-24 追加) ========== */
+@media (max-width: 900px) {
+  .site-header { padding: 18px 14px 12px !important; }
+  .site-title { font-size: 18px !important; margin: 0 !important; letter-spacing: 0.04em !important; }
+  .site-subtitle { font-size: 11px !important; margin: 2px 0 4px !important; letter-spacing: 0.06em !important; }
+  .site-status { font-size: 10px !important; padding: 2px 8px !important; }
+  .brand-mark { display: none !important; }
+  .control-bar { padding: 6px 10px !important; position: relative !important; }
+  .control-inner { gap: 6px !important; }
+  .search-row { gap: 6px !important; }
+  #searchInput { padding: 7px 10px 7px 32px !important; font-size: 13px !important; }
+  .search-box::before { left: 10px !important; width: 10px !important; height: 10px !important; }
+  .filter-row { gap: 4px !important; }
+  .filter-row button, .filter-row .filter-btn { padding: 3px 8px !important; font-size: 11px !important; }
+}
+@media (max-width: 600px) {
+  .site-header { padding: 12px 10px 8px !important; }
+  .site-title { font-size: 16px !important; }
+  .site-subtitle { display: none !important; }
+  .control-bar { padding: 4px 8px !important; }
+  #searchInput { padding: 6px 8px 6px 28px !important; font-size: 12px !important; }
+}
+/* 折り畳みボタン(モバイル時にコントロールバー非表示切替) */
+.control-toggle { display: none; }
+@media (max-width: 900px) {
+  .control-toggle {
+    display: inline-block;
+    position: fixed; top: 6px; right: 6px; z-index: 100;
+    background: rgba(212,175,55,.9); color: #0a1628;
+    border: none; border-radius: 4px; padding: 6px 10px;
+    font-size: 11px; font-weight: bold; cursor: pointer;
+  }
+  .control-bar.collapsed { display: none !important; }
+}
+
 </style>
 </head>
 <body>
+<button class="control-toggle" onclick="document.querySelector('.control-bar').classList.toggle('collapsed')">≡ 検索</button>
+
 
 <!-- ============ ヘッダー ============ -->
 <header class="site-header">
