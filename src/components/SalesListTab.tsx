@@ -3,14 +3,14 @@
 /**
  * 売上一覧タブ (MVP・案A) — 2026-05-02 健太郎LW指示で新設
  * 2026-05-02 改訂: events.id 突合フィルタ廃止 → daily_data.sales_entries 全件表示
- * 2026-05-02 改訂2: ステータスマルチ選択フィルタ + 詳細展開UI(hover/tap) 追加
+ * 2026-05-02 改訂2: ステータスマルチ選択フィルタ + 詳細展開UI 追加
+ * 2026-05-27 改訂3: PC詳細を hover から click 固定モーダルへ変更
  *
  * 役割:
  *   - daily_data.sales_entries を期間内全件取得 → 一覧表示
  *   - 期間フィルタ + タイプフィルタ + ステータスフィルタ + 複数ソート + 📋IDコピー
  *   - ✅DB記入済 (read-only) / 納品書ステータス表示
- *   - PC: hover で note/label 詳細ツールチップ表示
- *   - スマホ: tap で詳細モーダル表示
+ *   - PC/スマホ: click で詳細モーダル表示
  *
  * MVP制約:
  *   - チェックボックスは表示のみ (read-only) 将来skill経由で更新
@@ -657,9 +657,16 @@ export default function SalesListTab() {
                       <td className="px-2 py-2 text-xs">
                         <DeliveryStatusPill status={dnStatus} />
                       </td>
-                      <td className="px-2 py-2 text-center relative">
-                        {/* PC: hover ツールチップ用ラッパ */}
-                        <DetailHover row={r} />
+                      <td className="px-2 py-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setDetailOpen(r)}
+                          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full bg-slate-100 text-slate-600 hover:bg-blue-100 hover:text-blue-700 active:bg-blue-200 text-base transition"
+                          aria-label="売上詳細を表示"
+                          title="売上詳細を表示"
+                        >
+                          📄
+                        </button>
                       </td>
                     </tr>
                   );
@@ -825,101 +832,7 @@ function DeliveryStatusPill({ status }: { status?: DeliveryNoteStatus }) {
   return <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full border ${cls}`}>{label}</span>;
 }
 
-// PC: hover で詳細(note/label)ツールチップ表示
-function DetailHover({ row }: { row: SalesRow }) {
-  const [show, setShow] = useState(false);
-  // 100ms遅延で表示(意図的hover時のみ)
-  const timerRef = useStateRefTimer();
-
-  function onEnter() {
-    timerRef.set(() => setShow(true), 100);
-  }
-  function onLeave() {
-    timerRef.clear();
-    setShow(false);
-  }
-
-  return (
-    <span
-      className="relative inline-block"
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-    >
-      <span
-        className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-help text-base"
-        aria-label="詳細"
-        title=""
-      >
-        📄
-      </span>
-      {show && (
-        <DetailTooltip row={row} />
-      )}
-    </span>
-  );
-}
-
-// 簡易タイマー管理 hook
-function useStateRefTimer() {
-  const ref = useMemo(() => ({ id: null as null | ReturnType<typeof setTimeout> }), []);
-  return {
-    set(fn: () => void, ms: number) {
-      if (ref.id) clearTimeout(ref.id);
-      ref.id = setTimeout(fn, ms);
-    },
-    clear() {
-      if (ref.id) clearTimeout(ref.id);
-      ref.id = null;
-    },
-  };
-}
-
-// PC hover ツールチップ(中身)
-function DetailTooltip({ row }: { row: SalesRow }) {
-  const e = row.entry;
-  const t: SalesEntryType = e.type === 'material' ? 'material' : 'site';
-  const amount = Number(e.amount) || 0;
-  const cost = Number(e.cost) || 0;
-  const customer = pickCustomer(e);
-  return (
-    <div
-      className="absolute z-[80] right-0 top-full mt-1 bg-slate-800 text-white rounded-lg p-3 shadow-lg max-w-md w-[320px] text-left"
-      role="tooltip"
-    >
-      <div className="text-[11px] text-slate-300 mb-1 flex items-center gap-2 flex-wrap">
-        <span>{row.date}</span>
-        <span className="px-1.5 py-0.5 rounded-full bg-slate-700">{SALES_TYPE_LABEL[t]}</span>
-        <DeliveryStatusPill status={e.delivery_note_status} />
-      </div>
-      <div className="text-sm font-semibold mb-2 break-words">{customer}</div>
-      <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-300 mb-2">
-        <div>
-          売値: <span className="text-emerald-300 tabular-nums">¥{amount.toLocaleString()}</span>
-        </div>
-        <div>
-          原価: <span className="text-amber-300 tabular-nums">¥{cost.toLocaleString()}</span>
-        </div>
-      </div>
-      {e.label && (
-        <div className="text-[11px] text-slate-300 mb-1">
-          <span className="text-slate-400">label: </span>
-          <span className="break-words">{e.label}</span>
-        </div>
-      )}
-      {e.note && (
-        <pre className="text-[11px] text-slate-100 whitespace-pre-wrap break-words bg-slate-900/50 rounded p-2 max-h-64 overflow-y-auto font-sans">
-{e.note}
-        </pre>
-      )}
-      {!e.note && !e.label && (
-        <div className="text-[11px] text-slate-500 italic">(詳細メモなし)</div>
-      )}
-      <div className="text-[10px] text-slate-400 mt-2 font-mono break-all">id: {e.id}</div>
-    </div>
-  );
-}
-
-// モバイル詳細モーダル
+// 詳細モーダル
 function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
   const e = row.entry;
   const t: SalesEntryType = e.type === 'material' ? 'material' : 'site';
@@ -939,13 +852,11 @@ function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
   return (
     <div
       className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-3"
-      onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
         className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[85vh] flex flex-col"
-        onClick={(ev) => ev.stopPropagation()}
       >
         {/* ヘッダ */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
