@@ -39,7 +39,30 @@ type PersistedUiState = {
   dayEventsDate: string | null; // YYYY-MM-DD
   scrollY: number;
   savedAt: number;
+  todayKey?: string; // YYYY-MM-DD (Asia/Tokyo)
 };
+
+function getJstTodayKey(): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date());
+  const y = parts.find((p) => p.type === 'year')?.value || '1970';
+  const m = parts.find((p) => p.type === 'month')?.value || '01';
+  const d = parts.find((p) => p.type === 'day')?.value || '01';
+  return `${y}-${m}-${d}`;
+}
+
+function isBackForwardNavigation(): boolean {
+  try {
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    return nav?.type === 'back_forward';
+  } catch {
+    return false;
+  }
+}
 
 function loadUiState(): PersistedUiState | null {
   try {
@@ -196,6 +219,10 @@ export default function HomePage() {
     const s = loadUiState();
     if (s) {
       try {
+        const todayKey = getJstTodayKey();
+        const allowDayModalRestore =
+          (s.todayKey === todayKey && s.dayEventsDate === todayKey) || isBackForwardNavigation();
+
         if (s.topView === 'sales-list' || s.topView === 'calendar') {
           setTopView(s.topView);
           // 2026-05-06 Phase3: 売上一覧復元時も pushState で履歴登録 (戻るボタン対応)
@@ -213,7 +240,7 @@ export default function HomePage() {
           const [y, m] = s.currentMonth.split('-').map(Number);
           setCurrentMonth(new Date(y, m - 1, 1));
         }
-        if (typeof s.dayEventsDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.dayEventsDate)) {
+        if (allowDayModalRestore && typeof s.dayEventsDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.dayEventsDate)) {
           const [y, m, d] = s.dayEventsDate.split('-').map(Number);
           setDayEventsDate(new Date(y, m - 1, d));
           // ★ 2026-05-05 健太郎LW 14:48 bfcache戻るボタン修正:
@@ -426,6 +453,7 @@ export default function HomePage() {
         dayEventsDate: dayEventsOpen ? ded : null,
         scrollY: typeof window !== 'undefined' ? window.scrollY : 0,
         savedAt: Date.now(),
+        todayKey: getJstTodayKey(),
       };
       localStorage.setItem(UI_STATE_KEY, JSON.stringify(payload));
     } catch {}
