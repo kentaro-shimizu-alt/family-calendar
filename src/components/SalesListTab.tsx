@@ -852,11 +852,13 @@ function DetailModal({ row, onClose }: { row: SalesRow; onClose: () => void }) {
   return (
     <div
       className="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-3"
+      onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
         className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[85vh] flex flex-col"
+        onClick={(ev) => ev.stopPropagation()}
       >
         {/* ヘッダ */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
