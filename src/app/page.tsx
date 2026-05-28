@@ -285,6 +285,15 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
 
   const monthKey = useMemo(() => format(currentMonth, 'yyyy-MM'), [currentMonth]);
+  const visibleMonthKeys = useMemo(() => {
+    return Array.from(
+      new Set(
+        [subMonths(currentMonth, 1), currentMonth, addMonths(currentMonth, 1)].map((d) =>
+          format(d, 'yyyy-MM')
+        )
+      )
+    );
+  }, [currentMonth]);
 
   // Load static collections once (members + sub-calendars)
   // localStorage キャッシュで即表示 → バックグラウンドで最新を取得
@@ -353,7 +362,7 @@ export default function HomePage() {
   }, []);
 
   const loadAll = useCallback(async (forceRefresh = false) => {
-    const cacheKey = `cal-cache-${monthKey}`;
+    const cacheKey = `cal-cache-v2-${monthKey}`;
     // 保存後の強制リフレッシュ時はキャッシュをスキップ
     if (!forceRefresh) {
       try {
@@ -373,27 +382,37 @@ export default function HomePage() {
     try {
       // forceRefresh 時は cache-busting で Vercel CDN キャッシュをバイパス
       const cacheBust = forceRefresh ? `&_t=${Date.now()}` : '';
-      const [evRes, dRes] = await Promise.all([
-        fetch(`/api/events?month=${monthKey}${cacheBust}`),
-        fetch(`/api/daily?month=${monthKey}${cacheBust}`),
+      const [eventResponses, dailyResponses] = await Promise.all([
+        Promise.all(visibleMonthKeys.map((key) => fetch(`/api/events?month=${key}${cacheBust}`))),
+        Promise.all(visibleMonthKeys.map((key) => fetch(`/api/daily?month=${key}${cacheBust}`))),
       ]);
-      const evData = await evRes.json();
-      const dData = await dRes.json();
-      const evList = evData.events || [];
+      const [eventPayloads, dailyPayloads] = await Promise.all([
+        Promise.all(eventResponses.map((res) => res.json())),
+        Promise.all(dailyResponses.map((res) => res.json())),
+      ]);
+      const evById = new Map<string, CalendarEvent>();
+      for (const payload of eventPayloads) {
+        for (const ev of (payload.events || []) as CalendarEvent[]) {
+          evById.set(String(ev.id), ev);
+        }
+      }
+      const evList = Array.from(evById.values());
       const map: Record<string, DailyData> = {};
-      for (const d of (dData.data || []) as DailyData[]) map[d.date] = d;
+      for (const payload of dailyPayloads) {
+        for (const d of (payload.data || []) as DailyData[]) map[d.date] = d;
+      }
       setEvents(evList);
       setDailyData(map);
       // キャッシュ保存
       try {
-        localStorage.setItem(`cal-cache-${monthKey}`, JSON.stringify({ events: evList, daily: map }));
+        localStorage.setItem(cacheKey, JSON.stringify({ events: evList, daily: map }));
       } catch {}
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [monthKey]);
+  }, [monthKey, visibleMonthKeys]);
 
   useEffect(() => {
     loadAll();
