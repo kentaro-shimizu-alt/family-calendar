@@ -251,14 +251,22 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       const s = parseISO(r.start);
       const e = parseISO(r.end || r.start);
       if (isNaN(s.getTime()) || isNaN(e.getTime())) continue;
-      const days = eachDayOfInterval({ start: s, end: e });
-      for (const d of days) {
-        const key = format(d, 'yyyy-MM-dd');
-        if (!all.includes(key)) all.push(key);
-        if (all.length >= 366) return all;
-      }
+      const key = format(s, 'yyyy-MM-dd');
+      if (!all.includes(key)) all.push(key);
     }
     return all.sort();
+  }
+
+  function formatOverrideTargetLabel(key: string): string {
+    const ranges: Array<{ start: string; end: string }> = [];
+    if (date) ranges.push({ start: date, end: endDate || date });
+    for (const r of extraRanges) {
+      if (r.start) ranges.push({ start: r.start, end: r.end || r.start });
+    }
+    const r = ranges.find((item) => item.start === key);
+    const start = key.slice(5).replace('-', '/');
+    if (!r || !r.end || r.end === r.start) return start;
+    return `${start} - ${r.end.slice(5).replace('-', '/')}`;
   }
 
   function updateDateOverride(key: string, patch: Partial<DateOverride>) {
@@ -288,6 +296,15 @@ export default function EventModal({ open, initialDate, editing, members, subCal
   }
   function removeExtraRange(i: number) {
     setExtraRanges((prev) => prev.filter((_, idx) => idx !== i));
+  }
+  // 期間1(開始日)を削除: 期間2を昇格して新しい開始日にする
+  // ロック: 期間が1個だけ(extraRanges空)のときは削除不可（最低1期間は必ず残す）
+  function removeMainRange() {
+    if (extraRanges.length === 0) return; // 最後の1個は消せない
+    const [first, ...rest] = extraRanges;
+    setDate(first.start);
+    setEndDate(first.end && first.end !== first.start ? first.end : '');
+    setExtraRanges(rest);
   }
 
   // 複数日選択ヘルパー
@@ -334,9 +351,12 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       } : undefined;
       // 飛び飛び期間が指定されている場合は dateRanges も送る
       const hasExtra = extraRanges.length > 0;
+      const hasRangedEvent = hasExtra || !!(endDate && endDate !== date);
+      // 編集時に飛び飛び期間が無くなった場合は null を明示送出して DB の date_ranges をクリア
+      // （undefined だと JSON から欠落 → updateEvent の spread で旧 date_ranges が残り「消せない」事故になる）
       const dateRanges = hasExtra
         ? [{ start: date, end: endDate || date }, ...extraRanges.filter((r) => r.start && r.end)]
-        : undefined;
+        : (editing ? null : undefined);
       // editing の既存 rotation を URL をキーにしてマップ化し引き継ぐ
       const existingRotationMap = new Map<string, 0 | 90 | 180 | 270>();
       if (editing?.images) {
@@ -353,7 +373,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
       // 飛び飛び期間が指定されているときのみ送出(単日予定では使わない)
       // 空オブジェクト/空エントリは除去して送信
       const cleanedOverrides: DateOverrides = {};
-      if (hasExtra) {
+      if (hasRangedEvent) {
         for (const [k, v] of Object.entries(dateOverrides)) {
           if (!v) continue;
           const entry: DateOverride = {};
@@ -504,9 +524,10 @@ export default function EventModal({ open, initialDate, editing, members, subCal
           )}
 
           {/* Date range (start + end) - always visible */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* 期間が2つ以上(extraRanges有)のときだけ 開始日にも × を出す。1個だけのときはロック(消せない) */}
+          <div className={`grid gap-3 items-end ${extraRanges.length > 0 ? 'grid-cols-[1fr_1fr_auto]' : 'grid-cols-2'}`}>
             <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1">開始日 *</label>
+              <label className="block text-xs font-semibold text-slate-500 mb-1">{extraRanges.length > 0 ? '期間 1: 開始日 *' : '開始日 *'}</label>
               <input
                 type="date"
                 value={date}
@@ -526,6 +547,14 @@ export default function EventModal({ open, initialDate, editing, members, subCal
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-blue-300"
               />
             </div>
+            {extraRanges.length > 0 && (
+              <button
+                type="button"
+                onClick={removeMainRange}
+                className="text-rose-400 hover:text-rose-600 text-lg w-8 h-8 flex items-center justify-center rounded hover:bg-rose-50 mb-1"
+                title="この期間を削除"
+              >×</button>
+            )}
           </div>
 
           {/* Extra ranges - 飛び飛び期間 */}
@@ -577,7 +606,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
                   <label className="block text-sm font-bold text-purple-900">
                     🎨 各日の題名+色（任意）
                   </label>
-                  <span className="text-xs font-semibold text-purple-800">{allDates.length}日</span>
+                  <span className="text-xs font-semibold text-purple-800">{allDates.length}期間</span>
                 </div>
                 <p className="text-xs text-slate-700 mb-2 leading-relaxed font-medium">
                   ※未入力なら上のタイトル・色を使用。各日のみ違う題名/色にしたいときに入力。
@@ -592,7 +621,7 @@ export default function EventModal({ open, initialDate, editing, members, subCal
                       <div key={key} className="bg-white rounded-lg border border-purple-200 p-2">
                         <div className="flex items-center justify-between mb-1.5">
                           <span className={`text-sm font-bold ${dateColor}`}>
-                            {key.slice(5).replace('-', '/')}（{dowLabel}）
+                            {formatOverrideTargetLabel(key)}（{dowLabel}）
                           </span>
                           {(ov.title || ov.color) && (
                             <button
