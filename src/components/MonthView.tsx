@@ -374,24 +374,44 @@ export default function MonthView({ currentMonth, todayKey: todayKeyFromParent, 
         const startCol = dateIndex.get(segStartStr)?.col ?? 0;
         const endCol = dateIndex.get(segEndStr)?.col ?? 6;
         if (hasAnyOverrideInRange) {
-          // per-day に分割: startCol〜endCol を 1日ずつ独立 bar に（各日の題名/色を出すため）
-          // 2026-06-05 くろ修正: 同 range・同週の per-day バーは groupKey で束ねて同一スロットに揃える
-          //   → 飛び飛び/欠落（busy週でスロットがバラける問題）の根本対策
+          // 2026-06-05 くろ修正（案C unify-normal-path）:
+          //   旧実装は override ありの range を「1日1バー(span:1)」に分割していたため、
+          //   題名/色が同じ連続日でも各日が独立カプセル化し、4pxの隙間＋各端角丸で
+          //   「飛び飛び/隙間」に見えていた（健太郎LW: 6/10-6/12 が3つに割れる）。
+          //   → per-day 特別経路を廃止し、解決後の (題名 + 背景色) が一致する連続日を
+          //      1本の連続帯 BarSeg に併合（＝通常複数日帯と同一形・同一描画・同一スロット束ね）。
+          //   題名/色が変わる境界でランが割れ continues=false で角丸が立つため、
+          //   per-day 別題名（その日個別override優先）は見た目で維持される。
+          //   groupKey は同 range・同週の全ラン共通にして縦スロット整列(2977b41)を維持。
           const groupKey = `${ev.id}__${rStart}__${rEnd}__w${wi}`;
+          let runStart = startCol;
           for (let col = startCol; col <= endCol; col++) {
-            const dayDate = format(wk[col], 'yyyy-MM-dd');
-            barSegs.push({
-              event: ev,
-              weekIdx: wi,
-              startCol: col,
-              span: 1,
-              continuesLeft: false, // per-day bar なので連結扱いしない
-              continuesRight: false,
-              isOriginStart: dayDate === originStart,
-              slot: 0,
-              segStartDate: dayDate,
-              groupKey,
-            });
+            const here = format(wk[col], 'yyyy-MM-dd');
+            const next = col < endCol ? format(wk[col + 1], 'yyyy-MM-dd') : null;
+            // 解決後の (題名 + 背景色) が次の日と一致する間は同一ランとして継続
+            const sameAsNext =
+              next !== null &&
+              resolveEventTitleForDate(ev, here) === resolveEventTitleForDate(ev, next) &&
+              resolveEventColorForDate(ev, here, subCalendars).bg ===
+                resolveEventColorForDate(ev, next, subCalendars).bg;
+            if (!sameAsNext) {
+              // ラン [runStart..col] を 1本の連続帯 BarSeg にまとめて push
+              const runStartDate = format(wk[runStart], 'yyyy-MM-dd');
+              barSegs.push({
+                event: ev,
+                weekIdx: wi,
+                startCol: runStart,
+                span: col - runStart + 1,
+                // 通常帯(下の else)と同じ規則。ラン端が range端かつ週端のときだけ連結フラグ
+                continuesLeft: runStart === startCol && rStart < wkStart,
+                continuesRight: col === endCol && rEnd > wkEnd,
+                isOriginStart: runStartDate === originStart,
+                slot: 0,
+                segStartDate: runStartDate, // ラン先頭日（題名/色解決の基準）
+                groupKey, // スロット束ね維持（必須）
+              });
+              runStart = col + 1;
+            }
           }
         } else {
           barSegs.push({
