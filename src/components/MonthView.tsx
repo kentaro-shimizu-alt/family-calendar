@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CalendarEvent, DailyData, Member, SalesEntry, SubCalendar } from '@/lib/types';
 import { getKinenbi } from '@/lib/kinenbi';
 import { getHanabiByDate, HanabiEvent } from '@/lib/hanabi';
+import { useJstTodayKey } from '@/lib/useJstTodayKey';
 import {
   startOfMonth,
   endOfMonth,
@@ -228,79 +229,17 @@ const BAR_GAP = 2;        // px between bars
 // CELL_PAD_TOP_BASE must match overlay start (DATE_HEADER_H) exactly for pixel-perfect alignment.
 const CELL_PAD_TOP_BASE = DATE_HEADER_H;
 
-export default function MonthView({ currentMonth, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight, showKinenbi = false, showHanabi = false, onHanabiClick }: Props) {
-  // ===== T202 本日マーカー前日残バグ修正(2026-04-22) =====
-  // ===== 2026-05-17 健太郎LW「今17日のはずだけど13日になってる」=====
-  //   bfcache 復元時に visibilitychange が発火しない iOS Safari 経路があり、
-  //   pageshow(persisted) 復元で旧 todayKey が残置 → 「カレンダー開いた瞬間」に古日が点灯。
-  //   さらに JST 固定化(toLocaleDateString Asia/Tokyo) で端末タイムゾーンずれにも防衛。
-  // todayKey を state で保持し、(1)マウント時 (2)次の深夜0時過ぎ
-  // (3)visibilitychange (4)pageshow(bfcache復元) (5)毎分 setInterval で再計算。
-  const getJstKey = () => {
-    // ja-JP + Asia/Tokyo で YYYY/MM/DD を取得し yyyy-MM-dd に正規化
-    const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Tokyo',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).formatToParts(new Date());
-    const y = parts.find((p) => p.type === 'year')?.value || '1970';
-    const m = parts.find((p) => p.type === 'month')?.value || '01';
-    const d = parts.find((p) => p.type === 'day')?.value || '01';
-    return `${y}-${m}-${d}`;
-  };
-  const [todayKey, setTodayKey] = useState<string>(() => getJstKey());
-  useEffect(() => {
-    const recalc = () => {
-      const k = getJstKey();
-      setTodayKey((prev) => (prev !== k ? k : prev));
-    };
-    // 2026-04-22 健太郎指摘「シークレットでも21日のまま」
-    // 原因: SSR時刻(サーバーUTC)で初期state生成 → hydration後 recalc が走らないと補正されない
-    // 修正: マウント直後に必ず即recalc(クライアントのlocal時刻で再計算)
-    recalc();
-    // タブ復帰時に再計算(スリープ明け対策)
-    const onVis = () => { if (!document.hidden) recalc(); };
-    document.addEventListener('visibilitychange', onVis);
-    // 2026-05-17 追加: bfcache 復元時 pageshow を捕捉(iOS Safari で visibilitychange だけでは
-    // 取りこぼす経路があり、旧todayKeyが残って「カレンダー開いた瞬間に古日に青●」現象が出る)
-    const onPageShow = (ev: PageTransitionEvent) => {
-      // persisted=true は bfcache 復元、false でも初回 reload で発火し recalc は冪等
-      recalc();
-      void ev; // 参照のみ
-    };
-    window.addEventListener('pageshow', onPageShow);
-    // 次の深夜0時直後にrecalc、その後24時間毎にrecalc(JST 基準で算出)
-    let interval: ReturnType<typeof setInterval> | null = null;
-    // JST の現在時刻を取り JST 翌日 0:00:05 までの ms 数を算出
-    const nowUtcMs = Date.now();
-    const jstNow = new Date(nowUtcMs + 9 * 60 * 60 * 1000);
-    // jstNow は UTC 上で JST と同じ年月日時分秒を示す Date。これを UTC で扱い差分計算。
-    const jstNextMidnightUtcMs = Date.UTC(
-      jstNow.getUTCFullYear(),
-      jstNow.getUTCMonth(),
-      jstNow.getUTCDate() + 1,
-      0,
-      0,
-      5
-    ) - 9 * 60 * 60 * 1000; // JST 0:00:05 を実 UTC ms に戻す
-    const msUntil = Math.max(1000, jstNextMidnightUtcMs - nowUtcMs);
-    const timeout = setTimeout(() => {
-      recalc();
-      interval = setInterval(recalc, 24 * 60 * 60 * 1000);
-    }, msUntil);
-    // 2026-04-22 健太郎LW「4/21に青●が残ってる→根本修正」
-    // 上のsetTimeoutはスマホバックグラウンドで消失することがあるため、
-    // 毎分 setInterval で軽量に本日キー比較+更新(diff時のみsetState→再render最小)
-    const minuteInterval = setInterval(recalc, 60 * 1000);
-    return () => {
-      document.removeEventListener('visibilitychange', onVis);
-      window.removeEventListener('pageshow', onPageShow);
-      clearTimeout(timeout);
-      if (interval) clearInterval(interval);
-      clearInterval(minuteInterval);
-    };
-  }, []);
+export default function MonthView({ currentMonth, todayKey: todayKeyFromParent, events, dailyData, subCalendars, onDayClick, onEventClick, onSalesClick, onMisaClick, onSwipeLeft, onSwipeRight, showKinenbi = false, showHanabi = false, onHanabiClick }: Props) {
+  // ===== 本日マーカー「前日残り」根本修正(2026-06-05 くろ) =====
+  // 履歴: T202(2026-04-22) /「17日が13日」(2026-05-17) /「4/21に青●残り」等、再発を繰り返してきた領域。
+  // 真因: 健太郎環境は常時表示モニタにカレンダー出しっぱなし＝タブが hidden/focus/操作 のいずれにもならず、
+  //       ブラウザがタイマーを凍結/スロットルするため、従来の visibilitychange + 60秒interval では
+  //       深夜0時に再計算が走らず前日キーが残る。
+  // 対策: useJstTodayKey フックに一元化（focus/pointerdown/touchstart/visibility/pageshow/
+  //       精密な深夜0時タイマー/30秒interval の全契機で再計算）。TodaySummary とも共通化。
+  //       親(page.tsx)が todayKey を渡せば優先、無ければフックの堅牢計算を使用。
+  const robustTodayKey = useJstTodayKey();
+  const todayKey = todayKeyFromParent || robustTodayKey;
 
   // ===== B6: Smooth month-transition animation =====
   // Track previous month to determine slide direction
