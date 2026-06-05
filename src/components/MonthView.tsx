@@ -20,6 +20,9 @@ import {
 
 interface Props {
   currentMonth: Date;
+  // 親(page.tsx)が JST 当日キーを渡せる任意プロパティ（未指定なら内部計算にフォールバック）。
+  // 本番 page.tsx は未使用のため挙動不変。ローカル作業ツリーの page.tsx 互換のため受理する。
+  todayKey?: string;
   events: CalendarEvent[];
   dailyData: Record<string, DailyData>;
   members: Member[]; // 後方互換（未使用）
@@ -117,6 +120,9 @@ interface BarSeg {
   // dateOverrides ありの予定は per-day に分割した bar になり、segStartDate はその日付
   // それ以外（通常の複数日バー）は segStartDate = セグメント開始日（範囲の左端）
   segStartDate?: string;
+  // 2026-06-05 くろ修正: dateOverride で per-day 分割した同一range・同一週のバー群を束ねるキー。
+  // スロット割当で同 groupKey のバーを必ず同一スロットに揃え、連続した帯に見せる（飛び飛び/欠落の根本対策）
+  groupKey?: string;
 }
 
 // DateOverrideColor → hex 解決（types.ts と一致）
@@ -400,7 +406,10 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
         const startCol = dateIndex.get(segStartStr)?.col ?? 0;
         const endCol = dateIndex.get(segEndStr)?.col ?? 6;
         if (hasAnyOverrideInRange) {
-          // per-day に分割: startCol〜endCol を 1日ずつ独立 bar に
+          // per-day に分割: startCol〜endCol を 1日ずつ独立 bar に（各日の題名/色を出すため）
+          // 2026-06-05 くろ修正: 同 range・同週の per-day バーは groupKey で束ねて同一スロットに揃える
+          //   → 飛び飛び/欠落（busy週でスロットがバラける問題）の根本対策
+          const groupKey = `${ev.id}__${rStart}__${rEnd}__w${wi}`;
           for (let col = startCol; col <= endCol; col++) {
             const dayDate = format(wk[col], 'yyyy-MM-dd');
             barSegs.push({
@@ -413,6 +422,7 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
               isOriginStart: dayDate === originStart,
               slot: 0,
               segStartDate: dayDate,
+              groupKey,
             });
           }
         } else {
@@ -441,31 +451,50 @@ export default function MonthView({ currentMonth, events, dailyData, subCalendar
   const maxSlotByWeekCol: number[][] = weeks.map(() => new Array(7).fill(-1));
   for (let wi = 0; wi < barsByWeek.length; wi++) {
     const wbars = barsByWeek[wi];
-    // Sort by start column, then prefer longer spans first (stable layout)
-    wbars.sort((a, b) => a.startCol - b.startCol || b.span - a.span);
-    const slotCols: boolean[][] = [];
+    // 2026-06-05 くろ修正: dateOverride per-day 分割バーを groupKey で1つの「ユニット」に束ねる。
+    //   ユニットは連続列 [startCol..endCol] を丸ごと1スロットに予約 → 同一行に揃った連続帯に見せる。
+    //   （従来は per-day バーが各自バラバラに空きスロットへ入り、busy週で飛び飛び・欠落して見えた）
+    //   groupKey 無しのバーは従来どおり単独ユニット（挙動不変）。
+    type SlotUnit = { startCol: number; endCol: number; members: BarSeg[] };
+    const units: SlotUnit[] = [];
+    const unitByKey = new Map<string, SlotUnit>();
     for (const b of wbars) {
+      const bEnd = b.startCol + b.span - 1;
+      if (b.groupKey) {
+        let u = unitByKey.get(b.groupKey);
+        if (!u) { u = { startCol: b.startCol, endCol: bEnd, members: [] }; unitByKey.set(b.groupKey, u); units.push(u); }
+        u.startCol = Math.min(u.startCol, b.startCol);
+        u.endCol = Math.max(u.endCol, bEnd);
+        u.members.push(b);
+      } else {
+        units.push({ startCol: b.startCol, endCol: bEnd, members: [b] });
+      }
+    }
+    // Sort by start column, then prefer wider units first (stable layout)
+    units.sort((a, b) => a.startCol - b.startCol || (b.endCol - b.startCol) - (a.endCol - a.startCol));
+    const slotCols: boolean[][] = [];
+    for (const u of units) {
       let s = 0;
-      // find first free slot
+      // find first slot where the whole unit span [startCol..endCol] is free
       // eslint-disable-next-line no-constant-condition
       while (true) {
         if (!slotCols[s]) slotCols[s] = new Array(7).fill(false);
         let fits = true;
-        for (let c = b.startCol; c < b.startCol + b.span; c++) {
+        for (let c = u.startCol; c <= u.endCol; c++) {
           if (slotCols[s][c]) { fits = false; break; }
         }
         if (fits) {
-          for (let c = b.startCol; c < b.startCol + b.span; c++) {
+          for (let c = u.startCol; c <= u.endCol; c++) {
             slotCols[s][c] = true;
             // B24: 各列の最大スロットを更新
             if (s > maxSlotByWeekCol[wi][c]) maxSlotByWeekCol[wi][c] = s;
           }
-          b.slot = s;
+          for (const b of u.members) b.slot = s;
           if (s > maxSlotByWeek[wi]) maxSlotByWeek[wi] = s;
           break;
         }
         s++;
-        if (s > 20) { b.slot = 0; break; } // safety
+        if (s > 20) { for (const b of u.members) b.slot = 0; break; } // safety
       }
     }
   }
