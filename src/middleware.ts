@@ -85,6 +85,7 @@ export async function middleware(req: NextRequest) {
     pathname === '/robots.txt' ||
     pathname === '/favicon.ico' ||
     pathname === '/manifest.json' ||
+    pathname === '/manifest.webmanifest' ||
     pathname.startsWith('/_next/')
   ) {
     return NextResponse.next();
@@ -119,9 +120,9 @@ export const config = {
      * - /api (全API・LW webhook やshop_order系も含む)
      * - /_next (Next.js 内部)
      * - /login (ログインページ自身)
-     * - /favicon.ico, /robots.txt, /manifest.json, /sitemap.xml
+     * - /favicon.ico, /robots.txt, /manifest.json, /manifest.webmanifest, /sitemap.xml
      * - 静的アセット拡張子 (.png .jpg .svg .ico .css .js .json .webp .gif .map .html .pdf .xlsx .csv)
      */
-    '/((?!api/|_next/|login|favicon\\.ico|robots\\.txt|manifest\\.json|sitemap\\.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|css|js|json|map|html|pdf|xlsx|csv|woff|woff2|ttf)$).*)',
+    '/((?!api/|_next/|login|favicon\\.ico|robots\\.txt|manifest\\.json|manifest\\.webmanifest|sitemap\\.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|css|js|json|webmanifest|map|html|pdf|xlsx|csv|woff|woff2|ttf)$).*)',
   ],
 };

@@ -14,6 +14,7 @@ import SettingsModal, { VirtualCalSettings, VIRTUAL_CAL_KEYS } from '@/component
 import DayEventsModal from '@/components/DayEventsModal';
 import TodaySummary from '@/components/TodaySummary';
 import ReminderRunner from '@/components/ReminderRunner';
+import { getJstTodayKey, msUntilNextJstMidnight } from '@/lib/jstToday';
 // 2026-05-06 Phase2: HpOrdersDashboard は別ページ /shop-orders に分離 (健太郎LW指示「重い」)
 import {
   CalendarEvent,
@@ -41,19 +42,6 @@ type PersistedUiState = {
   savedAt: number;
   todayKey?: string; // YYYY-MM-DD (Asia/Tokyo)
 };
-
-function getJstTodayKey(): string {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Tokyo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).formatToParts(new Date());
-  const y = parts.find((p) => p.type === 'year')?.value || '1970';
-  const m = parts.find((p) => p.type === 'month')?.value || '01';
-  const d = parts.find((p) => p.type === 'day')?.value || '01';
-  return `${y}-${m}-${d}`;
-}
 
 function isBackForwardNavigation(): boolean {
   try {
@@ -85,6 +73,8 @@ function clearUiState() {
 
 export default function HomePage() {
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
+  const [todayKey, setTodayKey] = useState<string>(() => getJstTodayKey());
+  const previousTodayKeyRef = useRef(todayKey);
   const [topView, setTopView] = useState<TopView>('calendar');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [dailyData, setDailyData] = useState<Record<string, DailyData>>({});
@@ -132,6 +122,91 @@ export default function HomePage() {
     detect();
     window.addEventListener('resize', detect);
     return () => window.removeEventListener('resize', detect);
+  }, []);
+
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker
+      .register('/sw.js', { updateViaCache: 'none' })
+      .then((registration) => registration.update().catch(() => {}))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const refreshTodayKey = () => {
+      const next = getJstTodayKey();
+      setTodayKey((prev) => (prev === next ? prev : next));
+    };
+    let midnightTimer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleMidnightRefresh = () => {
+      if (midnightTimer) clearTimeout(midnightTimer);
+      midnightTimer = setTimeout(() => {
+        refreshTodayKey();
+        scheduleMidnightRefresh();
+      }, msUntilNextJstMidnight());
+    };
+    const refreshWhenVisible = () => {
+      if (typeof document === 'undefined' || !document.hidden) refreshTodayKey();
+    };
+    refreshTodayKey();
+    scheduleMidnightRefresh();
+    const interval = setInterval(refreshTodayKey, 30 * 1000);
+    window.addEventListener('focus', refreshTodayKey);
+    window.addEventListener('pageshow', refreshTodayKey);
+    window.addEventListener('online', refreshTodayKey);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    document.addEventListener('pointerdown', refreshTodayKey, { passive: true });
+    document.addEventListener('touchstart', refreshTodayKey, { passive: true });
+    return () => {
+      if (midnightTimer) clearTimeout(midnightTimer);
+      clearInterval(interval);
+      window.removeEventListener('focus', refreshTodayKey);
+      window.removeEventListener('pageshow', refreshTodayKey);
+      window.removeEventListener('online', refreshTodayKey);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+      document.removeEventListener('pointerdown', refreshTodayKey);
+      document.removeEventListener('touchstart', refreshTodayKey);
+    };
+  }, []);
+
+  useEffect(() => {
+    const previousKey = previousTodayKeyRef.current;
+    if (previousKey === todayKey) return;
+    previousTodayKeyRef.current = todayKey;
+
+    const prevParts = previousKey.split('-').map(Number);
+    const nextParts = todayKey.split('-').map(Number);
+    if (prevParts.length !== 3 || nextParts.length !== 3) return;
+    const [prevYear, prevMonth] = prevParts;
+    const [nextYear, nextMonth] = nextParts;
+
+    setCurrentMonth((current) => {
+      if (current.getFullYear() === prevYear && current.getMonth() === prevMonth - 1) {
+        return new Date(nextYear, nextMonth - 1, 1);
+      }
+      return current;
+    });
+  }, [todayKey]);
+
+  useEffect(() => {
+    const lockPortraitIfPossible = () => {
+      try {
+        const orientation = window.screen?.orientation as ScreenOrientation & { lock?: (orientation: string) => Promise<void> };
+        if (!orientation?.lock) return;
+        const standalone = window.matchMedia?.('(display-mode: standalone)')?.matches || (window.navigator as any)?.standalone;
+        const mobile = /Android|iPhone|iPad|iPod/i.test(window.navigator.userAgent || '');
+        if (!standalone && !mobile) return;
+        const lock = orientation.lock;
+        if (!lock) return;
+        lock.call(orientation, 'portrait-primary').catch(() => {
+          try { lock.call(orientation, 'portrait').catch(() => {}); } catch {}
+        });
+      } catch {}
+    };
+    lockPortraitIfPossible();
+    const events = ['pageshow', 'visibilitychange', 'resize'] as const;
+    events.forEach((name) => window.addEventListener(name, lockPortraitIfPossible, { passive: true }));
+    return () => events.forEach((name) => window.removeEventListener(name, lockPortraitIfPossible));
   }, []);
 
   // 2026-04-25 健太郎指示: 「2回目の検索が動かない」バグ修正
@@ -1111,6 +1186,7 @@ export default function HomePage() {
           <>
             <MonthView
               currentMonth={currentMonth}
+              todayKey={todayKey}
               events={visibleEvents}
               dailyData={dailyData}
               members={members}
@@ -1153,6 +1229,18 @@ export default function HomePage() {
               </Link>
               <p className="text-center text-xs text-slate-500 -mt-1">
                 tecnest.biz/shop からの注文一覧 + 月別/取引先別/ステータス別集計
+              </p>
+
+              <Link
+                href="/material-inventory"
+                className="w-full max-w-md mx-auto block py-6 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 border-2 border-amber-400 rounded-2xl text-amber-950 text-lg font-semibold transition flex items-center justify-center gap-3 min-h-16"
+                aria-label="材料管理を開く"
+              >
+                <span className="text-3xl">▦</span>
+                <span>材料管理</span>
+              </Link>
+              <p className="text-center text-xs text-slate-500 -mt-1">
+                窓枠補修用シートの品番・色・残りメーター数を確認
               </p>
             </div>
           </>

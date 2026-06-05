@@ -4,6 +4,16 @@ import type { Metadata, Viewport } from 'next';
 export const metadata: Metadata = {
   title: '清水家カレンダー',
   description: '清水家の家族カレンダー',
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: '/icons/calendar-icon-192.png',
+    apple: '/icons/calendar-icon-192.png',
+  },
+  appleWebApp: {
+    capable: true,
+    title: '清水家カレンダー',
+    statusBarStyle: 'default',
+  },
 };
 
 export const viewport: Viewport = {
@@ -22,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="bg-white text-slate-800 antialiased">
         {children}
