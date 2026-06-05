@@ -4,7 +4,7 @@
 const SHOW_CAMERA_ICON = false;
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CalendarEvent, DailyData, Member, SalesEntry, SubCalendar } from '@/lib/types';
+import { CalendarEvent, DailyData, DateOverride, Member, SalesEntry, SubCalendar } from '@/lib/types';
 import { getKinenbi } from '@/lib/kinenbi';
 import { getHanabiByDate, HanabiEvent } from '@/lib/hanabi';
 import { useJstTodayKey } from '@/lib/useJstTodayKey';
@@ -150,6 +150,33 @@ const DATE_OVERRIDE_COLOR_FG_MV: Record<string, string> = {
   pink:   '#ffffff',
 };
 
+// 2026-06-05 くろ修正（期間override修正・DT-20260605-005）:
+//   入力UI（EventModal）は「期間ごとに1つ」の題名/色を、その期間の開始日キーに保存する
+//   （例: 6/10-6/12 の期間に付けた「現調/橙」は date_overrides["2026-06-10"] だけに入る）。
+//   従来の描画は per-day（dateOverrides[その日]）しか見ないため、期間内の2日目以降
+//   （6/11・6/12）は本体題名/色のままになり「飛び飛び」に見えていた。
+//   → 健太郎さんの意図「期間に付けた題名/色は期間の全日に効く」に合わせ、
+//      指定日に直接overrideが無ければ、その日を含む期間の開始日overrideへフォールバックする。
+//   ※各日ごとに別題名にする機能は維持（その日自身のキーが最優先＝per-day上書きが勝つ）。
+function resolveDateOverrideForDay(
+  ev: CalendarEvent,
+  dateKey: string | undefined
+): DateOverride | undefined {
+  if (!dateKey || !ev.dateOverrides) return undefined;
+  // 1) その日自身の override が最優先（per-day 上書きを壊さない）
+  const own = ev.dateOverrides[dateKey];
+  if (own && (own.title || own.color)) return own;
+  // 2) その日を含む期間の「開始日」キーへフォールバック（期間override→期間全日へ適用）
+  const ranges = getRanges(ev);
+  for (const r of ranges) {
+    if (dateKey >= r.start && dateKey <= r.end) {
+      const periodOv = ev.dateOverrides[r.start];
+      if (periodOv && (periodOv.title || periodOv.color)) return periodOv;
+    }
+  }
+  return undefined;
+}
+
 // 各日付の override を考慮して色を解決
 function resolveEventColorForDate(
   ev: CalendarEvent,
@@ -157,8 +184,10 @@ function resolveEventColorForDate(
   subCalendars: SubCalendar[]
 ): { bg: string; fg: string; accent: string; mobileBg: string; mobileFg: string; subAccent?: string } {
   // 2026-05-12 健太郎LW id=2054+2055: 各日付color override
-  if (dateKey && ev.dateOverrides && ev.dateOverrides[dateKey]?.color) {
-    const colorKey = ev.dateOverrides[dateKey].color!;
+  // 2026-06-05: 期間overrideフォールバック対応（resolveDateOverrideForDay）
+  const ovForDay = resolveDateOverrideForDay(ev, dateKey);
+  if (ovForDay && ovForDay.color) {
+    const colorKey = ovForDay.color;
     const hex = DATE_OVERRIDE_COLOR_HEX_MV[colorKey];
     if (hex) {
       const subCal = ev.calendarId ? subCalendars.find((c) => c.id === ev.calendarId) : undefined;
@@ -181,10 +210,10 @@ function resolveEventColorForDate(
 }
 
 // 各日付の override を考慮して題名を解決
+// 2026-06-05: 期間overrideフォールバック対応（resolveDateOverrideForDay）
 function resolveEventTitleForDate(ev: CalendarEvent, dateKey: string | undefined): string {
-  if (dateKey && ev.dateOverrides && ev.dateOverrides[dateKey]?.title) {
-    return ev.dateOverrides[dateKey].title!;
-  }
+  const ovForDay = resolveDateOverrideForDay(ev, dateKey);
+  if (ovForDay && ovForDay.title) return ovForDay.title;
   return ev.title;
 }
 
