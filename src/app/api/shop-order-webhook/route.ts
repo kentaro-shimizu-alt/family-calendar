@@ -17,7 +17,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { notifyKentaroNewOrder } from '@/lib/notify_kentaro_order';
+import { notifyOrderV2 } from '@/lib/order_notify_v2';
+// import { notifyKentaroNewOrder } from '@/lib/notify_kentaro_order'; // 2026-06-06 廃止:notify_orderV2に一本化
 
 const SUPABASE_URL = process.env.SUPABASE_URL!;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -146,31 +147,27 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // 6. 全件 主くろメインルームへLW通知 (best-effort, non-blocking)
-  //    - 通常受注(score<50): K009形式の通常通知
-  //    - 不審スコア>=50: 既存の不審通知(DM)+ メインルームに [緊] タグで通知
-  //    背景: N148(2026-04-29)で 4/25-4/26放置受注の原因が score=0 通常受注の通知欠落と判明
-  notifyMainRoom({
-    order_id: payload.order_id,
-    customer_name: cleanedCustomerName,
-    email: payload.email,
+  // 6. 受注通知 v2 一本化 (2026-06-06 くろ・健太郎さん指示で全経路を1本に)
+  //    旧 notifyMainRoom (2人ルーム e6c01920) / notifyKentaroNewOrder
+  //    (ebd6867e材料販売ch + 2人ルーム + Gmail) は廃止し、新 notifyOrderV2 に集約。
+  //    出力先: 3人ルーム 0b149853 (LW) + 健太郎さんGmail。1行目に【通常販売】を明記。
+  //    notifySuspicion (不審注文DM) は受注通知とは別系統 (セキュリティアラート) なので維持。
+  await notifyOrderV2({
+    source: 'shop',
+    order_no: payload.order_id,
+    customer: {
+      company: payload.company,
+      name: cleanedCustomerName,
+      email: payload.email,
+      tel: payload.tel,
+      zip: payload.zip,
+      address: payload.address,
+      note: truncatedNote,
+    },
     cart,
     totals,
-    suspicionScore,
-  }).catch((e) => console.error('[shop-order-webhook] LW main-room notify failed', e));
-
-  // 健太郎個人にGmail+LW DM両通知 (2026-05-08 G-12 別タスク残置完了・健太郎LW C両方承認)
-  // 2026-05-11 N219: await必須化。fire-and-forgetだとVercel serverlessが
-  //   response後にfn終了してSMTP接続が途中で切られる場合があり、
-  //   2回目のテスト注文(22:24)でGmail未着が発生したため。
-  //   await化でレイテンシは数百ms増えるが、Gmail配送を保証する。
-  await notifyKentaroNewOrder({
-    order_id: payload.order_id,
-    customer_name: cleanedCustomerName,
-    email: payload.email,
-    cart,
-    totals,
-  }).catch((e) => console.error('[shop-order-webhook] kentaro Gmail/LW notify failed', e));
+    page_url: 'https://tecnest.biz/shop/',
+  }).catch((e) => console.error('[shop-order-webhook] notifyOrderV2 failed', e));
 
   if (suspicionScore >= 50) {
     notifySuspicion({
@@ -257,6 +254,8 @@ async function getLwBotToken(): Promise<{ token: string; botId: string } | null>
 // MAIN_CHANNEL_ID (K023 2026-04-29切替): 新②0b149853 (健太郎+美砂+くろBot 3人ルーム)
 // 旧①ea13926f-fc61-b8e8-8d52-031da4e00b38 は廃止(健太郎指示で沈黙化・送信禁止)
 // =============================================================
+// 2026-06-06 廃止: notifyOrderV2 に一本化。下記関数は将来削除予定の参考残置。
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function notifyMainRoom(opts: {
   order_id: string;
   customer_name: string;

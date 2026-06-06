@@ -31,7 +31,13 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
-import { notifyKentaroNewOrder } from '@/lib/notify_kentaro_order';
+import { notifyOrderV2 } from '@/lib/order_notify_v2';
+// import { notifyKentaroNewOrder } from '@/lib/notify_kentaro_order'; // 2026-06-06 廃止
+//
+// ★ 2026-06-06 (くろ): このルートは現在使われていない見込み
+//   (3506 は tecnest-shop-bridge → /api/shop-order-webhook 経由が本線)
+//   万一WP側の旧フックから着弾しても新 notifyOrderV2 経由で1本化された通知が出る形にし、
+//   旧 notifyKentaro (健太郎DM) / notifyKentaroNewOrder (古い3経路) は呼ばない。
 
 const SHOP_SECRET = process.env.SHOP_WEBHOOK_SECRET || '';
 
@@ -327,29 +333,30 @@ export async function POST(req: NextRequest) {
     })
     .then(() => void 0, (e) => console.error('[cf7-webhook] event insert failed', e));
 
-  // 主くろ(健太郎)に即通知(ベストエフォート・await しない)
-  notifyKentaro({ orderId, customerName, email, totals, cart, integrity }).catch((e) => {
-    console.error('[cf7-webhook] LW notify failed', e);
-  });
-
-  // 健太郎個人にGmail+LW DM両通知 (2026-05-08 G-12 別タスク残置完了・健太郎LW C両方承認)
-  // 2026-05-11 N219: await必須化。fire-and-forgetだとVercel serverlessが
-  //   response後にfn終了してSMTP接続が途中で切られる場合があり、
-  //   2回目のテスト注文(22:24)でGmail未着が発生したため。
-  //   await化でレイテンシは数百ms増えるが、Gmail配送を保証する。
-  await notifyKentaroNewOrder({
-    order_id: orderId,
-    customer_name: customerName,
-    email,
+  // 2026-06-06 (くろ): 旧 notifyKentaro (健太郎DM) / notifyKentaroNewOrder を廃止。
+  // 新 notifyOrderV2 (3人ルーム + 健太郎Gmail) に一本化。
+  await notifyOrderV2({
+    source: 'shop',
+    order_no: orderId,
+    customer: {
+      name: customerName,
+      email,
+      tel,
+      zip,
+      address,
+      company: company || undefined,
+      note: note || undefined,
+    },
     cart,
     totals,
-  }).catch((e) => {
-    console.error('[cf7-webhook] kentaro Gmail/LW notify failed', e);
-  });
+    page_url: 'https://tecnest.biz/shop/',
+  }).catch((e) => console.error('[cf7-webhook] notifyOrderV2 failed', e));
 
   return NextResponse.json({ ok: true, order_id: orderId, anomaly: !integrity.ok });
 }
 
+// 2026-06-06 廃止: notifyOrderV2 に一本化。下記は参考残置(削除予定)。
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function notifyKentaro(opts: {
   orderId: string;
   customerName: string;
