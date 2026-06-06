@@ -14,6 +14,7 @@
 // =============================================================
 import { NextRequest, NextResponse } from 'next/server';
 import { notifyOrderV2, OrderSource } from '@/lib/order_notify_v2';
+import { getSupabase } from '@/lib/supabase';
 
 export const maxDuration = 30;
 
@@ -110,6 +111,54 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'missing customer name/email' }, { status: 400, headers: ch });
   }
 
+  // ====================================================================
+  // Supabase online_orders に記録 (2026-06-06 健太郎さん指摘の自動積算分DB登録漏れ対応)
+  //   - 既存 'shop' (TN-...) は /api/shop-order-webhook が記録しているのでスキップ
+  //   - cut-estimate (CUT-...) / cut-material (CM-...) はここで記録
+  //   - 同じ order_id の重複insertを防ぐ (best-effort)
+  // ====================================================================
+  let dbInsert: { ok: boolean; error?: string; skipped?: boolean } = { ok: true, skipped: true };
+  if (source !== 'shop') {
+    try {
+      const supabase = getSupabase();
+      const { data: existing } = await supabase
+        .from('online_orders')
+        .select('order_id')
+        .eq('order_id', orderNo)
+        .maybeSingle();
+      if (existing) {
+        dbInsert = { ok: true, skipped: true, error: 'already-exists' };
+      } else {
+        const { error: insErr } = await supabase.from('online_orders').insert({
+          order_id: orderNo,
+          customer_name: customer.name,
+          company: customer.company || null,
+          email: customer.email,
+          tel: customer.tel || null,
+          zip: customer.zip || null,
+          address: customer.address || null,
+          note: customer.note || null,
+          consent_ts: new Date().toISOString(),
+          consent_state: { source, consent: '同意済み', page_url: payload.page_url || null },
+          cart: payload.cart || null,
+          totals: payload.totals || null,
+          status: 'received',
+        });
+        if (insErr) {
+          dbInsert = { ok: false, error: insErr.message.slice(0, 120) };
+          console.error('[order-notify] DB insert failed', insErr);
+        } else {
+          dbInsert = { ok: true };
+          console.log(`[order-notify] DB insert OK src=${source} no=${orderNo}`);
+        }
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      dbInsert = { ok: false, error: msg.slice(0, 120) };
+      console.error('[order-notify] DB exception', msg);
+    }
+  }
+
   const result = await notifyOrderV2({
     source,
     order_no: orderNo,
@@ -125,5 +174,6 @@ export async function POST(req: NextRequest) {
     source,
     lw: result.lw,
     gmail: result.gmail,
+    db: dbInsert,
   }, { headers: ch });
 }
