@@ -204,10 +204,18 @@ async function sendLW(c: OrderNotifyContext): Promise<{ ok: boolean; error?: str
   const text = head + '\n' + body.join('\n');
 
   const url = `https://www.worksapis.com/v1.0/bots/${botId}/channels/${THREE_PERSON_CHANNEL_ID}/messages`;
+  // 文字化け対策(2026-06-06): Content-Typeにcharset=utf-8を明示・bodyをUTF-8 Bufferで送る。
+  // Vercel(node) fetchがLW APIにcharset無しで送るとLW側がShift-JIS解釈して日本語が化ける(実害確認済)。
+  const bodyJson = JSON.stringify({ content: { type: 'text', text } });
+  const bodyBuf = Buffer.from(bodyJson, 'utf-8');
   const res = await fetch(url, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content: { type: 'text', text } }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json; charset=utf-8',
+      'Content-Length': String(bodyBuf.length),
+    },
+    body: bodyBuf,
   });
   if (!res.ok) {
     const err = await res.text();
