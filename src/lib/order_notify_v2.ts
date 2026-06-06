@@ -5,20 +5,22 @@
 // HP受注通知をこの1ファイルに1本化する。
 //
 // 健太郎さん指示 (2026-06-06):
-//   - LW通知は 3人ルーム (健太郎+美砂+くろBot) だけに送る
+//   - LW通知は 材料販売専用チャンネル ebd6867e (健太郎+美砂+くろBotの3人ルーム) だけに送る
 //   - Gmail通知も残す (健太郎さん宛)
 //   - 1行目に注文元ページを明記:【通常販売】【自動積算】【カット材料】
-//   - 2人ルーム e6c01920・材料販売専用ch ebd6867e・個人DM への送信は廃止
+//   - 2人ルーム e6c01920・くろのなんでも相談所 0b149853・個人DM への送信は廃止
 //
 // 入口: /api/order-notify (新エンドポイント) ＋ 既存 /api/shop-order-webhook
 // =============================================================
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
 
-// ★ 3人ルームに固定 (env で上書きも可能・新方針)
+// ★ HP受注通知の宛先 = 「材料販売専用チャンネル」(健太郎+美砂+くろBot の3人ルーム)
+//   2026-06-06 健太郎さん訂正: ebd6867e が販売通知用の3人ルーム。
+//   0b149853 (くろのなんでも相談所) には送らない。
 const THREE_PERSON_CHANNEL_ID =
-  process.env.LINEWORKS_THREE_PERSON_CHANNEL_ID ||
-  '0b149853-18a9-51ef-c0b4-6b07894a7182';
+  process.env.LINEWORKS_HP_ORDER_CHANNEL_ID ||
+  'ebd6867e-01e7-2245-21ef-432bf77f88a5';
 
 export type OrderSource = 'shop' | 'cut-estimate' | 'cut-material';
 const SOURCE_LABELS: Record<OrderSource, string> = {
@@ -204,18 +206,26 @@ async function sendLW(c: OrderNotifyContext): Promise<{ ok: boolean; error?: str
   const text = head + '\n' + body.join('\n');
 
   const url = `https://www.worksapis.com/v1.0/bots/${botId}/channels/${THREE_PERSON_CHANNEL_ID}/messages`;
-  // 文字化け対策(2026-06-06): Content-Typeにcharset=utf-8を明示・bodyをUTF-8 Bufferで送る。
-  // Vercel(node) fetchがLW APIにcharset無しで送るとLW側がShift-JIS解釈して日本語が化ける(実害確認済)。
-  const bodyJson = JSON.stringify({ content: { type: 'text', text } });
-  const bodyBuf = Buffer.from(bodyJson, 'utf-8');
+  // 文字化け対策(2026-06-06 v3): charset明示やBufferでも直らない(LW APIがShift-JIS自動判定する挙動)
+  //   → JSON全体をASCIIエスケープ(\uXXXX)化。これならcharsetに関係なく日本語が必ず復元される。
+  //   charCodeAt で1文字ずつ判定する形にして、Edit起因の正規表現破損を回避。
+  const rawJson = JSON.stringify({ content: { type: 'text', text } });
+  let bodyJson = '';
+  for (let i = 0; i < rawJson.length; i++) {
+    const code = rawJson.charCodeAt(i);
+    if (code > 0x7f) {
+      bodyJson += '\\u' + ('0000' + code.toString(16)).slice(-4);
+    } else {
+      bodyJson += rawJson[i];
+    }
+  }
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json; charset=utf-8',
-      'Content-Length': String(bodyBuf.length),
     },
-    body: bodyBuf,
+    body: bodyJson,
   });
   if (!res.ok) {
     const err = await res.text();
