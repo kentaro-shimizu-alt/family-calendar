@@ -293,14 +293,25 @@ async function sendGmail(c: OrderNotifyContext): Promise<{ ok: boolean; error?: 
 }
 
 // =============================================================
-// public API: 1通(LW) + 1通(Gmail) を並列発火
+// public API: LW通知のみ発火 (材料販売専用チャンネル 3人ルームへ1通)
+// 2026-06-06 健太郎さん指摘で Gmail 追加通知は廃止:
+//   既存 CF7 メール (order@宛の内部通知＋お客様向け自動返信) が Gmail に届くので、
+//   Vercel 側で追加メールを送る必要なし。
+//   sendGmail 関数は将来必要になったら再有効化できるよう関数定義は残置 (使われていないので _gmail 引数化を回避するため eslint-disable で抑制)。
 // =============================================================
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _gmailSenderKeepForFuture = sendGmail;
+
 export async function notifyOrderV2(c: OrderNotifyContext): Promise<{
   lw: { ok: boolean; error?: string };
   gmail: { ok: boolean; error?: string };
 }> {
-  const [lwR, mailR] = await Promise.allSettled([sendLW(c), sendGmail(c)]);
+  const [lwR] = await Promise.allSettled([sendLW(c)]);
   const pick = (r: PromiseSettledResult<{ ok: boolean; error?: string }>) =>
     r.status === 'fulfilled' ? r.value : { ok: false, error: `rejected:${String(r.reason).slice(0, 60)}` };
-  return { lw: pick(lwR), gmail: pick(mailR) };
+  return {
+    lw: pick(lwR),
+    // 2026-06-06: Gmail送信は廃止 (CF7メール経由でGmail到達済のため)
+    gmail: { ok: true, error: 'disabled-cf7-mail-covers-this' },
+  };
 }
