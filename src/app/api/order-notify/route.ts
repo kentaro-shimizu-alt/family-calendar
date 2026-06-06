@@ -33,33 +33,66 @@ export async function GET() {
   });
 }
 
+// CORS: フロント直叩き経路 (cut-estimate / cut-material) で必要
+function corsHeaders(origin: string | null): Record<string, string> {
+  const allowed = ['https://tecnest.biz', 'https://www.tecnest.biz'];
+  const allow = origin && allowed.includes(origin) ? origin : 'https://tecnest.biz';
+  return {
+    'Access-Control-Allow-Origin': allow,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Access-Control-Allow-Headers': 'Content-Type, x-tecnest-notify-auth',
+    'Access-Control-Max-Age': '86400',
+  };
+}
+
+export async function OPTIONS(req: NextRequest) {
+  return new NextResponse(null, { status: 204, headers: corsHeaders(req.headers.get('origin')) });
+}
+
 export async function POST(req: NextRequest) {
-  // 認証
-  if (AUTH_TOKEN) {
-    const auth = req.headers.get('x-tecnest-notify-auth') || '';
-    if (auth !== AUTH_TOKEN) {
-      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-    }
-  }
+  const origin = req.headers.get('origin') || '';
+  const referer = req.headers.get('referer') || '';
+  const isTecnestOrigin = /^https?:\/\/(www\.)?tecnest\.biz(\/|$)/.test(origin)
+    || /^https?:\/\/(www\.)?tecnest\.biz(\/|$)/.test(referer);
 
   let payload: Record<string, unknown>;
   try {
     payload = (await req.json()) as Record<string, unknown>;
   } catch {
-    return NextResponse.json({ error: 'invalid json' }, { status: 400 });
+    return NextResponse.json({ error: 'invalid json' }, { status: 400, headers: corsHeaders(origin) });
   }
 
   // source 必須
   const source = String(payload.source || '') as OrderSource;
+
+  // 認証ポリシー:
+  //   - source='shop' (内部 webhook 経由): AUTH_TOKEN 必須
+  //   - source='cut-estimate'/'cut-material' (フロント直叩き): tecnest.biz origin/referer のみ受け付ける
+  if (source === 'shop') {
+    if (AUTH_TOKEN) {
+      const auth = req.headers.get('x-tecnest-notify-auth') || '';
+      if (auth !== AUTH_TOKEN) {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401, headers: corsHeaders(origin) });
+      }
+    }
+  } else {
+    if (!isTecnestOrigin) {
+      return NextResponse.json(
+        { error: 'forbidden: invalid origin' },
+        { status: 403, headers: corsHeaders(origin) }
+      );
+    }
+  }
+  const ch = corsHeaders(origin);
   if (!VALID_SOURCES.includes(source)) {
     return NextResponse.json(
       { error: `invalid source. must be one of ${VALID_SOURCES.join(',')}` },
-      { status: 400 }
+      { status: 400, headers: ch }
     );
   }
   const orderNo = String(payload.order_no || payload.orderNo || '');
   if (!orderNo) {
-    return NextResponse.json({ error: 'missing order_no' }, { status: 400 });
+    return NextResponse.json({ error: 'missing order_no' }, { status: 400, headers: ch });
   }
 
   // customer 必須項目
@@ -74,7 +107,7 @@ export async function POST(req: NextRequest) {
     note: c.note ? String(c.note) : undefined,
   };
   if (!customer.name || !customer.email) {
-    return NextResponse.json({ error: 'missing customer name/email' }, { status: 400 });
+    return NextResponse.json({ error: 'missing customer name/email' }, { status: 400, headers: ch });
   }
 
   const result = await notifyOrderV2({
@@ -92,5 +125,5 @@ export async function POST(req: NextRequest) {
     source,
     lw: result.lw,
     gmail: result.gmail,
-  });
+  }, { headers: ch });
 }
