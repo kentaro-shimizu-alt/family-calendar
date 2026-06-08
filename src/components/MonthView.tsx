@@ -8,6 +8,7 @@ import { CalendarEvent, DailyData, DateOverride, Member, SalesEntry, SubCalendar
 import { getKinenbi } from '@/lib/kinenbi';
 import { getHanabiByDate, HanabiEvent } from '@/lib/hanabi';
 import { useJstTodayKey } from '@/lib/useJstTodayKey';
+import { getJstTodayKey } from '@/lib/jstToday';
 import {
   startOfMonth,
   endOfMonth,
@@ -267,8 +268,19 @@ export default function MonthView({ currentMonth, todayKey: todayKeyFromParent, 
   // 対策: useJstTodayKey フックに一元化（focus/pointerdown/touchstart/visibility/pageshow/
   //       精密な深夜0時タイマー/30秒interval の全契機で再計算）。TodaySummary とも共通化。
   //       親(page.tsx)が todayKey を渡せば優先、無ければフックの堅牢計算を使用。
+  // 2026-06-08 くろ 再発根本対策:
+  // 旧実装は `todayKeyFromParent || robustTodayKey` で、親(page.tsx)が常に値を渡すため
+  // フックの堅牢計算(robustTodayKey)が一切使われず、親stateのタイマーがスロットルされると
+  // マーカーが前日(例:6/6)で固まった。常時表示モニタは focus/操作 が来ないので親の
+  // setInterval/setTimeout が遅延・凍結すると更新契機が消える。
+  // 対策: ①親key・フックkey・「描画時に都度算出する生のJST today」の3者で最新(辞書順最大)を採用。
+  //       getJstTodayKey() は純粋・軽量なので、月送り/30秒interval/focus 等いずれの再renderでも
+  //       必ず正しい今日に補正される(描画時backstop=最後の砦)。
   const robustTodayKey = useJstTodayKey();
-  const todayKey = todayKeyFromParent || robustTodayKey;
+  const renderTimeTodayKey = getJstTodayKey();
+  const todayKey = [todayKeyFromParent, robustTodayKey, renderTimeTodayKey]
+    .filter((k): k is string => typeof k === 'string' && k.length === 10)
+    .reduce((a, b) => (b > a ? b : a), '0000-00-00');
 
   // ===== B6: Smooth month-transition animation =====
   // Track previous month to determine slide direction

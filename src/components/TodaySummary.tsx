@@ -5,6 +5,7 @@ import { CalendarEvent, Member, getMember } from '@/lib/types';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { useJstTodayKey } from '@/lib/useJstTodayKey';
+import { getJstTodayKey } from '@/lib/jstToday';
 
 interface Props {
   events: CalendarEvent[];
@@ -15,7 +16,11 @@ interface Props {
 export default function TodaySummary({ events, members, onEventClick }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   // 2026-06-05 くろ: 本日キーは useJstTodayKey に一元化（MonthView と共通・前日残り根本対策）
-  const todayKey = useJstTodayKey();
+  // 2026-06-08 くろ: 描画時の生JST算出を backstop に追加（タイマー凍結でフックが遅延しても
+  //                  再render時に必ず今日へ補正＝最新を採用）。MonthView と同方針。
+  const hookTodayKey = useJstTodayKey();
+  const renderTimeTodayKey = getJstTodayKey();
+  const todayKey = renderTimeTodayKey > hookTodayKey ? renderTimeTodayKey : hookTodayKey;
   const [yy, mm, dd] = todayKey.split('-').map(Number);
   const todayDate = new Date(yy, mm - 1, dd);
 
