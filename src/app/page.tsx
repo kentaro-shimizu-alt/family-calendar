@@ -311,9 +311,23 @@ export default function HomePage() {
             } catch {}
           }
         }
+        // 2026-06-08 くろ: 「今日マーカーが前日(6/6)のまま固まる」根本対策。
+        // 常時表示モニタでリロード(SW更新/Vercel再デプロイ/ネット瞬断)が起きると、
+        // ここで localStorage の currentMonth を無条件復元していた。
+        // 保存された月が「今日の月」より過去だと、画面が古い月で固まり
+        // 「今日に戻る/月送り」しないと直らない＝健太郎さんの再発症状そのもの。
+        // 対策: 保存月が今日(JST)の月と一致する時だけ復元。ズレていたら今日の月を表示。
+        // (currentMonth の useState 初期値は new Date()=今日なので、復元しなければ今日の月のまま)
         if (typeof s.currentMonth === 'string' && /^\d{4}-\d{2}$/.test(s.currentMonth)) {
-          const [y, m] = s.currentMonth.split('-').map(Number);
-          setCurrentMonth(new Date(y, m - 1, 1));
+          const [ty, tm] = todayKey.split('-').map(Number); // todayKey は直上で getJstTodayKey() 済
+          const todayMonthKey = `${ty}-${String(tm).padStart(2, '0')}`;
+          const isBackForward = isBackForwardNavigation();
+          // 戻る/進む(bfcache)操作の復元は意図的な遷移なので尊重。
+          // それ以外(通常リロード)は今日の月以外を復元しない＝stale月で固まらせない。
+          if (s.currentMonth === todayMonthKey || isBackForward) {
+            const [y, m] = s.currentMonth.split('-').map(Number);
+            setCurrentMonth(new Date(y, m - 1, 1));
+          }
         }
         if (allowDayModalRestore && typeof s.dayEventsDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.dayEventsDate)) {
           const [y, m, d] = s.dayEventsDate.split('-').map(Number);
