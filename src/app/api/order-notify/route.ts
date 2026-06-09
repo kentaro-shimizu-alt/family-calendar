@@ -23,7 +23,7 @@ const AUTH_TOKEN =
   process.env.SHOP_WEBHOOK_AUTH_TOKEN || // 既存トークンを流用可
   '';
 
-const VALID_SOURCES: OrderSource[] = ['shop', 'cut-estimate', 'cut-material'];
+const VALID_SOURCES: OrderSource[] = ['shop', 'cut-estimate', 'cut-material', 'cut-send'];
 
 export async function GET() {
   return NextResponse.json({

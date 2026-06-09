@@ -22,11 +22,12 @@ const THREE_PERSON_CHANNEL_ID =
   process.env.LINEWORKS_HP_ORDER_CHANNEL_ID ||
   'ebd6867e-01e7-2245-21ef-432bf77f88a5';
 
-export type OrderSource = 'shop' | 'cut-estimate' | 'cut-material';
+export type OrderSource = 'shop' | 'cut-estimate' | 'cut-material' | 'cut-send';
 const SOURCE_LABELS: Record<OrderSource, string> = {
   'shop': '通常販売',
   'cut-estimate': '自動積算',
   'cut-material': 'カット材料',
+  'cut-send': 'カット送付',
 };
 
 export interface OrderNotifyContext {
