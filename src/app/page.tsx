@@ -1256,6 +1256,19 @@ export default function HomePage() {
               <p className="text-center text-xs text-slate-500 -mt-1">
                 窓枠補修用シートの品番・色・残りメーター数を確認
               </p>
+
+              {/* 2026-06-11 品番・顧客名 全情報検索 (健太郎LW id=2787/2788) */}
+              <Link
+                href="/lookup"
+                className="w-full max-w-md mx-auto block py-6 bg-violet-100 hover:bg-violet-200 active:bg-violet-300 border-2 border-violet-400 rounded-2xl text-violet-950 text-lg font-semibold transition flex items-center justify-center gap-3 min-h-16"
+                aria-label="品番・顧客名 全情報検索を開く"
+              >
+                <span className="text-3xl">🔍</span>
+                <span>全情報検索</span>
+              </Link>
+              <p className="text-center text-xs text-slate-500 -mt-1">
+                品番か顧客名で価格・タスク・成果物・売上・案件を一括表示
+              </p>
             </div>
           </>
         ) : (
