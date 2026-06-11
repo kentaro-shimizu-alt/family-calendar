@@ -1,12 +1,14 @@
 'use client';
 
-// 品番・顧客名 全情報検索ページ (DT-20260611 健太郎LW id=2787/2788)
+// 品番・顧客名 全情報検索ページ v2 (DT-20260611 健太郎LW id=2787-2792)
 // - 検索ボックス1個: 品番か顧客名を入れたら全情報が1画面に出る
-// - 部分一致・全半角ゆるく(サーバ側でNFKC正規化)・スマホ前提・読み取り専用
-// - 0件は「該当なし」明示・品番/顧客の両ヒットは両方表示
+// - v2: 品番ゆるく(ハイフン有無/全半角/大小文字どれでもヒット・サーバ側で正規化キー突合)
+// - v2: 顧客プルダウンで客を選ぶと、品番ヒットにその客向け売値も出る
+// - v2: コピー2種(お客様送付用=売値のみ / 社内メモ用=ptも含む)・複数品番のまとめ選択コピー
+// - スマホ前提・読み取り専用
 
 import Link from 'next/link';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 const ARTIFACT_CATALOG_URL = 'https://chakotaskapp.vercel.app/artifacts';
 
@@ -22,6 +24,8 @@ type Product = {
   hp_name: string | null;
   width_mm: number | null;
   note: string | null;
+  customer_meter_tanka: number | null;
+  internal_customer_pt: number | null;
 };
 
 type Tantosha = { myoji: string | null; tel: string | null; email: string | null };
@@ -80,6 +84,14 @@ type SalesHit = {
   delivery_note_status: string | null;
 };
 
+type CustomerPricing = {
+  customer_id: string;
+  company: string | null;
+  meter_tanka: number | null;
+  internal_kakeritsu_pt: number | null;
+  tantosha_myoji: string[];
+} | null;
+
 type LookupResult = {
   q: string;
   products: Product[];
@@ -88,7 +100,10 @@ type LookupResult = {
   artifacts: ArtifactHit[];
   events: EventHit[];
   sales: SalesHit[];
+  customer_pricing: CustomerPricing;
 };
+
+type CustomerOption = { customer_id: string; company: string | null; has_kakeritsu: boolean };
 
 function yen(v: number | null | undefined): string {
   if (v == null || Number.isNaN(v)) return '−';
@@ -125,20 +140,100 @@ function SectionTitle({ icon, label, count }: { icon: string; label: string; cou
   );
 }
 
+// ---- コピー用フォーマット ----
+
+/** コピー冒頭の顧客名。担当者を選んでいれば「会社名 苗字様」、未選択なら「会社名 御中」（顧客名フォーマットルール準拠） */
+function copyHeader(pricing: CustomerPricing, tanto: string): string {
+  if (!pricing?.company) return '';
+  return tanto ? `${pricing.company} ${tanto}様\n\n` : `${pricing.company} 御中\n\n`;
+}
+
+/** 1品番の「お客様送付用」テキスト: 品番+商品名+状態+売値メーター単価(税別)のみ。社内根拠(pt/仕入/原価)は含めない */
+function customerCopyLine(p: Product, pricing: CustomerPricing): string {
+  const lines: string[] = [];
+  const nameBits = [p.hinban, p.hp_name && p.hp_name !== p.hinban ? `（${p.hp_name}）` : '']
+    .filter(Boolean)
+    .join('');
+  lines.push(nameBits);
+  const sub = [p.brand, p.series, p.toriatsukai].filter(Boolean).join(' / ');
+  if (sub) lines.push(sub);
+  const m = p.customer_meter_tanka ?? p.meter_tanka;
+  if (m != null) lines.push(`メーター単価 ${Math.round(m).toLocaleString('ja-JP')}円(税別)`);
+  else if (p.hp_price_m != null) lines.push(`HP販売価格 ${Math.round(p.hp_price_m).toLocaleString('ja-JP')}円/m(税別)`);
+  return lines.join('\n');
+}
+
+/** 1品番の「社内メモ用」テキスト: 販売pt も含む(健太郎さん自身の確認用) */
+function internalCopyLine(p: Product, pricing: CustomerPricing): string {
+  const lines: string[] = [];
+  lines.push(`${p.hinban}${p.hp_name && p.hp_name !== p.hinban ? `（${p.hp_name}）` : ''}`);
+  const sub = [p.maker, p.brand, p.series, p.toriatsukai].filter(Boolean).join(' / ');
+  if (sub) lines.push(sub);
+  if (p.jodai_m2 != null) lines.push(`上代 ${Math.round(p.jodai_m2).toLocaleString('ja-JP')}円/㎡`);
+  if (p.meter_tanka != null) lines.push(`標準メーター単価 ${Math.round(p.meter_tanka).toLocaleString('ja-JP')}円/m(税別)`);
+  if (p.customer_meter_tanka != null) {
+    const ptStr = p.internal_customer_pt != null ? `（pt ${p.internal_customer_pt}）` : '';
+    lines.push(`${pricing?.company ?? ''}向け ${Math.round(p.customer_meter_tanka).toLocaleString('ja-JP')}円/m(税別)${ptStr}`);
+  }
+  if (p.hp_price_m != null) lines.push(`HP販売価格 ${Math.round(p.hp_price_m).toLocaleString('ja-JP')}円/m(税別)`);
+  return lines.join('\n');
+}
+
 export default function LookupPage() {
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<LookupResult | null>(null);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    const query = q.trim();
+  const [customerOptions, setCustomerOptions] = useState<CustomerOption[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  const [selectedTanto, setSelectedTanto] = useState(''); // 担当者苗字(コピー宛名用・空=御中)
+
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/lookup?action=customers', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : { customers: [] }))
+      .then((j) => setCustomerOptions(Array.isArray(j.customers) ? j.customers : []))
+      .catch(() => setCustomerOptions([]));
+  }, []);
+
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 1800);
+  }
+
+  async function copyText(text: string, label: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(`${label}をコピーしました`);
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast(`${label}をコピーしました`);
+      } catch {
+        showToast('コピーに失敗しました');
+      }
+    }
+  }
+
+  async function runSearch(query: string, customerId: string) {
     if (!query) return;
     setLoading(true);
     setError(null);
+    setSelected({});
     try {
-      const res = await fetch(`/api/lookup?q=${encodeURIComponent(query)}`, { cache: 'no-store' });
+      const params = new URLSearchParams({ q: query });
+      if (customerId) params.set('customer', customerId);
+      const res = await fetch(`/api/lookup?${params.toString()}`, { cache: 'no-store' });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
       setResult(json as LookupResult);
@@ -150,14 +245,34 @@ export default function LookupPage() {
     }
   }
 
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    await runSearch(q.trim(), selectedCustomerId);
+  }
+
+  async function handleCustomerChange(cid: string) {
+    setSelectedCustomerId(cid);
+    setSelectedTanto(''); // 顧客を変えたら担当者はリセット(別会社の苗字を引き継がない)
+    if (q.trim() && result) {
+      await runSearch(q.trim(), cid);
+    }
+  }
+
   const totalHits = result
     ? result.products.length + result.customers.length + result.tasks.length +
       result.artifacts.length + result.events.length + result.sales.length
     : 0;
 
+  const pricing = result?.customer_pricing ?? null;
+  const selectedProducts = result ? result.products.filter((p) => selected[p.hinban]) : [];
+
+  function buildBulkCustomerCopy(): string {
+    const body = selectedProducts.map((p) => customerCopyLine(p, pricing)).join('\n\n');
+    return copyHeader(pricing, selectedTanto) + body;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* ヘッダー */}
       <div className="px-4 py-3 bg-violet-700 text-white sticky top-0 z-10 flex items-center gap-3 shadow">
         <Link
           href="/"
@@ -173,14 +288,19 @@ export default function LookupPage() {
         </span>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 pb-16">
-        {/* 検索ボックス */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-slate-900 text-white text-sm font-semibold shadow-lg">
+          {toast}
+        </div>
+      )}
+
+      <div className="max-w-3xl mx-auto px-4 pb-28">
         <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
           <input
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="品番 か 顧客名（例: FW-1977 / シンコー）"
+            placeholder="品番 か 顧客名（例: FW1977 / シンコー）"
             autoFocus
             enterKeyHint="search"
             className="flex-1 min-w-0 px-4 py-3 rounded-xl border-2 border-violet-300 bg-white text-base focus:outline-none focus:border-violet-500 shadow-sm"
@@ -194,13 +314,57 @@ export default function LookupPage() {
             {loading ? '…' : '検索'}
           </button>
         </form>
+
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
+          <label htmlFor="cust" className="text-xs font-bold text-slate-500 shrink-0">顧客を選ぶと単価表示 →</label>
+          <select
+            id="cust"
+            value={selectedCustomerId}
+            onChange={(e) => handleCustomerChange(e.target.value)}
+            className="flex-1 min-w-[180px] px-3 py-2 rounded-xl border-2 border-emerald-300 bg-white text-sm focus:outline-none focus:border-emerald-500"
+          >
+            <option value="">（顧客を選択しない＝標準売値）</option>
+            {customerOptions.map((c) => (
+              <option key={c.customer_id} value={c.customer_id}>
+                {c.company}{c.has_kakeritsu ? ' ★単価あり' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
         <p className="text-xs text-slate-500 mt-2">
-          部分一致・全角半角どちらでもOK。価格 / タスク / 成果物 / 売上 / カレンダー案件を一括表示（読み取り専用）。
+          品番はハイフン有無・全角半角・大文字小文字どれでもOK。価格 / タスク / 成果物 / 売上 / カレンダー案件を一括表示（読み取り専用）。
         </p>
 
         {error && (
           <div className="mt-4 px-4 py-3 rounded-xl bg-red-50 border border-red-300 text-red-700 text-sm">
             エラー: {error}
+          </div>
+        )}
+
+        {pricing && (
+          <div className="mt-3 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-sm text-emerald-800">
+            🏢 <span className="font-bold">{pricing.company}</span> 向けの売値を表示中
+            {pricing.internal_kakeritsu_pt == null && (
+              <span className="text-amber-700 block text-xs mt-0.5">
+                ※個別掛率未登録のため、標準売値のみ表示します（推測掛率は使いません）
+              </span>
+            )}
+            {pricing.tantosha_myoji.length > 0 && (
+              <div className="mt-1.5 flex items-center gap-2 flex-wrap">
+                <label htmlFor="tanto" className="text-xs font-bold text-emerald-700 shrink-0">コピー宛名:</label>
+                <select
+                  id="tanto"
+                  value={selectedTanto}
+                  onChange={(e) => setSelectedTanto(e.target.value)}
+                  className="px-2 py-1 rounded-lg border border-emerald-300 bg-white text-xs"
+                >
+                  <option value="">{pricing.company} 御中</option>
+                  {pricing.tantosha_myoji.map((m) => (
+                    <option key={m} value={m}>{pricing.company} {m}様</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         )}
 
@@ -213,18 +377,36 @@ export default function LookupPage() {
 
         {result && totalHits > 0 && (
           <>
-            {/* 品番(価格カード) */}
             {result.products.length > 0 && (
               <>
                 <SectionTitle icon="🏷" label="品番・価格" count={result.products.length} />
+                {selectedProducts.length > 0 && (
+                  <div className="mb-2 px-3 py-2 rounded-xl bg-violet-50 border border-violet-200 text-xs text-violet-800 flex items-center justify-between gap-2 flex-wrap">
+                    <span className="font-bold">{selectedProducts.length}件 選択中</span>
+                    <button
+                      onClick={() => copyText(buildBulkCustomerCopy(), `${selectedProducts.length}件まとめ`)}
+                      className="px-3 py-1.5 rounded-lg bg-violet-600 text-white font-bold active:scale-95"
+                    >
+                      📋 まとめてお客様送付用コピー
+                    </button>
+                  </div>
+                )}
                 <div className="space-y-3">
                   {result.products.map((p) => (
                     <div key={p.hinban} className="rounded-2xl bg-white border-2 border-blue-300 p-4 shadow-sm">
                       <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <span className="text-xl font-bold text-blue-900">{p.hinban}</span>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!selected[p.hinban]}
+                            onChange={(e) => setSelected((s) => ({ ...s, [p.hinban]: e.target.checked }))}
+                            className="w-5 h-5 accent-violet-600"
+                          />
+                          <span className="text-xl font-bold text-blue-900">{p.hinban}</span>
+                        </label>
                         {p.toriatsukai && (
                           <span className={`text-xs font-bold px-2 py-1 rounded-full border ${
-                            p.toriatsukai.includes('可') || p.toriatsukai === 'HP販売'
+                            !p.toriatsukai.includes('不可') && (p.toriatsukai.includes('可') || p.toriatsukai === 'HP販売')
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                               : 'bg-amber-50 text-amber-800 border-amber-300'
                           }`}>
@@ -233,7 +415,7 @@ export default function LookupPage() {
                         )}
                       </div>
                       <p className="text-sm text-slate-600 mt-1">
-                        {[p.maker, p.brand, p.series].filter(Boolean).join(' / ')}
+                        {[p.hp_name && p.hp_name !== p.hinban ? p.hp_name : null, p.maker, p.brand, p.series].filter(Boolean).join(' / ')}
                         {p.width_mm ? ` ・幅${p.width_mm}mm` : ''}
                       </p>
                       <div className="grid grid-cols-3 gap-2 mt-3 text-center">
@@ -242,7 +424,7 @@ export default function LookupPage() {
                           <p className="font-bold text-slate-800">{yen(p.jodai_m2)}</p>
                         </div>
                         <div className="rounded-xl bg-blue-50 border border-blue-200 px-1 py-2">
-                          <p className="text-[11px] text-slate-500">ﾒｰﾀｰ単価(税別)</p>
+                          <p className="text-[11px] text-slate-500">標準ﾒｰﾀｰ単価(税別)</p>
                           <p className="font-bold text-blue-800">{p.meter_tanka != null ? `${yen(p.meter_tanka)}/m` : '−'}</p>
                         </div>
                         <div className="rounded-xl bg-violet-50 border border-violet-200 px-1 py-2">
@@ -250,14 +432,42 @@ export default function LookupPage() {
                           <p className="font-bold text-violet-800">{p.hp_price_m != null ? `${yen(p.hp_price_m)}/m` : '−'}</p>
                         </div>
                       </div>
+
+                      {pricing && (
+                        <div className="mt-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
+                          <p className="text-[11px] text-emerald-700">{pricing.company} 向け 売値(税別)</p>
+                          <p className="font-bold text-emerald-800 text-lg">
+                            {p.customer_meter_tanka != null
+                              ? `${yen(p.customer_meter_tanka)}/m`
+                              : p.jodai_m2 == null
+                                ? '掛率適用外（品番×幅の固定売値）'
+                                : '個別掛率未登録（標準売値を参照）'}
+                          </p>
+                        </div>
+                      )}
+
                       {p.note && <p className="text-xs text-amber-700 mt-2">⚠ {p.note}</p>}
+
+                      <div className="mt-3 flex gap-2 flex-wrap">
+                        <button
+                          onClick={() => copyText(copyHeader(pricing, selectedTanto) + customerCopyLine(p, pricing), 'お客様送付用')}
+                          className="flex-1 min-w-[140px] px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-bold active:scale-95 hover:bg-emerald-700"
+                        >
+                          📤 お客様送付用コピー
+                        </button>
+                        <button
+                          onClick={() => copyText(internalCopyLine(p, pricing), '社内メモ用')}
+                          className="flex-1 min-w-[140px] px-3 py-2 rounded-xl bg-slate-700 text-white text-sm font-bold active:scale-95 hover:bg-slate-800"
+                        >
+                          🔒 社内メモ用コピー<span className="block text-[10px] font-normal opacity-80">※社内用・客に送らない</span>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               </>
             )}
 
-            {/* 顧客カード */}
             {result.customers.length > 0 && (
               <>
                 <SectionTitle icon="🏢" label="顧客" count={result.customers.length} />
@@ -285,6 +495,12 @@ export default function LookupPage() {
                           ].filter(Boolean).join(' ／ ')}
                         </p>
                       </div>
+                      <button
+                        onClick={() => handleCustomerChange(c.customer_id)}
+                        className="mt-2 text-xs font-bold text-emerald-700 underline active:scale-95"
+                      >
+                        この顧客を選んで単価表示 →
+                      </button>
                       {Array.isArray(c.tantosha) && c.tantosha.length > 0 && (
                         <div className="mt-3 border-t border-slate-100 pt-2">
                           <p className="text-xs font-bold text-slate-500 mb-1">担当者</p>
@@ -305,7 +521,6 @@ export default function LookupPage() {
               </>
             )}
 
-            {/* タスク(DT) */}
             {result.tasks.length > 0 && (
               <>
                 <SectionTitle icon="📋" label="タスク (DT)" count={result.tasks.length} />
@@ -329,7 +544,6 @@ export default function LookupPage() {
               </>
             )}
 
-            {/* 成果物(OUT) */}
             {result.artifacts.length > 0 && (
               <>
                 <SectionTitle icon="📦" label="成果物 (OUT)" count={result.artifacts.length} />
@@ -357,7 +571,6 @@ export default function LookupPage() {
               </>
             )}
 
-            {/* 売上履歴 */}
             {result.sales.length > 0 && (
               <>
                 <SectionTitle icon="💰" label="売上履歴" count={result.sales.length} />
@@ -376,7 +589,6 @@ export default function LookupPage() {
               </>
             )}
 
-            {/* カレンダー案件(events) */}
             {result.events.length > 0 && (
               <>
                 <SectionTitle icon="📅" label="カレンダー案件" count={result.events.length} />
