@@ -27,6 +27,10 @@ type Product = {
   customer_meter_tanka: number | null;
   internal_customer_pt: number | null;
   internal_customer_pt_source?: string | null;
+  // 仕入値(社内根拠) — 認証済みのみ・お客様送付用には絶対含めない
+  internal_cost_m?: number | null;
+  internal_shiire_pt?: number | null;
+  internal_cost_source?: string | null;
 };
 
 type Tantosha = { myoji: string | null; tel: string | null; email: string | null };
@@ -191,13 +195,22 @@ function customerCopyLine(p: Product, pricing: CustomerPricing): string {
   return lines.join('\n');
 }
 
-/** 1品番の「社内メモ用」テキスト: 販売pt も含む(健太郎さん自身の確認用) */
+/** 1品番の「社内メモ用」テキスト: 販売pt + 仕入値+メーカー掛率 も含む(健太郎さん自身の確認用・社内根拠)
+ *  ※お客様送付用コピーには絶対に流入しない(customerCopyLine と分離・健太郎さん明示2026-06-11「社内用なんでね」) */
 function internalCopyLine(p: Product, pricing: CustomerPricing): string {
   const lines: string[] = [];
   lines.push(`${p.hinban}${p.hp_name && p.hp_name !== p.hinban ? `（${p.hp_name}）` : ''}`);
   const sub = [p.maker, p.brand, p.series, p.toriatsukai].filter(Boolean).join(' / ');
   if (sub) lines.push(sub);
   if (p.jodai_m2 != null) lines.push(`上代 ${Math.round(p.jodai_m2).toLocaleString('ja-JP')}円/㎡`);
+  // 仕入値+掛率(社内根拠) — 「社内用なんでね」で明示追加・健太郎さん2026-06-11
+  if (p.internal_cost_m != null) {
+    const ptBits: string[] = [];
+    if (p.internal_shiire_pt != null) ptBits.push(`仕入pt ${p.internal_shiire_pt}`);
+    if (p.internal_cost_source) ptBits.push(p.internal_cost_source);
+    const ptStr = ptBits.length ? `（${ptBits.join(' / ')}）` : '';
+    lines.push(`仕入値 ${Math.round(p.internal_cost_m).toLocaleString('ja-JP')}円/m(税別)${ptStr}`);
+  }
   if (p.meter_tanka != null) lines.push(`標準メーター単価 ${Math.round(p.meter_tanka).toLocaleString('ja-JP')}円/m(税別)`);
   if (p.customer_meter_tanka != null) {
     const ptStr = p.internal_customer_pt != null ? `（pt ${p.internal_customer_pt}）` : '';
@@ -264,6 +277,22 @@ function ProductCard({
           <p className="font-bold text-violet-800">{p.hp_price_m != null ? `${yen(p.hp_price_m)}/m` : '−'}</p>
         </div>
       </div>
+
+      {/* 仕入値(社内根拠) — 認証済みのみ表示・お客様送付用コピーには絶対含めない・健太郎さん指示2026-06-11 */}
+      {p.internal_cost_m != null && (
+        <div className="mt-2 px-3 py-2 rounded-xl bg-slate-100 border border-slate-300 text-center">
+          <p className="text-[11px] text-slate-600">🔒 仕入値（社内用・税別）</p>
+          <p className="font-bold text-slate-800 text-base">
+            {yen(p.internal_cost_m)}/m
+            {p.internal_shiire_pt != null && (
+              <span className="text-xs font-normal text-slate-500 ml-2">仕入pt {p.internal_shiire_pt}</span>
+            )}
+          </p>
+          {p.internal_cost_source && (
+            <p className="text-[10px] text-slate-500 mt-0.5">{p.internal_cost_source}</p>
+          )}
+        </div>
+      )}
 
       {pricing && (
         <div className="mt-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-center">

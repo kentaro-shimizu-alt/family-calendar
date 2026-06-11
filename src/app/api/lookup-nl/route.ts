@@ -27,6 +27,7 @@ import {
   type CustomerNameIndex,
 } from '@/lib/nl_search_parse';
 import { CUSTOMER_KAKERITSU, pickCustomerPt, makerKakeritsuSummary } from '@/lib/customer_kakeritsu';
+import { getInternalCost } from '@/lib/internal_cost';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -219,7 +220,16 @@ export async function GET(req: NextRequest) {
         customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, selectedCustomer.kakeritsu_pt);
       }
     }
-    return { ...rest, customer_meter_tanka, internal_customer_pt, internal_customer_pt_source };
+    const cost = getInternalCost(rest.hinban);
+    return {
+      ...rest,
+      customer_meter_tanka,
+      internal_customer_pt,
+      internal_customer_pt_source,
+      internal_cost_m: cost?.cost_m ?? null,
+      internal_shiire_pt: cost?.shiire_pt ?? null,
+      internal_cost_source: cost?.source ?? null,
+    };
   });
 
   const customer_pricing = selectedCustomer

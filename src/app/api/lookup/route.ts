@@ -23,6 +23,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { verifyToken } from '@/lib/auth';
 import { CUSTOMER_KAKERITSU, pickCustomerPt, makerKakeritsuSummary } from '@/lib/customer_kakeritsu';
+import { getInternalCost } from '@/lib/internal_cost';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -284,11 +285,16 @@ export async function GET(req: NextRequest) {
         customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, selectedCustomer.kakeritsu_pt);
       }
     }
+    // 仕入値(社内根拠) — 認証済みのみ表示・お客様送付用コピーには絶対含めない
+    const cost = getInternalCost(rest.hinban);
     return {
       ...rest,
       customer_meter_tanka, // 顧客別 売値メーター単価(税別) ※お客様に出してよい / pt null客 or 上代なし=null
       internal_customer_pt, // 社内メモ用コピー専用 ※お客様送付用には絶対含めない
       internal_customer_pt_source, // 社内表示用: どの掛率を使ったか(例: "ダイノック通常品" "オルティノVEX")
+      internal_cost_m: cost?.cost_m ?? null, // 仕入値(円/m・税別) ※社内メモ専用
+      internal_shiire_pt: cost?.shiire_pt ?? null, // 仕入pt ※社内メモ専用(ガラスはnull=掛率なし)
+      internal_cost_source: cost?.source ?? null, // 仕入ソース(ルールキー)
     };
   });
 
@@ -311,8 +317,15 @@ export async function GET(req: NextRequest) {
   ]);
 
   // ---- artifacts (タイトル / 顧客) ----
+  // 品番ハイフン有無を吸収するため、品番ヒット時はその正規hinban(複数)でも artifacts.title/customer を検索する
+  // (例: "FW1974"で検索 → products_master の "FW-1974" にヒット → artifacts.title="FW-1974…" も拾う)
+  // products_master ヒット品番から正規hinbanを最大10個取り、variants と合わせて ilike OR検索
   const ART_COLS = 'id,title,type,customer,status,task_id,updated_at';
-  const artifactQueries = variants.flatMap((v) => [
+  const artifactNeedles = new Set<string>(variants);
+  for (const p of products.slice(0, 10)) {
+    if (p.hinban) artifactNeedles.add(p.hinban);
+  }
+  const artifactQueries = Array.from(artifactNeedles).flatMap((v) => [
     sb.from('artifacts').select(ART_COLS).ilike('title', pat(v)).order('updated_at', { ascending: false }).limit(10),
     sb.from('artifacts').select(ART_COLS).ilike('customer', pat(v)).order('updated_at', { ascending: false }).limit(10),
   ]);
