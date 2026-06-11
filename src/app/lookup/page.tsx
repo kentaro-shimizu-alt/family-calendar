@@ -19,6 +19,7 @@ type Product = {
   series: string | null;
   jodai_m2: number | null;
   toriatsukai: string | null;
+  hanbai_pt: number | null; // 標準販売掛率(納品書等でお客様にも提示する売値掛率。仕入ptとは別物)
   meter_tanka: number | null;
   hp_price_m: number | null;
   hp_name: string | null;
@@ -142,6 +143,44 @@ function yen(v: number | null | undefined): string {
   return `¥${Math.round(v).toLocaleString('ja-JP')}`;
 }
 
+// ---- m数(数量)→金額計算 (DT-20260610-010) ----
+// 規則:
+//  - 単価 = 既存の10円切上済みメーター単価(顧客別売値 > 標準売値 > HP販売価格 の優先順・既存コピーと同じ)
+//  - 税別合計 = 単価 × m数 の円未満切捨て(qtyを10倍整数化して整数演算→浮動小数誤差なし)
+//  - 消費税 = 税別合計 × 10% の円未満切捨て(通例)
+//  - 税込 = 税別合計 + 消費税
+
+const QTY_RE = /^\d{1,4}(\.\d)?$/; // 小数1桁まで・最大9999.9m
+
+function parseQty(s: string): number | null {
+  const t = s.trim().normalize('NFKC');
+  if (!QTY_RE.test(t)) return null;
+  const v = parseFloat(t);
+  return v > 0 ? v : null;
+}
+
+/** 計算に使う単価(税別・円/m)。既存コピー(customerCopyLine)と同じ優先順 */
+function unitForProduct(p: Product): number | null {
+  const m = p.customer_meter_tanka ?? p.meter_tanka ?? p.hp_price_m;
+  return m != null && !Number.isNaN(m) ? Math.round(m) : null;
+}
+
+/** 表示する売値掛率(お客様にも出せる販売pt・仕入ptではない)。単価の出どころと整合させる */
+function ptForProduct(p: Product): number | null {
+  if (p.jodai_m2 == null) return null; // 3Mガラス等は上代なし=掛率の概念なし
+  if (p.customer_meter_tanka != null) return p.internal_customer_pt ?? null;
+  if (p.meter_tanka != null) return p.hanbai_pt ?? null;
+  return null;
+}
+
+function calcKingaku(unitRaw: number, qty: number): { unit: number; zeibetsu: number; tax: number; zeikomi: number } {
+  const unit = Math.round(unitRaw);
+  const qty10 = Math.round(qty * 10); // 小数1桁→10倍整数(整数×整数で誤差ゼロ)
+  const zeibetsu = Math.floor((unit * qty10) / 10); // 円未満切捨て
+  const tax = Math.floor(zeibetsu * 0.1); // 消費税10%・円未満切捨て
+  return { unit, zeibetsu, tax, zeikomi: zeibetsu + tax };
+}
+
 function fmtDate(s: string | null | undefined): string {
   if (!s) return '';
   return String(s).slice(0, 10);
@@ -195,9 +234,33 @@ function customerCopyLine(p: Product, pricing: CustomerPricing): string {
   return lines.join('\n');
 }
 
+/** 「金額を出す時の形」コピー(CLAUDE.md 9項目・お客様転送できる形)。
+ *  仕入値・原価・粗利・社内根拠は絶対に入れない。掛率は売値掛率(納品書にも載せる販売pt)のみ。
+ *  3Mガラス等の上代なし品番は 上代/計算式/掛率 を「-」表記(既存ルール踏襲) */
+function kingakuCopyText(p: Product, pricing: CustomerPricing, tanto: string, qty: number): string {
+  const unit = unitForProduct(p);
+  if (unit == null) return '';
+  const { zeibetsu, tax, zeikomi } = calcKingaku(unit, qty);
+  const pt = ptForProduct(p);
+  const fmt = (n: number) => Math.round(n).toLocaleString('ja-JP');
+  const lines = [
+    `■品番: ${p.hinban}`,
+    `■上代(円/㎡): ${p.jodai_m2 != null ? fmt(p.jodai_m2) : '-'}`,
+    `■計算式: ${p.jodai_m2 != null && pt != null ? '上代×1.2×掛率÷100（10円単位切上）' : '-'}`,
+    `■掛率: ${pt != null ? `${pt}pt` : '-'}`,
+    `■メーター単価(税別): ${fmt(unit)}円/m`,
+    `■数量: ${qty}m`,
+    `■税別合計: ${fmt(zeibetsu)}円`,
+    `■消費税(10%): ${fmt(tax)}円`,
+    `■ご請求額(税込): ${fmt(zeikomi)}円`,
+  ];
+  return copyHeader(pricing, tanto) + lines.join('\n');
+}
+
 /** 1品番の「社内メモ用」テキスト: 販売pt + 仕入値+メーカー掛率 も含む(健太郎さん自身の確認用・社内根拠)
- *  ※お客様送付用コピーには絶対に流入しない(customerCopyLine と分離・健太郎さん明示2026-06-11「社内用なんでね」) */
-function internalCopyLine(p: Product, pricing: CustomerPricing): string {
+ *  ※お客様送付用コピーには絶対に流入しない(customerCopyLine と分離・健太郎さん明示2026-06-11「社内用なんでね」)
+ *  qty(m数)入力中は 税別合計/消費税/税込 + 仕入値合計(社内根拠) も追記する */
+function internalCopyLine(p: Product, pricing: CustomerPricing, qty?: number | null): string {
   const lines: string[] = [];
   lines.push(`${p.hinban}${p.hp_name && p.hp_name !== p.hinban ? `（${p.hp_name}）` : ''}`);
   const sub = [p.maker, p.brand, p.series, p.toriatsukai].filter(Boolean).join(' / ');
@@ -218,6 +281,18 @@ function internalCopyLine(p: Product, pricing: CustomerPricing): string {
     lines.push(`${pricing?.company ?? ''}向け ${Math.round(p.customer_meter_tanka).toLocaleString('ja-JP')}円/m(税別)${ptStr}${srcStr}`);
   }
   if (p.hp_price_m != null) lines.push(`HP販売価格 ${Math.round(p.hp_price_m).toLocaleString('ja-JP')}円/m(税別)`);
+  // m数入力中: 金額計算 + 仕入値合計(社内根拠・お客様用コピーには入れない)
+  const unit = unitForProduct(p);
+  if (qty != null && qty > 0 && unit != null) {
+    const { zeibetsu, tax, zeikomi } = calcKingaku(unit, qty);
+    const fmt = (n: number) => Math.round(n).toLocaleString('ja-JP');
+    lines.push(`数量 ${qty}m → 税別合計 ${fmt(zeibetsu)}円 / 消費税(10%) ${fmt(tax)}円 / 税込 ${fmt(zeikomi)}円`);
+    if (p.internal_cost_m != null) {
+      const qty10 = Math.round(qty * 10);
+      const costTotal = Math.floor((Math.round(p.internal_cost_m) * qty10) / 10);
+      lines.push(`仕入値合計 ${fmt(costTotal)}円(税別) ※社内根拠`);
+    }
+  }
   return lines.join('\n');
 }
 
@@ -237,6 +312,11 @@ function ProductCard({
   onToggle: (v: boolean) => void;
   onCopy: (text: string, label: string) => void;
 }) {
+  // m数(数量)→金額計算 (DT-20260610-010)
+  const [qtyStr, setQtyStr] = useState('');
+  const qty = parseQty(qtyStr);
+  const unit = unitForProduct(p);
+  const calc = qty != null && unit != null ? calcKingaku(unit, qty) : null;
   return (
     <div className="rounded-2xl bg-white border-2 border-blue-300 p-4 shadow-sm">
       <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -314,6 +394,56 @@ function ProductCard({
 
       {p.note && <p className="text-xs text-amber-700 mt-2">⚠ {p.note}</p>}
 
+      {/* m数(数量)→金額計算 (DT-20260610-010) */}
+      {unit != null && (
+        <div className="mt-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200">
+          <div className="flex items-center gap-2 flex-wrap">
+            <label htmlFor={`qty-${p.hinban}`} className="text-xs font-bold text-amber-800 shrink-0">📏 m数(数量)</label>
+            <input
+              id={`qty-${p.hinban}`}
+              type="text"
+              inputMode="decimal"
+              value={qtyStr}
+              onChange={(e) => setQtyStr(e.target.value)}
+              placeholder="例: 2.5"
+              className="w-24 px-2 py-1.5 rounded-lg border border-amber-300 bg-white text-sm text-center focus:outline-none focus:border-amber-500"
+              aria-label="m数(数量)"
+            />
+            <span className="text-xs text-amber-700">m（小数1桁まで）→ 金額を計算</span>
+          </div>
+          {qtyStr.trim() !== '' && qty == null && (
+            <p className="text-xs text-red-600 mt-1">数値で入力してください（小数1桁まで・例 2.5）</p>
+          )}
+          {calc && (
+            <>
+              <div className="grid grid-cols-3 gap-2 mt-2 text-center">
+                <div className="rounded-xl bg-white border border-amber-200 px-1 py-2">
+                  <p className="text-[11px] text-slate-500">税別合計</p>
+                  <p className="font-bold text-slate-800">{yen(calc.zeibetsu)}</p>
+                </div>
+                <div className="rounded-xl bg-white border border-amber-200 px-1 py-2">
+                  <p className="text-[11px] text-slate-500">消費税(10%)</p>
+                  <p className="font-bold text-slate-800">{yen(calc.tax)}</p>
+                </div>
+                <div className="rounded-xl bg-amber-100 border border-amber-300 px-1 py-2">
+                  <p className="text-[11px] text-amber-800">ご請求額(税込)</p>
+                  <p className="font-bold text-amber-900 text-base">{yen(calc.zeikomi)}</p>
+                </div>
+              </div>
+              <p className="text-[10px] text-amber-700 mt-1 text-center">
+                {yen(calc.unit)}/m × {qty}m（円未満切捨て）・消費税10%（円未満切捨て）
+              </p>
+              <button
+                onClick={() => onCopy(kingakuCopyText(p, pricing, selectedTanto, qty!), '金額提示(9項目)')}
+                className="mt-2 w-full px-3 py-2 rounded-xl bg-amber-600 text-white text-sm font-bold active:scale-95 hover:bg-amber-700"
+              >
+                💴 「金額を出す時の形」コピー<span className="block text-[10px] font-normal opacity-80">9項目・お客様転送できる形</span>
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       <div className="mt-3 flex gap-2 flex-wrap">
         <button
           onClick={() => onCopy(copyHeader(pricing, selectedTanto) + customerCopyLine(p, pricing), 'お客様送付用')}
@@ -322,7 +452,7 @@ function ProductCard({
           📤 お客様送付用コピー
         </button>
         <button
-          onClick={() => onCopy(internalCopyLine(p, pricing), '社内メモ用')}
+          onClick={() => onCopy(internalCopyLine(p, pricing, qty), '社内メモ用')}
           className="flex-1 min-w-[140px] px-3 py-2 rounded-xl bg-slate-700 text-white text-sm font-bold active:scale-95 hover:bg-slate-800"
         >
           🔒 社内メモ用コピー<span className="block text-[10px] font-normal opacity-80">※社内用・客に送らない</span>
