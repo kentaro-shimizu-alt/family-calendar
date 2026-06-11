@@ -22,6 +22,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 import { verifyToken } from '@/lib/auth';
+import { CUSTOMER_KAKERITSU, pickCustomerPt, makerKakeritsuSummary } from '@/lib/customer_kakeritsu';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -77,6 +78,8 @@ function meterTankaFromPt(jodaiM2: number | null | undefined, pt: number | null 
   return ceil10(product / PT_BASE);
 }
 
+// 掛率引き当てロジックは src/lib/customer_kakeritsu.ts に共通化 (lookup-nl と共有)
+
 // ---------- 型(レスポンスに出すものだけ) ----------
 
 type SalesHit = {
@@ -95,6 +98,8 @@ type CustomerPricing = {
   meter_tanka: number | null; // ヘッダ表示用(品番ごとの値は products[].customer_meter_tanka)
   internal_kakeritsu_pt: number | null; // 社内メモ用コピー専用 ※お客様送付用には絶対含めない
   tantosha_myoji: string[]; // 担当者の苗字のみ(「会社名+苗字+様」コピー用・役職/下の名前は同期段階で除外済)
+  has_maker_kakeritsu: boolean; // メーカー別掛率マップに登録があるか(=メーカー別の正確な売値が出る客か)
+  maker_kakeritsu_summary?: string | null; // 社内表示用: 主要メーカー掛率の要約(例: "ダイノック38.2 / リアテック41 / オルティノ36")
 } | null;
 
 /** 売上エントリの表示ラベルを安全化(原価・粗利・仕入を絶対に出さない) */
@@ -190,7 +195,8 @@ export async function GET(req: NextRequest) {
     const customers = (data || []).map((c: { customer_id: string; company: string | null; kakeritsu_pt: number | null }) => ({
       customer_id: c.customer_id,
       company: c.company,
-      has_kakeritsu: c.kakeritsu_pt != null, // 有無のみ(値そのものは渡さない)
+      // 有無のみ(値そのものは渡さない)。メーカー別掛率マップ(JSON) または customers_master.kakeritsu_pt のどちらかが有れば true
+      has_kakeritsu: c.kakeritsu_pt != null || !!CUSTOMER_KAKERITSU[c.customer_id],
     }));
     return NextResponse.json({ customers });
   }
@@ -244,22 +250,45 @@ export async function GET(req: NextRequest) {
     });
     products = products.slice(0, 30);
   }
+  // 顧客別メーカー別掛率マップ (DT-20260611-024)
+  const customerKakeritsu = selectedCustomer ? CUSTOMER_KAKERITSU[selectedCustomer.customer_id] : null;
+
   // 内部キーを落としてレスポンス整形 + 顧客別売値を付与
   const productsOut = products.map((r) => {
     const rest = { ...(r as ProductRow & { _key?: string; _namekey?: string }) };
     delete (rest as { _key?: string })._key;
     delete (rest as { _namekey?: string })._namekey;
-    // 顧客別売値: 上代(jodai_m2)がある品番に対し、選択顧客のptで標準式により算出
+    // 顧客別売値:
+    //   ①顧客のメーカー別掛率マップ(kakeritsu_map.json)優先 → ②customers_master.kakeritsu_pt(単一値)フォールバック
+    //   上代(jodai_m2)がある品番のみ算出
     let customer_meter_tanka: number | null = null;
     let internal_customer_pt: number | null = null;
-    if (selectedCustomer && selectedCustomer.kakeritsu_pt != null && rest.jodai_m2 != null) {
-      internal_customer_pt = selectedCustomer.kakeritsu_pt;
-      customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, selectedCustomer.kakeritsu_pt);
+    let internal_customer_pt_source: string | null = null;
+    if (selectedCustomer && rest.jodai_m2 != null) {
+      // ①メーカー別掛率マップから引く(品番のmaker/brand/series/hinbanで該当ptを選ぶ)
+      if (customerKakeritsu) {
+        const picked = pickCustomerPt(
+          { maker: rest.maker, brand: rest.brand, series: rest.series, hinban: rest.hinban },
+          customerKakeritsu.kakeritsu
+        );
+        if (picked.pt != null) {
+          internal_customer_pt = picked.pt;
+          internal_customer_pt_source = picked.source;
+          customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, picked.pt);
+        }
+      }
+      // ②マップに掛率がない/未登録顧客の場合は customers_master.kakeritsu_pt にフォールバック
+      if (internal_customer_pt == null && selectedCustomer.kakeritsu_pt != null) {
+        internal_customer_pt = selectedCustomer.kakeritsu_pt;
+        internal_customer_pt_source = '顧客DB単一掛率(フォールバック)';
+        customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, selectedCustomer.kakeritsu_pt);
+      }
     }
     return {
       ...rest,
       customer_meter_tanka, // 顧客別 売値メーター単価(税別) ※お客様に出してよい / pt null客 or 上代なし=null
       internal_customer_pt, // 社内メモ用コピー専用 ※お客様送付用には絶対含めない
+      internal_customer_pt_source, // 社内表示用: どの掛率を使ったか(例: "ダイノック通常品" "オルティノVEX")
     };
   });
 
@@ -357,6 +386,9 @@ export async function GET(req: NextRequest) {
   }
   sales.sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
+  // メーカー別掛率マップの要約文字列(社内表示用)
+  const summary = customerKakeritsu ? makerKakeritsuSummary(customerKakeritsu.kakeritsu) : null;
+
   const customer_pricing: CustomerPricing = selectedCustomer
     ? {
         customer_id: selectedCustomer.customer_id,
@@ -366,6 +398,8 @@ export async function GET(req: NextRequest) {
         tantosha_myoji: Array.isArray(selectedCustomer.tantosha)
           ? selectedCustomer.tantosha.map((t) => (t?.myoji || '').trim()).filter(Boolean)
           : [],
+        has_maker_kakeritsu: !!customerKakeritsu,
+        maker_kakeritsu_summary: summary,
       }
     : null;
 

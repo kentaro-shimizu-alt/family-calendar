@@ -26,6 +26,7 @@ import {
   kanaFold,
   type CustomerNameIndex,
 } from '@/lib/nl_search_parse';
+import { CUSTOMER_KAKERITSU, pickCustomerPt, makerKakeritsuSummary } from '@/lib/customer_kakeritsu';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -189,16 +190,36 @@ export async function GET(req: NextRequest) {
   if (!hasHinban && !hasMaterial) products = [];
   products = products.slice(0, 40);
 
+  // 顧客別メーカー別掛率マップ (DT-20260611-024)
+  const customerKakeritsu = selectedCustomer ? CUSTOMER_KAKERITSU[selectedCustomer.customer_id] : null;
+
   const productsOut = products.map((r) => {
     const { _key, _namekey, _matchblob, ...rest } = r;
     void _key; void _namekey; void _matchblob;
     let customer_meter_tanka: number | null = null;
     let internal_customer_pt: number | null = null;
-    if (selectedCustomer && selectedCustomer.kakeritsu_pt != null && rest.jodai_m2 != null) {
-      internal_customer_pt = selectedCustomer.kakeritsu_pt;
-      customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, selectedCustomer.kakeritsu_pt);
+    let internal_customer_pt_source: string | null = null;
+    if (selectedCustomer && rest.jodai_m2 != null) {
+      // ①メーカー別掛率マップから引く
+      if (customerKakeritsu) {
+        const picked = pickCustomerPt(
+          { maker: rest.maker, brand: rest.brand, series: rest.series, hinban: rest.hinban },
+          customerKakeritsu.kakeritsu,
+        );
+        if (picked.pt != null) {
+          internal_customer_pt = picked.pt;
+          internal_customer_pt_source = picked.source;
+          customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, picked.pt);
+        }
+      }
+      // ②マップに掛率がない場合は customers_master.kakeritsu_pt にフォールバック
+      if (internal_customer_pt == null && selectedCustomer.kakeritsu_pt != null) {
+        internal_customer_pt = selectedCustomer.kakeritsu_pt;
+        internal_customer_pt_source = '顧客DB単一掛率(フォールバック)';
+        customer_meter_tanka = meterTankaFromPt(rest.jodai_m2, selectedCustomer.kakeritsu_pt);
+      }
     }
-    return { ...rest, customer_meter_tanka, internal_customer_pt };
+    return { ...rest, customer_meter_tanka, internal_customer_pt, internal_customer_pt_source };
   });
 
   const customer_pricing = selectedCustomer
@@ -210,6 +231,8 @@ export async function GET(req: NextRequest) {
         tantosha_myoji: Array.isArray(selectedCustomer.tantosha)
           ? selectedCustomer.tantosha.map((t) => (t?.myoji || '').trim()).filter(Boolean)
           : [],
+        has_maker_kakeritsu: !!customerKakeritsu,
+        maker_kakeritsu_summary: customerKakeritsu ? makerKakeritsuSummary(customerKakeritsu.kakeritsu) : null,
       }
     : null;
 

@@ -1,0 +1,298 @@
+{
+  "version": "2026-06-11",
+  "source": "07_顧客別_出し値価格表 PDF抽出 (extract_kakeritsu_from_pdfs.py)",
+  "note": "メーカー別掛率(pt)。/api/lookup が品番のmaker/brand/seriesから該当ptを引いて顧客別売値を出す。dainoc_func_groupsはダイノック機能品のシリーズ接頭辞(AR/EXR/DPF/WH/PWF/WD)別マップ。",
+  "customers": {
+    "C001": {
+      "company": null,
+      "tantosha": [
+        "倉地"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_Display450_倉地様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    },
+    "C056": {
+      "company": null,
+      "tantosha": [
+        "和田"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_LICENSE_和田様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    },
+    "C009": {
+      "company": null,
+      "tantosha": [
+        "畑",
+        "茶谷",
+        "衣川"
+      ],
+      "kakeritsu": {
+        "dainoc": 36.1,
+        "dainoc_func_groups": {
+          "AR": 48.8,
+          "DPF": 48.8,
+          "EXR": 50.9,
+          "WH": 50.9,
+          "PWF": 50.9
+        },
+        "dainoc_wd": null,
+        "reatec": 39.0,
+        "ortino": null,
+        "ortino_vex": null,
+        "neox": 48.8,
+        "paroa": 43.0,
+        "berbien": null,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_シンコー株式会社_畑様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted_with_warning",
+      "warnings": [
+        "WD複数掛率: [34.0, 42.0, 63.6] (要確認のため未採用)"
+      ]
+    },
+    "C051": {
+      "company": null,
+      "tantosha": [
+        "俵"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_有限会社アドテック_俵様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    },
+    "C052": {
+      "company": null,
+      "tantosha": [
+        "反甫"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_有限会社ギャロップ_反甫様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    },
+    "C057": {
+      "company": null,
+      "tantosha": [
+        "池内"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "【訂正版】塩ビシート全メーカー_5月28日午後以降_池内様_20260517.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    },
+    "C021": {
+      "company": null,
+      "tantosha": [
+        "坂本",
+        "堀本"
+      ],
+      "kakeritsu": {
+        "dainoc": 36.1,
+        "dainoc_func_groups": {
+          "AR": 48.8,
+          "DPF": 48.8,
+          "EXR": 50.9,
+          "WH": 50.9,
+          "PWF": 50.9
+        },
+        "dainoc_wd": null,
+        "reatec": 39.0,
+        "ortino": null,
+        "ortino_vex": null,
+        "neox": 48.8,
+        "paroa": 43.0,
+        "berbien": null,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_株式会社Monoサイト_坂本様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted_with_warning",
+      "warnings": [
+        "WD複数掛率: [34.0, 42.0, 63.6] (要確認のため未採用)"
+      ]
+    },
+    "C022": {
+      "company": null,
+      "tantosha": [
+        "大野"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_株式会社on sign_大野様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    },
+    "C024": {
+      "company": null,
+      "tantosha": [
+        "坂口",
+        "森河"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_株式会社ウェイアウト_坂口様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    },
+    "C030": {
+      "company": null,
+      "tantosha": [
+        "井上",
+        "光田"
+      ],
+      "kakeritsu": {
+        "dainoc": 38.2,
+        "dainoc_func_groups": {
+          "AR": 50.9,
+          "DPF": 50.9,
+          "EXR": 53.0,
+          "WH": 53.0,
+          "PWF": 53.0
+        },
+        "dainoc_wd": 65.7,
+        "reatec": 41.0,
+        "ortino": 36.0,
+        "ortino_vex": 44.0,
+        "neox": 50.9,
+        "paroa": 45.0,
+        "berbien": 44.0,
+        "kreas": null
+      },
+      "extracted_from": "売値一覧_株式会社シム_井上様_塩ビシート全メーカー_5月28日午後以降_20260517_v1.pdf",
+      "extracted_at": "2026-06-11",
+      "status": "adopted",
+      "warnings": []
+    }
+  },
+  "warnings_at_build": [],
+  "built_at": "2026-06-11T20:30:08.795430+09:00"
+}

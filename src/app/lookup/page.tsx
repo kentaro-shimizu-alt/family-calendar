@@ -26,6 +26,7 @@ type Product = {
   note: string | null;
   customer_meter_tanka: number | null;
   internal_customer_pt: number | null;
+  internal_customer_pt_source?: string | null;
 };
 
 type Tantosha = { myoji: string | null; tel: string | null; email: string | null };
@@ -90,6 +91,8 @@ type CustomerPricing = {
   meter_tanka: number | null;
   internal_kakeritsu_pt: number | null;
   tantosha_myoji: string[];
+  has_maker_kakeritsu?: boolean;
+  maker_kakeritsu_summary?: string | null;
 } | null;
 
 type LookupResult = {
@@ -198,7 +201,8 @@ function internalCopyLine(p: Product, pricing: CustomerPricing): string {
   if (p.meter_tanka != null) lines.push(`標準メーター単価 ${Math.round(p.meter_tanka).toLocaleString('ja-JP')}円/m(税別)`);
   if (p.customer_meter_tanka != null) {
     const ptStr = p.internal_customer_pt != null ? `（pt ${p.internal_customer_pt}）` : '';
-    lines.push(`${pricing?.company ?? ''}向け ${Math.round(p.customer_meter_tanka).toLocaleString('ja-JP')}円/m(税別)${ptStr}`);
+    const srcStr = p.internal_customer_pt_source ? ` ※${p.internal_customer_pt_source}` : '';
+    lines.push(`${pricing?.company ?? ''}向け ${Math.round(p.customer_meter_tanka).toLocaleString('ja-JP')}円/m(税別)${ptStr}${srcStr}`);
   }
   if (p.hp_price_m != null) lines.push(`HP販売価格 ${Math.round(p.hp_price_m).toLocaleString('ja-JP')}円/m(税別)`);
   return lines.join('\n');
@@ -271,6 +275,11 @@ function ProductCard({
                 ? '掛率適用外（品番×幅の固定売値）'
                 : '個別掛率未登録（標準売値を参照）'}
           </p>
+          {p.internal_customer_pt_source && p.internal_customer_pt != null && (
+            <p className="text-[10px] text-emerald-600 mt-0.5">
+              {p.internal_customer_pt_source} ・pt {p.internal_customer_pt}
+            </p>
+          )}
         </div>
       )}
 
@@ -689,7 +698,12 @@ export default function LookupPage() {
         {pricing && (
           <div className="mt-3 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-300 text-sm text-emerald-800">
             🏢 <span className="font-bold">{pricing.company}</span> 向けの売値を表示中
-            {pricing.internal_kakeritsu_pt == null && (
+            {pricing.has_maker_kakeritsu && pricing.maker_kakeritsu_summary && (
+              <span className="text-emerald-700 block text-[11px] mt-0.5">
+                📊 メーカー別掛率: {pricing.maker_kakeritsu_summary}
+              </span>
+            )}
+            {pricing.internal_kakeritsu_pt == null && !pricing.has_maker_kakeritsu && (
               <span className="text-amber-700 block text-xs mt-0.5">
                 ※個別掛率未登録のため、標準売値のみ表示します（推測掛率は使いません）
               </span>
