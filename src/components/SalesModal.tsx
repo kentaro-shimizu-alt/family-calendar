@@ -806,13 +806,9 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                       >
                         📋
                       </button>
-                      <button
-                        onClick={() => removeEntry(e.id)}
-                        className="shrink-0 inline-flex items-center justify-center w-9 h-9 text-rose-500 hover:text-rose-600 text-lg rounded hover:bg-rose-50 transition"
-                        title="削除"
-                      >
-                        ×
-                      </button>
+                      {/* 2026-06-12 健太郎LW指示 id=2815-2818「削除ボタンをもう使えないように。基本俺が消すことはない」
+                          → 売上エントリの削除(×)ボタンを撤去(誤タップ事故防止)。
+                          removeEntry 関数・/api/daily 経路は温存(将来くろがDB/コードから消せるように)。 */}
                     </div>
                     {/* 売値・原価 */}
                     <div className="mt-2 flex items-center gap-2 text-xs">

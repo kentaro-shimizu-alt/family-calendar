@@ -254,7 +254,15 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       items.push({ kind: 'html', id: `h_${h.url}_${i}`, ts, url: h.url, name: h.name, index: i });
     });
 
-    items.sort((a, b) => a.ts - b.ts);
+    // 2026-06-12 健太郎LW指示 id=2815-2818「どの順番で入れても、文章コメントが全部先→その後に画像がまとまって表示」
+    //   → グループ順(コメント→画像→PDF→HTML)で並べ、各グループ内は投稿順(ts昇順)。
+    //   保存順(event.comments / images 配列)は一切変えない=表示ソートのみ。
+    const GROUP_RANK: Record<FeedItem['kind'], number> = { comment: 0, image: 1, pdf: 2, html: 3 };
+    items.sort((a, b) => {
+      const g = GROUP_RANK[a.kind] - GROUP_RANK[b.kind];
+      if (g !== 0) return g;
+      return a.ts - b.ts;
+    });
     return items;
   }, [event]);
 
