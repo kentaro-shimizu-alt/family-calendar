@@ -24,6 +24,60 @@ import { getSupabase } from '@/lib/supabase';
 import { verifyToken } from '@/lib/auth';
 import { CUSTOMER_KAKERITSU, pickCustomerPt, makerKakeritsuSummary } from '@/lib/customer_kakeritsu';
 import { getInternalCost } from '@/lib/internal_cost';
+import wikiIndexRaw from '@/lib/wiki_index.json';
+
+// ---- 施工技術Wiki(PDF本文をそのまま抽出した検索インデックス・DT-20260617-003) ----
+// 生成元: C:\Users\film_\Documents\kuro\tools\build_wiki_index.py（PDFテキストをverbatim抽出）
+// 価格情報ではなく施工要領/技術資料なので、仕入/原価等のセキュリティ懸念は無い。
+type WikiDoc = {
+  id: string; category: string | null; maker: string | null; brand: string | null;
+  doc_title: string; page: number; hinban_tags: string | null; source_path: string; body: string;
+};
+const WIKI: WikiDoc[] = wikiIndexRaw as WikiDoc[];
+
+/** Wiki本文を検索。品番ヒット商品のブランドからも関連施工資料を引く。 */
+function searchWiki(variants: string[], productBrands: Set<string>) {
+  // クエリ全体＋空白区切りの各単語の両方を needle にする(「ガラスフィルム 下地」を語ごとに当てる)
+  const needleSet = new Set<string>();
+  for (const v of variants) {
+    const t = v.trim().toLowerCase();
+    if (t.length >= 2) needleSet.add(t);
+    for (const tok of t.split(/[\s　]+/)) {
+      if (tok.length >= 2) needleSet.add(tok);
+    }
+  }
+  const needles = Array.from(needleSet);
+  const scored: { w: WikiDoc; score: number }[] = [];
+  for (const w of WIKI) {
+    const title = (w.doc_title || '').toLowerCase();
+    const body = (w.body || '').toLowerCase();
+    const brand = (w.brand || '').toLowerCase();
+    const maker = (w.maker || '').toLowerCase();
+    const tags = (w.hinban_tags || '').toLowerCase();
+    let score = 0;
+    for (const n of needles) {
+      if (brand && brand.includes(n)) score += 6;
+      if (maker && maker.includes(n)) score += 3;
+      if (title.includes(n)) score += 4;
+      if (tags && tags.includes(n)) score += 4;
+      if (body.includes(n)) score += 2;
+    }
+    // 直接ヒットが無くても、品番がヒットした商品のブランド資料は関連として拾う
+    if (score === 0 && w.brand && productBrands.has(w.brand)) score += 1;
+    if (score > 0) scored.push({ w, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 25).map(({ w }) => ({
+    id: w.id,
+    doc_title: w.doc_title,
+    category: w.category,
+    maker: w.maker,
+    brand: w.brand,
+    page: w.page,
+    source_path: w.source_path,
+    snippet: w.body.length > 600 ? w.body.slice(0, 600) + '…' : w.body,
+  }));
+}
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -165,8 +219,11 @@ async function loadAllProducts(sb: ReturnType<typeof getSupabase>): Promise<Prod
     if (batch.length < pageSize) break;
   }
   for (const r of rows) {
-    (r as ProductRow & { _key?: string; _namekey?: string })._key = hinbanKey(r.hinban || '');
-    (r as ProductRow & { _key?: string; _namekey?: string })._namekey = hinbanKey(r.hp_name || '');
+    (r as ProductRow & { _key?: string; _namekey?: string; _brandkey?: string })._key = hinbanKey(r.hinban || '');
+    (r as ProductRow & { _key?: string; _namekey?: string; _brandkey?: string })._namekey = hinbanKey(r.hp_name || '');
+    // ブランド/メーカー/シリーズでも引けるように(例「クレアス」「ダイノック」で価格一覧が出る)
+    (r as ProductRow & { _key?: string; _namekey?: string; _brandkey?: string })._brandkey =
+      hinbanKey([r.brand, r.maker, r.series].filter(Boolean).join(' '));
   }
   _productCache = { rows, key: PRODUCT_COLS, at: Date.now() };
   return rows;
@@ -205,7 +262,7 @@ export async function GET(req: NextRequest) {
   const raw = (url.searchParams.get('q') || '').trim();
   const customerId = (url.searchParams.get('customer') || '').trim().toUpperCase();
   if (!raw) {
-    return NextResponse.json({ q: '', products: [], customers: [], tasks: [], artifacts: [], events: [], sales: [], customer_pricing: null });
+    return NextResponse.json({ q: '', products: [], customers: [], tasks: [], artifacts: [], events: [], sales: [], wiki: [], customer_pricing: null });
   }
   if (raw.length > 80) {
     return NextResponse.json({ error: 'query too long' }, { status: 400 });
@@ -239,9 +296,10 @@ export async function GET(req: NextRequest) {
   let products: ProductRow[] = [];
   if (qkey) {
     products = allProducts.filter((r) => {
-      const k = (r as ProductRow & { _key?: string; _namekey?: string })._key || '';
-      const nk = (r as ProductRow & { _key?: string; _namekey?: string })._namekey || '';
-      return k.includes(qkey) || (nk && nk.includes(qkey));
+      const k = (r as ProductRow & { _key?: string; _namekey?: string; _brandkey?: string })._key || '';
+      const nk = (r as ProductRow & { _key?: string; _namekey?: string; _brandkey?: string })._namekey || '';
+      const bk = (r as ProductRow & { _key?: string; _namekey?: string; _brandkey?: string })._brandkey || '';
+      return k.includes(qkey) || (nk && nk.includes(qkey)) || (bk && bk.includes(qkey));
     });
     products.sort((a, b) => {
       const ak = (a as ProductRow & { _key?: string })._key === qkey ? 0 : 1;
@@ -399,6 +457,13 @@ export async function GET(req: NextRequest) {
   }
   sales.sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
+  // 施工Wiki検索: クエリ直接ヒット + 品番ヒット商品のブランド関連資料
+  const productBrands = new Set<string>();
+  for (const p of products) {
+    if (p.brand) productBrands.add(p.brand);
+  }
+  const wiki = searchWiki(variants, productBrands);
+
   // メーカー別掛率マップの要約文字列(社内表示用)
   const summary = customerKakeritsu ? makerKakeritsuSummary(customerKakeritsu.kakeritsu) : null;
 
@@ -424,6 +489,7 @@ export async function GET(req: NextRequest) {
     artifacts,
     events,
     sales: sales.slice(0, 50),
+    wiki,
     customer_pricing,
   });
 }

@@ -100,6 +100,17 @@ type CustomerPricing = {
   maker_kakeritsu_summary?: string | null;
 } | null;
 
+type WikiHit = {
+  id: string;
+  doc_title: string;
+  category: string | null;
+  maker: string | null;
+  brand: string | null;
+  page: number;
+  source_path: string;
+  snippet: string;
+};
+
 type LookupResult = {
   q: string;
   products: Product[];
@@ -108,6 +119,7 @@ type LookupResult = {
   artifacts: ArtifactHit[];
   events: EventHit[];
   sales: SalesHit[];
+  wiki: WikiHit[];
   customer_pricing: CustomerPricing;
 };
 
@@ -552,7 +564,8 @@ export default function LookupPage() {
 
   const totalHits = result
     ? result.products.length + result.customers.length + result.tasks.length +
-      result.artifacts.length + result.events.length + result.sales.length
+      result.artifacts.length + result.events.length + result.sales.length +
+      (result.wiki?.length ?? 0)
     : 0;
 
   const pricing = result?.customer_pricing ?? null;
@@ -1060,6 +1073,32 @@ export default function LookupPage() {
                       {(ev.site || ev.location) && (
                         <p className="text-xs text-slate-500 mt-0.5">📍 {ev.site || ev.location}</p>
                       )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {result.wiki && result.wiki.length > 0 && (
+              <>
+                <SectionTitle icon="📚" label="施工資料 (Wiki)" count={result.wiki.length} />
+                <div className="rounded-2xl bg-white border border-slate-200 divide-y divide-slate-100 shadow-sm">
+                  {result.wiki.map((w) => (
+                    <div key={w.id} className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {w.brand && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">{w.brand}</span>
+                        )}
+                        {w.maker && !w.brand && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{w.maker}</span>
+                        )}
+                        {w.category && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">{w.category}</span>
+                        )}
+                        <span className="text-xs font-semibold text-slate-700">{w.doc_title}</span>
+                        <span className="text-[10px] text-slate-400">p.{w.page}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 mt-1 whitespace-pre-wrap leading-relaxed">{w.snippet}</p>
                     </div>
                   ))}
                 </div>
