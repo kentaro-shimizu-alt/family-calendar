@@ -35,6 +35,15 @@ export default function PortalPage() {
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [priceMode, setPriceMode] = useState<'old' | 'new'>('old');
+  const [toast, setToast] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpSection, setHelpSection] = useState<string | null>(null);
+
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 1600); }
+  async function copyText(text: string, label: string) {
+    try { await navigator.clipboard.writeText(text); showToast(`${label}をコピーしました`); }
+    catch { showToast('コピーできませんでした'); }
+  }
 
   useEffect(() => {
     (async () => {
@@ -79,7 +88,7 @@ export default function PortalPage() {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] text-slate-500">テクネスト 材料価格ポータル</p>
+            <p className="text-[11px] text-slate-500">株式会社テクネスト パートナーポータル</p>
             <p className="text-sm font-bold text-slate-800">{me.company} {me.display_name} 専用</p>
           </div>
           <button onClick={logout} className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1 border border-slate-300 rounded">ログアウト</button>
@@ -99,6 +108,85 @@ export default function PortalPage() {
           <button type="submit" disabled={loading} className="px-4 py-2.5 rounded-lg bg-blue-600 text-white font-bold disabled:opacity-50">検索</button>
         </form>
         {error && <p className="mt-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1.5">{error}</p>}
+
+        {/* 検索ヘルプ（二段アコーディオン・既定で畳む） */}
+        <div className="mt-3 rounded-xl border border-slate-300 bg-white overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setHelpOpen((v) => !v)}
+            className="w-full px-3 py-2 flex items-center justify-between gap-2 hover:bg-slate-50"
+          >
+            <span className="text-xs font-bold text-slate-700">💡 検索できる内容を見る</span>
+            <span className="text-xs text-slate-400">{helpOpen ? '▲ 閉じる' : '▼ 開く'}</span>
+          </button>
+          {helpOpen && (
+            <div className="px-3 pb-3 space-y-2 border-t border-slate-200">
+              <HelpSection
+                id="enbi"
+                open={helpSection === 'enbi'}
+                onToggle={(o) => setHelpSection(o ? 'enbi' : null)}
+                icon="📦"
+                title="塩ビシート品番"
+                summary="約4,000品番（5メーカー）"
+              >
+                <ul className="text-xs text-slate-600 space-y-0.5 leading-relaxed">
+                  <li>・<b>3M ダイノック</b>（約1,200品番・通常品/機能品/ネオックス含む）</li>
+                  <li>・<b>サンゲツ リアテック</b>（約870品番）</li>
+                  <li>・<b>アイカ オルティノ</b>（約750品番・通常/VEX/HD・<span className="text-rose-600 font-bold">7/1値上げ対応</span>）</li>
+                  <li>・<b>タキロン ベルビアン</b>（約710品番）</li>
+                  <li>・<b>リンテック パロア</b>（約500品番・取扱終了）</li>
+                  <li className="text-slate-400 mt-1">例: <span className="font-mono">FW-1977</span> / <span className="font-mono">VKK6004</span> / <span className="font-mono">RH-7706</span></li>
+                </ul>
+              </HelpSection>
+              <HelpSection
+                id="glass"
+                open={helpSection === 'glass'}
+                onToggle={(o) => setHelpSection(o ? 'glass' : null)}
+                icon="🪟"
+                title="ガラスフィルム"
+                summary="約500品番（サンゲツ・3M）"
+              >
+                <ul className="text-xs text-slate-600 space-y-0.5 leading-relaxed">
+                  <li>・<b>サンゲツ クレアス</b>（160品番・GFから始まる）</li>
+                  <li>・<b>3M ファサラ</b>（221品番）/ <b>ティント</b>（116品番）/ その他フィルム</li>
+                  <li className="text-slate-400 mt-1">例: <span className="font-mono">GF1461</span> / <span className="font-mono">SH2FGSN-PT</span></li>
+                </ul>
+              </HelpSection>
+              <HelpSection
+                id="wiki"
+                open={helpSection === 'wiki'}
+                onToggle={(o) => setHelpSection(o ? 'wiki' : null)}
+                icon="📚"
+                title="施工資料・技術文書"
+                summary="71種類（PDF本文を検索）"
+              >
+                <ul className="text-xs text-slate-600 space-y-0.5 leading-relaxed">
+                  <li>・<b>3Mダイノック</b> 施工マニュアル / 各シリーズ製品説明書 / 下地適合表 / 認定法規 / EXR / WD</li>
+                  <li>・<b>サンゲツ リアテック</b> 施工マニュアル / 性能技術資料（耐摩耗/抗菌/接着力 等）</li>
+                  <li>・<b>アイカ オルティノ</b> 施工説明書 / HD・VEX・浴室 施工上の注意</li>
+                  <li>・<b>3M ガラスフィルム</b> 製品ガイド / 施工上の注意 / 繋ぎ合わせ施工</li>
+                  <li>・<b>サンゲツ クレアス</b> 施工要領書（一般 / Fog2300等特注）</li>
+                  <li>・<b>その他</b>: ホワイトボードフィルム / Dボード工法 / デザインガラスフィルム</li>
+                </ul>
+              </HelpSection>
+              <HelpSection
+                id="tips"
+                open={helpSection === 'tips'}
+                onToggle={(o) => setHelpSection(o ? 'tips' : null)}
+                icon="🔍"
+                title="検索のコツ"
+                summary="キーワード・例"
+              >
+                <ul className="text-xs text-slate-600 space-y-0.5 leading-relaxed">
+                  <li>・<b>品番</b>はハイフン有無・全角半角・大文字小文字どれでもOK（「FW1977」「ｆｗ-1977」も同じ）</li>
+                  <li>・<b>ブランド名</b>そのまま検索OK（例: 「クレアス」「オルティノ」「ダイノック」）</li>
+                  <li>・<b>施工キーワード</b>: 「下地」「ヘラ」「角」「目地」「接着」「メンテ」「カット」「貼り方」</li>
+                  <li>・<b>空白区切り</b>で複数語OK（例: 「オルティノ 浴室」「ガラス 下地」）</li>
+                </ul>
+              </HelpSection>
+            </div>
+          )}
+        </div>
 
         {loading && <p className="mt-6 text-center text-slate-400 text-sm">検索中…</p>}
 
@@ -121,7 +209,7 @@ export default function PortalPage() {
                 <h2 className="mt-4 mb-2 text-sm font-bold text-slate-600">🏷 品番・価格（{result.products.length}件）</h2>
                 <div className="space-y-3">
                   {result.products.map((p) => (
-                    <PortalProductCard key={p.hinban} p={p} priceMode={priceMode} />
+                    <PortalProductCard key={p.hinban} p={p} priceMode={priceMode} onCopy={copyText} />
                   ))}
                 </div>
               </>
@@ -161,11 +249,41 @@ export default function PortalPage() {
           </div>
         )}
       </div>
+
+      {/* トースト（コピー通知） */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-50 pointer-events-none">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
 
-function PortalProductCard({ p, priceMode }: { p: Product; priceMode: 'old' | 'new' }) {
+function HelpSection({ id, open, onToggle, icon, title, summary, children }: {
+  id: string; open: boolean; onToggle: (next: boolean) => void;
+  icon: string; title: string; summary: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => onToggle(!open)}
+        className="w-full px-3 py-2 flex items-center justify-between gap-2 hover:bg-slate-100 text-left"
+      >
+        <span className="flex items-center gap-2">
+          <span>{icon}</span>
+          <span className="text-xs font-bold text-slate-700">{title}</span>
+          <span className="text-[10px] text-slate-500">{summary}</span>
+        </span>
+        <span className="text-[10px] text-slate-400">{open ? '▲' : '▼'}</span>
+      </button>
+      {open && <div className="px-3 pb-3 pt-1 bg-white border-t border-slate-200">{children}</div>}
+    </div>
+  );
+}
+
+function PortalProductCard({ p, priceMode, onCopy }: { p: Product; priceMode: 'old' | 'new'; onCopy: (text: string, label: string) => void }) {
   const [qtyStr, setQtyStr] = useState('');
   const [marginStr, setMarginStr] = useState('');
 
@@ -262,14 +380,24 @@ function PortalProductCard({ p, priceMode }: { p: Product; priceMode: 'old' | 'n
           </div>
           {(qty != null || margin != null) && (
             <div className="grid grid-cols-2 gap-2 mt-2 text-center">
-              <div className="rounded-xl bg-white border border-blue-200 px-2 py-2">
+              <div className="rounded-xl bg-white border border-blue-200 px-2 py-2 relative">
                 <p className="text-[11px] text-slate-500">貴社仕入合計(税別)</p>
                 <p className="font-bold text-slate-800">{selfTotal != null ? yen(selfTotal) : '−'}</p>
                 {qty != null && unitMeter != null && (
                   <p className="text-[10px] text-slate-400">{yen(unitMeter)}/m × {qty}m</p>
                 )}
+                {selfTotal != null && qty != null && unitMeter != null && (
+                  <button
+                    type="button"
+                    onClick={() => onCopy(
+                      `${p.hinban}　${qty}m × ${unitMeter.toLocaleString('ja-JP')}円/m = ${selfTotal.toLocaleString('ja-JP')}円(税別)`,
+                      '貴社仕入合計'
+                    )}
+                    className="mt-1 w-full text-[11px] px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  >📋 コピー</button>
+                )}
               </div>
-              <div className="rounded-xl bg-emerald-50 border border-emerald-300 px-2 py-2">
+              <div className="rounded-xl bg-emerald-50 border border-emerald-300 px-2 py-2 relative">
                 <p className="text-[11px] text-emerald-700">お客様向け売値(税別)</p>
                 <p className="font-bold text-emerald-800 text-base">
                   {clientUnit != null ? `${yen(clientUnit)}/m` : '−'}
@@ -279,6 +407,16 @@ function PortalProductCard({ p, priceMode }: { p: Product; priceMode: 'old' | 'n
                 )}
                 {margin != null && unitMeter != null && (
                   <p className="text-[10px] text-emerald-600 mt-0.5">粗利率 {margin}% で計算</p>
+                )}
+                {clientUnit != null && qty != null && clientTotal != null && (
+                  <button
+                    type="button"
+                    onClick={() => onCopy(
+                      `${p.hinban}　${qty}m × ${clientUnit.toLocaleString('ja-JP')}円/m = ${clientTotal.toLocaleString('ja-JP')}円(税別)`,
+                      'お客様向け売値'
+                    )}
+                    className="mt-1 w-full text-[11px] px-2 py-1 rounded bg-emerald-200 hover:bg-emerald-300 text-emerald-900 font-bold"
+                  >📋 コピー</button>
                 )}
               </div>
             </div>

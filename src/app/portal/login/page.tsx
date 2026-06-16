@@ -34,8 +34,9 @@ export default function PortalLoginPage() {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
-        <h1 className="text-xl font-bold text-slate-800 text-center">テクネスト 材料価格ポータル</h1>
-        <p className="text-xs text-slate-500 text-center mt-1">ご登録のID・パスワードでお入りください</p>
+        <h1 className="text-xl font-bold text-slate-800 text-center">株式会社テクネスト</h1>
+        <p className="text-base font-bold text-slate-700 text-center mt-0.5">パートナーポータル</p>
+        <p className="text-xs text-slate-500 text-center mt-2">ご登録のID・パスワードでお入りください</p>
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-3">
           <div>
