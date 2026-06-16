@@ -516,6 +516,12 @@ export default function LookupPage() {
   const [toast, setToast] = useState<string | null>(null);
   // 価格改定トグル(オルティノ7/1) — 'old'=旧価格 / 'new'=新価格 DT-20260617-005
   const [priceMode, setPriceMode] = useState<'old' | 'new'>('old');
+  // ポータルアカウント(社内秘) DT-20260617-006
+  type PortalAccount = { customer_id: string; company: string | null; display_name: string; password: string; created_at: string; last_login_at: string | null };
+  const [portalAccounts, setPortalAccounts] = useState<PortalAccount[] | null>(null);
+  const [portalLoginUrl, setPortalLoginUrl] = useState('');
+  const [showPortalAccounts, setShowPortalAccounts] = useState(false);
+  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
 
   // ---- 自然文(しゃべり言葉)検索モードの状態 ----
   const [nlQ, setNlQ] = useState('');
@@ -530,6 +536,14 @@ export default function LookupPage() {
       .then((r) => (r.ok ? r.json() : { customers: [] }))
       .then((j) => setCustomerOptions(Array.isArray(j.customers) ? j.customers : []))
       .catch(() => setCustomerOptions([]));
+    // ポータルアカウント一覧(社内秘・家族認証下のみ取得可能)
+    fetch('/api/portal/accounts', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : { accounts: [], portal_login_url: '' }))
+      .then((j) => {
+        setPortalAccounts(Array.isArray(j.accounts) ? j.accounts : []);
+        setPortalLoginUrl(j.portal_login_url || '');
+      })
+      .catch(() => setPortalAccounts([]));
   }, []);
 
   function showToast(msg: string) {
@@ -933,6 +947,85 @@ export default function LookupPage() {
           <div className="mt-8 px-4 py-8 rounded-2xl bg-white border-2 border-slate-200 text-center">
             <p className="text-lg font-bold text-slate-700">「{result.q}」は該当なし</p>
             <p className="text-sm text-slate-500 mt-1">品番・顧客名の表記を変えて試してください</p>
+          </div>
+        )}
+
+        {/* ポータルアカウント一覧(社内秘・家族認証下のみ表示) DT-20260617-006 */}
+        {portalAccounts && portalAccounts.length > 0 && (
+          <div className="mt-6 rounded-2xl border-2 border-red-300 bg-red-50/30 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowPortalAccounts((v) => !v)}
+              className="w-full px-4 py-3 flex items-center justify-between gap-2 hover:bg-red-50"
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-lg">🔐</span>
+                <span className="text-sm font-bold text-red-900">顧客ポータル アカウント一覧</span>
+                <span className="text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded">社内秘・絶対社外秘</span>
+                <span className="text-xs text-slate-500">({portalAccounts.length}件)</span>
+              </span>
+              <span className="text-xs text-red-700">{showPortalAccounts ? '▲ 閉じる' : '▼ 開く'}</span>
+            </button>
+            {showPortalAccounts && (
+              <div className="px-4 pb-4">
+                <p className="text-[11px] text-red-700 mb-2">
+                  ⚠ パスワードは顧客本人専用。LINE等で送る時以外は表示しないでください。
+                </p>
+                {portalLoginUrl && (
+                  <p className="text-[11px] text-slate-600 mb-2">
+                    ログインURL（顧客に渡す）：<span className="font-mono break-all">{portalLoginUrl}</span>
+                  </p>
+                )}
+                <div className="space-y-2">
+                  {portalAccounts.map((a) => {
+                    const revealed = revealedPasswords[a.customer_id];
+                    return (
+                      <div key={a.customer_id} className="rounded-xl bg-white border border-red-200 p-3">
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div>
+                            <p className="text-sm font-bold text-slate-800">
+                              {a.company} <span className="text-slate-600 font-normal">{a.display_name}</span>
+                            </p>
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                              登録 {fmtDate(a.created_at)}
+                              {a.last_login_at && ` ・最終ログイン ${fmtDate(a.last_login_at)}`}
+                            </p>
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">
+                            {a.customer_id}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-[auto_1fr_auto] gap-2 mt-2 text-xs items-center">
+                          <span className="text-slate-500">ID</span>
+                          <span className="font-mono font-bold text-slate-800">{a.customer_id}</span>
+                          <button
+                            type="button"
+                            onClick={() => copyText(a.customer_id, `ID ${a.customer_id}`)}
+                            className="px-2 py-1 rounded bg-blue-100 text-blue-700 font-bold text-[10px]"
+                          >📋</button>
+                          <span className="text-slate-500">パスワード</span>
+                          <span className="font-mono font-bold text-slate-800">
+                            {revealed ? a.password : '••••••••••••••••'}
+                          </span>
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => setRevealedPasswords((s) => ({ ...s, [a.customer_id]: !s[a.customer_id] }))}
+                              className="px-2 py-1 rounded bg-slate-100 text-slate-700 font-bold text-[10px]"
+                            >{revealed ? '隠す' : '表示'}</button>
+                            <button
+                              type="button"
+                              onClick={() => copyText(a.password, `パスワード ${a.customer_id}`)}
+                              className="px-2 py-1 rounded bg-blue-100 text-blue-700 font-bold text-[10px]"
+                            >📋</button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

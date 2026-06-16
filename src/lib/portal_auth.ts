@@ -23,8 +23,9 @@ export type PortalUserRecord = {
   customer_id: string;       // C024 等
   company: string;           // 株式会社ウェイアウト
   display_name: string;      // 森河様
-  password_hash: string;     // hex
-  password_salt: string;     // hex
+  password_hash: string;     // hex (scrypt・認証用)
+  password_salt: string;     // hex (scrypt salt)
+  password_enc?: string;     // base64 (AES-256-GCM 暗号化平文・健太郎さんが一覧で再確認するため。fc_auth下のみ復号して返す)
   created_at: string;        // ISO
   last_login_at: string | null;
 };
@@ -51,6 +52,38 @@ export function verifyPassword(password: string, salt: string, expectedHash: str
     return crypto.timingSafeEqual(computed, expected);
   } catch {
     return false;
+  }
+}
+
+// ---------- AES-256-GCM パスワード可逆暗号化（健太郎さんが一覧で再確認するため） ----------
+// 鍵 = scryptSync(SESSION_SECRET, "tn-portal-enc-v1", 32)
+// 形式 = base64( iv(12) || tag(16) || ciphertext )
+const ENC_KEY_INFO = 'tn-portal-enc-v1';
+function getEncKey(): Buffer {
+  return crypto.scryptSync(getSecret(), ENC_KEY_INFO, 32);
+}
+export function encryptString(plain: string): string {
+  const key = getEncKey();
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const ct = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return Buffer.concat([iv, tag, ct]).toString('base64');
+}
+export function decryptString(b64: string): string | null {
+  try {
+    const buf = Buffer.from(b64, 'base64');
+    if (buf.length < 12 + 16 + 1) return null;
+    const iv = buf.subarray(0, 12);
+    const tag = buf.subarray(12, 28);
+    const ct = buf.subarray(28);
+    const key = getEncKey();
+    const dec = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    dec.setAuthTag(tag);
+    const pt = Buffer.concat([dec.update(ct), dec.final()]);
+    return pt.toString('utf8');
+  } catch {
+    return null;
   }
 }
 
