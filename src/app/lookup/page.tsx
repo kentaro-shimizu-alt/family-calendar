@@ -392,7 +392,7 @@ function ProductCard({
           <p className="font-bold text-emerald-800 text-lg">
             {p.customer_meter_tanka != null
               ? `${yen(p.customer_meter_tanka)}/m`
-              : p.jodai_m2 == null
+              : String(p.toriatsukai || '').includes('ガラス') || p.jodai_m2 == null
                 ? '掛率適用外（品番×幅の固定売値）'
                 : '個別掛率未登録（標準売値を参照）'}
           </p>

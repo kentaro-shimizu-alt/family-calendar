@@ -323,7 +323,10 @@ export async function GET(req: NextRequest) {
     let customer_meter_tanka: number | null = null;
     let internal_customer_pt: number | null = null;
     let internal_customer_pt_source: string | null = null;
-    if (selectedCustomer && rest.jodai_m2 != null) {
+    // ガラスフィルム(クレアス等)は上代を持つが幅が品番毎に違い、塩ビ式(幅1.2m固定×掛率)が当てはまらない。
+    // toriatsukai に「ガラス」を含む品番は顧客別売値の自動計算をしない(meter_tanka=固定売値をそのまま使う)。
+    const isGlassFixed = String(rest.toriatsukai || '').includes('ガラス');
+    if (selectedCustomer && rest.jodai_m2 != null && !isGlassFixed) {
       // ①メーカー別掛率マップから引く(品番のmaker/brand/series/hinbanで該当ptを選ぶ)
       if (customerKakeritsu) {
         const picked = pickCustomerPt(
