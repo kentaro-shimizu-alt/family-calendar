@@ -33,6 +33,9 @@ export async function GET(req: NextRequest) {
       password: v.password_enc ? (decryptString(v.password_enc) || '(復号失敗)') : '(暗号化版なし・再登録要)',
       created_at: v.created_at,
       last_login_at: v.last_login_at,
+      login_count: v.login_count || 0,
+      search_count: v.search_count || 0,
+      last_search_at: v.last_search_at || null,
     }))
     .sort((a, b) => a.customer_id.localeCompare(b.customer_id));
   return NextResponse.json({

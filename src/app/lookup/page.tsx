@@ -517,7 +517,7 @@ export default function LookupPage() {
   // 価格改定トグル(オルティノ7/1) — 'old'=旧価格 / 'new'=新価格 DT-20260617-005
   const [priceMode, setPriceMode] = useState<'old' | 'new'>('old');
   // ポータルアカウント(社内秘) DT-20260617-006
-  type PortalAccount = { customer_id: string; company: string | null; display_name: string; password: string; created_at: string; last_login_at: string | null };
+  type PortalAccount = { customer_id: string; company: string | null; display_name: string; password: string; created_at: string; last_login_at: string | null; login_count: number; search_count: number; last_search_at: string | null };
   const [portalAccounts, setPortalAccounts] = useState<PortalAccount[] | null>(null);
   const [portalLoginUrl, setPortalLoginUrl] = useState('');
   const [showPortalAccounts, setShowPortalAccounts] = useState(false);
@@ -989,6 +989,11 @@ export default function LookupPage() {
                             <p className="text-[11px] text-slate-500 mt-0.5">
                               登録 {fmtDate(a.created_at)}
                               {a.last_login_at && ` ・最終ログイン ${fmtDate(a.last_login_at)}`}
+                            </p>
+                            <p className="text-[11px] text-slate-600 mt-0.5 flex gap-3 flex-wrap">
+                              <span>📊 ログイン <b className="text-slate-800">{a.login_count}</b>回</span>
+                              <span>🔍 検索 <b className="text-slate-800">{a.search_count}</b>回</span>
+                              {a.last_search_at && <span className="text-slate-400">最終検索 {fmtDate(a.last_search_at)}</span>}
                             </p>
                           </div>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-300">

@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
-import { verifyPortalToken, getPortalUser, PORTAL_COOKIE_NAME } from '@/lib/portal_auth';
+import { verifyPortalToken, getPortalUser, recordSearch, PORTAL_COOKIE_NAME } from '@/lib/portal_auth';
 import { CUSTOMER_KAKERITSU, pickCustomerPt } from '@/lib/customer_kakeritsu';
 import wikiIndexRaw from '@/lib/wiki_index.json';
 import priceRevisionRaw from '@/lib/price_revision.json';
@@ -102,6 +102,9 @@ export async function GET(req: NextRequest) {
   const raw = (url.searchParams.get('q') || '').trim();
   if (!raw) return NextResponse.json({ q: '', products: [], wiki: [], customer: { id: user.customer_id, company: user.company } });
   if (raw.length > 80) return NextResponse.json({ error: 'query too long' }, { status: 400 });
+
+  // 使用回数追跡（fire-and-forget・検索結果には影響させない）
+  recordSearch(cid).catch(() => undefined);
 
   const qn = nfkc(raw);
   const qkey = hinbanKey(raw);

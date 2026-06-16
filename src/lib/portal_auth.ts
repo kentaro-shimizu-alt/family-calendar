@@ -28,6 +28,10 @@ export type PortalUserRecord = {
   password_enc?: string;     // base64 (AES-256-GCM 暗号化平文・健太郎さんが一覧で再確認するため。fc_auth下のみ復号して返す)
   created_at: string;        // ISO
   last_login_at: string | null;
+  // 使用回数追跡（健太郎さん指示2026-06-17）
+  login_count?: number;        // ログイン成功した累計回数
+  search_count?: number;       // 品番検索した累計回数
+  last_search_at?: string | null; // 最後に検索した日時
 };
 
 function getSecret(): string {
@@ -154,5 +158,15 @@ export async function updateLastLogin(customer_id: string): Promise<void> {
   const u = await getPortalUser(customer_id);
   if (!u) return;
   u.last_login_at = new Date().toISOString();
+  u.login_count = (u.login_count || 0) + 1;
+  await savePortalUser(u);
+}
+
+/** 検索した時に呼ぶ（search_count++ / last_search_at = now） */
+export async function recordSearch(customer_id: string): Promise<void> {
+  const u = await getPortalUser(customer_id);
+  if (!u) return;
+  u.search_count = (u.search_count || 0) + 1;
+  u.last_search_at = new Date().toISOString();
   await savePortalUser(u);
 }
