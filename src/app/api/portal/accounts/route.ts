@@ -40,6 +40,6 @@ export async function GET(req: NextRequest) {
     .sort((a, b) => a.customer_id.localeCompare(b.customer_id));
   return NextResponse.json({
     accounts,
-    portal_login_url: 'https://family-calendar.tecnest.biz/portal/login',
+    portal_login_url: 'https://portal.tecnest.biz/portal/login',
   });
 }
