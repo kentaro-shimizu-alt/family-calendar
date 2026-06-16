@@ -136,8 +136,8 @@ export async function GET(req: NextRequest) {
     } else if (brandName.includes('パロア') || brandName.includes('ﾊﾟﾛｱ')) {
       customer_note = '取扱停止中・都度価格を確認';
     } else if (hbU.endsWith('WD')) {
-      // WDシリーズ(玄関ドア用)は送料がかかる（健太郎さん2026-06-17）。金額は要確定→確定したらここに記載
-      customer_note = '送料・梱包費が別途かかります';
+      // WDシリーズ(玄関ドア用)は送料1,500円（健太郎さん2026-06-17確定）
+      customer_note = '送料・梱包費 1,500円が別途かかります';
     }
     // 品番末尾から特殊掛品の用途説明を導出(PDFカタログレベルの公開情報・OK)
     // 出典: hinban-suffix-prefix-pattern.md / 各シリーズ製品説明書PDF
