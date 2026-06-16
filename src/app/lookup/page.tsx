@@ -32,6 +32,16 @@ type Product = {
   internal_cost_m?: number | null;
   internal_shiire_pt?: number | null;
   internal_cost_source?: string | null;
+  // 価格改定(オルティノ7/1) — 旧/新トグル表示用 DT-20260617-005
+  price_revision?: {
+    effective_date: string;
+    brand: string;
+    kubun: string;
+    old_pt: number;
+    new_pt: number;
+    old_meter: number;
+    new_meter: number;
+  } | null;
 };
 
 type Tantosha = { myoji: string | null; tel: string | null; email: string | null };
@@ -316,6 +326,7 @@ function ProductCard({
   checked,
   onToggle,
   onCopy,
+  priceMode,
 }: {
   p: Product;
   pricing: CustomerPricing;
@@ -323,11 +334,17 @@ function ProductCard({
   checked: boolean;
   onToggle: (v: boolean) => void;
   onCopy: (text: string, label: string) => void;
+  priceMode: 'old' | 'new';
 }) {
   // m数(数量)→金額計算 (DT-20260610-010)
   const [qtyStr, setQtyStr] = useState('');
   const qty = parseQty(qtyStr);
-  const unit = unitForProduct(p);
+  // priceMode='new' かつ オルティノ改定対象品番 → meter_tanka を 新meterに差し替え
+  const rev = p.price_revision;
+  const effective: Product = rev && priceMode === 'new'
+    ? { ...p, meter_tanka: rev.new_meter, hanbai_pt: rev.new_pt }
+    : p;
+  const unit = unitForProduct(effective);
   const calc = qty != null && unit != null ? calcKingaku(unit, qty) : null;
   return (
     <div className="rounded-2xl bg-white border-2 border-blue-300 p-4 shadow-sm">
@@ -360,15 +377,25 @@ function ProductCard({
           <p className="text-[11px] text-slate-500">上代(円/㎡)</p>
           <p className="font-bold text-slate-800">{yen(p.jodai_m2)}</p>
         </div>
-        <div className="rounded-xl bg-blue-50 border border-blue-200 px-1 py-2">
-          <p className="text-[11px] text-slate-500">標準ﾒｰﾀｰ単価(税別)</p>
-          <p className="font-bold text-blue-800">{p.meter_tanka != null ? `${yen(p.meter_tanka)}/m` : '−'}</p>
+        <div className={`rounded-xl border px-1 py-2 ${rev ? (priceMode === 'new' ? 'bg-rose-50 border-rose-300' : 'bg-blue-50 border-blue-200') : 'bg-blue-50 border-blue-200'}`}>
+          <p className="text-[11px] text-slate-500">
+            {rev ? (priceMode === 'new' ? `新ﾒｰﾀｰ単価(${rev.effective_date}〜)` : '旧ﾒｰﾀｰ単価(税別)') : '標準ﾒｰﾀｰ単価(税別)'}
+          </p>
+          <p className={`font-bold ${rev && priceMode === 'new' ? 'text-rose-800' : 'text-blue-800'}`}>
+            {effective.meter_tanka != null ? `${yen(effective.meter_tanka)}/m` : '−'}
+          </p>
         </div>
         <div className="rounded-xl bg-violet-50 border border-violet-200 px-1 py-2">
           <p className="text-[11px] text-slate-500">HP販売価格</p>
           <p className="font-bold text-violet-800">{p.hp_price_m != null ? `${yen(p.hp_price_m)}/m` : '−'}</p>
         </div>
       </div>
+      {rev && (
+        <div className="mt-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-300 text-[11px] text-amber-800">
+          <span className="font-bold">🔄 {rev.brand}価格改定対象 ({rev.kubun})</span>：
+          旧 {yen(rev.old_meter)}/m (pt {rev.old_pt}) → 新 {yen(rev.new_meter)}/m (pt {rev.new_pt}) ・適用 {rev.effective_date}〜
+        </div>
+      )}
 
       {/* 仕入値(社内根拠) — 認証済みのみ表示・お客様送付用コピーには絶対含めない・健太郎さん指示2026-06-11 */}
       {p.internal_cost_m != null && (
@@ -487,6 +514,8 @@ export default function LookupPage() {
 
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [toast, setToast] = useState<string | null>(null);
+  // 価格改定トグル(オルティノ7/1) — 'old'=旧価格 / 'new'=新価格 DT-20260617-005
+  const [priceMode, setPriceMode] = useState<'old' | 'new'>('old');
 
   // ---- 自然文(しゃべり言葉)検索モードの状態 ----
   const [nlQ, setNlQ] = useState('');
@@ -802,6 +831,7 @@ export default function LookupPage() {
                           checked={!!selected[p.hinban]}
                           onToggle={(v) => setSelected((s) => ({ ...s, [p.hinban]: v }))}
                           onCopy={copyText}
+                          priceMode={priceMode}
                         />
                       ))}
                     </div>
@@ -911,6 +941,23 @@ export default function LookupPage() {
             {result.products.length > 0 && (
               <>
                 <SectionTitle icon="🏷" label="品番・価格" count={result.products.length} />
+                {result.products.some((p) => p.price_revision) && (
+                  <div className="mb-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-300 flex items-center justify-between gap-2 flex-wrap">
+                    <span className="text-xs font-bold text-amber-900">🔄 価格改定（オルティノ 2026-07-01〜）</span>
+                    <div className="inline-flex rounded-lg overflow-hidden border border-amber-400">
+                      <button
+                        type="button"
+                        onClick={() => setPriceMode('old')}
+                        className={`px-3 py-1.5 text-xs font-bold ${priceMode === 'old' ? 'bg-blue-600 text-white' : 'bg-white text-blue-700'}`}
+                      >旧価格</button>
+                      <button
+                        type="button"
+                        onClick={() => setPriceMode('new')}
+                        className={`px-3 py-1.5 text-xs font-bold ${priceMode === 'new' ? 'bg-rose-600 text-white' : 'bg-white text-rose-700'}`}
+                      >新価格(7/1〜)</button>
+                    </div>
+                  </div>
+                )}
                 {selectedProducts.length > 0 && (
                   <div className="mb-2 px-3 py-2 rounded-xl bg-violet-50 border border-violet-200 text-xs text-violet-800 flex items-center justify-between gap-2 flex-wrap">
                     <span className="font-bold">{selectedProducts.length}件 選択中</span>
@@ -932,6 +979,7 @@ export default function LookupPage() {
                       checked={!!selected[p.hinban]}
                       onToggle={(v) => setSelected((s) => ({ ...s, [p.hinban]: v }))}
                       onCopy={copyText}
+                      priceMode={priceMode}
                     />
                   ))}
                 </div>

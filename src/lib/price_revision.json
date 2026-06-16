@@ -1,0 +1,5665 @@
+{
+ "effective_date": "2026-07-01",
+ "maker": "アイカ",
+ "brand": "オルティノ",
+ "note": "オルティノ7/1値上げ(上代据置・通常販売pt 一般36→38.8/VEX44→49.4/HD47→52.9・粗利15%固定)。出典=価格表v2(顧客送付済)/DT-20260611-005。",
+ "count": 707,
+ "items": {
+  "VBK6004": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2290,
+   "new_meter": 2470,
+   "jodai_m2": 5300
+  },
+  "VBK6008": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2290,
+   "new_meter": 2470,
+   "jodai_m2": 5300
+  },
+  "VBK6300": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2290,
+   "new_meter": 2470,
+   "jodai_m2": 5300
+  },
+  "VBM18201": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBM18204": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBM18207": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18306A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18307A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18308A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18309A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18310A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18322C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18324C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18325C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18326C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18327C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18328C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBQ18375C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBW18300A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBW18301A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBW18302A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBW18303A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBW18304A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VBW18305A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3500,
+   "new_meter": 3780,
+   "jodai_m2": 8100
+  },
+  "VDC18200HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDC18218HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDC18219HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDK6000HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 4180,
+   "new_meter": 4700,
+   "jodai_m2": 7400
+  },
+  "VDK6306HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 4180,
+   "new_meter": 4700,
+   "jodai_m2": 7400
+  },
+  "VDL18208HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDL18218HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDM18200HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDM18204HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDV18205HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDV18211HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDV18220HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDW2050HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDW2052HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDW2054HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VDW635HD": {
+   "kubun": "HD",
+   "old_pt": 47,
+   "new_pt": 52.9,
+   "old_meter": 6320,
+   "new_meter": 7110,
+   "jodai_m2": 11200
+  },
+  "VEX18000M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX18016M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2030M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2056M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2058M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2061M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2062M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2063M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2081M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX2225M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX461M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX508M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX509M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX544M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VEX573M": {
+   "kubun": "VEX",
+   "old_pt": 44,
+   "new_pt": 49.4,
+   "old_meter": 4860,
+   "new_meter": 5460,
+   "jodai_m2": 9200
+  },
+  "VG-10008A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10009A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10010A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10011A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10038A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10039A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10040A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10041A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10042A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10191A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10202A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10203A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10204A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10205A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10206A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10267A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10268A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10272A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10273A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10315A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-10316A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18012A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18019A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18020A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18021A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18022A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18024A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18025A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18030A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18031A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18032A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18033A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18034A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18035A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18036A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18037A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18048A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18049A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18050A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18051A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18052A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18053A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18054A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18055A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18056A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18057A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18059A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18060A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18064A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18090A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18091A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18093A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18097A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18098A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18100A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18101A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18102A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18103A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18104A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18105A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18106A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18107A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18161A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18163A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18250A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18251A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18252A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18253A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18255A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18256A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18259A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18260A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18262C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18263C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18264C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18329A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18330A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18347A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18348A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18349C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-18350C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-2225A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-2774A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-293A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-300A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-301A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-462A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-557A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-558A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-559A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-571A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-572A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-573A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-587A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-589A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-593A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-612A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-635A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-656A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-664A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VG-698A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VGM18180C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VGM18181C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VGM18183C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VGM18184A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VGM18186A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VGM18197A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VGM18199A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VGP18432A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5400,
+   "new_meter": 5820,
+   "jodai_m2": 12500
+  },
+  "VGP18433A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5400,
+   "new_meter": 5820,
+   "jodai_m2": 12500
+  },
+  "VGP18434A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5400,
+   "new_meter": 5820,
+   "jodai_m2": 12500
+  },
+  "VGP18435A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5400,
+   "new_meter": 5820,
+   "jodai_m2": 12500
+  },
+  "VGP18436A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5400,
+   "new_meter": 5820,
+   "jodai_m2": 12500
+  },
+  "VGP18437A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5400,
+   "new_meter": 5820,
+   "jodai_m2": 12500
+  },
+  "VIK6000MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4070,
+   "new_meter": 4380,
+   "jodai_m2": 9400
+  },
+  "VIK6302MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4070,
+   "new_meter": 4380,
+   "jodai_m2": 9400
+  },
+  "VIK6400MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4070,
+   "new_meter": 4380,
+   "jodai_m2": 9400
+  },
+  "VIP10005MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP10048MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP10118MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP10190MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP10245MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP10269MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP10270MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP10271MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12000MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12001MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12002MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12003MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12010MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12011MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12012MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12020MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12021MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12022MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12030MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12031MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12032MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12040MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12041MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12042MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12050MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP12051MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18003MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18004MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18005MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18331MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18332MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18333MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18334MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18335MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18336MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18337MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18338MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18339MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP18340MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2050MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2051MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2052MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2053MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2054MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2055MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2060MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2061MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2062MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2063MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP2064MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP459MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP460MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP508MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP509MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP531MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP533MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP536MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIP537MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10125MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10183MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10186MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10233MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10235MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10237MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10333MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10334MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10339MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10340MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10344MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10345MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10346MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10347MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ10348MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ1788MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18373MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18374MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18415MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18416MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18417MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18418MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18419MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18420MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18427MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ18428MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ800MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ805MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ887MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VIQ897MT": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4760,
+   "new_meter": 5130,
+   "jodai_m2": 11000
+  },
+  "VJC18215F": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5230,
+   "new_meter": 5640,
+   "jodai_m2": 12100
+  },
+  "VJQ18150E": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJQ18151E": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJQ18152E": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJQ18153E": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJQ18154F": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJQ18155F": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJQ18156F": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJQ18157F": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5660,
+   "new_meter": 6100,
+   "jodai_m2": 13100
+  },
+  "VJV18215F": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 5230,
+   "new_meter": 5640,
+   "jodai_m2": 12100
+  },
+  "VKG6000A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VKG6400A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4450,
+   "new_meter": 4800,
+   "jodai_m2": 10300
+  },
+  "VKK18600": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18601": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18602": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18603": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18604": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18605": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18606": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18607": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18611": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18612": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18613": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK18614": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6000": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6001": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6002": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6003": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6004": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6005": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6006": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6007": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6008": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6009": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6011": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6015": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6018": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6108": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6110": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6111": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6113": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6114": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6115": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6116": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6117": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6118": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6119": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6200": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6201": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6203": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6204": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6205": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6206": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6207": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6300": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6301": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6302": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6303": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6305": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6306": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6400": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6500": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6501": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6503": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6504": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6505": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6507": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6509": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6514": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6515": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6521": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6522": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6523": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6525": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6527": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6532": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6533": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6534": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6536": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6538": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6539": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6542": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6600": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6602": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6603": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6604": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6605": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6606": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6608": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6610": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6611": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6612": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6613": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6615": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6618": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6621": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6624": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6625": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6632": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6633": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKK6900": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2250,
+   "new_meter": 2430,
+   "jodai_m2": 5200
+  },
+  "VKM6000": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2470,
+   "new_meter": 2660,
+   "jodai_m2": 5700
+  },
+  "VKM6400": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 2470,
+   "new_meter": 2660,
+   "jodai_m2": 5700
+  },
+  "VKN6200": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3120,
+   "new_meter": 3360,
+   "jodai_m2": 7200
+  },
+  "VKN6206": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3120,
+   "new_meter": 3360,
+   "jodai_m2": 7200
+  },
+  "VKN6400": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3120,
+   "new_meter": 3360,
+   "jodai_m2": 7200
+  },
+  "VMC18200": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMC18217": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMC18218": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMC18219": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18200": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18202": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18204": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18206": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18218": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18659": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18660": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18665": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VML18670": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18200": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18201": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18202": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18203": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18204": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18206": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18207": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18208": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18217": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18218": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18658": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18661": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18662": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18668": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18669": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMM18670": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMR18659": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMR18661": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMR18663": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18200": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18203": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18206": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18212": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18213": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18217": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18218": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18220": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18660": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMV18663": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMW18201": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMW18206": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VMW18209": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3590,
+   "new_meter": 3870,
+   "jodai_m2": 8300
+  },
+  "VN-6200": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3120,
+   "new_meter": 3360,
+   "jodai_m2": 7200
+  },
+  "VN-6206": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3120,
+   "new_meter": 3360,
+   "jodai_m2": 7200
+  },
+  "VN-6400": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3120,
+   "new_meter": 3360,
+   "jodai_m2": 7200
+  },
+  "VQ-10067C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10068C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10122C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10179C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10239C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10240C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10281C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10282C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10283C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10312C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-10313C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-15012C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18066C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18067C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18068A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18069A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18071A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18072C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18075A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18076A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18077A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18079C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18080C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18084A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18085A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18086A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18089A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18112C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18113C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18115C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18116C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18117C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18118C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18120C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18121C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18123C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18128A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18132A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18133A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18138A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18139A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18140A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18141A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18144A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18145A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18146A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18149A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18158C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18159C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18160C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18172A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18174C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18176C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18178C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18351C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18352C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18353C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18354C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18355C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18356C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18357C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18358C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18359C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18360C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18361C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18362C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18363C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18364C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18365C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18366C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18367C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18368C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18369C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18370C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18371C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18372C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18376C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18377C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18378C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18380C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18381C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18382C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18383C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18384C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18385C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18386C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18387C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18388C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18391C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18392C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18393C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18394C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18395C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18396C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18397C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18398C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18399C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18401C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18402C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18403C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18404C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18405C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18406C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18407C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18408C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18409C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18410C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18411C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18412C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18429C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18430C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-18431C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-802C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-819C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQ-936C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3630,
+   "new_meter": 3920,
+   "jodai_m2": 8400
+  },
+  "VQF10242A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10243A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10244A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10297A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10298A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10299A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10301A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10304A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF10358A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18413C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18414C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18421C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18422C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18423C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18424C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18425C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQF18426C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 4150,
+   "new_meter": 4470,
+   "jodai_m2": 9600
+  },
+  "VQM18187A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VQM18188A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VQM18189A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VQM18195A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VQM18196A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VQM18221C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VQM18222C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VQM18223C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3940,
+   "new_meter": 4240,
+   "jodai_m2": 9100
+  },
+  "VW-10025C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10051C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10112A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10127C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10189C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10192C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10193C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10274C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-10310A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-118A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-146A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-147A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-1562A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-164A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-168A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-169A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-172A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18000A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18001A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18003A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18008A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18009A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18014C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18015C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18016C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18017C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18027C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18028C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18038C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18039C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18040C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18043C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18044C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18045C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18179A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18346C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-18379C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-1940C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2000A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2001A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2002A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2005C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2006C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2010A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2011A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2012A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2015A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2016A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2017A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2020A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2021A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2030A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2031A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2040A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2041A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2050A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2051A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2052A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2053A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2054A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2055A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2056A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2057A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2058A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2060A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2061A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2062A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2063A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2064A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2070A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2071A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2072A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2075C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2076C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2077C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2080A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2081A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2082A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2085A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2086A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2087A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2088A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2089A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2213A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2215A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2221A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2223A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2261A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2262A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2263A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2555C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2556C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2568A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2580A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-2600A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-363A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-384A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-398A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-399A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-403A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-404A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-408C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-409C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-420A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-421A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-426A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-456C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-459C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-460C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-461A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-468A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-469A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-470A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-489A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-495A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-499C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-508C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-509C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-511A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-512C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-513C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-516A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-519C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-525A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-528C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-531C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-532C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-533C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-534A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-535A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-538C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-539A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-540A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-543A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-544C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-555A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-568A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-578A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-583A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-646A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-647A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-650A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-652A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-654A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-672A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-676C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-682C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-683C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-695A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-697A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-699C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-703A": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  },
+  "VW-719C": {
+   "kubun": "一般",
+   "old_pt": 36,
+   "new_pt": 38.8,
+   "old_meter": 3200,
+   "new_meter": 3450,
+   "jodai_m2": 7400
+  }
+ }
+}

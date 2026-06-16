@@ -25,6 +25,13 @@ import { verifyToken } from '@/lib/auth';
 import { CUSTOMER_KAKERITSU, pickCustomerPt, makerKakeritsuSummary } from '@/lib/customer_kakeritsu';
 import { getInternalCost } from '@/lib/internal_cost';
 import wikiIndexRaw from '@/lib/wiki_index.json';
+import priceRevisionRaw from '@/lib/price_revision.json';
+
+// ---- オルティノ7/1価格改定(旧/新トグル用) DT-20260617-005 ----
+// 出典=価格表v2(顧客送付済2026-06-17)/DT-20260611-005。上代据置・通常販売pt変更のみ。
+type PriceRevItem = { kubun: string; old_pt: number; new_pt: number; old_meter: number; new_meter: number; jodai_m2: number };
+type PriceRevision = { effective_date: string; maker: string; brand: string; note: string; items: Record<string, PriceRevItem> };
+const PRICE_REV: PriceRevision = priceRevisionRaw as PriceRevision;
 
 // ---- 施工技術Wiki(PDF本文をそのまま抽出した検索インデックス・DT-20260617-003) ----
 // 生成元: C:\Users\film_\Documents\kuro\tools\build_wiki_index.py（PDFテキストをverbatim抽出）
@@ -348,6 +355,8 @@ export async function GET(req: NextRequest) {
     }
     // 仕入値(社内根拠) — 認証済みのみ表示・お客様送付用コピーには絶対含めない
     const cost = getInternalCost(rest.hinban);
+    // 価格改定(オルティノ7/1)情報 — 旧/新トグル表示用
+    const rev = PRICE_REV.items[rest.hinban] || null;
     return {
       ...rest,
       customer_meter_tanka, // 顧客別 売値メーター単価(税別) ※お客様に出してよい / pt null客 or 上代なし=null
@@ -356,6 +365,13 @@ export async function GET(req: NextRequest) {
       internal_cost_m: cost?.cost_m ?? null, // 仕入値(円/m・税別) ※社内メモ専用
       internal_shiire_pt: cost?.shiire_pt ?? null, // 仕入pt ※社内メモ専用(ガラスはnull=掛率なし)
       internal_cost_source: cost?.source ?? null, // 仕入ソース(ルールキー)
+      price_revision: rev ? {
+        effective_date: PRICE_REV.effective_date,
+        brand: PRICE_REV.brand,
+        kubun: rev.kubun,
+        old_pt: rev.old_pt, new_pt: rev.new_pt,
+        old_meter: rev.old_meter, new_meter: rev.new_meter,
+      } : null,
     };
   });
 
