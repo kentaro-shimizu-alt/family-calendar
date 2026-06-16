@@ -1,10 +1,11 @@
 'use client';
 
 // 顧客ポータル メインページ（DT-20260617-006）
-// - 自分の売値・上代・施工Wikiが見られる
-// - m数→自社売値合計、粗利%→客先売値（粗利率式: 売値 / (1 - 粗利%/100)）
+// - 自分の売値・上代が見られる
+// - m数→自社仕入合計、粗利%→客先売値（粗利率式: 売値 / (1 - 粗利%/100)）
 // - オルティノ7/1価格改定の旧/新トグル
-// - 仕入値/原価/HP販売価格などは一切表示しない（サーバー側で除外済み）
+// - 仕入値/原価/HP販売価格/DBのnote列などは一切表示しない（サーバー側で除外済み）
+// - 施工資料(Wiki)は抽出品質が不安定なため撤去（健太郎さん2026-06-17）
 
 import { FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -25,10 +26,10 @@ type Product = {
   customer_meter_tanka_new: number | null;
   price_revision: { effective_date: string; brand: string; kubun: string; old_pt: number; new_pt: number } | null;
 };
-type WikiHit = { id: string; doc_title: string; category: string | null; maker: string | null; brand: string | null; page: number; snippet: string };
-type Result = { q: string; customer: { id: string; company: string | null; display_name: string }; products: Product[]; wiki: WikiHit[] };
+type Result = { q: string; customer: { id: string; company: string | null; display_name: string }; products: Product[] };
 
 const yen = (v: number | null | undefined) => v == null || Number.isNaN(v) ? '−' : `¥${Math.round(v).toLocaleString('ja-JP')}`;
+const num = (v: number) => Math.round(v).toLocaleString('ja-JP');
 
 export default function PortalPage() {
   const router = useRouter();
@@ -41,7 +42,6 @@ export default function PortalPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpSection, setHelpSection] = useState<string | null>(null);
-  const [wikiOpen, setWikiOpen] = useState(false); // 施工資料は既定で畳む
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 1600); }
   async function copyText(text: string, label: string) {
@@ -157,23 +157,6 @@ export default function PortalPage() {
                 </ul>
               </HelpSection>
               <HelpSection
-                id="wiki"
-                open={helpSection === 'wiki'}
-                onToggle={(o) => setHelpSection(o ? 'wiki' : null)}
-                icon="📚"
-                title="施工資料・技術文書"
-                summary="71種類（PDF本文を検索）"
-              >
-                <ul className="text-xs text-slate-600 space-y-0.5 leading-relaxed">
-                  <li>・<b>3Mダイノック</b> 施工マニュアル / 各シリーズ製品説明書 / 下地適合表 / 認定法規 / EXR / WD</li>
-                  <li>・<b>サンゲツ リアテック</b> 施工マニュアル / 性能技術資料（耐摩耗/抗菌/接着力 等）</li>
-                  <li>・<b>アイカ オルティノ</b> 施工説明書 / HD・VEX・浴室 施工上の注意</li>
-                  <li>・<b>3M ガラスフィルム</b> 製品ガイド / 施工上の注意 / 繋ぎ合わせ施工</li>
-                  <li>・<b>サンゲツ クレアス</b> 施工要領書（一般 / Fog2300等特注）</li>
-                  <li>・<b>その他</b>: ホワイトボードフィルム / Dボード工法 / デザインガラスフィルム</li>
-                </ul>
-              </HelpSection>
-              <HelpSection
                 id="tips"
                 open={helpSection === 'tips'}
                 onToggle={(o) => setHelpSection(o ? 'tips' : null)}
@@ -184,8 +167,7 @@ export default function PortalPage() {
                 <ul className="text-xs text-slate-600 space-y-0.5 leading-relaxed">
                   <li>・<b>品番</b>はハイフン有無・全角半角・大文字小文字どれでもOK（「FW1977」「ｆｗ-1977」も同じ）</li>
                   <li>・<b>ブランド名</b>そのまま検索OK（例: 「クレアス」「オルティノ」「ダイノック」）</li>
-                  <li>・<b>施工キーワード</b>: 「下地」「ヘラ」「角」「目地」「接着」「メンテ」「カット」「貼り方」</li>
-                  <li>・<b>空白区切り</b>で複数語OK（例: 「オルティノ 浴室」「ガラス 下地」）</li>
+                  <li>・一部だけでもOK（例: 「FW」「GF1461」）</li>
                 </ul>
               </HelpSection>
             </div>
@@ -219,40 +201,7 @@ export default function PortalPage() {
               </>
             )}
 
-            {/* Wiki（既定で畳む・25件等多すぎ問題対策） */}
-            {result.wiki.length > 0 && (
-              <div className="mt-6 rounded-2xl border border-slate-200 bg-white overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setWikiOpen((v) => !v)}
-                  className="w-full px-4 py-3 flex items-center justify-between gap-2 hover:bg-slate-50"
-                >
-                  <span className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                    📚 施工資料 <span className="text-xs text-slate-500">（{result.wiki.length}件）</span>
-                  </span>
-                  <span className="text-xs text-slate-400">{wikiOpen ? '▲ 閉じる' : '▼ 開く'}</span>
-                </button>
-                {wikiOpen && (
-                  <div className="divide-y divide-slate-100 border-t border-slate-200">
-                    {result.wiki.map((w) => (
-                      <details key={w.id} className="px-4 py-2 group">
-                        <summary className="cursor-pointer list-none flex items-center gap-1.5 flex-wrap hover:bg-slate-50 -mx-2 px-2 py-1 rounded">
-                          <span className="text-[10px] text-slate-400 group-open:rotate-90 inline-block transition-transform">▶</span>
-                          {w.brand && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">{w.brand}</span>}
-                          {w.maker && !w.brand && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{w.maker}</span>}
-                          {w.category && <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">{w.category}</span>}
-                          <span className="text-xs font-semibold text-slate-700">{w.doc_title}</span>
-                          <span className="text-[10px] text-slate-400">p.{w.page}</span>
-                        </summary>
-                        <p className="text-xs text-slate-600 mt-1 whitespace-pre-wrap leading-relaxed pl-4">{w.snippet}</p>
-                      </details>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {result.products.length === 0 && result.wiki.length === 0 && (
+            {result.products.length === 0 && (
               <p className="mt-8 text-center text-slate-500 text-sm">「{result.q}」は該当ありません</p>
             )}
           </>
@@ -334,6 +283,39 @@ function PortalProductCard({ p, priceMode, onCopy }: { p: Product; priceMode: 'o
   const clientTotal = clientUnit != null && qty != null
     ? Math.floor((clientUnit * Math.round(qty * 10)) / 10)
     : null;
+
+  // 消費税10%（円未満切捨て）・税込
+  const selfTax = selfTotal != null ? Math.floor(selfTotal * 0.1) : null;
+  const selfZeikomi = selfTotal != null && selfTax != null ? selfTotal + selfTax : null;
+  const clientTax = clientTotal != null ? Math.floor(clientTotal * 0.1) : null;
+  const clientZeikomi = clientTotal != null && clientTax != null ? clientTotal + clientTax : null;
+
+  // コピー用の品名行（品番＋メーカー/ブランド）
+  const nameLine = `${p.hinban}${(p.maker || p.brand) ? `（${[p.maker, p.brand].filter(Boolean).join(' ')}）` : ''}`;
+
+  // 「貴社仕入」コピー（森河さん自身の控え用・税内訳つき）
+  function buildSelfCopy(): string {
+    if (qty == null || unitMeter == null || selfTotal == null) return '';
+    return [
+      `【仕入】${nameLine}`,
+      `仕入単価 ${num(unitMeter)}円/m（税別）× ${qty}m`,
+      `税別合計 ${num(selfTotal)}円`,
+      `消費税(10%) ${num(selfTax ?? 0)}円`,
+      `税込合計 ${num(selfZeikomi ?? selfTotal)}円`,
+    ].join('\n');
+  }
+
+  // 「お客様向け売値」コピー（森河さんの客先へそのまま出せる形・粗利等は出さない）
+  function buildClientCopy(): string {
+    if (qty == null || clientUnit == null || clientTotal == null) return '';
+    return [
+      nameLine,
+      `単価 ${num(clientUnit)}円/m（税別）× ${qty}m`,
+      `税別合計 ${num(clientTotal)}円`,
+      `消費税(10%) ${num(clientTax ?? 0)}円`,
+      `ご請求額(税込) ${num(clientZeikomi ?? clientTotal)}円`,
+    ].join('\n');
+  }
 
   const rev = p.price_revision;
 
@@ -421,29 +403,32 @@ function PortalProductCard({ p, priceMode, onCopy }: { p: Product; priceMode: 'o
           {(qty != null || margin != null) && (
             <div className="grid grid-cols-2 gap-2 mt-2 text-center">
               <div className="rounded-xl bg-white border border-blue-200 px-2 py-2 relative">
-                <p className="text-[11px] text-slate-500">貴社仕入合計(税別)</p>
-                <p className="font-bold text-slate-800">{selfTotal != null ? yen(selfTotal) : '−'}</p>
+                <p className="text-[11px] text-slate-500">貴社仕入</p>
+                <p className="font-bold text-slate-800">{selfTotal != null ? `${yen(selfTotal)}` : '−'}<span className="text-[10px] font-normal text-slate-400"> 税別</span></p>
+                {selfZeikomi != null && (
+                  <p className="text-[11px] text-slate-600">税込 {yen(selfZeikomi)}</p>
+                )}
                 {qty != null && unitMeter != null && (
                   <p className="text-[10px] text-slate-400">{yen(unitMeter)}/m × {qty}m</p>
                 )}
                 {selfTotal != null && qty != null && unitMeter != null && (
                   <button
                     type="button"
-                    onClick={() => onCopy(
-                      `${p.hinban}　${qty}m × ${unitMeter.toLocaleString('ja-JP')}円/m = ${selfTotal.toLocaleString('ja-JP')}円(税別)`,
-                      '貴社仕入合計'
-                    )}
+                    onClick={() => onCopy(buildSelfCopy(), '貴社仕入')}
                     className="mt-1 w-full text-[11px] px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
                   >📋 コピー</button>
                 )}
               </div>
               <div className="rounded-xl bg-emerald-50 border border-emerald-300 px-2 py-2 relative">
-                <p className="text-[11px] text-emerald-700">お客様向け売値(税別)</p>
+                <p className="text-[11px] text-emerald-700">お客様向け売値</p>
                 <p className="font-bold text-emerald-800 text-base">
                   {clientUnit != null ? `${yen(clientUnit)}/m` : '−'}
                 </p>
                 {clientTotal != null && qty != null && (
-                  <p className="text-[10px] text-emerald-700">合計 {yen(clientTotal)} ({qty}m)</p>
+                  <p className="text-[10px] text-emerald-700">税別 {yen(clientTotal)}</p>
+                )}
+                {clientZeikomi != null && (
+                  <p className="text-[11px] text-emerald-800 font-bold">税込 {yen(clientZeikomi)}</p>
                 )}
                 {margin != null && unitMeter != null && (
                   <p className="text-[10px] text-emerald-600 mt-0.5">粗利率 {margin}% で計算</p>
@@ -451,10 +436,7 @@ function PortalProductCard({ p, priceMode, onCopy }: { p: Product; priceMode: 'o
                 {clientUnit != null && qty != null && clientTotal != null && (
                   <button
                     type="button"
-                    onClick={() => onCopy(
-                      `${p.hinban}　${qty}m × ${clientUnit.toLocaleString('ja-JP')}円/m = ${clientTotal.toLocaleString('ja-JP')}円(税別)`,
-                      'お客様向け売値'
-                    )}
+                    onClick={() => onCopy(buildClientCopy(), 'お客様向け売値')}
                     className="mt-1 w-full text-[11px] px-2 py-1 rounded bg-emerald-200 hover:bg-emerald-300 text-emerald-900 font-bold"
                   >📋 コピー</button>
                 )}

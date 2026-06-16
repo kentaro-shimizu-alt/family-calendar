@@ -79,6 +79,15 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const hostname = req.headers.get('host') || '';
 
+  // ★HTTPS強制リダイレクト（DT-20260617-006・健太郎さん指摘2026-06-17「保護されてない通信が出るのドキドキする」）
+  //   Vercel背後では x-forwarded-proto でクライアント実プロトコルが分かる
+  const proto = req.headers.get('x-forwarded-proto');
+  if (proto === 'http') {
+    const url = req.nextUrl.clone();
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
+
   // ★ホスト名によるパス分離（DT-20260617-006・健太郎さん指示2026-06-17）
   //   portal.tecnest.biz では /portal/* と /api/portal/* のみ受付。
   //   それ以外は 404 で隠す＝家族ログインや売上ページに辿り着けないようにする。
