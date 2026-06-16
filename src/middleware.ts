@@ -77,6 +77,32 @@ async function verifyToken(token: string | undefined, secret: string): Promise<b
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const hostname = req.headers.get('host') || '';
+
+  // ★ホスト名によるパス分離（DT-20260617-006・健太郎さん指示2026-06-17）
+  //   portal.tecnest.biz では /portal/* と /api/portal/* のみ受付。
+  //   それ以外は 404 で隠す＝家族ログインや売上ページに辿り着けないようにする。
+  //   これで顧客ポータルを公開しても家族側の攻撃面が広がらない。
+  const isPortalHost = hostname.toLowerCase().startsWith('portal.');
+  if (isPortalHost) {
+    const allowed =
+      pathname === '/portal' ||
+      pathname.startsWith('/portal/') ||
+      pathname.startsWith('/api/portal/') ||
+      pathname.startsWith('/_next/') ||
+      pathname === '/favicon.ico' ||
+      pathname === '/manifest.json' ||
+      pathname === '/manifest.webmanifest' ||
+      pathname === '/robots.txt';
+    if (!allowed) {
+      // ルートアクセスはログインへリダイレクト（利便性）。それ以外は404。
+      if (pathname === '/') {
+        return NextResponse.redirect(new URL('/portal/login', req.url), 302);
+      }
+      return new NextResponse('Not Found', { status: 404 });
+    }
+    return NextResponse.next();
+  }
 
   // 二重防御: matcher で除外しているが、念のためここでも /api と /login をスルー
   if (

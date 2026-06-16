@@ -4,11 +4,20 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPassword, issueToken, AUTH_COOKIE_NAME, AUTH_COOKIE_MAX_AGE } from '@/lib/auth';
+import { checkRateLimit, recordFailure, recordSuccess } from '@/lib/rate_limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  // レート制限: 5回失敗/IP/時間（DT-20260617-006・家族PW1067のままでもブルートフォース耐性確保）
+  const rl = checkRateLimit(req, 'family_login', 3600, 5);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { ok: false, error: 'too_many_attempts', retry_after_sec: rl.retryAfterSec },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } },
+    );
+  }
   let password: string | undefined;
   try {
     const ct = req.headers.get('content-type') || '';
@@ -29,9 +38,11 @@ export async function POST(req: NextRequest) {
   }
 
   if (!verifyPassword(password)) {
+    recordFailure(req, 'family_login');
     return NextResponse.json({ ok: false, error: 'invalid_password' }, { status: 401 });
   }
 
+  recordSuccess(req, 'family_login');
   const token = issueToken();
   const res = NextResponse.json({ ok: true });
   res.cookies.set({
