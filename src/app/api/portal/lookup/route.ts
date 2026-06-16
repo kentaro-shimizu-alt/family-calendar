@@ -161,6 +161,16 @@ export async function GET(req: NextRequest) {
     if (rev && customer_meter_tanka != null && rev.old_pt > 0) {
       customer_meter_tanka_new = ceil10(customer_meter_tanka * (rev.new_pt / rev.old_pt));
     }
+    // ★顧客向け note は brand から限定的に生成する。
+    //   DBのnote列(=統一マスターの「注意」「special_note」)には仕入価格/仕入pt/社内タスクID等の
+    //   内部情報が含まれるため、顧客には絶対に返さない（CLAUDE.md原則1）。
+    const brandName = String(r.brand || '').toLowerCase();
+    let customer_note: string | null = null;
+    if (brandName.includes('クレアス')) {
+      customer_note = '送料・梱包費 1,000円が別途かかります';
+    } else if (brandName.includes('パロア') || brandName.includes('ﾊﾟﾛｱ')) {
+      customer_note = '取扱停止中・都度価格を確認';
+    }
     return {
       hinban: r.hinban,
       maker: r.maker,
@@ -169,7 +179,7 @@ export async function GET(req: NextRequest) {
       jodai_m2: r.jodai_m2,
       toriatsukai: r.toriatsukai,
       width_mm: r.width_mm,
-      note: r.note,
+      customer_note,              // 顧客向けに安全な注意書きのみ（DBのnote列は返さない）
       customer_meter_tanka,       // 旧価格（現行）
       customer_meter_tanka_new,   // 新価格（7/1〜・改定対象品のみ）
       price_revision: rev ? {

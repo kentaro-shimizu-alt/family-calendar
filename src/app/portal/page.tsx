@@ -17,7 +17,7 @@ type Product = {
   jodai_m2: number | null;
   toriatsukai: string | null;
   width_mm: number | null;
-  note: string | null;
+  customer_note: string | null;  // 顧客向け注意書き(サーバー側で生成・DBのnote列は使わない)
   customer_meter_tanka: number | null;
   customer_meter_tanka_new: number | null;
   price_revision: { effective_date: string; brand: string; kubun: string } | null;
@@ -38,6 +38,7 @@ export default function PortalPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpSection, setHelpSection] = useState<string | null>(null);
+  const [wikiOpen, setWikiOpen] = useState(false); // 施工資料は既定で畳む
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 1600); }
   async function copyText(text: string, label: string) {
@@ -215,25 +216,37 @@ export default function PortalPage() {
               </>
             )}
 
-            {/* Wiki */}
+            {/* Wiki（既定で畳む・25件等多すぎ問題対策） */}
             {result.wiki.length > 0 && (
-              <>
-                <h2 className="mt-6 mb-2 text-sm font-bold text-slate-600">📚 施工資料（{result.wiki.length}件）</h2>
-                <div className="rounded-2xl bg-white border border-slate-200 divide-y divide-slate-100 shadow-sm">
-                  {result.wiki.map((w) => (
-                    <div key={w.id} className="px-4 py-3">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {w.brand && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">{w.brand}</span>}
-                        {w.maker && !w.brand && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{w.maker}</span>}
-                        {w.category && <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">{w.category}</span>}
-                        <span className="text-xs font-semibold text-slate-700">{w.doc_title}</span>
-                        <span className="text-[10px] text-slate-400">p.{w.page}</span>
-                      </div>
-                      <p className="text-xs text-slate-600 mt-1 whitespace-pre-wrap leading-relaxed">{w.snippet}</p>
-                    </div>
-                  ))}
-                </div>
-              </>
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setWikiOpen((v) => !v)}
+                  className="w-full px-4 py-3 flex items-center justify-between gap-2 hover:bg-slate-50"
+                >
+                  <span className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                    📚 施工資料 <span className="text-xs text-slate-500">（{result.wiki.length}件）</span>
+                  </span>
+                  <span className="text-xs text-slate-400">{wikiOpen ? '▲ 閉じる' : '▼ 開く'}</span>
+                </button>
+                {wikiOpen && (
+                  <div className="divide-y divide-slate-100 border-t border-slate-200">
+                    {result.wiki.map((w) => (
+                      <details key={w.id} className="px-4 py-2 group">
+                        <summary className="cursor-pointer list-none flex items-center gap-1.5 flex-wrap hover:bg-slate-50 -mx-2 px-2 py-1 rounded">
+                          <span className="text-[10px] text-slate-400 group-open:rotate-90 inline-block transition-transform">▶</span>
+                          {w.brand && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">{w.brand}</span>}
+                          {w.maker && !w.brand && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">{w.maker}</span>}
+                          {w.category && <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">{w.category}</span>}
+                          <span className="text-xs font-semibold text-slate-700">{w.doc_title}</span>
+                          <span className="text-[10px] text-slate-400">p.{w.page}</span>
+                        </summary>
+                        <p className="text-xs text-slate-600 mt-1 whitespace-pre-wrap leading-relaxed pl-4">{w.snippet}</p>
+                      </details>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
             {result.products.length === 0 && result.wiki.length === 0 && (
@@ -430,7 +443,7 @@ function PortalProductCard({ p, priceMode, onCopy }: { p: Product; priceMode: 'o
         </div>
       )}
 
-      {p.note && <p className="text-xs text-amber-700 mt-2">⚠ {p.note}</p>}
+      {p.customer_note && <p className="text-xs text-amber-700 mt-2">⚠ {p.customer_note}</p>}
     </div>
   );
 }
