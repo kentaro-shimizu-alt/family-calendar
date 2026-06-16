@@ -17,10 +17,13 @@ type Product = {
   jodai_m2: number | null;
   toriatsukai: string | null;
   width_mm: number | null;
-  customer_note: string | null;  // 顧客向け注意書き(サーバー側で生成・DBのnote列は使わない)
+  hanbai_pt: number | null;            // 販売掛率pt(PDFカタログ準拠・顧客向けOK)
+  kakeritsu_kubun: string | null;      // "通常掛率" / "特殊掛率" / "ガラス品番固定"
+  suffix_label: string | null;         // PV→抗ウイルス・抗菌等の用途説明
+  customer_note: string | null;        // 送料・取扱停止等の限定注意書き
   customer_meter_tanka: number | null;
   customer_meter_tanka_new: number | null;
-  price_revision: { effective_date: string; brand: string; kubun: string } | null;
+  price_revision: { effective_date: string; brand: string; kubun: string; old_pt: number; new_pt: number } | null;
 };
 type WikiHit = { id: string; doc_title: string; category: string | null; maker: string | null; brand: string | null; page: number; snippet: string };
 type Result = { q: string; customer: { id: string; company: string | null; display_name: string }; products: Product[]; wiki: WikiHit[] };
@@ -366,10 +369,34 @@ function PortalProductCard({ p, priceMode, onCopy }: { p: Product; priceMode: 'o
         </div>
       </div>
 
+      {/* 販売掛率pt + 特殊掛区分 + 用途ラベル(PDFカタログ準拠・顧客向けOK情報) */}
+      {(p.hanbai_pt != null || p.kakeritsu_kubun || p.suffix_label) && (
+        <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
+          {p.hanbai_pt != null && (
+            <span className="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-800">
+              販売掛率 <b>{p.hanbai_pt}pt</b>
+              {priceMode === 'new' && rev && rev.new_pt !== p.hanbai_pt && (
+                <span className="text-rose-700"> → 新 <b>{rev.new_pt}pt</b></span>
+              )}
+            </span>
+          )}
+          {p.kakeritsu_kubun && p.kakeritsu_kubun.includes('特殊') && (
+            <span className="px-2 py-0.5 rounded bg-amber-100 border border-amber-300 text-amber-900 font-bold">
+              特殊掛品
+            </span>
+          )}
+          {p.suffix_label && (
+            <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-300 text-slate-700">
+              {p.suffix_label}
+            </span>
+          )}
+        </div>
+      )}
+
       {rev && (
         <div className="mt-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-300 text-[11px] text-amber-800">
           🔄 {rev.brand} 価格改定対象（{rev.kubun}）：
-          現行 {yen(p.customer_meter_tanka)}/m → 新 {yen(p.customer_meter_tanka_new)}/m ・適用 {rev.effective_date}〜
+          現行 {yen(p.customer_meter_tanka)}/m ({rev.old_pt}pt) → 新 {yen(p.customer_meter_tanka_new)}/m ({rev.new_pt}pt) ・適用 {rev.effective_date}〜
         </div>
       )}
 

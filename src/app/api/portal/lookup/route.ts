@@ -65,9 +65,10 @@ function searchWiki(variants: string[], productBrands: Set<string>) {
   }));
 }
 
-type ProductRow = { hinban: string; maker: string | null; brand: string | null; series: string | null; jodai_m2: number | null; toriatsukai: string | null; hanbai_pt: number | null; meter_tanka: number | null; width_mm: number | null; note: string | null };
+type ProductRow = { hinban: string; maker: string | null; brand: string | null; series: string | null; jodai_m2: number | null; toriatsukai: string | null; hanbai_pt: number | null; kakeritsu_kubun: string | null; meter_tanka: number | null; width_mm: number | null };
 
-const PRODUCT_COLS = 'hinban,maker,brand,series,jodai_m2,toriatsukai,hanbai_pt,meter_tanka,width_mm,note';
+// 注意: DBのnote列はサーバー側で完全除外(内部情報含むため)。顧客向け注意書きは customer_note でサーバー生成。
+const PRODUCT_COLS = 'hinban,maker,brand,series,jodai_m2,toriatsukai,hanbai_pt,kakeritsu_kubun,meter_tanka,width_mm';
 
 let _cache: { rows: ProductRow[]; at: number } | null = null;
 const CACHE_MS = 5 * 60 * 1000;
@@ -172,6 +173,20 @@ export async function GET(req: NextRequest) {
     } else if (brandName.includes('パロア') || brandName.includes('ﾊﾟﾛｱ')) {
       customer_note = '取扱停止中・都度価格を確認';
     }
+    // 品番末尾から特殊掛品の用途説明を導出(PDFカタログレベルの公開情報・OK)
+    // 出典: hinban-suffix-prefix-pattern.md / 各シリーズ製品説明書PDF
+    const hb = String(r.hinban || '').toUpperCase();
+    let suffix_label: string | null = null;
+    if (hb.endsWith('PV')) suffix_label = '抗ウイルス・抗菌';
+    else if (hb.endsWith('HD')) suffix_label = '耐キズ';
+    else if (hb.endsWith('NEO')) suffix_label = 'ネオックス';
+    else if (hb.endsWith('TIL')) suffix_label = 'タイル壁面用';
+    else if (hb.endsWith('FLE')) suffix_label = 'フレキシブル';
+    else if (hb.endsWith('EXR')) suffix_label = '屋外耐候';
+    else if (hb.endsWith('EX')) suffix_label = '屋外用';
+    else if (hb.endsWith('WD')) suffix_label = '玄関ドア用';
+    else if (hb.endsWith('AR')) suffix_label = '抗菌';
+    else if (hb.endsWith('DG')) suffix_label = 'デザインガラスフィルム';
     return {
       hinban: r.hinban,
       maker: r.maker,
@@ -180,13 +195,18 @@ export async function GET(req: NextRequest) {
       jodai_m2: r.jodai_m2,
       toriatsukai: r.toriatsukai,
       width_mm: r.width_mm,
-      customer_note,              // 顧客向けに安全な注意書きのみ（DBのnote列は返さない）
-      customer_meter_tanka,       // 旧価格（現行）
-      customer_meter_tanka_new,   // 新価格（7/1〜・改定対象品のみ）
+      hanbai_pt: r.hanbai_pt,           // 販売掛率pt(OK・顧客向け表示)
+      kakeritsu_kubun: r.kakeritsu_kubun, // 通常掛率 / 特殊掛率 / ガラス品番固定 等
+      suffix_label,                       // PV→抗ウイルス・抗菌等のPDFカタログ説明
+      customer_note,                      // 送料・取扱停止等の限定注意書き
+      customer_meter_tanka,               // 旧価格（現行）
+      customer_meter_tanka_new,           // 新価格（7/1〜・改定対象品のみ）
       price_revision: rev ? {
         effective_date: PRICE_REV.effective_date,
         brand: PRICE_REV.brand,
         kubun: rev.kubun,
+        old_pt: rev.old_pt,
+        new_pt: rev.new_pt,
       } : null,
     };
   });
