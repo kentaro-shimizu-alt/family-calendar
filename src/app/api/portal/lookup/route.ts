@@ -58,7 +58,8 @@ function searchWiki(variants: string[], productBrands: Set<string>) {
     if (s > 0) scored.push({ w, s });
   }
   scored.sort((a, b) => b.s - a.s);
-  return scored.slice(0, 25).map(({ w }) => ({
+  // ポータルは件数絞って読みやすく(検索品質>件数)
+  return scored.slice(0, 12).map(({ w }) => ({
     id: w.id, doc_title: w.doc_title, category: w.category, maker: w.maker, brand: w.brand,
     page: w.page, snippet: w.body.length > 600 ? w.body.slice(0, 600) + '…' : w.body,
   }));
