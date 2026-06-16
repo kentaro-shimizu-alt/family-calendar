@@ -82,6 +82,8 @@ export async function middleware(req: NextRequest) {
   if (
     pathname.startsWith('/api/') ||
     pathname === '/login' ||
+    pathname === '/portal' ||
+    pathname.startsWith('/portal/') ||
     pathname === '/robots.txt' ||
     pathname === '/favicon.ico' ||
     pathname === '/manifest.json' ||
@@ -123,6 +125,6 @@ export const config = {
      * - /favicon.ico, /robots.txt, /manifest.json, /manifest.webmanifest, /sitemap.xml
      * - 静的アセット拡張子 (.png .jpg .svg .ico .css .js .json .webp .gif .map .html .pdf .xlsx .csv)
      */
-    '/((?!api/|_next/|login|favicon\\.ico|robots\\.txt|manifest\\.json|manifest\\.webmanifest|sitemap\\.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|css|js|json|webmanifest|map|html|pdf|xlsx|csv|woff|woff2|ttf)$).*)',
+    '/((?!api/|_next/|login|portal|favicon\\.ico|robots\\.txt|manifest\\.json|manifest\\.webmanifest|sitemap\\.xml|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|css|js|json|webmanifest|map|html|pdf|xlsx|csv|woff|woff2|ttf)$).*)',
   ],
 };
