@@ -5,7 +5,28 @@ import sharp from 'sharp';
 import { getStorageBackend, getSupabase, STORAGE_BUCKET } from '@/lib/supabase';
 import { uploadToGDrive, isGDriveConfigured } from '@/lib/gdrive';
 
+// 明示しないとVercel関数の既定タイムアウト(約10秒)になり、複数枚アップロードが途中で打ち切られる。
+// GDrive保存は1枚あたり数秒かかるため60秒に引き上げる(DT-20260617-007・実測=6枚17秒で既定超過)。
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
 const UPLOAD_DIR = path.join(process.cwd(), 'data', 'uploads');
+
+// 同時実行数を制限しつつ並列処理するヘルパー。
+// GDrive保存が逐次だと枚数×数秒でタイムアウトするため、最大 limit 件を並行で処理する。
+// 順序は維持(結果配列のindexを保つ)。limitで同時数を抑えGDrive側のレート制限も回避。
+async function mapLimit<T, R>(arr: T[], limit: number, fn: (item: T, index: number) => Promise<R>): Promise<R[]> {
+  const ret: R[] = new Array(arr.length);
+  let next = 0;
+  async function worker() {
+    while (next < arr.length) {
+      const idx = next++;
+      ret[idx] = await fn(arr[idx], idx);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(Math.max(1, limit), arr.length || 1) }, worker));
+  return ret;
+}
 
 const ACCEPTED_IMAGE = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
 const ACCEPTED_PDF = ['application/pdf'];
@@ -146,12 +167,14 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
-      for (const file of files) {
+      // 複数枚を最大6並列でGDriveへ保存。逐次だと枚数×数秒でVercelタイムアウト→打ち切りになっていた
+      // (DT-20260617-007 実測: 6枚17秒。並列化で約3秒に短縮)。順序は維持。
+      const results = await mapLimit(files, 6, async (file): Promise<UploadedFile | null> => {
         const type = (file.type || '').toLowerCase();
         const isImage = ACCEPTED_IMAGE.includes(type) || type.startsWith('image/');
         const isPdf = ACCEPTED_PDF.includes(type) || file.name.toLowerCase().endsWith('.pdf');
         const isHtml = !isImage && !isPdf && isHtmlFile(type, file.name);
-        if (!isImage && !isPdf && !isHtml) continue;
+        if (!isImage && !isPdf && !isHtml) return null;
         let buf: Buffer = Buffer.from(await file.arrayBuffer());
         let ext = (file.name.match(/\.[^.]+$/)?.[0] || (isPdf ? '.pdf' : isHtml ? '.html' : '.bin')).toLowerCase();
         // HTMLは必ず charset=utf-8 を含める(健太郎LW 2026-05-12 文字化け対策)
@@ -171,10 +194,13 @@ export async function POST(req: NextRequest) {
         const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
         const filename = `${id}${ext}`;
         const fileId = await uploadToGDrive(buf, filename, mimeType);
-        const url = `/api/gdrive-image/${fileId}`;
         const kind: 'image' | 'pdf' | 'html' = isPdf ? 'pdf' : isHtml ? 'html' : 'image';
-        items.push({ url, kind, name: file.name });
-        if (kind === 'image') urls.push(url);
+        return { url: `/api/gdrive-image/${fileId}`, kind, name: file.name };
+      });
+      for (const r of results) {
+        if (!r) continue;
+        items.push(r);
+        if (r.kind === 'image') urls.push(r.url);
       }
       return NextResponse.json({ items, urls });
     }
