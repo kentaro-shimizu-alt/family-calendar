@@ -14,7 +14,7 @@ import {
 } from '@/lib/types';
 import MisaMemoRangeModal from './MisaMemoRangeModal';
 import MisaMemoCopyModal from './MisaMemoCopyModal';
-import { downscaleFiles } from '@/lib/imageDownscale';
+import { uploadInBatches } from '@/lib/uploadClient';
 
 interface Props {
   open: boolean;
@@ -218,11 +218,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
     if (accepted.length === 0) return;
     setUploading(true);
     try {
-      const downscaled = await downscaleFiles(accepted);
-      const fd = new FormData();
-      for (const f of downscaled) fd.append('files', f);
-      const res = await fetch('/api/upload', { method: 'POST', body: fd });
-      const data = await res.json();
+      // 1ファイルずつ送信(Vercel 4.5MB上限回避・DT-20260617-007)
+      const data = await uploadInBatches(accepted);
       if (Array.isArray(data.items)) {
         const newImages: string[] = [];
         const newPdfs: Array<{ url: string; name?: string }> = [];
@@ -613,11 +610,8 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                     if (!files.length) return;
                     setUploading(true);
                     try {
-                      const downscaled = await downscaleFiles(files);
-                      const fd = new FormData();
-                      for (const f of downscaled) fd.append('files', f);
-                      const res = await fetch('/api/upload', { method: 'POST', body: fd });
-                      const data = await res.json();
+                      // 1ファイルずつ送信(Vercel 4.5MB上限回避・DT-20260617-007)
+                      const data = await uploadInBatches(files);
                       const urls = (data.items || []).filter((it: any) => it.kind === 'image').map((it: any) => it.url);
                       if (urls.length) setMisaMemoImages((p) => [...p, ...urls]);
                     } catch { alert('アップロード失敗'); }

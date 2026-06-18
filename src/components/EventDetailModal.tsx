@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CalendarEvent, EventComment, Member, getMember, normalizeImageEntry } from '@/lib/types';
-import { downscaleFiles } from '@/lib/imageDownscale';
+import { uploadInBatches } from '@/lib/uploadClient';
 import { format, parseISO } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { linkifyUrls } from '@/lib/text-utils';
@@ -367,15 +367,8 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     if (!event || files.length === 0) return;
     setUploading(true);
     try {
-      const downscaled = await downscaleFiles(files);
-      const fd = new FormData();
-      for (const f of downscaled) fd.append('files', f);
-      const res = await fetch('/api/upload', { method: 'POST', body: fd });
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText.substring(0, 100));
-      }
-      const data = await res.json();
+      // 1ファイルずつ送信(Vercel 4.5MB上限回避・DT-20260617-007)
+      const data = await uploadInBatches(files);
       if (!data.items || !Array.isArray(data.items) || data.items.length === 0) return;
       const newImages = data.items.filter((it: any) => it.kind === 'image').map((it: any) => ({ url: it.url, rotation: 0 }));
       const newPdfs = data.items
