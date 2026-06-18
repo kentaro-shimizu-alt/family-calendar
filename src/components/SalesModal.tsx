@@ -573,7 +573,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                 onChange={(e) => setMisaMemo(e.target.value)}
                 ref={misaMemoRef}
                 placeholder="自由に書いてください"
-                className="w-full border border-orange-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none overflow-hidden min-h-[120px]"
+                className="w-full border border-orange-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none overflow-y-auto max-h-[60vh] min-h-[120px]"
               />
               {/* 画像エリア */}
               <div className="flex flex-wrap items-center gap-2">
@@ -678,7 +678,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
               ref={draftNoteRef}
               placeholder="テンプレに沿って記入"
               data-min-height="300"
-              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 resize-none overflow-hidden`}
+              className={`w-full border ${tabColors.border} bg-white rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 resize-none overflow-y-auto max-h-[60vh]`}
             />
 
             {/* Image/PDF strip + upload */}
@@ -853,7 +853,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
                       }}
                       placeholder={TEMPLATE[t]}
                       data-min-height="120"
-                      className={`mt-2 w-full bg-white border ${c.border} rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 resize-none overflow-hidden`}
+                      className={`mt-2 w-full bg-white border ${c.border} rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 resize-none overflow-y-auto max-h-[60vh]`}
                     />
                     {((e.images && e.images.length > 0) || (e.pdfs && e.pdfs.length > 0)) && (
                       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -926,7 +926,7 @@ export default function SalesModal({ open, date, initial, initialTab, onClose, o
               onChange={(e) => setMemo(e.target.value)}
               ref={memoRef}
               placeholder="今日あったこと、思ったこと、何でもどうぞ"
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 resize-none overflow-hidden min-h-[80px]"
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 resize-none overflow-y-auto max-h-[60vh] min-h-[80px]"
             />
           </div>
         </div>
