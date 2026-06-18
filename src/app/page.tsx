@@ -132,6 +132,45 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
+  // 自動更新: 新しい本番版が出ていたら、アプリに戻ってきた時/定期確認で読み込み直す。
+  // (PWA・ブラウザが古いJSをメモリ保持し続け、修正が反映されない問題の対策・DT-20260617-007)
+  // 安全策: 画面が見えている時だけ確認し、同じ版へは一度だけリロード(無限ループ防止)。
+  useEffect(() => {
+    const KNOWN = process.env.NEXT_PUBLIC_BUILD_ID;
+    if (!KNOWN || KNOWN === 'dev') return; // ローカル/Vercel外はスキップ
+    let busy = false;
+    const check = async () => {
+      if (busy || (typeof document !== 'undefined' && document.hidden)) return;
+      busy = true;
+      try {
+        const r = await fetch('/api/version', { cache: 'no-store' });
+        if (r.ok) {
+          const data = await r.json();
+          const buildId = data?.buildId;
+          if (
+            buildId &&
+            buildId !== KNOWN &&
+            sessionStorage.getItem('tn_reloaded_for') !== buildId
+          ) {
+            sessionStorage.setItem('tn_reloaded_for', buildId);
+            window.location.reload();
+            return; // リロード中(busyは戻さない)
+          }
+        }
+      } catch {
+        /* オフライン等は無視 */
+      }
+      busy = false;
+    };
+    // リロードは「アプリに戻ってきた(画面が再表示された)瞬間」だけに限定する。
+    // 連続使用中(編集中)に勝手にリロードして入力が消えるのを防ぐため、定期/focusでは行わない。
+    const onVisible = () => { if (!document.hidden) check(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, []);
+
   useEffect(() => {
     const refreshTodayKey = () => {
       const next = getJstTodayKey();
