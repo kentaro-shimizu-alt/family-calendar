@@ -14,7 +14,8 @@ import SettingsModal, { VirtualCalSettings, VIRTUAL_CAL_KEYS } from '@/component
 import DayEventsModal from '@/components/DayEventsModal';
 import TodaySummary from '@/components/TodaySummary';
 import ReminderRunner from '@/components/ReminderRunner';
-import { getJstTodayKey, msUntilNextJstMidnight } from '@/lib/jstToday';
+import { getJstTodayKey } from '@/lib/jstToday';
+import { useJstTodayKey } from '@/lib/useJstTodayKey';
 // 2026-05-06 Phase2: HpOrdersDashboard は別ページ /shop-orders に分離 (健太郎LW指示「重い」)
 import {
   CalendarEvent,
@@ -73,7 +74,10 @@ function clearUiState() {
 
 export default function HomePage() {
   const [currentMonth, setCurrentMonth] = useState<Date>(() => new Date());
-  const [todayKey, setTodayKey] = useState<string>(() => getJstTodayKey());
+  // 2026-06-19 くろ: 親state独自実装(setInterval/setTimeout/event)を useJstTodayKey() に一本化。
+  // フック側で rAF 連鎖 + 壁時計ドリフト検出 + BroadcastChannel + storage 等を備えて多重防御。
+  // 旧実装は親で同じイベントリスナを二重登録していたが、フックが堅牢化されたので冗長を撤去。
+  const todayKey = useJstTodayKey();
   const previousTodayKeyRef = useRef(todayKey);
   const [topView, setTopView] = useState<TopView>('calendar');
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -134,13 +138,24 @@ export default function HomePage() {
 
   // 自動更新: 新しい本番版が出ていたら、アプリに戻ってきた時/定期確認で読み込み直す。
   // (PWA・ブラウザが古いJSをメモリ保持し続け、修正が反映されない問題の対策・DT-20260617-007)
-  // 安全策: 画面が見えている時だけ確認し、同じ版へは一度だけリロード(無限ループ防止)。
+  // 2026-06-19 くろ 修正: 常時表示モニタは visibilitychange が永遠に来ない＝旧実装は新版を取りに行かない。
+  // 5分 interval + visibilitychange の二段で確認。モーダル開/編集中はスキップして入力消失を防ぐ。
   useEffect(() => {
     const KNOWN = process.env.NEXT_PUBLIC_BUILD_ID;
     if (!KNOWN || KNOWN === 'dev') return; // ローカル/Vercel外はスキップ
     let busy = false;
+    const isEditing = (): boolean => {
+      try {
+        const ae = document.activeElement as HTMLElement | null;
+        if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.isContentEditable)) return true;
+        // モーダルが開いていたらリロード保留(編集中の入力消失防止)
+        if (document.querySelector('[role="dialog"], .modal-open')) return true;
+      } catch {}
+      return false;
+    };
     const check = async () => {
       if (busy || (typeof document !== 'undefined' && document.hidden)) return;
+      if (isEditing()) return;
       busy = true;
       try {
         const r = await fetch('/api/version', { cache: 'no-store' });
@@ -162,49 +177,13 @@ export default function HomePage() {
       }
       busy = false;
     };
-    // リロードは「アプリに戻ってきた(画面が再表示された)瞬間」だけに限定する。
-    // 連続使用中(編集中)に勝手にリロードして入力が消えるのを防ぐため、定期/focusでは行わない。
     const onVisible = () => { if (!document.hidden) check(); };
     document.addEventListener('visibilitychange', onVisible);
+    // 5分ごとの定期確認（常時表示モニタで visibilitychange が来ない環境向け）
+    const versionInterval = setInterval(check, 5 * 60 * 1000);
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
-    };
-  }, []);
-
-  useEffect(() => {
-    const refreshTodayKey = () => {
-      const next = getJstTodayKey();
-      setTodayKey((prev) => (prev === next ? prev : next));
-    };
-    let midnightTimer: ReturnType<typeof setTimeout> | null = null;
-    const scheduleMidnightRefresh = () => {
-      if (midnightTimer) clearTimeout(midnightTimer);
-      midnightTimer = setTimeout(() => {
-        refreshTodayKey();
-        scheduleMidnightRefresh();
-      }, msUntilNextJstMidnight());
-    };
-    const refreshWhenVisible = () => {
-      if (typeof document === 'undefined' || !document.hidden) refreshTodayKey();
-    };
-    refreshTodayKey();
-    scheduleMidnightRefresh();
-    const interval = setInterval(refreshTodayKey, 30 * 1000);
-    window.addEventListener('focus', refreshTodayKey);
-    window.addEventListener('pageshow', refreshTodayKey);
-    window.addEventListener('online', refreshTodayKey);
-    document.addEventListener('visibilitychange', refreshWhenVisible);
-    document.addEventListener('pointerdown', refreshTodayKey, { passive: true });
-    document.addEventListener('touchstart', refreshTodayKey, { passive: true });
-    return () => {
-      if (midnightTimer) clearTimeout(midnightTimer);
-      clearInterval(interval);
-      window.removeEventListener('focus', refreshTodayKey);
-      window.removeEventListener('pageshow', refreshTodayKey);
-      window.removeEventListener('online', refreshTodayKey);
-      document.removeEventListener('visibilitychange', refreshWhenVisible);
-      document.removeEventListener('pointerdown', refreshTodayKey);
-      document.removeEventListener('touchstart', refreshTodayKey);
+      clearInterval(versionInterval);
     };
   }, []);
 

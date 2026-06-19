@@ -1,4 +1,4 @@
-const CACHE_NAME = "family-calendar-pwa-v3";
+const CACHE_NAME = "family-calendar-pwa-v4-today-fix-20260619";
 const APP_SHELL = ["/manifest.webmanifest", "/icons/calendar-icon-192.png", "/icons/calendar-icon-512.png"];
 
 self.addEventListener("install", (event) => {

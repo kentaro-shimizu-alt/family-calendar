@@ -6,58 +6,137 @@ import { getJstTodayKey, msUntilNextJstMidnight } from './jstToday';
 /**
  * 本日(JST)の日付キー "YYYY-MM-DD" を返すフック。
  *
- * 2026-06-05 くろ: 「日付が変わっても今日マーカーが前日のまま」根本対策。
- * 健太郎環境は常時表示モニタにカレンダーを出しっぱなし＝タブが hidden にも focus にもならず、
- * マウスも乗らないため、従来の visibilitychange + 60秒interval だけでは
- * ブラウザのタイマー凍結/スロットルで再計算が走らず前日が残る。
+ * 2026-06-05 くろ: 初版（midnight timer + 30s interval + visibility/focus/操作）
+ * 2026-06-19 くろ: 「毎回再発」根本治癒版（深夜0時に再renderが起きず前日マーカーで固まる問題）
  *
- * そこで「再計算の契機」を最大化する:
- *  - マウント直後（SSR=サーバ時刻 とのズレを即補正）
- *  - 深夜0時ちょうど（msUntilNextJstMidnight で精密に予約・発火後に再予約）
- *  - 可視化(visibilitychange) / ウィンドウfocus / bfcache復元(pageshow)
- *  - 任意の操作(pointerdown / touchstart) ← 凍結タブでも触れば即補正
- *  - 30秒ごとの軽量interval（差分時のみ setState=再render最小）
+ * == 健太郎環境の特性 ==
+ * 常時表示モニタにカレンダーを出しっぱなし＝
+ *  - タブは hidden にならない(visibilitychange 発火しない)
+ *  - ウィンドウは focus されない(focus 発火しない)
+ *  - マウス/タッチ操作は来ない(pointerdown/touchstart 発火しない)
+ *  - Chromium は「アクティブ操作されない長時間アイドルタブ」の
+ *    setTimeout/setInterval を間欠化(最悪1Hz凍結)
+ *  → 旧実装の midnight timer / 30s interval / イベントリスナは全部死ぬ
  *
- * これらは冪等。getJstTodayKey は端末TZに依存しない（UTC+9h固定算出）。
+ * == 治癒のキモ ==
+ * 1) requestAnimationFrame(rAF) 連鎖を新設。rAF は setTimeout と違う系統で、
+ *    画面が描画されている限り走り続ける(throttle policy が別)。
+ *    可視タブでは最悪でも 1Hz 程度で必ず呼ばれる。深夜0時跨ぎでも止まらない。
+ *    軽量化のため「rAF 内で日付キー算出だけし、変化があれば setState」とする。
+ *
+ * 2) 壁時計ドリフト検出: 各 rAF tick で performance.now() / Date.now() の差を計測。
+ *    PCスリープ・タイマースロットルで Date.now() が大きく飛んだら強制 recalc。
+ *
+ * 3) BroadcastChannel/storage event: 別タブ/別ウィンドウが先に深夜0時を検知したら相互通知。
+ *
+ * 4) 従来の契機(midnight timer/interval/visibility/focus/pageshow/操作)は冗長として残す。
+ *    どれか一つでも生きていれば直る＝多重防御。
+ *
+ * すべて冪等。getJstTodayKey は端末TZ非依存(UTC+9固定算出・サマータイム影響なし)。
  */
 export function useJstTodayKey(): string {
   const [key, setKey] = useState<string>(() => getJstTodayKey());
 
   useEffect(() => {
     let midnightTimer: ReturnType<typeof setTimeout> | null = null;
-    const recalc = () =>
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let rafHandle: number | null = null;
+    let bc: BroadcastChannel | null = null;
+    let lastWallMs = Date.now();
+    let lastPerfMs =
+      typeof performance !== 'undefined' && performance.now ? performance.now() : 0;
+    let lastRafCheckMs = 0;
+
+    const recalc = () => {
       setKey((prev) => {
         const next = getJstTodayKey();
         return prev === next ? prev : next;
       });
-    const recalcIfVisible = () => {
-      if (!document.hidden) recalc();
     };
+    const recalcIfVisible = () => {
+      if (typeof document === 'undefined' || !document.hidden) recalc();
+    };
+
     const scheduleMidnight = () => {
       if (midnightTimer) clearTimeout(midnightTimer);
       midnightTimer = setTimeout(() => {
         recalc();
-        scheduleMidnight(); // 翌日分を再予約（24h固定intervalは端末スリープでズレるため都度算出）
+        // 別タブにも通知
+        try { bc?.postMessage({ type: 'jst-midnight', key: getJstTodayKey() }); } catch {}
+        try { localStorage.setItem('jst-today-key-broadcast', getJstTodayKey() + ':' + Date.now()); } catch {}
+        scheduleMidnight();
       }, msUntilNextJstMidnight());
     };
 
+    // ---- rAF 連鎖（最大の救い手）----
+    // rAF は setTimeout と独立した経路。可視タブでは画面更新と同期して必ず動く。
+    // ただし高頻度で setState するとレンダリング負荷になるので、500ms 間隔で日付チェック。
+    const rafLoop = () => {
+      const now = Date.now();
+      const perf =
+        typeof performance !== 'undefined' && performance.now ? performance.now() : 0;
+      // 壁時計ドリフト検出（スリープ復帰・タイマースロットルで Date.now が perf より大きく進んだ場合）
+      const wallDelta = now - lastWallMs;
+      const perfDelta = perf - lastPerfMs;
+      const drift = wallDelta - perfDelta;
+      // 2秒以上のドリフト = スリープ復帰やタイマー凍結明け → 強制 recalc
+      if (drift > 2000) {
+        recalc();
+        // 凍結中に midnight timer が消失している可能性 → 予約も貼り直す
+        scheduleMidnight();
+      }
+      // 500ms 経過したら通常 recalc（軽量比較のみ・差分時のみ setState）
+      if (now - lastRafCheckMs >= 500) {
+        recalc();
+        lastRafCheckMs = now;
+      }
+      lastWallMs = now;
+      lastPerfMs = perf;
+      rafHandle = requestAnimationFrame(rafLoop);
+    };
+
+    // 初期化
     recalc();
     scheduleMidnight();
+    lastRafCheckMs = Date.now();
+    rafHandle = requestAnimationFrame(rafLoop);
+    // 30秒 interval は rAF のバックアップ（バックグラウンドでも仕様上1Hz以上で動く）
+    interval = setInterval(recalc, 30 * 1000);
+
+    // イベント契機（rAF が死んでいる時の保険）
     document.addEventListener('visibilitychange', recalcIfVisible);
     window.addEventListener('focus', recalc);
     window.addEventListener('pageshow', recalc);
+    window.addEventListener('online', recalc);
     document.addEventListener('pointerdown', recalcIfVisible, { passive: true });
     document.addEventListener('touchstart', recalcIfVisible, { passive: true });
-    const interval = setInterval(recalc, 30 * 1000);
+
+    // 別タブ/別ウィンドウからの midnight 通知
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        bc = new BroadcastChannel('jst-today-key');
+        bc.onmessage = (ev) => {
+          if (ev?.data?.type === 'jst-midnight') recalc();
+        };
+      }
+    } catch {}
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'jst-today-key-broadcast') recalc();
+    };
+    window.addEventListener('storage', onStorage);
 
     return () => {
       if (midnightTimer) clearTimeout(midnightTimer);
+      if (interval) clearInterval(interval);
+      if (rafHandle != null) cancelAnimationFrame(rafHandle);
+      try { bc?.close(); } catch {}
       document.removeEventListener('visibilitychange', recalcIfVisible);
       window.removeEventListener('focus', recalc);
       window.removeEventListener('pageshow', recalc);
+      window.removeEventListener('online', recalc);
       document.removeEventListener('pointerdown', recalcIfVisible);
       document.removeEventListener('touchstart', recalcIfVisible);
-      clearInterval(interval);
+      window.removeEventListener('storage', onStorage);
     };
   }, []);
 
