@@ -29,6 +29,86 @@ type FeedItem =
   // HTML添付（カット指示書等インタラクティブHTML）2026-05-12 健太郎LW指示
   | { kind: 'html'; id: string; ts: number; url: string; name?: string; index: number };
 
+function compactText(parts: Array<string | undefined | null>): string | undefined {
+  const text = parts.map((p) => (p || '').trim()).filter(Boolean).join('\n\n');
+  return text || undefined;
+}
+
+function mergeText(targetText?: string, sourceText?: string, label = '統合元メモ'): string | undefined {
+  const target = (targetText || '').trim();
+  const source = (sourceText || '').trim();
+  if (!source) return target || undefined;
+  if (!target) return source;
+  if (target.includes(source)) return target;
+  return `${target}\n\n--- ${label} ---\n${source}`;
+}
+
+function uniqueBy<T>(items: T[], keyFn: (item: T) => string): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const item of items) {
+    const key = keyFn(item);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
+
+function eventRanges(ev: CalendarEvent): Array<{ start: string; end: string }> {
+  if (Array.isArray(ev.dateRanges) && ev.dateRanges.length > 0) {
+    return ev.dateRanges.map((r) => ({ start: r.start, end: r.end || r.start }));
+  }
+  return [{ start: ev.date, end: ev.endDate || ev.date }];
+}
+
+function buildMergePatch(target: CalendarEvent, source: CalendarEvent): Partial<CalendarEvent> {
+  const now = new Date().toISOString();
+  const sourceSummary = compactText([
+    `統合元予定: ${source.title}`,
+    `日付: ${source.date}${source.endDate && source.endDate !== source.date ? ` - ${source.endDate}` : ''}`,
+    source.startTime || source.endTime ? `時間: ${source.startTime || ''}${source.endTime ? ` - ${source.endTime}` : ''}` : undefined,
+    source.location ? `場所: ${source.location}` : undefined,
+    source.url ? `URL: ${source.url}` : undefined,
+  ]);
+  const mergeComment: EventComment = {
+    id: `merge_${source.id}_${Date.now().toString(36)}`,
+    text: sourceSummary || `統合元予定: ${source.title}`,
+    author: 'system',
+    createdAt: now,
+  };
+
+  const targetImages = (target.images || []).map((entry) => normalizeImageEntry(entry));
+  const sourceImages = (source.images || []).map((entry) => normalizeImageEntry(entry));
+  const mergedRanges = uniqueBy(
+    [...eventRanges(target), ...eventRanges(source)],
+    (r) => `${r.start}_${r.end || r.start}`,
+  ).sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end));
+  const shouldUseDateRanges =
+    mergedRanges.length > 1 ||
+    mergedRanges[0]?.start !== target.date ||
+    (mergedRanges[0]?.end || mergedRanges[0]?.start) !== (target.endDate || target.date);
+
+  return {
+    note: mergeText(target.note, source.note),
+    location: target.location || source.location,
+    url: target.url || source.url,
+    images: uniqueBy([...targetImages, ...sourceImages], (img) => img.url),
+    pdfs: uniqueBy([...(target.pdfs || []), ...(source.pdfs || [])], (p) => p.url),
+    htmls: uniqueBy([...(target.htmls || []), ...(source.htmls || [])], (h) => h.url),
+    comments: uniqueBy([...(target.comments || []), mergeComment, ...(source.comments || [])], (c) => c.id || c.text),
+    dateRanges: shouldUseDateRanges ? mergedRanges : (null as any),
+    dateOverrides: { ...(source.dateOverrides || {}), ...(target.dateOverrides || {}) },
+    reminderMinutes: target.reminderMinutes || source.reminderMinutes,
+    site: target.site || source.site,
+    recurrence: target.recurrence || source.recurrence,
+    relatedEventIds: uniqueBy(
+      [...(target.relatedEventIds || []), ...(source.relatedEventIds || [])],
+      (id) => id,
+    ).filter((id) => id && id !== target.id && id !== source.id),
+  };
+}
+
 export default function EventDetailModal({ open, event, members, onClose, onEdit, onTogglePin, onDelete, onCommentAdded, onJumpToEvent }: Props) {
   const [commentText, setCommentText] = useState('');
   const [posting, setPosting] = useState(false);
@@ -57,6 +137,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [relationSearching, setRelationSearching] = useState(false);
   const [relationSaving, setRelationSaving] = useState(false);
   const relationLastQRef = useRef<string>('');
+  const [mergePickerOpen, setMergePickerOpen] = useState(false);
+  const [mergeQuery, setMergeQuery] = useState('');
+  const [mergeSearchResults, setMergeSearchResults] = useState<CalendarEvent[]>([]);
+  const [mergeSearching, setMergeSearching] = useState(false);
+  const [mergeSaving, setMergeSaving] = useState(false);
+  const mergeLastQRef = useRef<string>('');
   // 2026-04-29 関連予定検索結果のホバーサムネイルプレビュー
   const [relationHoverPreview, setRelationHoverPreview] = useState<{
     event: CalendarEvent;
@@ -124,6 +210,34 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     return () => ac.abort();
   }, [relationQuery, relationPickerOpen, event]);
 
+  useEffect(() => {
+    if (!mergePickerOpen) return;
+    const q = mergeQuery;
+    if (!q.trim()) {
+      setMergeSearchResults([]);
+      setMergeSearching(false);
+      mergeLastQRef.current = '';
+      return;
+    }
+    mergeLastQRef.current = q;
+    const ac = new AbortController();
+    setMergeSearching(true);
+    (async () => {
+      try {
+        const r = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: ac.signal });
+        const data = await r.json();
+        if (mergeLastQRef.current !== q) return;
+        const list: CalendarEvent[] = data.events || [];
+        setMergeSearchResults(list.filter((e) => e.id !== event?.id));
+      } catch (e: any) {
+        if (e?.name !== 'AbortError') console.error(e);
+      } finally {
+        if (mergeLastQRef.current === q) setMergeSearching(false);
+      }
+    })();
+    return () => ac.abort();
+  }, [mergeQuery, mergePickerOpen, event]);
+
   async function handleAddRelation(target: CalendarEvent) {
     if (!event || relationSaving) return;
     setRelationSaving(true);
@@ -174,6 +288,43 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   //   ・pull-to-refresh 後の reload でも hash は URL に残る → 親が detailEventId 復元
   //     → open=true になると useEffect が hash 同期 (既に hash あれば pushState skip)
   //   ・既存 localStorage/pageshow ロジックは全削除 (競合排除)
+  async function handleMergeInto(target: CalendarEvent) {
+    if (!event || mergeSaving) return;
+    if (target.id === event.id) return;
+    const ok = confirm(
+      `「${event.title}」の中身を「${target.title}」へ統合します。\n\n統合後、今開いている重複予定は削除します。戻すには手作業が必要です。実行しますか？`,
+    );
+    if (!ok) return;
+    setMergeSaving(true);
+    try {
+      const targetRes = await fetch(`/api/events/${target.id}`);
+      if (!targetRes.ok) throw new Error('統合先の再取得に失敗しました');
+      const targetData = await targetRes.json();
+      const freshTarget: CalendarEvent = targetData.event;
+      if (!freshTarget) throw new Error('統合先が見つかりません');
+
+      const patch = buildMergePatch(freshTarget, event);
+      const putRes = await fetch(`/api/events/${freshTarget.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      if (!putRes.ok) throw new Error('統合先の保存に失敗しました');
+
+      const deleteRes = await fetch(`/api/events/${event.id}`, { method: 'DELETE' });
+      if (!deleteRes.ok) throw new Error('統合元の削除に失敗しました。統合先は更新済みです');
+
+      setMergeQuery('');
+      setMergePickerOpen(false);
+      onClose();
+      onCommentAdded();
+    } catch (e: any) {
+      alert(`統合に失敗しました: ${e?.message || e}`);
+    } finally {
+      setMergeSaving(false);
+    }
+  }
+
   const onCloseRef = useRef(onClose);
   const openRef = useRef(open);
   const ourPushStateRef = useRef(false); // 自分が pushState した履歴を持っているか
@@ -671,6 +822,17 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
           >
             📋 複数日に適用
           </button>
+          <button
+            onClick={() => {
+              setMergePickerOpen((v) => !v);
+              setRelationPickerOpen(false);
+            }}
+            disabled={mergeSaving}
+            className="text-emerald-700 text-sm font-semibold hover:bg-emerald-50 px-3 py-2 rounded-lg disabled:opacity-50"
+            title="重複して作った予定の中身を既存予定へ移して統合"
+          >
+            中身を統合
+          </button>
           <div className="flex-1" />
           <button
             onClick={onEdit}
@@ -681,6 +843,68 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
         </div>
 
         {/* 関連付けピッカー(検索) */}
+        {mergePickerOpen && (
+          <div className="px-5 py-3 bg-emerald-50 border-y border-emerald-100">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold text-emerald-700">中身を移す先の予定を選ぶ</span>
+              <div className="flex-1" />
+              <button
+                type="button"
+                onClick={() => { setMergePickerOpen(false); setMergeQuery(''); }}
+                className="text-xs text-slate-500 hover:text-slate-700"
+              >
+                閉じる
+              </button>
+            </div>
+            <input
+              type="text"
+              value={mergeQuery}
+              onChange={(e) => {
+                setMergeQuery(e.target.value);
+                if (e.target.value.trim()) setMergeSearching(true);
+                else setMergeSearching(false);
+              }}
+              placeholder="統合先の予定をタイトル・場所で検索..."
+              className="w-full border border-emerald-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              autoFocus
+            />
+            <div className="mt-2 text-[11px] text-emerald-700">
+              選んだ予定へ添付・メモ・コメント・期間を足して、この重複予定は削除します。
+            </div>
+            {mergeQuery && (
+              <div className="mt-2 max-h-56 overflow-y-auto bg-white border border-emerald-200 rounded-lg">
+                {mergeSearching && (
+                  <div className="text-xs text-emerald-600 text-center py-3 flex items-center justify-center gap-2">
+                    <span className="inline-block w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></span>
+                    検索中...
+                  </div>
+                )}
+                {!mergeSearching && mergeSearchResults.length === 0 && (
+                  <div className="text-xs text-slate-400 text-center py-3">統合先候補がありません</div>
+                )}
+                {mergeSearchResults.map((re) => {
+                  const reLabel = (() => {
+                    try { return format(parseISO(re.date), 'yyyy/M/d', { locale: ja }); } catch { return re.date; }
+                  })();
+                  return (
+                    <button
+                      key={re.id}
+                      type="button"
+                      onClick={() => handleMergeInto(re)}
+                      disabled={mergeSaving}
+                      className="w-full text-left px-3 py-2 text-sm border-b border-slate-100 hover:bg-emerald-50 disabled:opacity-40 flex items-center gap-2"
+                    >
+                      <span className="text-xs text-slate-400 w-24 flex-shrink-0">{reLabel}</span>
+                      <span className="font-semibold text-slate-700 truncate flex-1">{re.title}</span>
+                      <span className="text-[11px] text-emerald-700 shrink-0">ここへ統合</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {relationPickerOpen && (
           <div className="px-5 py-3 bg-indigo-50 border-y border-indigo-100">
             <div className="flex items-center gap-2 mb-2">
