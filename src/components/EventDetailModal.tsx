@@ -29,8 +29,15 @@ type FeedItem =
   // HTML添付（カット指示書等インタラクティブHTML）2026-05-12 健太郎LW指示
   | { kind: 'html'; id: string; ts: number; url: string; name?: string; index: number };
 
-type ShareOptionKey = 'basic' | 'note' | 'comments' | 'images' | 'pdfs' | 'htmls';
-type ShareOptions = Record<ShareOptionKey, boolean>;
+type ShareToggleKey = 'basic' | 'note';
+type ShareSelection = {
+  basic: boolean;
+  note: boolean;
+  commentIds: string[];
+  imageIndexes: number[];
+  pdfIndexes: number[];
+  htmlIndexes: number[];
+};
 
 function compactText(parts: Array<string | undefined | null>): string | undefined {
   const text = parts.map((p) => (p || '').trim()).filter(Boolean).join('\n\n');
@@ -84,10 +91,25 @@ function absoluteShareUrl(url: string): string {
   }
 }
 
-function buildShareText(event: CalendarEvent, member: Member, options: ShareOptions): string {
+function createDefaultShareSelection(event?: CalendarEvent | null): ShareSelection {
+  return {
+    basic: true,
+    note: Boolean(event?.note?.trim()),
+    commentIds: (event?.comments || []).map((c) => c.id),
+    imageIndexes: (event?.images || []).map((_, i) => i),
+    pdfIndexes: (event?.pdfs || []).map((_, i) => i),
+    htmlIndexes: (event?.htmls || []).map((_, i) => i),
+  };
+}
+
+function toggleArrayValue<T>(items: T[], value: T): T[] {
+  return items.includes(value) ? items.filter((item) => item !== value) : [...items, value];
+}
+
+function buildShareText(event: CalendarEvent, member: Member, selection: ShareSelection): string {
   const blocks: string[] = [];
 
-  if (options.basic) {
+  if (selection.basic) {
     const basicLines: string[] = [`【${event.title}】`];
     const ranges = eventRanges(event);
     const dateText = ranges
@@ -109,12 +131,13 @@ function buildShareText(event: CalendarEvent, member: Member, options: ShareOpti
     blocks.push(basicLines.join('\n'));
   }
 
-  if (options.note && event.note?.trim()) {
+  if (selection.note && event.note?.trim()) {
     blocks.push(`【メモ】\n${event.note.trim()}`);
   }
 
-  if (options.comments && Array.isArray(event.comments) && event.comments.length > 0) {
-    const lines = event.comments.map((c, i) => {
+  const selectedComments = (event.comments || []).filter((c) => selection.commentIds.includes(c.id));
+  if (selectedComments.length > 0) {
+    const lines = selectedComments.map((c, i) => {
       const ts = c.createdAt ? ` ${formatDateForShare(c.createdAt.slice(0, 10))}` : '';
       const author = c.author ? ` ${c.author}` : '';
       return `${i + 1}. ${c.text.trim()}${author || ts ? `（${[author.trim(), ts.trim()].filter(Boolean).join(' / ')}）` : ''}`;
@@ -122,21 +145,30 @@ function buildShareText(event: CalendarEvent, member: Member, options: ShareOpti
     blocks.push(`【コメント】\n${lines.join('\n')}`);
   }
 
-  if (options.images && Array.isArray(event.images) && event.images.length > 0) {
-    const lines = event.images.map((entry, i) => {
+  const selectedImages = (event.images || [])
+    .map((entry, index) => ({ entry, index }))
+    .filter((item) => selection.imageIndexes.includes(item.index));
+  if (selectedImages.length > 0) {
+    const lines = selectedImages.map(({ entry }, i) => {
       const img = normalizeImageEntry(entry);
       return `${i + 1}. ${absoluteShareUrl(img.url)}`;
     });
     blocks.push(`【写真】\n${lines.join('\n')}`);
   }
 
-  if (options.pdfs && Array.isArray(event.pdfs) && event.pdfs.length > 0) {
-    const lines = event.pdfs.map((p, i) => `${i + 1}. ${p.name || 'PDF'}\n${absoluteShareUrl(p.url)}`);
+  const selectedPdfs = (event.pdfs || [])
+    .map((pdf, index) => ({ pdf, index }))
+    .filter((item) => selection.pdfIndexes.includes(item.index));
+  if (selectedPdfs.length > 0) {
+    const lines = selectedPdfs.map(({ pdf }, i) => `${i + 1}. ${pdf.name || 'PDF'}\n${absoluteShareUrl(pdf.url)}`);
     blocks.push(`【PDF】\n${lines.join('\n')}`);
   }
 
-  if (options.htmls && Array.isArray(event.htmls) && event.htmls.length > 0) {
-    const lines = event.htmls.map((h, i) => `${i + 1}. ${h.name || 'HTML'}\n${absoluteShareUrl(h.url)}`);
+  const selectedHtmls = (event.htmls || [])
+    .map((html, index) => ({ html, index }))
+    .filter((item) => selection.htmlIndexes.includes(item.index));
+  if (selectedHtmls.length > 0) {
+    const lines = selectedHtmls.map(({ html }, i) => `${i + 1}. ${html.name || 'HTML'}\n${absoluteShareUrl(html.url)}`);
     blocks.push(`【HTML】\n${lines.join('\n')}`);
   }
 
@@ -198,14 +230,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const [copyOpen, setCopyOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareStatus, setShareStatus] = useState('');
-  const [shareOptions, setShareOptions] = useState<ShareOptions>({
-    basic: true,
-    note: true,
-    comments: true,
-    images: true,
-    pdfs: true,
-    htmls: true,
-  });
+  const [shareSelection, setShareSelection] = useState<ShareSelection>(() => createDefaultShareSelection(null));
   // 2026-05-01 event.id クリップボードコピー用トースト
   const [idCopiedToast, setIdCopiedToast] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -240,6 +265,11 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     top: number;
     left: number;
   } | null>(null);
+
+  useEffect(() => {
+    setShareSelection(createDefaultShareSelection(event));
+    setShareStatus('');
+  }, [event?.id]);
 
   // 関連先イベントを fetch して表示用に保持
   useEffect(() => {
@@ -776,14 +806,24 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     }
   }
 
-  function handleToggleShareOption(key: ShareOptionKey) {
-    setShareOptions((cur) => ({ ...cur, [key]: !cur[key] }));
+  function handleToggleShareSimple(key: ShareToggleKey) {
+    setShareSelection((cur) => ({ ...cur, [key]: !cur[key] }));
+    setShareStatus('');
+  }
+
+  function handleToggleShareComment(commentId: string) {
+    setShareSelection((cur) => ({ ...cur, commentIds: toggleArrayValue(cur.commentIds, commentId) }));
+    setShareStatus('');
+  }
+
+  function handleToggleShareIndex(key: 'imageIndexes' | 'pdfIndexes' | 'htmlIndexes', index: number) {
+    setShareSelection((cur) => ({ ...cur, [key]: toggleArrayValue(cur[key], index) }));
     setShareStatus('');
   }
 
   async function handleShareEventText() {
     if (!event) return;
-    const text = buildShareText(event, member, shareOptions);
+    const text = buildShareText(event, member, shareSelection);
     if (!text) {
       setShareStatus('共有する項目を選んでください');
       return;
@@ -824,7 +864,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     : '-';
 
   const totalFeedCount = feedItems.length;
-  const shareText = buildShareText(event, member, shareOptions);
+  const shareText = buildShareText(event, member, shareSelection);
   const shareItemCounts = {
     comments: event.comments?.length || 0,
     images: event.images?.length || 0,
@@ -1004,12 +1044,12 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
+            <div className="grid grid-cols-2 gap-2 text-sm">
               <label className="flex items-center gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2">
                 <input
                   type="checkbox"
-                  checked={shareOptions.basic}
-                  onChange={() => handleToggleShareOption('basic')}
+                  checked={shareSelection.basic}
+                  onChange={() => handleToggleShareSimple('basic')}
                   className="w-4 h-4"
                 />
                 <span>基本情報</span>
@@ -1017,53 +1057,100 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
               <label className={`flex items-center gap-2 bg-white border rounded-lg px-3 py-2 ${event.note ? 'border-blue-100' : 'border-slate-100 text-slate-400'}`}>
                 <input
                   type="checkbox"
-                  checked={shareOptions.note}
-                  onChange={() => handleToggleShareOption('note')}
+                  checked={shareSelection.note}
+                  onChange={() => handleToggleShareSimple('note')}
                   disabled={!event.note}
                   className="w-4 h-4"
                 />
                 <span>メモ</span>
               </label>
-              <label className={`flex items-center gap-2 bg-white border rounded-lg px-3 py-2 ${shareItemCounts.comments ? 'border-blue-100' : 'border-slate-100 text-slate-400'}`}>
-                <input
-                  type="checkbox"
-                  checked={shareOptions.comments}
-                  onChange={() => handleToggleShareOption('comments')}
-                  disabled={!shareItemCounts.comments}
-                  className="w-4 h-4"
-                />
-                <span>コメント {shareItemCounts.comments ? `(${shareItemCounts.comments})` : ''}</span>
-              </label>
-              <label className={`flex items-center gap-2 bg-white border rounded-lg px-3 py-2 ${shareItemCounts.images ? 'border-blue-100' : 'border-slate-100 text-slate-400'}`}>
-                <input
-                  type="checkbox"
-                  checked={shareOptions.images}
-                  onChange={() => handleToggleShareOption('images')}
-                  disabled={!shareItemCounts.images}
-                  className="w-4 h-4"
-                />
-                <span>写真 {shareItemCounts.images ? `(${shareItemCounts.images})` : ''}</span>
-              </label>
-              <label className={`flex items-center gap-2 bg-white border rounded-lg px-3 py-2 ${shareItemCounts.pdfs ? 'border-blue-100' : 'border-slate-100 text-slate-400'}`}>
-                <input
-                  type="checkbox"
-                  checked={shareOptions.pdfs}
-                  onChange={() => handleToggleShareOption('pdfs')}
-                  disabled={!shareItemCounts.pdfs}
-                  className="w-4 h-4"
-                />
-                <span>PDF {shareItemCounts.pdfs ? `(${shareItemCounts.pdfs})` : ''}</span>
-              </label>
-              <label className={`flex items-center gap-2 bg-white border rounded-lg px-3 py-2 ${shareItemCounts.htmls ? 'border-blue-100' : 'border-slate-100 text-slate-400'}`}>
-                <input
-                  type="checkbox"
-                  checked={shareOptions.htmls}
-                  onChange={() => handleToggleShareOption('htmls')}
-                  disabled={!shareItemCounts.htmls}
-                  className="w-4 h-4"
-                />
-                <span>HTML {shareItemCounts.htmls ? `(${shareItemCounts.htmls})` : ''}</span>
-              </label>
+            </div>
+
+            <div className="mt-3 space-y-3">
+              {shareItemCounts.comments > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold text-blue-700 mb-1">コメントを選ぶ</div>
+                  <div className="space-y-2">
+                    {(event.comments || []).map((c, i) => (
+                      <label key={c.id} className="flex items-start gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={shareSelection.commentIds.includes(c.id)}
+                          onChange={() => handleToggleShareComment(c.id)}
+                          className="w-4 h-4 mt-0.5"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-[11px] font-semibold text-slate-500">コメント {i + 1}</span>
+                          <span className="block text-xs text-slate-700 whitespace-pre-wrap break-words line-clamp-4">{c.text}</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {shareItemCounts.images > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold text-blue-700 mb-1">写真を選ぶ</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {(event.images || []).map((entry, i) => {
+                      const img = normalizeImageEntry(entry);
+                      return (
+                        <label key={`${img.url}_${i}`} className="bg-white border border-blue-100 rounded-lg overflow-hidden">
+                          <div className="flex items-center gap-2 px-2 py-1 text-xs font-semibold text-slate-600">
+                            <input
+                              type="checkbox"
+                              checked={shareSelection.imageIndexes.includes(i)}
+                              onChange={() => handleToggleShareIndex('imageIndexes', i)}
+                              className="w-4 h-4"
+                            />
+                            写真 {i + 1}
+                          </div>
+                          <img src={img.url} alt="" className="w-full h-20 object-cover bg-slate-100" loading="lazy" />
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {shareItemCounts.pdfs > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold text-blue-700 mb-1">PDFを選ぶ</div>
+                  <div className="space-y-2">
+                    {(event.pdfs || []).map((p, i) => (
+                      <label key={`${p.url}_${i}`} className="flex items-center gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={shareSelection.pdfIndexes.includes(i)}
+                          onChange={() => handleToggleShareIndex('pdfIndexes', i)}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-xs text-slate-700 truncate">PDF {i + 1}: {p.name || p.url}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {shareItemCounts.htmls > 0 && (
+                <div>
+                  <div className="text-[11px] font-semibold text-blue-700 mb-1">HTMLを選ぶ</div>
+                  <div className="space-y-2">
+                    {(event.htmls || []).map((h, i) => (
+                      <label key={`${h.url}_${i}`} className="flex items-center gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={shareSelection.htmlIndexes.includes(i)}
+                          onChange={() => handleToggleShareIndex('htmlIndexes', i)}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-xs text-slate-700 truncate">HTML {i + 1}: {h.name || h.url}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <textarea
