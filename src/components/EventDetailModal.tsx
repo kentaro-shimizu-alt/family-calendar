@@ -829,12 +829,6 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       return;
     }
     try {
-      const nav = navigator as Navigator & { share?: (data: ShareData) => Promise<void> };
-      if (nav.share) {
-        await nav.share({ title: event.title, text });
-        setShareStatus('共有画面を開きました');
-        return;
-      }
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
         setShareStatus('本文をコピーしました');
@@ -851,7 +845,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       document.body.removeChild(ta);
       setShareStatus('本文をコピーしました');
     } catch (e: any) {
-      setShareStatus('共有/コピーに失敗しました');
+      setShareStatus('コピーに失敗しました');
       console.error(e);
     }
   }
@@ -1166,7 +1160,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 disabled={!shareText}
                 className="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-40"
               >
-                LINE等へ共有 / コピー
+                本文をコピー
               </button>
               {shareStatus && (
                 <span className="text-xs text-blue-700">{shareStatus}</span>
