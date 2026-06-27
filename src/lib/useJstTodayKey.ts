@@ -3,6 +3,75 @@
 import { useEffect, useState } from 'react';
 import { getJstTodayKey, msUntilNextJstMidnight } from './jstToday';
 
+function createJstTodayWorker(): Worker | null {
+  if (typeof Worker === 'undefined' || typeof Blob === 'undefined' || typeof URL === 'undefined') {
+    return null;
+  }
+
+  const source = `
+    const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+    function pad2(value) {
+      return String(value).padStart(2, '0');
+    }
+
+    function getJstTodayKey(nowMs = Date.now()) {
+      const jst = new Date(nowMs + JST_OFFSET_MS);
+      return [
+        String(jst.getUTCFullYear()),
+        pad2(jst.getUTCMonth() + 1),
+        pad2(jst.getUTCDate()),
+      ].join('-');
+    }
+
+    function msUntilNextJstMidnight(nowMs = Date.now()) {
+      const jstNow = new Date(nowMs + JST_OFFSET_MS);
+      const nextJstMidnightUtcMs =
+        Date.UTC(
+          jstNow.getUTCFullYear(),
+          jstNow.getUTCMonth(),
+          jstNow.getUTCDate() + 1,
+          0,
+          0,
+          5
+        ) - JST_OFFSET_MS;
+      return Math.max(1000, nextJstMidnightUtcMs - nowMs);
+    }
+
+    let midnightTimer = null;
+
+    function postToday(reason) {
+      self.postMessage({ type: 'jst-today-key', key: getJstTodayKey(), reason, now: Date.now() });
+    }
+
+    function scheduleMidnight() {
+      if (midnightTimer) clearTimeout(midnightTimer);
+      midnightTimer = setTimeout(() => {
+        postToday('worker-midnight');
+        scheduleMidnight();
+      }, msUntilNextJstMidnight());
+    }
+
+    self.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'check') postToday('main-check');
+    });
+
+    postToday('worker-start');
+    scheduleMidnight();
+    setInterval(() => postToday('worker-interval'), 15000);
+  `;
+
+  const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+  try {
+    const worker = new Worker(url);
+    URL.revokeObjectURL(url);
+    return worker;
+  } catch {
+    URL.revokeObjectURL(url);
+    return null;
+  }
+}
+
 /**
  * 本日(JST)の日付キー "YYYY-MM-DD" を返すフック。
  *
@@ -32,6 +101,10 @@ import { getJstTodayKey, msUntilNextJstMidnight } from './jstToday';
  * 4) 従来の契機(midnight timer/interval/visibility/focus/pageshow/操作)は冗長として残す。
  *    どれか一つでも生きていれば直る＝多重防御。
  *
+ * 5) 2026-06-27: Web Worker heartbeat を追加。
+ *    月送りを触ると直る＝React再描画の契機が欠けている症状なので、メイン画面とは別イベントループから
+ *    15秒ごと・JST深夜直後に今日キーを通知し、再描画を起こす。
+ *
  * すべて冪等。getJstTodayKey は端末TZ非依存(UTC+9固定算出・サマータイム影響なし)。
  */
 export function useJstTodayKey(): string {
@@ -42,14 +115,21 @@ export function useJstTodayKey(): string {
     let interval: ReturnType<typeof setInterval> | null = null;
     let rafHandle: number | null = null;
     let bc: BroadcastChannel | null = null;
+    let worker: Worker | null = null;
     let lastWallMs = Date.now();
     let lastPerfMs =
       typeof performance !== 'undefined' && performance.now ? performance.now() : 0;
     let lastRafCheckMs = 0;
 
+    const publishTodayChange = (next: string) => {
+      try { bc?.postMessage({ type: 'jst-today-key', key: next }); } catch {}
+      try { localStorage.setItem('jst-today-key-broadcast', next + ':' + Date.now()); } catch {}
+    };
+
     const recalc = () => {
       setKey((prev) => {
         const next = getJstTodayKey();
+        if (prev !== next) publishTodayChange(next);
         return prev === next ? prev : next;
       });
     };
@@ -61,9 +141,6 @@ export function useJstTodayKey(): string {
       if (midnightTimer) clearTimeout(midnightTimer);
       midnightTimer = setTimeout(() => {
         recalc();
-        // 別タブにも通知
-        try { bc?.postMessage({ type: 'jst-midnight', key: getJstTodayKey() }); } catch {}
-        try { localStorage.setItem('jst-today-key-broadcast', getJstTodayKey() + ':' + Date.now()); } catch {}
         scheduleMidnight();
       }, msUntilNextJstMidnight());
     };
@@ -103,6 +180,14 @@ export function useJstTodayKey(): string {
     // 30秒 interval は rAF のバックアップ（バックグラウンドでも仕様上1Hz以上で動く）
     interval = setInterval(recalc, 30 * 1000);
 
+    worker = createJstTodayWorker();
+    if (worker) {
+      worker.onmessage = (ev: MessageEvent) => {
+        if (ev?.data?.type === 'jst-today-key') recalc();
+      };
+      try { worker.postMessage({ type: 'check' }); } catch {}
+    }
+
     // イベント契機（rAF が死んでいる時の保険）
     document.addEventListener('visibilitychange', recalcIfVisible);
     window.addEventListener('focus', recalc);
@@ -116,7 +201,7 @@ export function useJstTodayKey(): string {
       if (typeof BroadcastChannel !== 'undefined') {
         bc = new BroadcastChannel('jst-today-key');
         bc.onmessage = (ev) => {
-          if (ev?.data?.type === 'jst-midnight') recalc();
+          if (ev?.data?.type === 'jst-today-key' || ev?.data?.type === 'jst-midnight') recalc();
         };
       }
     } catch {}
@@ -129,6 +214,7 @@ export function useJstTodayKey(): string {
       if (midnightTimer) clearTimeout(midnightTimer);
       if (interval) clearInterval(interval);
       if (rafHandle != null) cancelAnimationFrame(rafHandle);
+      try { worker?.terminate(); } catch {}
       try { bc?.close(); } catch {}
       document.removeEventListener('visibilitychange', recalcIfVisible);
       window.removeEventListener('focus', recalc);
