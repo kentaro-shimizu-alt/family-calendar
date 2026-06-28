@@ -39,6 +39,55 @@ type ShareSelection = {
   htmlIndexes: number[];
 };
 
+type AttachmentItem = { url: string; name?: string };
+
+function eventComments(event?: CalendarEvent | null): EventComment[] {
+  const raw = (event as any)?.comments;
+  if (Array.isArray(raw)) {
+    return raw
+      .filter((c) => c && typeof c === 'object' && typeof c.text === 'string')
+      .map((c, i) => ({
+        id: typeof c.id === 'string' && c.id ? c.id : `legacy_${event?.id || 'event'}_${i}`,
+        text: c.text,
+        author: typeof c.author === 'string' ? c.author : undefined,
+        createdAt: typeof c.createdAt === 'string' ? c.createdAt : event?.createdAt || new Date(0).toISOString(),
+        updatedAt: typeof c.updatedAt === 'string' ? c.updatedAt : undefined,
+      }));
+  }
+  if (typeof raw === 'string' && raw.trim()) {
+    return [{
+      id: `legacy_comments_${event?.id || 'event'}`,
+      text: raw.trim(),
+      author: 'system',
+      createdAt: event?.createdAt || new Date(0).toISOString(),
+    }];
+  }
+  return [];
+}
+
+function eventImages(event?: CalendarEvent | null): Array<{ url: string; rotation: 0 | 90 | 180 | 270 }> {
+  const raw = (event as any)?.images;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((entry) => normalizeImageEntry(entry))
+    .filter((img) => typeof img.url === 'string' && img.url.trim())
+    .map((img) => ({
+      url: img.url.trim(),
+      rotation: ([0, 90, 180, 270].includes(Number(img.rotation)) ? Number(img.rotation) : 0) as 0 | 90 | 180 | 270,
+    }));
+}
+
+function eventAttachments(event: CalendarEvent | null | undefined, key: 'pdfs' | 'htmls'): AttachmentItem[] {
+  const raw = (event as any)?.[key];
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((item) => item && typeof item === 'object' && typeof item.url === 'string' && item.url.trim())
+    .map((item) => ({
+      url: item.url.trim(),
+      name: typeof item.name === 'string' && item.name.trim() ? item.name.trim() : undefined,
+    }));
+}
+
 function compactText(parts: Array<string | undefined | null>): string | undefined {
   const text = parts.map((p) => (p || '').trim()).filter(Boolean).join('\n\n');
   return text || undefined;
@@ -95,10 +144,10 @@ function createDefaultShareSelection(event?: CalendarEvent | null): ShareSelecti
   return {
     basic: true,
     note: Boolean(event?.note?.trim()),
-    commentIds: (event?.comments || []).map((c) => c.id),
-    imageIndexes: (event?.images || []).map((_, i) => i),
-    pdfIndexes: (event?.pdfs || []).map((_, i) => i),
-    htmlIndexes: (event?.htmls || []).map((_, i) => i),
+    commentIds: eventComments(event).map((c) => c.id),
+    imageIndexes: eventImages(event).map((_, i) => i),
+    pdfIndexes: eventAttachments(event, 'pdfs').map((_, i) => i),
+    htmlIndexes: eventAttachments(event, 'htmls').map((_, i) => i),
   };
 }
 
@@ -135,7 +184,7 @@ function buildShareText(event: CalendarEvent, member: Member, selection: ShareSe
     blocks.push(`【メモ】\n${event.note.trim()}`);
   }
 
-  const selectedComments = (event.comments || []).filter((c) => selection.commentIds.includes(c.id));
+  const selectedComments = eventComments(event).filter((c) => selection.commentIds.includes(c.id));
   if (selectedComments.length > 0) {
     const lines = selectedComments.map((c, i) => {
       const ts = c.createdAt ? ` ${formatDateForShare(c.createdAt.slice(0, 10))}` : '';
@@ -145,18 +194,15 @@ function buildShareText(event: CalendarEvent, member: Member, selection: ShareSe
     blocks.push(`【コメント】\n${lines.join('\n')}`);
   }
 
-  const selectedImages = (event.images || [])
-    .map((entry, index) => ({ entry, index }))
+  const selectedImages = eventImages(event)
+    .map((img, index) => ({ img, index }))
     .filter((item) => selection.imageIndexes.includes(item.index));
   if (selectedImages.length > 0) {
-    const lines = selectedImages.map(({ entry }, i) => {
-      const img = normalizeImageEntry(entry);
-      return `${i + 1}. ${absoluteShareUrl(img.url)}`;
-    });
+    const lines = selectedImages.map(({ img }, i) => `${i + 1}. ${absoluteShareUrl(img.url)}`);
     blocks.push(`【写真】\n${lines.join('\n')}`);
   }
 
-  const selectedPdfs = (event.pdfs || [])
+  const selectedPdfs = eventAttachments(event, 'pdfs')
     .map((pdf, index) => ({ pdf, index }))
     .filter((item) => selection.pdfIndexes.includes(item.index));
   if (selectedPdfs.length > 0) {
@@ -164,7 +210,7 @@ function buildShareText(event: CalendarEvent, member: Member, selection: ShareSe
     blocks.push(`【PDF】\n${lines.join('\n')}`);
   }
 
-  const selectedHtmls = (event.htmls || [])
+  const selectedHtmls = eventAttachments(event, 'htmls')
     .map((html, index) => ({ html, index }))
     .filter((item) => selection.htmlIndexes.includes(item.index));
   if (selectedHtmls.length > 0) {
@@ -191,8 +237,8 @@ function buildMergePatch(target: CalendarEvent, source: CalendarEvent): Partial<
     createdAt: now,
   };
 
-  const targetImages = (target.images || []).map((entry) => normalizeImageEntry(entry));
-  const sourceImages = (source.images || []).map((entry) => normalizeImageEntry(entry));
+  const targetImages = eventImages(target);
+  const sourceImages = eventImages(source);
   const mergedRanges = uniqueBy(
     [...eventRanges(target), ...eventRanges(source)],
     (r) => `${r.start}_${r.end || r.start}`,
@@ -207,9 +253,9 @@ function buildMergePatch(target: CalendarEvent, source: CalendarEvent): Partial<
     location: target.location || source.location,
     url: target.url || source.url,
     images: uniqueBy([...targetImages, ...sourceImages], (img) => img.url),
-    pdfs: uniqueBy([...(target.pdfs || []), ...(source.pdfs || [])], (p) => p.url),
-    htmls: uniqueBy([...(target.htmls || []), ...(source.htmls || [])], (h) => h.url),
-    comments: uniqueBy([...(target.comments || []), mergeComment, ...(source.comments || [])], (c) => c.id || c.text),
+    pdfs: uniqueBy([...eventAttachments(target, 'pdfs'), ...eventAttachments(source, 'pdfs')], (p) => p.url),
+    htmls: uniqueBy([...eventAttachments(target, 'htmls'), ...eventAttachments(source, 'htmls')], (h) => h.url),
+    comments: uniqueBy([...eventComments(target), mergeComment, ...eventComments(source)], (c) => c.id || c.text),
     dateRanges: shouldUseDateRanges ? mergedRanges : (null as any),
     dateOverrides: { ...(source.dateOverrides || {}), ...(target.dateOverrides || {}) },
     reminderMinutes: target.reminderMinutes || source.reminderMinutes,
@@ -500,28 +546,27 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
       try { return parseISO(event.date).getTime(); } catch { return 0; }
     })();
 
-    (event.comments || []).forEach((c, i) => {
+    eventComments(event).forEach((c, i) => {
       const ts = c.createdAt
         ? new Date(c.createdAt).getTime()
         : eventDateMs + i; // fallback: keep insertion order anchored to event date
       items.push({ kind: 'comment', id: `c_${c.id}`, ts, comment: c });
     });
 
-    (event.images || []).forEach((entry, i) => {
-      const img = normalizeImageEntry(entry);
+    eventImages(event).forEach((img, i) => {
       // Images have no timestamp; place them slightly after event date to render after comments,
       // but interleave by their index to preserve upload order.
       const ts = eventDateMs + 1000 * 60 * 60 * (i + 1);
       items.push({ kind: 'image', id: `i_${img.url}_${i}`, ts, url: img.url, rotation: (img.rotation ?? 0) as 0 | 90 | 180 | 270, index: i });
     });
 
-    (event.pdfs || []).forEach((p, i) => {
+    eventAttachments(event, 'pdfs').forEach((p, i) => {
       const ts = eventDateMs + 1000 * 60 * 60 * (1000 + i);
       items.push({ kind: 'pdf', id: `p_${p.url}_${i}`, ts, url: p.url, name: p.name, index: i });
     });
 
     // HTML添付（カット指示書等）PDFよりさらに後ろに並べる（番号順保持）
-    (event.htmls || []).forEach((h, i) => {
+    eventAttachments(event, 'htmls').forEach((h, i) => {
       const ts = eventDateMs + 1000 * 60 * 60 * (2000 + i);
       items.push({ kind: 'html', id: `h_${h.url}_${i}`, ts, url: h.url, name: h.name, index: i });
     });
@@ -541,10 +586,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   // lightbox 用画像リスト(event.images の順序ベース・index は item.index と一致)
   const lightboxImages = useMemo<Array<{ url: string; rotation: 0 | 90 | 180 | 270 }>>(() => {
     if (!event) return [];
-    return (event.images || []).map((entry) => {
-      const img = normalizeImageEntry(entry);
-      return { url: img.url, rotation: (img.rotation ?? 0) as 0 | 90 | 180 | 270 };
-    });
+    return eventImages(event);
   }, [event]);
 
   const lightboxCurrent = lightboxIndex !== null ? lightboxImages[lightboxIndex] : null;
@@ -652,11 +694,11 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
         .map((it: any) => ({ url: it.url, name: it.name }));
       const patch: any = {};
       if (newImages.length) patch.images = [
-        ...(event.images || []).map((e) => normalizeImageEntry(e)),
+        ...eventImages(event),
         ...newImages,
       ];
-      if (newPdfs.length) patch.pdfs = [...(event.pdfs || []), ...newPdfs];
-      if (newHtmls.length) patch.htmls = [...(event.htmls || []), ...newHtmls];
+      if (newPdfs.length) patch.pdfs = [...eventAttachments(event, 'pdfs'), ...newPdfs];
+      if (newHtmls.length) patch.htmls = [...eventAttachments(event, 'htmls'), ...newHtmls];
       const putRes = await fetch(`/api/events/${event.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -702,7 +744,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     if (!event) return;
     setRotatingIndex(index);
     try {
-      const currentImages = (event.images || []).map((entry) => normalizeImageEntry(entry));
+      const currentImages = eventImages(event);
       const current = currentImages[index] ?? { url: '' };
       const delta = direction === 'cw' ? 90 : -90;
       const newRotation = (((current.rotation ?? 0) + delta) % 360 + 360) % 360 as 0 | 90 | 180 | 270;
@@ -728,7 +770,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     if (!event) return;
     if (!confirm('この画像を削除しますか？元には戻せません。')) return;
     try {
-      const currentImages = (event.images || []).map((entry) => normalizeImageEntry(entry));
+      const currentImages = eventImages(event);
       const updatedImages = currentImages.filter((_, i) => i !== index);
       const res = await fetch(`/api/events/${event.id}`, {
         method: 'PUT',
@@ -747,7 +789,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     if (!event) return;
     if (!confirm('このPDFを削除しますか？元には戻せません。')) return;
     try {
-      const currentPdfs = event.pdfs || [];
+      const currentPdfs = eventAttachments(event, 'pdfs');
       const updatedPdfs = currentPdfs.filter((_, i) => i !== index);
       const res = await fetch(`/api/events/${event.id}`, {
         method: 'PUT',
@@ -766,7 +808,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
     if (!event) return;
     if (!confirm('このHTMLを削除しますか？元には戻せません。')) return;
     try {
-      const currentHtmls = event.htmls || [];
+      const currentHtmls = eventAttachments(event, 'htmls');
       const updatedHtmls = currentHtmls.filter((_, i) => i !== index);
       const res = await fetch(`/api/events/${event.id}`, {
         method: 'PUT',
@@ -860,10 +902,10 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
   const totalFeedCount = feedItems.length;
   const shareText = buildShareText(event, member, shareSelection);
   const shareItemCounts = {
-    comments: event.comments?.length || 0,
-    images: event.images?.length || 0,
-    pdfs: event.pdfs?.length || 0,
-    htmls: event.htmls?.length || 0,
+    comments: eventComments(event).length,
+    images: eventImages(event).length,
+    pdfs: eventAttachments(event, 'pdfs').length,
+    htmls: eventAttachments(event, 'htmls').length,
   };
 
   return (
@@ -1065,7 +1107,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 <div>
                   <div className="text-[11px] font-semibold text-blue-700 mb-1">コメントを選ぶ</div>
                   <div className="space-y-2">
-                    {(event.comments || []).map((c, i) => (
+                    {eventComments(event).map((c, i) => (
                       <label key={c.id} className="flex items-start gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2">
                         <input
                           type="checkbox"
@@ -1087,8 +1129,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 <div>
                   <div className="text-[11px] font-semibold text-blue-700 mb-1">写真を選ぶ</div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {(event.images || []).map((entry, i) => {
-                      const img = normalizeImageEntry(entry);
+                    {eventImages(event).map((img, i) => {
                       return (
                         <label key={`${img.url}_${i}`} className="bg-white border border-blue-100 rounded-lg overflow-hidden">
                           <div className="flex items-center gap-2 px-2 py-1 text-xs font-semibold text-slate-600">
@@ -1112,7 +1153,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 <div>
                   <div className="text-[11px] font-semibold text-blue-700 mb-1">PDFを選ぶ</div>
                   <div className="space-y-2">
-                    {(event.pdfs || []).map((p, i) => (
+                    {eventAttachments(event, 'pdfs').map((p, i) => (
                       <label key={`${p.url}_${i}`} className="flex items-center gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2">
                         <input
                           type="checkbox"
@@ -1131,7 +1172,7 @@ export default function EventDetailModal({ open, event, members, onClose, onEdit
                 <div>
                   <div className="text-[11px] font-semibold text-blue-700 mb-1">HTMLを選ぶ</div>
                   <div className="space-y-2">
-                    {(event.htmls || []).map((h, i) => (
+                    {eventAttachments(event, 'htmls').map((h, i) => (
                       <label key={`${h.url}_${i}`} className="flex items-center gap-2 bg-white border border-blue-100 rounded-lg px-3 py-2">
                         <input
                           type="checkbox"

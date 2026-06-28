@@ -16,6 +16,66 @@ import type { Store } from './json-store';
 
 // ===== Row <-> App model マッピング =====
 
+function normalizeEventComments(raw: any, eventId: string, fallbackDate?: string): CalendarEvent['comments'] {
+  if (Array.isArray(raw)) {
+    return raw
+      .filter((c) => c && typeof c === 'object' && typeof c.text === 'string')
+      .map((c, i) => ({
+        id: typeof c.id === 'string' && c.id ? c.id : `legacy_${eventId}_${i}`,
+        text: c.text,
+        author: typeof c.author === 'string' ? c.author : undefined,
+        createdAt: typeof c.createdAt === 'string' ? c.createdAt : fallbackDate || new Date(0).toISOString(),
+        updatedAt: typeof c.updatedAt === 'string' ? c.updatedAt : undefined,
+      }));
+  }
+  if (typeof raw === 'string' && raw.trim()) {
+    return [{
+      id: `legacy_comments_${eventId}`,
+      text: raw.trim(),
+      author: 'system',
+      createdAt: fallbackDate || new Date(0).toISOString(),
+    }];
+  }
+  return undefined;
+}
+
+function normalizeImageList(raw: any): CalendarEvent['images'] {
+  if (!Array.isArray(raw)) return undefined;
+  const items = raw
+    .map((entry) => {
+      if (typeof entry === 'string') return entry.trim() ? entry.trim() : null;
+      if (entry && typeof entry === 'object' && typeof entry.url === 'string' && entry.url.trim()) {
+        const rotation = [0, 90, 180, 270].includes(Number(entry.rotation)) ? Number(entry.rotation) : undefined;
+        return rotation === undefined ? { url: entry.url.trim() } : { url: entry.url.trim(), rotation };
+      }
+      return null;
+    })
+    .filter(Boolean) as NonNullable<CalendarEvent['images']>;
+  return items.length > 0 ? items : undefined;
+}
+
+function normalizeAttachmentList(raw: any): Array<{ url: string; name?: string }> | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const items = raw
+    .filter((item) => item && typeof item === 'object' && typeof item.url === 'string' && item.url.trim())
+    .map((item) => ({
+      url: item.url.trim(),
+      name: typeof item.name === 'string' && item.name.trim() ? item.name.trim() : undefined,
+    }));
+  return items.length > 0 ? items : undefined;
+}
+
+function normalizeDateRanges(raw: any): CalendarEvent['dateRanges'] {
+  if (!Array.isArray(raw)) return undefined;
+  const items = raw
+    .filter((r) => r && typeof r === 'object' && typeof r.start === 'string' && r.start.trim())
+    .map((r) => ({
+      start: r.start.trim(),
+      end: typeof r.end === 'string' && r.end.trim() ? r.end.trim() : r.start.trim(),
+    }));
+  return items.length > 0 ? items : undefined;
+}
+
 function rowToEvent(r: any): CalendarEvent {
   return {
     id: r.id,
@@ -23,7 +83,7 @@ function rowToEvent(r: any): CalendarEvent {
     title: r.title,
     date: r.date,
     endDate: r.end_date || undefined,
-    dateRanges: r.date_ranges || undefined,
+    dateRanges: normalizeDateRanges(r.date_ranges),
     startTime: r.start_time || undefined,
     endTime: r.end_time || undefined,
     memberId: r.member_id,
@@ -31,12 +91,12 @@ function rowToEvent(r: any): CalendarEvent {
     note: r.note || undefined,
     url: r.url || undefined,
     location: r.location || undefined,
-    images: r.images || undefined,
-    pdfs: r.pdfs || undefined,
+    images: normalizeImageList(r.images),
+    pdfs: normalizeAttachmentList(r.pdfs),
     // HTML添付（カット指示書等インタラクティブHTML）2026-05-12 健太郎LW指示
-    htmls: r.htmls || undefined,
+    htmls: normalizeAttachmentList(r.htmls),
     pinned: !!r.pinned,
-    comments: r.comments || undefined,
+    comments: normalizeEventComments(r.comments, r.id, r.created_at),
     recurrence: r.recurrence || undefined,
     reminderMinutes: r.reminder_minutes || undefined,
     site: r.site || undefined,
